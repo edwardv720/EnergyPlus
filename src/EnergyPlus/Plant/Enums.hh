@@ -63,6 +63,14 @@ int const LoopFlowStatus_TakesWhatGets(24); // component is a "loser" for loop f
 // but if the loop is on it
 // it does make flow requests (for s/m resolution)
 
+// Parameters for loop side location
+enum class LoopSideLocation
+{
+    Unknown = 0,
+    DemandSide = 1,
+    SupplySide = 2
+};
+
 // Parameters for scheme types
 // Used in TYPE(OperationData)%OpSchemeType
 // As in PlantLoop(:)%OpScheme(:)%OpSchemeType

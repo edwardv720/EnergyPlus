@@ -67,6 +67,23 @@ namespace DataPlant {
         Both
     };
 
+    struct HalfLoopContainer : std::array<HalfLoopData, 2>
+    {
+        using std::array<HalfLoopData, 2>::array;
+
+        HalfLoopData &operator()(LoopSideLocation ls)
+        {
+            switch (ls) {
+            case LoopSideLocation::DemandSide:
+                return (*this)[0];
+            case LoopSideLocation::SupplySide:
+                return (*this)[1];
+            };
+        }
+    };
+
+    std::array<int, 2> LoopSideKeys = {static_cast<int>(LoopSideLocation::DemandSide), static_cast<int>(LoopSideLocation::SupplySide)};
+
     struct PlantLoopData
     {
         // Members
@@ -97,7 +114,7 @@ namespace DataPlant {
         bool EMSCtrl;
         Real64 EMSValue;
         // Loop Inlet and Outlet Nodes
-        Array1D<HalfLoopData> LoopSide;                        // Half loop data (Demand side or Supply Side)
+        HalfLoopContainer LoopSide;                            // Half loop data (Demand side or Supply Side)
         std::string OperationScheme;                           // Operation scheme name for the loop
         int NumOpSchemes;                                      // Number of items in list identified by "OpScheme"
         Array1D<OperationData> OpScheme;                       // Operation scheme data
@@ -129,7 +146,7 @@ namespace DataPlant {
         Real64 InletNodeTemperature;
         Real64 OutletNodeFlowrate;
         Real64 OutletNodeTemperature;
-        int LastLoopSideSimulated;
+        DataPlant::LoopSideLocation LastLoopSideSimulated;
 
         // Default Constructor
         PlantLoopData()
@@ -143,7 +160,7 @@ namespace DataPlant {
               LoopHasConnectionComp(false), TypeOfLoop(LoopType::Unassigned), PressureSimType(DataPlant::iPressSimType::NoPressure),
               HasPressureComponents(false), PressureDrop(0.0), UsePressureForPumpCalcs(false), PressureEffectiveK(0.0), CoolingDemand(0.0),
               HeatingDemand(0.0), DemandNotDispatched(0.0), UnmetDemand(0.0), BypassFrac(0.0), InletNodeFlowrate(0.0), InletNodeTemperature(0.0),
-              OutletNodeFlowrate(0.0), OutletNodeTemperature(0.0), LastLoopSideSimulated(0)
+              OutletNodeFlowrate(0.0), OutletNodeTemperature(0.0), LastLoopSideSimulated(DataPlant::LoopSideLocation::Unknown)
         {
         }
 

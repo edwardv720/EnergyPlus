@@ -175,9 +175,9 @@ void ManagePlantLoops(EnergyPlusData &state,
     // SUBROUTINE VARIABLE DEFINITIONS
     int IterPlant;
     int LoopNum;
-    int LoopSide;
+    DataPlant::LoopSideLocation LoopSide;
     int LoopSideNum;
-    int OtherSide;
+    DataPlant::LoopSideLocation OtherSide;
     bool SimHalfLoopFlag;
     int HalfLoopNum;
     int CurntMinPlantSubIterations;
@@ -254,8 +254,9 @@ void ManagePlantLoops(EnergyPlusData &state,
     // add check for non-plant system sim flag updates
     //  could set SimAirLoops, SimElecCircuits, SimZoneEquipment flags for now
     for (LoopNum = 1; LoopNum <= state.dataPlnt->TotNumLoops; ++LoopNum) {
-        for (LoopSide = DemandSide; LoopSide <= SupplySide; ++LoopSide) {
-            auto &this_loop_side(state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSide));
+        //        for (LoopSide = DemandSide; LoopSide <= SupplySide; ++LoopSide) {
+        for (auto const &LoopSide : LoopSideKeys) {
+            auto &this_loop_side(state.dataPlnt->PlantLoop(LoopNum).LoopSide[LoopSide]);
             if (this_loop_side.SimAirLoopsNeeded) SimAirLoops = true;
             if (this_loop_side.SimZoneEquipNeeded) SimZoneEquipment = true;
             //  IF (this_loop_side.SimNonZoneEquipNeeded) SimNonZoneEquipment = .TRUE.
