@@ -49,7 +49,8 @@
 #include <cassert>
 #include <cmath>
 #include <string>
-
+#include <iostream>
+using std::cout;
 // ObjexxFCL Headers
 #include <ObjexxFCL/Array.functions.hh>
 #include <ObjexxFCL/Fmath.hh>
@@ -490,7 +491,9 @@ void CalcVRFCondenser(EnergyPlusData &state, int const VRFCond)
         TUCoolingLoad += state.dataHVACVarRefFlow->TerminalUnitList(TUListNum).TotalCoolLoad(NumTU);
         TUHeatingLoad += state.dataHVACVarRefFlow->TerminalUnitList(TUListNum).TotalHeatLoad(NumTU);
     }
-
+    cout << "HourOfDay " << state.dataGlobal->HourOfDay << "VRF: " << state.dataHVACVarRefFlow->VRF(VRFCond).Name  << "\n";
+    cout << "TUCoolingLoad = " << TUCoolingLoad << " \n";
+    cout << "TUHeatingLoad = " << TUHeatingLoad << " \n";
     state.dataHVACVarRefFlow->VRF(VRFCond).TUCoolingLoad = TUCoolingLoad;
     state.dataHVACVarRefFlow->VRF(VRFCond).TUHeatingLoad = TUHeatingLoad;
 
@@ -724,6 +727,8 @@ void CalcVRFCondenser(EnergyPlusData &state, int const VRFCond)
     } else if (state.dataHVACVarRefFlow->HeatingLoad(VRFCond) && HeatingCoilAvailableFlag) {
         InletAirDryBulbC = SumHeatInletDB;
         InletAirWetBulbC = SumHeatInletWB;
+
+        cout << "InletAirDryBulbC = " << InletAirDryBulbC << ". and InletAirWetBulbC = " << InletAirWetBulbC << ". and CondInletTemp = " << CondInletTemp << "\n" ;
         {
             auto const SELECT_CASE_var(state.dataHVACVarRefFlow->VRF(VRFCond).HeatingPerformanceOATType);
             if (SELECT_CASE_var == DataHVACGlobals::DryBulbIndicator) {
@@ -780,6 +785,8 @@ void CalcVRFCondenser(EnergyPlusData &state, int const VRFCond)
                 }
             }
         }
+        cout << "TotHeatCapTempModFac = " << TotHeatCapTempModFac << "\n";
+        cout << "TotHeatEIRTempModFac = " << TotHeatEIRTempModFac << "\n";
 
         //   Warn user if curve output goes negative
         if (TotHeatCapTempModFac < 0.0) {
@@ -934,16 +941,28 @@ void CalcVRFCondenser(EnergyPlusData &state, int const VRFCond)
 
         TotalCondHeatingCapacity = state.dataHVACVarRefFlow->VRF(VRFCond).HeatingCapacity * state.dataHVACVarRefFlow->HeatCombinationRatio(VRFCond) *
                                    TotHeatCapTempModFac * HeatingCapacityMultiplier;
+        cout << "state.dataHVACVarRefFlow->VRF(VRFCond).HeatingCapacity = " << state.dataHVACVarRefFlow->VRF(VRFCond).HeatingCapacity << " \n";
+        cout << "state.dataHVACVarRefFlow->HeatCombinationRatio(VRFCond) = " << state.dataHVACVarRefFlow->HeatCombinationRatio(VRFCond) << " \n";
+        cout << "HeatingCapacityMultiplier = " << HeatingCapacityMultiplier << "\n";
+        cout << "TotalCondHeatingCapacity = " << TotalCondHeatingCapacity << " \n";
         TotalTUHeatingCapacity = TotalCondHeatingCapacity * state.dataHVACVarRefFlow->VRF(VRFCond).PipingCorrectionHeating;
+        cout << "state.dataHVACVarRefFlow->VRF(VRFCond).PipingCorrectionHeating = " << state.dataHVACVarRefFlow->VRF(VRFCond).PipingCorrectionHeating << " \n";
+        cout << "TotalTUHeatingCapacity = " << TotalTUHeatingCapacity << " \n";
         if (TotalCondHeatingCapacity > 0.0) {
             HeatingPLR = (TUHeatingLoad / state.dataHVACVarRefFlow->VRF(VRFCond).PipingCorrectionHeating) / TotalCondHeatingCapacity;
+            cout << "HeatingPLR_1 = " << HeatingPLR << "\n";   
             HeatingPLR += (LoadDueToDefrost * HeatingPLR) / TotalCondHeatingCapacity;
+            cout << "LoadDueToDefrost = " << LoadDueToDefrost << "\n"; 
+            cout << "HeatingPLR_2 = " << HeatingPLR << "\n";   
         } else {
             HeatingPLR = 0.0;
         }
+        cout << "HeatingPLR_3 = " << HeatingPLR << "\n";        
+
     }
 
     state.dataHVACVarRefFlow->VRF(VRFCond).VRFCondPLR = max(CoolingPLR, HeatingPLR);
+
     Real64 tmpVRFCondPLR = 0.0;
     if (CoolingPLR > 0.0 || HeatingPLR > 0.0)
         tmpVRFCondPLR = max(state.dataHVACVarRefFlow->VRF(VRFCond).MinPLR, state.dataHVACVarRefFlow->VRF(VRFCond).VRFCondPLR);
@@ -1143,7 +1162,7 @@ void CalcVRFCondenser(EnergyPlusData &state, int const VRFCond)
         }
         state.dataHVACVarRefFlow->VRF(VRFCond).VRFCondPLR = max(CoolingPLR, HeatingPLR);
     }
-
+    cout << "state.dataHVACVarRefFlow->VRF(VRFCond).VRFCondPLR = " << state.dataHVACVarRefFlow->VRF(VRFCond).VRFCondPLR << "\n";  
     if (state.dataHVACVarRefFlow->VRF(VRFCond).MinPLR > 0.0) {
         CyclingRatio = min(1.0, state.dataHVACVarRefFlow->VRF(VRFCond).VRFCondPLR / state.dataHVACVarRefFlow->VRF(VRFCond).MinPLR);
         if (state.dataHVACVarRefFlow->VRF(VRFCond).VRFCondPLR < state.dataHVACVarRefFlow->VRF(VRFCond).MinPLR &&
@@ -1153,10 +1172,14 @@ void CalcVRFCondenser(EnergyPlusData &state, int const VRFCond)
             if (HeatingPLR > 0.0) HeatingPLR = state.dataHVACVarRefFlow->VRF(VRFCond).MinPLR; // also adjust local PLR variables
         }
     }
+    cout << "CyclingRatio" << CyclingRatio << "\n";
+    cout << "CoolingPLR" << CoolingPLR << "\n";
+    cout << "HeatingPLR" << HeatingPLR << "\n";
+    cout << "TotalCondHeatingCapacity" << TotalCondHeatingCapacity << "\n";
     state.dataHVACVarRefFlow->VRF(VRFCond).VRFCondCyclingRatio = CyclingRatio; // report variable for cycling rate
     state.dataHVACVarRefFlow->VRF(VRFCond).TotalCoolingCapacity = TotalCondCoolingCapacity * CoolingPLR * CyclingRatio;
     state.dataHVACVarRefFlow->VRF(VRFCond).TotalHeatingCapacity = TotalCondHeatingCapacity * HeatingPLR * CyclingRatio;
-
+cout << "state.dataHVACVarRefFlow->VRF(VRFCond).TotalHeatingCapacity" << state.dataHVACVarRefFlow->VRF(VRFCond).TotalHeatingCapacity << "\n";
     state.dataHVACVarRefFlow->VRF(VRFCond).OperatingMode = 0; // report variable for heating or cooling mode
     EIRFPLRModFac = 1.0;
     VRFRTF = 0.0;
@@ -1189,10 +1212,15 @@ void CalcVRFCondenser(EnergyPlusData &state, int const VRFCond)
             if (state.dataHVACVarRefFlow->VRF(VRFCond).HeatEIRFPLR2 > 0)
                 EIRFPLRModFac = CurveValue(
                     state, state.dataHVACVarRefFlow->VRF(VRFCond).HeatEIRFPLR2, max(state.dataHVACVarRefFlow->VRF(VRFCond).MinPLR, HeatingPLR));
+                    cout << "max(state.dataHVACVarRefFlow->VRF(VRFCond).MinPLR, HeatingPLR) = " <<max(state.dataHVACVarRefFlow->VRF(VRFCond).MinPLR, HeatingPLR) << "\n";
+                    cout << "EIRFPLRModFac = " <<EIRFPLRModFac << "\n";                    
         } else {
             if (state.dataHVACVarRefFlow->VRF(VRFCond).HeatEIRFPLR1 > 0)
                 EIRFPLRModFac = CurveValue(
                     state, state.dataHVACVarRefFlow->VRF(VRFCond).HeatEIRFPLR1, max(state.dataHVACVarRefFlow->VRF(VRFCond).MinPLR, HeatingPLR));
+                    cout << "max(state.dataHVACVarRefFlow->VRF(VRFCond).MinPLR, HeatingPLR) = " <<max(state.dataHVACVarRefFlow->VRF(VRFCond).MinPLR, HeatingPLR) << "\n";
+                    cout << "EIRFPLRModFac = " <<EIRFPLRModFac << "\n";
+
         }
         // find part load fraction to calculate RTF
         if (state.dataHVACVarRefFlow->VRF(VRFCond).HeatPLFFPLR > 0) {
@@ -1205,7 +1233,14 @@ void CalcVRFCondenser(EnergyPlusData &state, int const VRFCond)
         state.dataHVACVarRefFlow->VRF(VRFCond).ElecHeatingPower = (state.dataHVACVarRefFlow->VRF(VRFCond).RatedHeatingPower * TotHeatCapTempModFac) *
                                                                   TotHeatEIRTempModFac * EIRFPLRModFac * HREIRAdjustment * VRFRTF *
                                                                   InputPowerMultiplier;
-
+        cout << "(state.dataHVACVarRefFlow->VRF(VRFCond).RatedHeatingPower = " << state.dataHVACVarRefFlow->VRF(VRFCond).RatedHeatingPower << "\n";
+        cout << "TotHeatCapTempModFac = " <<TotHeatCapTempModFac << "\n";
+        cout << "TotHeatEIRTempModFac = " <<TotHeatEIRTempModFac << "\n";
+        cout << "EIRFPLRModFac = " <<EIRFPLRModFac << "\n";
+        cout << "HREIRAdjustment = " <<HREIRAdjustment << "\n";
+        cout << "VRFRTF = " <<VRFRTF << "\n";
+        cout << "InputPowerMultiplier = " <<InputPowerMultiplier << "\n";
+        cout << "state.dataHVACVarRefFlow->VRF(VRFCond).ElecHeatingPower = " <<state.dataHVACVarRefFlow->VRF(VRFCond).ElecHeatingPower << "\n";
         // adjust defrost power based on heating RTF
         state.dataHVACVarRefFlow->VRF(VRFCond).DefrostPower *= VRFRTF;
     }
@@ -1231,6 +1266,8 @@ void CalcVRFCondenser(EnergyPlusData &state, int const VRFCond)
 
     CondCapacity = max(state.dataHVACVarRefFlow->VRF(VRFCond).TotalCoolingCapacity, state.dataHVACVarRefFlow->VRF(VRFCond).TotalHeatingCapacity);
     CondPower = max(state.dataHVACVarRefFlow->VRF(VRFCond).ElecCoolingPower, state.dataHVACVarRefFlow->VRF(VRFCond).ElecHeatingPower);
+
+    cout << "CondCapacity = " << CondCapacity << ". And CondPower = " << CondPower << "\n";
     if (state.dataHVACVarRefFlow->VRF(VRFCond).ElecCoolingPower > 0.0) {
         state.dataHVACVarRefFlow->VRF(VRFCond).QCondenser =
             CondCapacity + CondPower -
@@ -1317,6 +1354,11 @@ void CalcVRFCondenser(EnergyPlusData &state, int const VRFCond)
                 (state.dataHVACVarRefFlow->VRF(VRFCond).TotalHeatingCapacity) /
                 (state.dataHVACVarRefFlow->VRF(VRFCond).ElecHeatingPower + state.dataHVACVarRefFlow->VRF(VRFCond).CrankCaseHeaterPower +
                  state.dataHVACVarRefFlow->VRF(VRFCond).EvapCondPumpElecPower + state.dataHVACVarRefFlow->VRF(VRFCond).DefrostPower);
+            cout << " (state.dataHVACVarRefFlow->VRF(VRFCond).TotalHeatingCapacity) = " << state.dataHVACVarRefFlow->VRF(VRFCond).TotalHeatingCapacity << "\n";
+            cout << " state.dataHVACVarRefFlow->VRF(VRFCond).ElecHeatingPower = " << state.dataHVACVarRefFlow->VRF(VRFCond).ElecHeatingPower << "\n";
+            cout << " (state.dataHVACVarRefFlow->VRF(VRFCond).CrankCaseHeaterPower) = " << state.dataHVACVarRefFlow->VRF(VRFCond).CrankCaseHeaterPower << "\n";
+            cout << " (state.dataHVACVarRefFlow->VRF(VRFCond).EvapCondPumpElecPower) = " << state.dataHVACVarRefFlow->VRF(VRFCond).EvapCondPumpElecPower << "\n";
+            cout << " (state.dataHVACVarRefFlow->VRF(VRFCond).DefrostPower) = " << state.dataHVACVarRefFlow->VRF(VRFCond).DefrostPower<< "\n";
         } else {
             state.dataHVACVarRefFlow->VRF(VRFCond).OperatingHeatingCOP = 0.0;
         }
