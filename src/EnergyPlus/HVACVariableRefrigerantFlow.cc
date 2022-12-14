@@ -1180,7 +1180,7 @@ void CalcVRFCondenser(EnergyPlusData &state, int const VRFCond)
         }
         VRFRTF = min(1.0, (CyclingRatio / PartLoadFraction));
 
-        state.dataHVACVarRefFlow->VRF(VRFCond).ElecCoolingPower = (state.dataHVACVarRefFlow->VRF(VRFCond).RatedCoolingPower * TotCoolCapTempModFac) *
+        state.dataHVACVarRefFlow->VRF(VRFCond).ElecCoolingPower = (state.dataHVACVarRefFlow->VRF(VRFCond).RatedCoolingPower * TotCoolCapTempModFac * CoolingPLR) *
                                                                   TotCoolEIRTempModFac * EIRFPLRModFac * HREIRAdjustment * VRFRTF;
     }
     if (state.dataHVACVarRefFlow->HeatingLoad(VRFCond) && HeatingPLR > 0.0) {
@@ -1202,7 +1202,7 @@ void CalcVRFCondenser(EnergyPlusData &state, int const VRFCond)
         }
         VRFRTF = min(1.0, (CyclingRatio / PartLoadFraction));
 
-        state.dataHVACVarRefFlow->VRF(VRFCond).ElecHeatingPower = (state.dataHVACVarRefFlow->VRF(VRFCond).RatedHeatingPower * TotHeatCapTempModFac) *
+        state.dataHVACVarRefFlow->VRF(VRFCond).ElecHeatingPower = (state.dataHVACVarRefFlow->VRF(VRFCond).RatedHeatingPower * TotHeatCapTempModFac * HeatingPLR) *
                                                                   TotHeatEIRTempModFac * EIRFPLRModFac * HREIRAdjustment * VRFRTF *
                                                                   InputPowerMultiplier;
 
