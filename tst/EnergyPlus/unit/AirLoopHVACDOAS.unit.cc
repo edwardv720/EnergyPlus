@@ -4054,7 +4054,7 @@ TEST_F(EnergyPlusFixture, AirLoopHVACDOASTest)
     EXPECT_FALSE(ErrorsFound);
     HeatBalanceManager::GetZoneData(*state, ErrorsFound);
     EXPECT_FALSE(ErrorsFound);
-    HeatBalanceManager::GetWindowGlassSpectralData(*state, ErrorsFound);
+    Material::GetWindowGlassSpectralData(*state, ErrorsFound);
     EXPECT_FALSE(ErrorsFound);
     Material::GetMaterialData(*state, ErrorsFound);
     EXPECT_FALSE(ErrorsFound);
@@ -8440,7 +8440,7 @@ TEST_F(EnergyPlusFixture, AirLoopHVACDOAS_ReportVariableResetTest)
     EXPECT_FALSE(ErrorsFound);
     HeatBalanceManager::GetZoneData(*state, ErrorsFound);
     EXPECT_FALSE(ErrorsFound);
-    HeatBalanceManager::GetWindowGlassSpectralData(*state, ErrorsFound);
+    Material::GetWindowGlassSpectralData(*state, ErrorsFound);
     EXPECT_FALSE(ErrorsFound);
     Material::GetMaterialData(*state, ErrorsFound);
     EXPECT_FALSE(ErrorsFound);
@@ -8875,7 +8875,7 @@ TEST_F(EnergyPlusFixture, AirLoopHVACDOAS_TestFanHeatAddeToCoolingCoilSize)
     // 9066
     std::string const idf_objects = delimited_string({
 
-        "  Version,24.2;",
+        "  Version,25.1;",
 
         "  SimulationControl,",
         "    YES,                     !- Do Zone Sizing Calculation",
@@ -10436,7 +10436,7 @@ TEST_F(EnergyPlusFixture, AirLoopHVACDOAS_TestFanDrawThroughPlacement)
     // 9066
     std::string const idf_objects = delimited_string({
 
-        "  Version,24.2;",
+        "  Version,25.1;",
 
         "  SimulationControl,",
         "    YES,                     !- Do Zone Sizing Calculation",
