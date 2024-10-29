@@ -2147,7 +2147,10 @@ void ReformulatedEIRChillerSpecs::calculate(EnergyPlusData &state, Real64 &MyLoa
         PlantUtilities::PullCompInterconnectTrigger(
             state, this->CWPlantLoc, this->CondMassFlowIndex, this->CDPlantLoc, DataPlant::CriteriaType::MassFlowRate, this->CondMassFlowRate);
 
-        if (this->CondMassFlowRate < DataBranchAirLoopPlant::MassFlowTolerance) return;
+        if (this->CondMassFlowRate < DataBranchAirLoopPlant::MassFlowTolerance) {
+            MyLoad = 0.0;
+            return;
+        }
     }
     Real64 FRAC = 1.0;
     Real64 EvapOutletTempSetPoint(0.0); // Evaporator outlet temperature setpoint [C]
