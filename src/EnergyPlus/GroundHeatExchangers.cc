@@ -1020,9 +1020,10 @@ void GLHEVert::setupTimeVectors()
 
     this->myRespFactors->LNTTS = tempLNTTS;
     this->myRespFactors->time = tempLNTTS;
-    std::transform(this->myRespFactors->time.begin(), this->myRespFactors->time.end(), this->myRespFactors->time.begin(), [&t_s](auto &c){return exp(c) * t_s;});
+    std::transform(this->myRespFactors->time.begin(), this->myRespFactors->time.end(), this->myRespFactors->time.begin(), [&t_s](auto &c) {
+        return exp(c) * t_s;
+    });
     this->myRespFactors->GFNC = std::vector<Real64>(tempLNTTS.size(), 0.0);
-
 }
 
 //******************************************************************************
@@ -1368,11 +1369,12 @@ void GLHEVert::combineShortAndLongTimestepGFunctions()
     }
 
     this->myRespFactors->time = LNTTS_combined;
-    std::transform(this->myRespFactors->time.begin(), this->myRespFactors->time.end(), this->myRespFactors->time.begin(), [&t_s](auto &c){return exp(c) * t_s;});
+    std::transform(this->myRespFactors->time.begin(), this->myRespFactors->time.end(), this->myRespFactors->time.begin(), [&t_s](auto &c) {
+        return exp(c) * t_s;
+    });
 
     this->myRespFactors->LNTTS = LNTTS_combined;
     this->myRespFactors->GFNC = GFNC_combined;
-
 }
 
 void GLHEBase::makeThisGLHECacheAndCompareWithFileCache(EnergyPlusData &state)

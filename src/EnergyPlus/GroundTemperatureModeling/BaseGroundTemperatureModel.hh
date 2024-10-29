@@ -75,26 +75,22 @@ class BaseGroundTempsModel
 {
 public:
     // Public Members
-    GroundTempObjType objectType;
+    GroundTempObjType objectType = GroundTempObjType::Invalid;
     std::string objectName;
 
+    BaseGroundTempsModel() = default;
     virtual ~BaseGroundTempsModel() = default;
     BaseGroundTempsModel(const BaseGroundTempsModel &) = delete;
     BaseGroundTempsModel(BaseGroundTempsModel &&) = delete;
     BaseGroundTempsModel &operator=(const BaseGroundTempsModel &) = delete;
     BaseGroundTempsModel &operator=(BaseGroundTempsModel &&) = delete;
 
-    // Default Constructor
-    BaseGroundTempsModel() : objectType(GroundTempObjType::Invalid)
-    {
-    }
-
     // Virtual method for retrieving the ground temp
     virtual Real64 getGroundTemp(EnergyPlusData &state) = 0;
 
-    virtual Real64 getGroundTempAtTimeInSeconds(EnergyPlusData &state, Real64 const, Real64 const) = 0;
+    virtual Real64 getGroundTempAtTimeInSeconds(EnergyPlusData &state, Real64, Real64) = 0;
 
-    virtual Real64 getGroundTempAtTimeInMonths(EnergyPlusData &state, Real64 const, int const) = 0;
+    virtual Real64 getGroundTempAtTimeInMonths(EnergyPlusData &state, Real64, int) = 0;
 
 protected:
     static void write_ground_temps(InputOutputFile &os, const std::string &name, const Array1D<Real64> &data)

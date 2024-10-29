@@ -249,11 +249,11 @@ namespace GroundHeatExchangers {
         bool myEnvrnFlag;
         bool gFunctionsExist;
         Real64 lastQnSubHr;
-        Real64 HXResistance;    // The thermal resistance of the GHX, (K per W/m)
-        Real64 totalTubeLength; // The total length of pipe. NumBoreholes * BoreholeDepth OR Pi * Dcoil * NumCoils
-        Real64 timeSS;          // Steady state time
-        Real64 timeSSFactor;    // Steady state time factor for calculation
-        std::shared_ptr<BaseGroundTempsModel> groundTempModel;
+        Real64 HXResistance;                   // The thermal resistance of the GHX, (K per W/m)
+        Real64 totalTubeLength;                // The total length of pipe. NumBoreholes * BoreholeDepth OR Pi * Dcoil * NumCoils
+        Real64 timeSS;                         // Steady state time
+        Real64 timeSSFactor;                   // Steady state time factor for calculation
+        BaseGroundTempsModel *groundTempModel; // non-owning pointer
 
         // some statics pulled out into member variables
         bool firstTime;

@@ -46,7 +46,6 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 // C++ Headers
-#include <memory>
 #include <vector>
 
 // EnergyPlus Headers
@@ -85,8 +84,7 @@ namespace GroundTemperatureManager {
         "Site:GroundTemperature:FCfactorMethod",
         "Site:GroundTemperature:Undisturbed:Xing"};
 
-    std::shared_ptr<BaseGroundTempsModel>
-    GetGroundTempModelAndInit(EnergyPlusData &state, std::string_view const objectType_str, std::string const &objectName)
+    BaseGroundTempsModel *GetGroundTempModelAndInit(EnergyPlusData &state, std::string_view const type, std::string const &name)
     {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         Matt Mitchell
@@ -96,37 +94,38 @@ namespace GroundTemperatureManager {
         // Called by objects requiring ground temperature models. Determines type and calls appropriate factory method.
 
         // Set object type
-        GroundTempObjType objectType = static_cast<GroundTempObjType>(getEnumValue(groundTempModelNamesUC, Util::makeUPPER(objectType_str)));
+        const auto objectType = static_cast<GroundTempObjType>(getEnumValue(groundTempModelNamesUC, Util::makeUPPER(type)));
 
         assert(objectType != GroundTempObjType::Invalid);
 
-        int numGTMs = state.dataGrndTempModelMgr->groundTempModels.size();
+        const int numGTMs = static_cast<int>(state.dataGrndTempModelMgr->groundTempModels.size());
 
         // Check if this instance of this model has already been retrieved
         for (int i = 0; i < numGTMs; ++i) {
-            auto currentModel = state.dataGrndTempModelMgr->groundTempModels[i]; // (AUTO_OK_UNIQUE_PTR)
+            auto currentModel = state.dataGrndTempModelMgr->groundTempModels[i];
             // Check if the type and name match
-            if (objectType == currentModel->objectType && objectName == currentModel->objectName) {
+            if (objectType == currentModel->objectType && name == currentModel->objectName) {
                 return state.dataGrndTempModelMgr->groundTempModels[i];
             }
         }
 
         // If not found, create new instance of the model
-        if (objectType == GroundTempObjType::KusudaGroundTemp) {
-            return KusudaGroundTempsModel::KusudaGTMFactory(state, objectName);
-        } else if (objectType == GroundTempObjType::FiniteDiffGroundTemp) {
-            return FiniteDiffGroundTempsModel::FiniteDiffGTMFactory(state, objectName);
-        } else if (objectType == GroundTempObjType::SiteBuildingSurfaceGroundTemp) {
-            return SiteBuildingSurfaceGroundTemps::BuildingSurfaceGTMFactory(state, objectName);
-        } else if (objectType == GroundTempObjType::SiteShallowGroundTemp) {
-            return SiteShallowGroundTemps::ShallowGTMFactory(state, objectName);
-        } else if (objectType == GroundTempObjType::SiteDeepGroundTemp) {
-            return SiteDeepGroundTemps::DeepGTMFactory(state, objectName);
-        } else if (objectType == GroundTempObjType::SiteFCFactorMethodGroundTemp) {
-            return SiteFCFactorMethodGroundTemps::FCFactorGTMFactory(state, objectName);
-        } else if (objectType == GroundTempObjType::XingGroundTemp) {
-            return XingGroundTempsModel::XingGTMFactory(state, objectName);
-        } else {
+        switch (objectType) {
+        case GroundTempObjType::KusudaGroundTemp:
+            return KusudaGroundTempsModel::KusudaGTMFactory(state, name);
+        case GroundTempObjType::FiniteDiffGroundTemp:
+            return FiniteDiffGroundTempsModel::FiniteDiffGTMFactory(state, name);
+        case GroundTempObjType::SiteBuildingSurfaceGroundTemp:
+            return SiteBuildingSurfaceGroundTemps::BuildingSurfaceGTMFactory(state, name);
+        case GroundTempObjType::SiteShallowGroundTemp:
+            return SiteShallowGroundTemps::ShallowGTMFactory(state, name);
+        case GroundTempObjType::SiteDeepGroundTemp:
+            return SiteDeepGroundTemps::DeepGTMFactory(state, name);
+        case GroundTempObjType::SiteFCFactorMethodGroundTemp:
+            return SiteFCFactorMethodGroundTemps::FCFactorGTMFactory(state, name);
+        case GroundTempObjType::XingGroundTemp:
+            return XingGroundTempsModel::XingGTMFactory(state, name);
+        default:
             assert(false);
             return nullptr;
         }

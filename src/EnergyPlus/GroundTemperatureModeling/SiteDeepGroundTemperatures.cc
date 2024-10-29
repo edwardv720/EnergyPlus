@@ -64,7 +64,7 @@ namespace EnergyPlus {
 //******************************************************************************
 
 // Site:GroundTemperature:Deep factory
-std::shared_ptr<SiteDeepGroundTemps> SiteDeepGroundTemps::DeepGTMFactory(EnergyPlusData &state, std::string objectName)
+SiteDeepGroundTemps *SiteDeepGroundTemps::DeepGTMFactory(EnergyPlusData &state, const std::string &objectName)
 {
     // SUBROUTINE INFORMATION:
     //       AUTHOR         Matt Mitchell
@@ -77,12 +77,12 @@ std::shared_ptr<SiteDeepGroundTemps> SiteDeepGroundTemps::DeepGTMFactory(EnergyP
     bool errorsFound = false;
 
     // New shared pointer for this model object
-    std::shared_ptr<SiteDeepGroundTemps> thisModel(new SiteDeepGroundTemps());
+    auto *thisModel = new SiteDeepGroundTemps();
 
-    GroundTempObjType objType = GroundTempObjType::SiteDeepGroundTemp;
+    auto objType = GroundTempObjType::SiteDeepGroundTemp;
 
     std::string_view const cCurrentModuleObject = GroundTemperatureManager::groundTempModelNamesUC[static_cast<int>(objType)];
-    int numCurrObjects = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, cCurrentModuleObject);
+    const int numCurrObjects = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, cCurrentModuleObject);
 
     thisModel->objectType = objType;
     thisModel->objectName = objectName;
@@ -105,10 +105,10 @@ std::shared_ptr<SiteDeepGroundTemps> SiteDeepGroundTemps::DeepGTMFactory(EnergyP
 
         // overwrite values read from weather file for the 0.5m set ground temperatures
         for (int i = 1; i <= 12; ++i) {
-            thisModel->deepGroundTemps(i) = state.dataIPShortCut->rNumericArgs(i);
+            thisModel->deepGroundTemps[i - 1] = state.dataIPShortCut->rNumericArgs(i);
         }
 
-        state.dataEnvrn->GroundTempInputs[(int)DataEnvironment::GroundTempType::Deep] = true;
+        state.dataEnvrn->GroundTempInputs[static_cast<int>(DataEnvironment::GroundTempType::Deep)] = true;
 
     } else if (numCurrObjects > 1) {
         ShowSevereError(state,
@@ -117,7 +117,7 @@ std::shared_ptr<SiteDeepGroundTemps> SiteDeepGroundTemps::DeepGTMFactory(EnergyP
         errorsFound = true;
 
     } else {
-        thisModel->deepGroundTemps = 16.0;
+        std::fill(thisModel->deepGroundTemps.begin(), thisModel->deepGroundTemps.end(), 16.0);
     }
 
     // Write Final Ground Temp Information to the initialization output file
@@ -126,12 +126,12 @@ std::shared_ptr<SiteDeepGroundTemps> SiteDeepGroundTemps::DeepGTMFactory(EnergyP
     if (!errorsFound) {
         state.dataGrndTempModelMgr->groundTempModels.push_back(thisModel);
         return thisModel;
-    } else {
-        ShowFatalError(state,
-                       fmt::format("{}--Errors getting input for ground temperature model",
-                                   GroundTemperatureManager::groundTempModelNames[static_cast<int>(objType)]));
-        return nullptr;
     }
+
+    ShowFatalError(state,
+                   fmt::format("{}--Errors getting input for ground temperature model",
+                               GroundTemperatureManager::groundTempModelNames[static_cast<int>(objType)]));
+    return nullptr;
 }
 
 //******************************************************************************
@@ -145,7 +145,7 @@ Real64 SiteDeepGroundTemps::getGroundTemp([[maybe_unused]] EnergyPlusData &state
     // PURPOSE OF THIS SUBROUTINE:
     // Returns the ground temperature for Site:GroundTemperature:Deep
 
-    return deepGroundTemps(timeOfSimInMonths);
+    return deepGroundTemps[timeOfSimInMonths - 1];
 }
 
 //******************************************************************************
@@ -160,15 +160,15 @@ Real64 SiteDeepGroundTemps::getGroundTempAtTimeInSeconds(EnergyPlusData &state, 
     // Returns the ground temperature when input time is in seconds
 
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-    Real64 secPerMonth = state.dataWeather->NumDaysInYear * Constant::SecsInDay / 12;
+    const Real64 secPerMonth = state.dataWeather->NumDaysInYear * Constant::SecsInDay / 12;
 
     // Convert secs to months
-    int month = ceil(_seconds / secPerMonth);
+    const int month = ceil(_seconds / secPerMonth);
 
     if (month >= 1 && month <= 12) {
         timeOfSimInMonths = month;
     } else {
-        timeOfSimInMonths = remainder(month, 12);
+        timeOfSimInMonths = month % 12;
     }
 
     // Get and return ground temp
@@ -190,7 +190,7 @@ Real64 SiteDeepGroundTemps::getGroundTempAtTimeInMonths(EnergyPlusData &state, [
     if (_month >= 1 && _month <= 12) {
         timeOfSimInMonths = _month;
     } else {
-        timeOfSimInMonths = remainder(_month, 12);
+        timeOfSimInMonths = _month % 12;
     }
 
     // Get and return ground temp
