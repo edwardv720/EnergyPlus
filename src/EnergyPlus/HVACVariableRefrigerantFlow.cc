@@ -13701,6 +13701,42 @@ void VRFCondenserEquipment::VRFOU_CompSpd(
     } else {
         // Capacity to meet is for condenser
 
+        // derivation process
+        // let
+        // k be the speed level
+        // C be the short form for C_cap_operation
+        // PWR(.) be the short form of CompEvaporatingPWRSpd(.)
+        // CAP(.) be the short form of CompEvaporatingCAPSpd(.)
+        // spd(.) be the short form of this->CompressorSpeed(.)
+        // deltaPWR be PWR(k) - PWR(k - 1)
+        // deltaCAP be CAP(k) - CAP(k - 1)
+        //
+        // compressor heat = deltaPWR * r + PWR(k - 1)
+        // so
+        // Q_cond_req = Q_req = Q_evap_req + deltaPWR * r + PWR(k - 1) <---- eq 1
+        //
+        // we also know this from the CompSpdActual calculation equation that
+        // CompSpdActual = Spd(k - 1) + deltaSpd / deltaCAP * (Q_evap_req * C - CAP(k - 1))
+        // so we call the following r
+        // r = (Q_evap_req * C - CAP(k - 1)) / deltaCAP
+        // so
+        // CompSpdActual = Spd(k - 1) + deltaSpd * r
+        //
+        // arranging terms in eq 1
+        // Q_cond_req - deltaPWR * r - PWR(k - 1) = Q_evap_req
+        // (Q_cond_req - deltaPWR * r - PWR(k - 1)) * C - CAP(k - 1) = Q_evap_req * C - CAP(k - 1)
+        // ((Q_cond_req - deltaPWR * r - PWR(k - 1)) * C - CAP(k - 1)) / deltaCAP = (Q_evap_req * C - CAP(k - 1)) / deltaCAP
+        // ((Q_cond_req - deltaPWR * r - PWR(k - 1)) * C - CAP(k - 1)) / deltaCAP = r
+        // (Q_cond_req - deltaPWR * r - PWR(k - 1)) * C - CAP(k - 1) = deltaCAP * r
+        // (Q_cond_req - PWR(k - 1)) * C - CAP(k - 1) = deltaCAP * r + deltaPWR * r * C
+        // so
+        // r = ((Q_cond_req - PWR(k - 1)) * C - CAP(k - 1)) / (deltaCAP + deltaPWR * C)
+        //   = ((Q_cond_req - PWR(k - 1)) - CAP(k - 1)/C) / (deltaCAP/C + deltaPWR)
+        //
+        // in the special case where k = 1, then k - 1, PWR(k - 1) and CAP(k - 1) will all be 0
+        // r = ((Q_cond_req) * C) / (CAP(1) - PWR(1) * C)
+        //   = (Q_cond_req) / (CAP(1)/C - PWR(1))
+
         Q_cond_req = Q_req;
 
         CounterCompSpdTemp = 1;
