@@ -777,24 +777,63 @@ Real64 SystemAirFlowSizer::size(EnergyPlusData &state, Real64 _originalValue, bo
                     }
 
                 } else {
-                    auto &sysSizPeakDDNum = state.dataSize->SysSizPeakDDNum(this->curSysNum);
+                    if (this->curOASysNum > 0) {
+                        if (this->oaSysEqSizing(this->curOASysNum).AirFlow) {
+                            // Parent object sets system flow rate
+                            this->autoSizedValue = this->oaSysEqSizing(this->curOASysNum).AirVolFlow;
+                        } else if (this->oaSysEqSizing(this->curOASysNum).CoolingAirFlow || this->oaSysEqSizing(this->curOASysNum).HeatingAirFlow) {
+                            // Parent object sets heating flow rate
+                            this->autoSizedValue = std::max(this->oaSysEqSizing(this->curOASysNum).CoolingAirVolFlow,
+                                                            this->oaSysEqSizing(this->curOASysNum).HeatingAirVolFlow);
+                        } else if (outsideAirSys(this->curOASysNum).AirLoopDOASNum > -1) {
+                            this->autoSizedValue =
+                                this->airloopDOAS[outsideAirSys(this->curOASysNum).AirLoopDOASNum].SizingMassFlow / state.dataEnvrn->StdRhoAir;
+                        } else {
+                            this->autoSizedValue = this->finalSysSizing(this->curSysNum).DesOutAirVolFlow;
+                        }
+                    } else {
+                        auto &sysSizPeakDDNum = state.dataSize->SysSizPeakDDNum(this->curSysNum);
 
-                    if (this->airLoopSysFlag) {
-                        auto const &unitarysysEqSizing = this->unitarySysEqSizing(this->curSysNum);
-                        if (unitarysysEqSizing.CoolingAirFlow && unitarysysEqSizing.HeatingAirFlow) {
-                            this->autoSizedValue = std::max(unitarysysEqSizing.CoolingAirVolFlow, unitarysysEqSizing.HeatingAirVolFlow);
-                            if (this->autoSizedValue == unitarysysEqSizing.CoolingAirVolFlow) {
+                        if (this->airLoopSysFlag) {
+                            auto const &unitarysysEqSizing = this->unitarySysEqSizing(this->curSysNum);
+                            if (unitarysysEqSizing.CoolingAirFlow && unitarysysEqSizing.HeatingAirFlow) {
+                                this->autoSizedValue = std::max(unitarysysEqSizing.CoolingAirVolFlow, unitarysysEqSizing.HeatingAirVolFlow);
+                                if (this->autoSizedValue == unitarysysEqSizing.CoolingAirVolFlow) {
+                                    if (sysSizPeakDDNum.CoolFlowPeakDD > 0 && sysSizPeakDDNum.CoolFlowPeakDD <= state.dataEnvrn->TotDesDays) {
+                                        auto &desDayInput = state.dataWeather->DesDayInput(sysSizPeakDDNum.CoolFlowPeakDD);
+                                        DDNameFanPeak = desDayInput.Title;
+                                        dateTimeFanPeak = format("{}/{} {}",
+                                                                 desDayInput.Month,
+                                                                 desDayInput.DayOfMonth,
+                                                                 state.dataRptCoilSelection->coilSelectionReportObj->getTimeText(
+                                                                     state, sysSizPeakDDNum.TimeStepAtCoolFlowPk(sysSizPeakDDNum.CoolFlowPeakDD)));
+                                    }
+
+                                } else if (this->autoSizedValue == unitarysysEqSizing.HeatingAirVolFlow) {
+                                    if (this->finalSysSizing(this->curSysNum).HeatDDNum > 0 &&
+                                        this->finalSysSizing(this->curSysNum).HeatDDNum <= state.dataEnvrn->TotDesDays) {
+                                        auto &desDayInput = state.dataWeather->DesDayInput(this->finalSysSizing(this->curSysNum).HeatDDNum);
+                                        DDNameFanPeak = desDayInput.Title;
+                                        dateTimeFanPeak = format("{}/{} {}",
+                                                                 desDayInput.Month,
+                                                                 desDayInput.DayOfMonth,
+                                                                 state.dataRptCoilSelection->coilSelectionReportObj->getTimeText(
+                                                                     state, this->finalSysSizing(this->curSysNum).SysHeatAirTimeStepPk));
+                                    }
+                                }
+                            } else if (unitarysysEqSizing.CoolingAirFlow) {
+                                this->autoSizedValue = unitarysysEqSizing.CoolingAirVolFlow;
                                 if (sysSizPeakDDNum.CoolFlowPeakDD > 0 && sysSizPeakDDNum.CoolFlowPeakDD <= state.dataEnvrn->TotDesDays) {
                                     auto &desDayInput = state.dataWeather->DesDayInput(sysSizPeakDDNum.CoolFlowPeakDD);
-                                    DDNameFanPeak = desDayInput.Title;
+                                    DDNameFanPeak = state.dataWeather->DesDayInput(sysSizPeakDDNum.CoolFlowPeakDD).Title;
                                     dateTimeFanPeak = format("{}/{} {}",
                                                              desDayInput.Month,
                                                              desDayInput.DayOfMonth,
                                                              state.dataRptCoilSelection->coilSelectionReportObj->getTimeText(
                                                                  state, sysSizPeakDDNum.TimeStepAtCoolFlowPk(sysSizPeakDDNum.CoolFlowPeakDD)));
                                 }
-
-                            } else if (this->autoSizedValue == unitarysysEqSizing.HeatingAirVolFlow) {
+                            } else if (unitarysysEqSizing.HeatingAirFlow) {
+                                this->autoSizedValue = unitarysysEqSizing.HeatingAirVolFlow;
                                 if (this->finalSysSizing(this->curSysNum).HeatDDNum > 0 &&
                                     this->finalSysSizing(this->curSysNum).HeatDDNum <= state.dataEnvrn->TotDesDays) {
                                     auto &desDayInput = state.dataWeather->DesDayInput(this->finalSysSizing(this->curSysNum).HeatDDNum);
@@ -805,31 +844,32 @@ Real64 SystemAirFlowSizer::size(EnergyPlusData &state, Real64 _originalValue, bo
                                                              state.dataRptCoilSelection->coilSelectionReportObj->getTimeText(
                                                                  state, this->finalSysSizing(this->curSysNum).SysHeatAirTimeStepPk));
                                 }
-                            }
-                        } else if (unitarysysEqSizing.CoolingAirFlow) {
-                            this->autoSizedValue = unitarysysEqSizing.CoolingAirVolFlow;
-                            if (sysSizPeakDDNum.CoolFlowPeakDD > 0 && sysSizPeakDDNum.CoolFlowPeakDD <= state.dataEnvrn->TotDesDays) {
-                                auto &desDayInput = state.dataWeather->DesDayInput(sysSizPeakDDNum.CoolFlowPeakDD);
-                                DDNameFanPeak = state.dataWeather->DesDayInput(sysSizPeakDDNum.CoolFlowPeakDD).Title;
-                                dateTimeFanPeak = format("{}/{} {}",
-                                                         desDayInput.Month,
-                                                         desDayInput.DayOfMonth,
-                                                         state.dataRptCoilSelection->coilSelectionReportObj->getTimeText(
-                                                             state, sysSizPeakDDNum.TimeStepAtCoolFlowPk(sysSizPeakDDNum.CoolFlowPeakDD)));
-                            }
-                        } else if (unitarysysEqSizing.HeatingAirFlow) {
-                            this->autoSizedValue = unitarysysEqSizing.HeatingAirVolFlow;
-                            if (this->finalSysSizing(this->curSysNum).HeatDDNum > 0 &&
-                                this->finalSysSizing(this->curSysNum).HeatDDNum <= state.dataEnvrn->TotDesDays) {
-                                auto &desDayInput = state.dataWeather->DesDayInput(this->finalSysSizing(this->curSysNum).HeatDDNum);
-                                DDNameFanPeak = desDayInput.Title;
-                                dateTimeFanPeak = format("{}/{} {}",
-                                                         desDayInput.Month,
-                                                         desDayInput.DayOfMonth,
-                                                         state.dataRptCoilSelection->coilSelectionReportObj->getTimeText(
-                                                             state, this->finalSysSizing(this->curSysNum).SysHeatAirTimeStepPk));
-                            }
 
+                            } else {
+                                this->autoSizedValue = this->finalSysSizing(this->curSysNum).DesMainVolFlow;
+                                if (this->autoSizedValue == this->finalSysSizing(this->curSysNum).DesHeatVolFlow) {
+                                    if (this->finalSysSizing(this->curSysNum).HeatDDNum > 0 &&
+                                        this->finalSysSizing(this->curSysNum).HeatDDNum <= state.dataEnvrn->TotDesDays) {
+                                        auto &desDayInput = state.dataWeather->DesDayInput(this->finalSysSizing(this->curSysNum).HeatDDNum);
+                                        DDNameFanPeak = desDayInput.Title;
+                                        dateTimeFanPeak = format("{}/{} {}",
+                                                                 desDayInput.Month,
+                                                                 desDayInput.DayOfMonth,
+                                                                 state.dataRptCoilSelection->coilSelectionReportObj->getTimeText(
+                                                                     state, this->finalSysSizing(this->curSysNum).SysHeatAirTimeStepPk));
+                                    }
+                                } else if (this->autoSizedValue == this->finalSysSizing(this->curSysNum).DesCoolVolFlow) {
+                                    if (sysSizPeakDDNum.CoolFlowPeakDD > 0 && sysSizPeakDDNum.CoolFlowPeakDD <= state.dataEnvrn->TotDesDays) {
+                                        auto &desDayInput = state.dataWeather->DesDayInput(sysSizPeakDDNum.CoolFlowPeakDD);
+                                        DDNameFanPeak = desDayInput.Title;
+                                        dateTimeFanPeak = format("{}/{} {}",
+                                                                 desDayInput.Month,
+                                                                 desDayInput.DayOfMonth,
+                                                                 state.dataRptCoilSelection->coilSelectionReportObj->getTimeText(
+                                                                     state, sysSizPeakDDNum.TimeStepAtCoolFlowPk(sysSizPeakDDNum.CoolFlowPeakDD)));
+                                    }
+                                }
+                            }
                         } else {
                             this->autoSizedValue = this->finalSysSizing(this->curSysNum).DesMainVolFlow;
                             if (this->autoSizedValue == this->finalSysSizing(this->curSysNum).DesHeatVolFlow) {
@@ -855,32 +895,8 @@ Real64 SystemAirFlowSizer::size(EnergyPlusData &state, Real64 _originalValue, bo
                                 }
                             }
                         }
-                    } else {
-                        this->autoSizedValue = this->finalSysSizing(this->curSysNum).DesMainVolFlow;
-                        if (this->autoSizedValue == this->finalSysSizing(this->curSysNum).DesHeatVolFlow) {
-                            if (this->finalSysSizing(this->curSysNum).HeatDDNum > 0 &&
-                                this->finalSysSizing(this->curSysNum).HeatDDNum <= state.dataEnvrn->TotDesDays) {
-                                auto &desDayInput = state.dataWeather->DesDayInput(this->finalSysSizing(this->curSysNum).HeatDDNum);
-                                DDNameFanPeak = desDayInput.Title;
-                                dateTimeFanPeak = format("{}/{} {}",
-                                                         desDayInput.Month,
-                                                         desDayInput.DayOfMonth,
-                                                         state.dataRptCoilSelection->coilSelectionReportObj->getTimeText(
-                                                             state, this->finalSysSizing(this->curSysNum).SysHeatAirTimeStepPk));
-                            }
-                        } else if (this->autoSizedValue == this->finalSysSizing(this->curSysNum).DesCoolVolFlow) {
-                            if (sysSizPeakDDNum.CoolFlowPeakDD > 0 && sysSizPeakDDNum.CoolFlowPeakDD <= state.dataEnvrn->TotDesDays) {
-                                auto &desDayInput = state.dataWeather->DesDayInput(sysSizPeakDDNum.CoolFlowPeakDD);
-                                DDNameFanPeak = desDayInput.Title;
-                                dateTimeFanPeak = format("{}/{} {}",
-                                                         desDayInput.Month,
-                                                         desDayInput.DayOfMonth,
-                                                         state.dataRptCoilSelection->coilSelectionReportObj->getTimeText(
-                                                             state, sysSizPeakDDNum.TimeStepAtCoolFlowPk(sysSizPeakDDNum.CoolFlowPeakDD)));
-                            }
-                        }
+                        if (this->dataFractionUsedForSizing > 0.0) this->autoSizedValue = this->autoSizedValue * this->dataFractionUsedForSizing;
                     }
-                    if (this->dataFractionUsedForSizing > 0.0) this->autoSizedValue = this->autoSizedValue * this->dataFractionUsedForSizing;
                 }
             }
         } else if (this->dataNonZoneNonAirloopValue > 0) {
