@@ -48,45 +48,14 @@
 #ifndef GroundTemperatureModelManager_hh_INCLUDED
 #define GroundTemperatureModelManager_hh_INCLUDED
 
-// ObjexxFCL Headers
-#include <ObjexxFCL/Array1D.hh>
-
 // EnergyPlus Headers
 #include <EnergyPlus/Data/BaseData.hh>
 #include <EnergyPlus/GroundTemperatureModeling/BaseGroundTemperatureModel.hh>
 
-namespace EnergyPlus {
+namespace EnergyPlus::GroundTemperatureManager {
 
-// Forward declarations
-struct EnergyPlusData;
-class BaseGroundTempsModel;
+BaseGroundTempsModel *GetGroundTempModelAndInit(EnergyPlusData &state, std::string_view type, std::string const &name);
 
-namespace GroundTemperatureManager {
-
-    extern const std::array<std::string_view, static_cast<int>(GroundTempObjType::Num)> groundTempModelNamesUC;
-
-    extern const std::array<std::string_view, static_cast<int>(GroundTempObjType::Num)> groundTempModelNames;
-
-    BaseGroundTempsModel *GetGroundTempModelAndInit(EnergyPlusData &state, std::string_view type, std::string const &name);
-
-} // namespace GroundTemperatureManager
-
-struct GroundTemperatureManagerData final : BaseGlobalStruct
-{
-    std::vector<BaseGroundTempsModel *> groundTempModels;
-
-    void init_state([[maybe_unused]] EnergyPlusData &state) override
-    {
-    }
-
-    void clear_state() override
-    {
-        new (this) GroundTemperatureManagerData();
-    }
-
-    virtual ~GroundTemperatureManagerData() = default;
-};
-
-} // namespace EnergyPlus
+} // namespace EnergyPlus::GroundTemperatureManager
 
 #endif

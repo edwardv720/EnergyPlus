@@ -53,7 +53,6 @@
 #include <EnergyPlus/DataEnvironment.hh>
 #include <EnergyPlus/DataGlobals.hh>
 #include <EnergyPlus/DataIPShortCuts.hh>
-#include <EnergyPlus/GroundTemperatureModeling/GroundTemperatureModelManager.hh>
 #include <EnergyPlus/GroundTemperatureModeling/SiteDeepGroundTemperatures.hh>
 #include <EnergyPlus/InputProcessing/InputProcessor.hh>
 #include <EnergyPlus/UtilityRoutines.hh>
@@ -81,7 +80,7 @@ SiteDeepGroundTemps *SiteDeepGroundTemps::DeepGTMFactory(EnergyPlusData &state, 
 
     auto objType = GroundTempObjType::SiteDeepGroundTemp;
 
-    std::string_view const cCurrentModuleObject = GroundTemperatureManager::groundTempModelNamesUC[static_cast<int>(objType)];
+    std::string_view const cCurrentModuleObject = groundTempModelNamesUC[static_cast<int>(objType)];
     const int numCurrObjects = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, cCurrentModuleObject);
 
     thisModel->objectType = objType;
@@ -98,8 +97,7 @@ SiteDeepGroundTemps *SiteDeepGroundTemps::DeepGTMFactory(EnergyPlusData &state, 
             state, cCurrentModuleObject, 1, state.dataIPShortCut->cAlphaArgs, NumAlphas, state.dataIPShortCut->rNumericArgs, NumNums, IOStat);
 
         if (NumNums < 12) {
-            ShowSevereError(
-                state, fmt::format("{}: Less than 12 values entered.", GroundTemperatureManager::groundTempModelNames[static_cast<int>(objType)]));
+            ShowSevereError(state, fmt::format("{}: Less than 12 values entered.", groundTempModelNames[static_cast<int>(objType)]));
             errorsFound = true;
         }
 
@@ -111,9 +109,7 @@ SiteDeepGroundTemps *SiteDeepGroundTemps::DeepGTMFactory(EnergyPlusData &state, 
         state.dataEnvrn->GroundTempInputs[static_cast<int>(DataEnvironment::GroundTempType::Deep)] = true;
 
     } else if (numCurrObjects > 1) {
-        ShowSevereError(state,
-                        fmt::format("{}: Too many objects entered. Only one allowed.",
-                                    GroundTemperatureManager::groundTempModelNames[static_cast<int>(objType)]));
+        ShowSevereError(state, fmt::format("{}: Too many objects entered. Only one allowed.", groundTempModelNames[static_cast<int>(objType)]));
         errorsFound = true;
 
     } else {
@@ -128,9 +124,7 @@ SiteDeepGroundTemps *SiteDeepGroundTemps::DeepGTMFactory(EnergyPlusData &state, 
         return thisModel;
     }
 
-    ShowFatalError(state,
-                   fmt::format("{}--Errors getting input for ground temperature model",
-                               GroundTemperatureManager::groundTempModelNames[static_cast<int>(objType)]));
+    ShowFatalError(state, fmt::format("{}--Errors getting input for ground temperature model", groundTempModelNames[static_cast<int>(objType)]));
     return nullptr;
 }
 

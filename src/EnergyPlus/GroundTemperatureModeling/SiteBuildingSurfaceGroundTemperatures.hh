@@ -51,7 +51,6 @@
 #include <array>
 
 // EnergyPlus Headers
-#include <EnergyPlus/Data/BaseData.hh>
 #include <EnergyPlus/EnergyPlus.hh>
 #include <EnergyPlus/GroundTemperatureModeling/BaseGroundTemperatureModel.hh>
 

@@ -59,7 +59,6 @@
 #include <EnergyPlus/DataReportingFlags.hh>
 #include <EnergyPlus/General.hh>
 #include <EnergyPlus/GroundTemperatureModeling/FiniteDifferenceGroundTemperatureModel.hh>
-#include <EnergyPlus/GroundTemperatureModeling/GroundTemperatureModelManager.hh>
 #include <EnergyPlus/GroundTemperatureModeling/KusudaAchenbachGroundTemperatureModel.hh>
 #include <EnergyPlus/InputProcessing/InputProcessor.hh>
 #include <EnergyPlus/UtilityRoutines.hh>
@@ -91,7 +90,7 @@ FiniteDiffGroundTempsModel *FiniteDiffGroundTempsModel::FiniteDiffGTMFactory(Ene
     GroundTempObjType objType = GroundTempObjType::FiniteDiffGroundTemp;
 
     // Search through finite diff models here
-    std::string_view const cCurrentModuleObject = GroundTemperatureManager::groundTempModelNamesUC[static_cast<int>(objType)];
+    std::string_view const cCurrentModuleObject = groundTempModelNamesUC[static_cast<int>(objType)];
     const int numCurrModels = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, cCurrentModuleObject);
 
     for (int modelNum = 1; modelNum <= numCurrModels; ++modelNum) {
@@ -126,9 +125,7 @@ FiniteDiffGroundTempsModel *FiniteDiffGroundTempsModel::FiniteDiffGTMFactory(Ene
         return thisModel;
     }
 
-    ShowFatalError(state,
-                   fmt::format("{}--Errors getting input for ground temperature model",
-                               GroundTemperatureManager::groundTempModelNames[static_cast<int>(objType)]));
+    ShowFatalError(state, fmt::format("{}--Errors getting input for ground temperature model", groundTempModelNames[static_cast<int>(objType)]));
     return nullptr;
 }
 

@@ -70,6 +70,24 @@ enum class GroundTempObjType
     Num
 };
 
+constexpr std::array<std::string_view, static_cast<int>(GroundTempObjType::Num)> groundTempModelNamesUC = {
+    "SITE:GROUNDTEMPERATURE:UNDISTURBED:KUSUDAACHENBACH",
+    "SITE:GROUNDTEMPERATURE:UNDISTURBED:FINITEDIFFERENCE",
+    "SITE:GROUNDTEMPERATURE:BUILDINGSURFACE",
+    "SITE:GROUNDTEMPERATURE:SHALLOW",
+    "SITE:GROUNDTEMPERATURE:DEEP",
+    "SITE:GROUNDTEMPERATURE:FCFACTORMETHOD",
+    "SITE:GROUNDTEMPERATURE:UNDISTURBED:XING"};
+
+constexpr std::array<std::string_view, static_cast<int>(GroundTempObjType::Num)> groundTempModelNames = {
+    "Site:GroundTemperature:Undisturbed:KusudaAchenbach",
+    "Site:GroundTemperature:Undisturbed:FiniteDifference",
+    "Site:GroundTemperature:BuildingSurface",
+    "Site:GroundTemperature:Shallow",
+    "Site:GroundTemperature:Deep",
+    "Site:GroundTemperature:FCfactorMethod",
+    "Site:GroundTemperature:Undisturbed:Xing"};
+
 // Base class
 class BaseGroundTempsModel
 {
@@ -102,6 +120,27 @@ protected:
                                  name);
         print<FormatSyntax::FMT>(os, " Site:GroundTemperature:{}, {}\n", name, fmt::format("{:6.2F}", fmt::join(data, ", ")));
     }
+};
+
+struct GroundTemperatureManagerData final : BaseGlobalStruct
+{
+    // all ground temperature model instances are owned here
+    // client component models can get pointers to the instances inside this vector, but they don't own them
+    std::vector<BaseGroundTempsModel *> groundTempModels;
+
+    void init_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
+
+    void clear_state() override
+    {
+        for (const auto &groundTempModel : groundTempModels) {
+            delete groundTempModel;
+        }
+        new (this) GroundTemperatureManagerData();
+    }
+
+    virtual ~GroundTemperatureManagerData() = default;
 };
 
 } // namespace EnergyPlus

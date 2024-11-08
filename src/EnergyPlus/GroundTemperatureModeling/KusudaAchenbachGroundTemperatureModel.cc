@@ -48,8 +48,8 @@
 // EnergyPlus Headers
 #include <EnergyPlus/Data/EnergyPlusData.hh>
 #include <EnergyPlus/DataIPShortCuts.hh>
-#include <EnergyPlus/GroundTemperatureModeling/GroundTemperatureModelManager.hh>
 #include <EnergyPlus/GroundTemperatureModeling/KusudaAchenbachGroundTemperatureModel.hh>
+#include <EnergyPlus/GroundTemperatureModeling/SiteShallowGroundTemperatures.hh>
 #include <EnergyPlus/InputProcessing/InputProcessor.hh>
 #include <EnergyPlus/UtilityRoutines.hh>
 #include <EnergyPlus/WeatherManager.hh>
@@ -78,11 +78,15 @@ KusudaGroundTempsModel *KusudaGroundTempsModel::KusudaGTMFactory(EnergyPlusData 
     // New shared pointer for this model object
     auto *thisModel = new KusudaGroundTempsModel();
 
-    std::string lookingForName = objectName;
+    // There was some **spooky** behavior here.  One of the calling sites for this factory was passing in a reference
+    //  to a dataIPShortCuts item as the objectName argument.  Inside here, we make a second call to getObjectItem
+    //  which then overwrites the value.  So objectName gets overwritten.  I made a copy of the string here to ensure
+    //  it persists.
+    const std::string lookingForName = objectName; // NOLINT(*-unnecessary-copy-initialization)
 
-    GroundTempObjType objType = GroundTempObjType::KusudaGroundTemp;
+    auto objType = GroundTempObjType::KusudaGroundTemp;
 
-    std::string_view const cCurrentModuleObject = GroundTemperatureManager::groundTempModelNamesUC[static_cast<int>(objType)];
+    std::string_view const cCurrentModuleObject = groundTempModelNamesUC[static_cast<int>(objType)];
     const int numCurrModels = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, cCurrentModuleObject);
 
     for (int modelNum = 1; modelNum <= numCurrModels; ++modelNum) {
@@ -120,10 +124,8 @@ KusudaGroundTempsModel *KusudaGroundTempsModel::KusudaGTMFactory(EnergyPlusData 
                 Real64 minSurfTemp(100);  // Set high; month 1 temp will be lower than that and actually get updated
                 Real64 maxSurfTemp(-100); // Set low initially but will get updated
 
-                BaseGroundTempsModel *shallowObj = GroundTemperatureManager::GetGroundTempModelAndInit(
-                    state,
-                    GroundTemperatureManager::groundTempModelNamesUC[static_cast<int>(GroundTempObjType::SiteShallowGroundTemp)],
-                    ""); // TODO: OK, so this is grabbing the surface temperatures, whether default (13) or user defined.
+                // get a non-owning pointer to the shallow ground temperature object, whether user-input or defaults
+                BaseGroundTempsModel *shallowObj = SiteShallowGroundTemps::ShallowGTMFactory(state, "");
 
                 for (int monthIndex = 1; monthIndex <= 12; ++monthIndex) {
                     const Real64 currMonthTemp = shallowObj->getGroundTempAtTimeInMonths(state, 0.0, monthIndex);
@@ -164,9 +166,7 @@ KusudaGroundTempsModel *KusudaGroundTempsModel::KusudaGTMFactory(EnergyPlusData 
         return thisModel;
     }
 
-    ShowFatalError(state,
-                   fmt::format("{}--Errors getting input for ground temperature model",
-                               GroundTemperatureManager::groundTempModelNames[static_cast<int>(objType)]));
+    ShowFatalError(state, fmt::format("{}--Errors getting input for ground temperature model", groundTempModelNames[static_cast<int>(objType)]));
     return nullptr;
 }
 

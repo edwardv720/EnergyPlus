@@ -50,7 +50,6 @@
 #include <EnergyPlus/DataEnvironment.hh>
 #include <EnergyPlus/DataGlobals.hh>
 #include <EnergyPlus/DataIPShortCuts.hh>
-#include <EnergyPlus/GroundTemperatureModeling/GroundTemperatureModelManager.hh>
 #include <EnergyPlus/GroundTemperatureModeling/SiteBuildingSurfaceGroundTemperatures.hh>
 #include <EnergyPlus/InputProcessing/InputProcessor.hh>
 #include <EnergyPlus/UtilityRoutines.hh>
@@ -76,7 +75,7 @@ SiteBuildingSurfaceGroundTemps *SiteBuildingSurfaceGroundTemps::BuildingSurfaceG
 
     auto objType = GroundTempObjType::SiteBuildingSurfaceGroundTemp;
 
-    std::string_view const cCurrentModuleObject = GroundTemperatureManager::groundTempModelNamesUC[static_cast<int>(objType)];
+    std::string_view const cCurrentModuleObject = groundTempModelNamesUC[static_cast<int>(objType)];
     const int numCurrObjects = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, cCurrentModuleObject);
 
     thisModel->objectType = objType;
@@ -94,8 +93,7 @@ SiteBuildingSurfaceGroundTemps *SiteBuildingSurfaceGroundTemps::BuildingSurfaceG
             state, cCurrentModuleObject, 1, state.dataIPShortCut->cAlphaArgs, NumAlphas, state.dataIPShortCut->rNumericArgs, NumNums, IOStat);
 
         if (NumNums < 12) {
-            ShowSevereError(
-                state, fmt::format("{}: Less than 12 values entered.", GroundTemperatureManager::groundTempModelNames[static_cast<int>(objType)]));
+            ShowSevereError(state, fmt::format("{}: Less than 12 values entered.", groundTempModelNames[static_cast<int>(objType)]));
             errorsFound = true;
         }
 
@@ -109,15 +107,12 @@ SiteBuildingSurfaceGroundTemps *SiteBuildingSurfaceGroundTemps::BuildingSurfaceG
 
         if (genErrorMessage) {
             ShowWarningError(state,
-                             fmt::format("{}: Some values fall outside the range of 15-25C.",
-                                         GroundTemperatureManager::groundTempModelNames[static_cast<int>(objType)]));
+                             fmt::format("{}: Some values fall outside the range of 15-25C.", groundTempModelNames[static_cast<int>(objType)]));
             ShowContinueError(state, "These values may be inappropriate.  Please consult the Input Output Reference for more details.");
         }
 
     } else if (numCurrObjects > 1) {
-        ShowSevereError(state,
-                        fmt::format("{}: Too many objects entered. Only one allowed.",
-                                    GroundTemperatureManager::groundTempModelNames[static_cast<int>(objType)]));
+        ShowSevereError(state, fmt::format("{}: Too many objects entered. Only one allowed.", groundTempModelNames[static_cast<int>(objType)]));
         errorsFound = true;
     } else {
         std::fill(thisModel->buildingSurfaceGroundTemps.begin(), thisModel->buildingSurfaceGroundTemps.end(), 18.0);
@@ -131,9 +126,7 @@ SiteBuildingSurfaceGroundTemps *SiteBuildingSurfaceGroundTemps::BuildingSurfaceG
         return thisModel;
     }
 
-    ShowFatalError(state,
-                   fmt::format("{}--Errors getting input for ground temperature model",
-                               GroundTemperatureManager::groundTempModelNames[static_cast<int>(objType)]));
+    ShowFatalError(state, fmt::format("{}--Errors getting input for ground temperature model", groundTempModelNames[static_cast<int>(objType)]));
     return nullptr;
 }
 
