@@ -994,13 +994,11 @@ namespace AirLoopHVACDOAS {
         this->GetDesignDayConditions(state);
 
         if (this->m_FanIndex > 0 && this->m_FanTypeNum == SimAirServingZones::CompType::Fan_System_Object) {
-            state.dataFans->fans(this->m_FanIndex)->maxAirFlowRate = sizingMassFlow / state.dataEnvrn->StdRhoAir;
             state.dataLoopNodes->Node(this->m_FanInletNodeNum).MassFlowRateMaxAvail = sizingMassFlow;
             state.dataLoopNodes->Node(this->m_FanOutletNodeNum).MassFlowRateMaxAvail = sizingMassFlow;
             state.dataLoopNodes->Node(this->m_FanOutletNodeNum).MassFlowRateMax = sizingMassFlow;
         }
         if (this->m_FanIndex > 0 && this->m_FanTypeNum == SimAirServingZones::CompType::Fan_ComponentModel) {
-            state.dataFans->fans(this->m_FanIndex)->maxAirFlowRate = sizingMassFlow / state.dataEnvrn->StdRhoAir;
             state.dataFans->fans(this->m_FanIndex)->minAirFlowRate = 0.0;
             state.dataFans->fans(this->m_FanIndex)->maxAirMassFlowRate = sizingMassFlow;
             state.dataLoopNodes->Node(this->m_FanInletNodeNum).MassFlowRateMaxAvail = sizingMassFlow;

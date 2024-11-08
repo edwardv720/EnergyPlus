@@ -778,14 +778,8 @@ Real64 SystemAirFlowSizer::size(EnergyPlusData &state, Real64 _originalValue, bo
 
                 } else {
                     if (this->curOASysNum > 0) {
-                        if (this->oaSysEqSizing(this->curOASysNum).AirFlow) {
-                            // Parent object sets system flow rate
-                            this->autoSizedValue = this->oaSysEqSizing(this->curOASysNum).AirVolFlow;
-                        } else if (this->oaSysEqSizing(this->curOASysNum).CoolingAirFlow || this->oaSysEqSizing(this->curOASysNum).HeatingAirFlow) {
-                            // Parent object sets heating flow rate
-                            this->autoSizedValue = std::max(this->oaSysEqSizing(this->curOASysNum).CoolingAirVolFlow,
-                                                            this->oaSysEqSizing(this->curOASysNum).HeatingAirVolFlow);
-                        } else if (outsideAirSys(this->curOASysNum).AirLoopDOASNum > -1) {
+                        // should a parent object ever override DOAS or OASystem flow rate (e.g., using oaSysEqSizing().AirVolFlow)?
+                        if (outsideAirSys(this->curOASysNum).AirLoopDOASNum > -1) {
                             this->autoSizedValue =
                                 this->airloopDOAS[outsideAirSys(this->curOASysNum).AirLoopDOASNum].SizingMassFlow / state.dataEnvrn->StdRhoAir;
                         } else {
