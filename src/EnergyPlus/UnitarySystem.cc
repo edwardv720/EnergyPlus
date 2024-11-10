@@ -11541,7 +11541,7 @@ namespace UnitarySystems {
             CoilPLR = 0.0;
             if (this->m_ControlType == UnitarySysCtrlType::Setpoint) {
                 if (CompressorOn == HVAC::CompressorOp::On) {
-                    CoilPLR = (this->m_CoolingSpeedNum > 1) ? 1.0 : PartLoadRatio;
+                    CoilPLR = (this->m_CoolingSpeedNum > 1) ? m_CoolingSpeedRatio : PartLoadRatio;
                 }
             } else {
                 if (this->m_EMSOverrideCoilSpeedNumOn) {
@@ -11552,8 +11552,9 @@ namespace UnitarySystems {
                             this->m_CoolingSpeedNum = 1; // Bypass mixed-speed calculations in called functions
                         } else {
                             if (singleMode) {
-                                CoilPLR = (m_CoolingSpeedNum == 1) ? PartLoadRatio
-                                                                   : 1.0; // singleMode allows cycling, but not part load operation at higher speeds
+                                CoilPLR = (this->m_CoolingSpeedNum == 1)
+                                              ? PartLoadRatio
+                                              : 1.0; // singleMode allows cycling, but not part load operation at higher speeds
                             } else {
                                 CoilPLR = PartLoadRatio;
                             }
