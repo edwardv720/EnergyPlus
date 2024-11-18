@@ -1502,7 +1502,7 @@ namespace ScheduleManager {
                                 ErrorsFound = true;
                             }
                             ++NumField;
-                            Alphas(UntilFld + xxcount) = Alphas(NumField); // Incase next is "until"
+                            Alphas(UntilFld + xxcount) = Alphas(NumField); // In case next is "until"
                         } else {
                             ShowSevereError(state,
                                             format("{}{}=\"{}\", Looking for \"Until\" field, found={}",
@@ -2678,7 +2678,7 @@ namespace ScheduleManager {
             return 0.0;
         } else if (!state.dataScheduleMgr->Schedule(ScheduleIndex).EMSActuatedOn) {
             return state.dataScheduleMgr->Schedule(ScheduleIndex)
-                .CurrentValue; // This block probably unecessary, UpdateScheduleValues already does it
+                .CurrentValue; // This block probably unnecessary, UpdateScheduleValues already does it
         } else {
             return state.dataScheduleMgr->Schedule(ScheduleIndex).EMSValue;
         }
@@ -4163,7 +4163,7 @@ namespace ScheduleManager {
                         for (int jType = 1; jType <= maxDayTypes; ++jType) {
                             if (dayTypeFilter[jType - 1]) {
                                 auto const &daySch = state.dataScheduleMgr->DaySchedule(weekSch.DaySchedulePointer(jType));
-                                // use precalcuated min and max from SetScheduleMinMax
+                                // use precalculated min and max from SetScheduleMinMax
                                 MinValue = min(MinValue, daySch.TSValMin);
                                 MaxValue = max(MaxValue, daySch.TSValMax);
                             }
