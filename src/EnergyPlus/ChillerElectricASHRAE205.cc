@@ -1341,6 +1341,8 @@ void ASHRAE205ChillerSpecs::calculate(EnergyPlusData &state, Real64 &MyLoad, boo
             MyLoad = 0.0;
             this->Power = standbyPower;
             this->AmbientZoneGain = standbyPower;
+            this->EvapMassFlowRate = 0.0;
+            PlantUtilities::SetComponentFlowRate(state, this->EvapMassFlowRate, this->EvapInletNodeNum, this->EvapOutletNodeNum, this->CWPlantLoc);
             return;
         }
     }

@@ -2149,6 +2149,8 @@ void ReformulatedEIRChillerSpecs::calculate(EnergyPlusData &state, Real64 &MyLoa
 
         if (this->CondMassFlowRate < DataBranchAirLoopPlant::MassFlowTolerance) {
             MyLoad = 0.0;
+            this->EvapMassFlowRate = 0.0;
+            PlantUtilities::SetComponentFlowRate(state, this->EvapMassFlowRate, this->EvapInletNodeNum, this->EvapOutletNodeNum, this->CWPlantLoc);
             return;
         }
     }

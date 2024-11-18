@@ -964,9 +964,9 @@ namespace PlantChillers {
                                 }
                             }
                         } // IF (.NOT. AnyEnergyManagementSystemInModel) THEN
-                    }     // IF(THeatRecSetpoint == DataLoopNode::SensedNodeFlagValue)THEN
-                }         // IF(ElectricChiller(ChillNum)%HeatRecSetpointNodeNum > 0)THEN
-            }             // IF (ElectricChiller(ChillNum)%HeatRecActive) THEN
+                    } // IF(THeatRecSetpoint == DataLoopNode::SensedNodeFlagValue)THEN
+                } // IF(ElectricChiller(ChillNum)%HeatRecSetpointNodeNum > 0)THEN
+            } // IF (ElectricChiller(ChillNum)%HeatRecActive) THEN
 
             this->MyEnvrnFlag = false;
         }
@@ -1470,6 +1470,9 @@ namespace PlantChillers {
                 state, this->CWPlantLoc, this->CondMassFlowIndex, this->CDPlantLoc, DataPlant::CriteriaType::MassFlowRate, this->CondMassFlowRate);
             if (this->CondMassFlowRate < DataBranchAirLoopPlant::MassFlowTolerance) {
                 MyLoad = 0.0;
+                this->EvapMassFlowRate = 0.0;
+                PlantUtilities::SetComponentFlowRate(
+                    state, this->EvapMassFlowRate, this->EvapInletNodeNum, this->EvapOutletNodeNum, this->CWPlantLoc);
                 return;
             }
         }
@@ -3598,6 +3601,9 @@ namespace PlantChillers {
                 state, this->CWPlantLoc, this->CondMassFlowIndex, this->CDPlantLoc, DataPlant::CriteriaType::MassFlowRate, this->CondMassFlowRate);
             if (this->CondMassFlowRate < DataBranchAirLoopPlant::MassFlowTolerance) {
                 MyLoad = 0.0;
+                this->EvapMassFlowRate = 0.0;
+                PlantUtilities::SetComponentFlowRate(
+                    state, this->EvapMassFlowRate, this->EvapInletNodeNum, this->EvapOutletNodeNum, this->CWPlantLoc);
                 return;
             }
         }
@@ -5613,6 +5619,9 @@ namespace PlantChillers {
 
             if (this->CondMassFlowRate < DataBranchAirLoopPlant::MassFlowTolerance) {
                 MyLoad = 0.0;
+                this->EvapMassFlowRate = 0.0;
+                PlantUtilities::SetComponentFlowRate(
+                    state, this->EvapMassFlowRate, this->EvapInletNodeNum, this->EvapOutletNodeNum, this->CWPlantLoc);
                 return;
             }
         }
@@ -7324,6 +7333,9 @@ namespace PlantChillers {
 
             if (this->CondMassFlowRate < DataBranchAirLoopPlant::MassFlowTolerance) {
                 MyLoad = 0.0;
+                this->EvapMassFlowRate = 0.0;
+                PlantUtilities::SetComponentFlowRate(
+                    state, this->EvapMassFlowRate, this->EvapInletNodeNum, this->EvapOutletNodeNum, this->CWPlantLoc);
                 return;
             }
         }
