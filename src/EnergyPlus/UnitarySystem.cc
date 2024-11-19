@@ -916,8 +916,8 @@ namespace UnitarySystems {
                 this->m_IterationCounter = 0;
                 std::fill(this->m_IterationMode.begin(), this->m_IterationMode.end(), 0);
 
-                // for DX systems, just read the inlet node flow rate and let air loop decide flow
-                if (this->m_ControlType == UnitarySysCtrlType::Setpoint && this->m_sysType == SysType::Unitary) {
+                // for systems without a fan, just read the inlet node flow rate and let air loop decide flow
+                if (this->m_ControlType == UnitarySysCtrlType::Setpoint && this->m_sysType == SysType::Unitary && this->m_FanExists) {
                     if (ScheduleManager::GetCurrentScheduleValue(state, this->m_SysAvailSchedPtr) > 0.0) {
                         if (this->m_LastMode == CoolingMode) {
                             if (this->m_MultiOrVarSpeedCoolCoil) {
@@ -1046,7 +1046,7 @@ namespace UnitarySystems {
                     state, "Coil:Heating:Steam", this->m_SuppHeatCoilName, state.dataUnitarySystems->initUnitarySystemsErrorsFound);
 
             } // from IF(UnitarySystem(UnitarySysNum)%SuppHeatCoilType_Num == Coil_HeatingSteam) THEN
-        }     // from IF( FirstHVACIteration ) THEN
+        } // from IF( FirstHVACIteration ) THEN
 
         this->m_IterationCounter += 1;
 
@@ -9511,7 +9511,7 @@ namespace UnitarySystems {
                     HeatPLR = 0.0;
                     PartLoadRatio = 0.0;
                 } // IF((HeatingLoad .AND. ZoneLoad > SensOutputOff) .OR. (CoolingLoad .AND. ZoneLoad < SensOutputOff))THEN
-            }     // IF((HeatingLoad .AND. ZoneLoad < SensOutputOn) .OR. (CoolingLoad .AND. ZoneLoad > SensOutputOn))THEN
+            } // IF((HeatingLoad .AND. ZoneLoad < SensOutputOn) .OR. (CoolingLoad .AND. ZoneLoad > SensOutputOn))THEN
         }
 
         if (state.dataUnitarySystems->HeatingLoad && (this->m_MultiSpeedHeatingCoil || this->m_VarSpeedHeatingCoil)) {
@@ -10829,8 +10829,8 @@ namespace UnitarySystems {
                             state.dataUnitarySystems->CompOnMassFlow = this->MaxCoolAirMassFlow;
                             state.dataUnitarySystems->CompOnFlowRatio = this->m_CoolingFanSpeedRatio;
                         } // IF(MultiOrVarSpeedCoolCoil) THEN
-                    }     // IF(UnitarySystem(UnitarySysNum)%LastMode .EQ. HeatingMode)THEN
-                }         // IF(CompOnMassFlow .EQ. 0.0d0)THEN
+                    } // IF(UnitarySystem(UnitarySysNum)%LastMode .EQ. HeatingMode)THEN
+                } // IF(CompOnMassFlow .EQ. 0.0d0)THEN
 
                 if (this->m_FanOpMode == HVAC::FanOp::Continuous) {
                     if (this->m_AirFlowControl == UseCompFlow::On) {
@@ -10889,7 +10889,7 @@ namespace UnitarySystems {
                                 state.dataUnitarySystems->CompOffFlowRatio = this->m_CoolingFanSpeedRatio;
                                 state.dataUnitarySystems->OACompOffMassFlow = this->m_CoolOutAirMassFlow;
                             }
-                        }    // IF(UnitarySystem(UnitarySysNum)%LastMode .EQ. HeatingMode)THEN
+                        } // IF(UnitarySystem(UnitarySysNum)%LastMode .EQ. HeatingMode)THEN
                     } else { // IF (UnitarySystem(UnitarySysNum)%AirFlowControl .EQ. UseCompressorOnFlow) THEN
                         if (this->m_LastMode == HeatingMode) {
                             if (this->m_MultiOrVarSpeedHeatCoil) {
@@ -10910,9 +10910,9 @@ namespace UnitarySystems {
                         }
                         state.dataUnitarySystems->OACompOffMassFlow = this->m_NoCoolHeatOutAirMassFlow;
                     } // IF (UnitarySystem(UnitarySysNum)%AirFlowControl .EQ. UseCompressorOnFlow) THEN
-                }     // IF(UnitarySystem(UnitarySysNum)%FanOpMode == HVAC::FanOp::Continuous)THEN
-            }         // ELSE ! No Moisture Load
-        }             // No Heating/Cooling Load
+                } // IF(UnitarySystem(UnitarySysNum)%FanOpMode == HVAC::FanOp::Continuous)THEN
+            } // ELSE ! No Moisture Load
+        } // No Heating/Cooling Load
 
         if (this->m_FanOpMode == HVAC::FanOp::Continuous) {
             if (this->m_AirFlowControl == UseCompFlow::On &&
@@ -12507,7 +12507,7 @@ namespace UnitarySystems {
                     PartLoadFrac = 0.0;
                 } else {         // need to turn on compressor to see if load is met
                     doIt = true; // CoilSystem:Cooling:DX
-                }                // CoilSystem:Cooling:DX
+                } // CoilSystem:Cooling:DX
                 if (this->m_EMSOverrideCoilSpeedNumOn) doIt = false;
 
                 if (doIt) { // CoilSystem:Cooling:DX
@@ -14979,7 +14979,7 @@ namespace UnitarySystems {
                 } // IF (NOT EMS OVERRIDE) THEN
 
             } // IF SENSIBLE LOAD
-        }     // IF((GetCurrentScheduleValue(state, UnitarySystem(UnitarySysNum)%m_SysAvailSchedPtr) > 0.0d0) .AND. &
+        } // IF((GetCurrentScheduleValue(state, UnitarySystem(UnitarySysNum)%m_SysAvailSchedPtr) > 0.0d0) .AND. &
 
         // LoopHeatingCoilMaxRTF used for AirflowNetwork gets set in child components (gas and fuel)
         if (state.afn->distribution_simulated && this->m_sysType != SysType::PackagedAC && this->m_sysType != SysType::PackagedHP &&
