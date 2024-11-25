@@ -155,7 +155,10 @@ jobs:
     - name: Branch Build
       id: branch_build
       working-directory: ./branch/build
-      run: cmake --build . -j ${{ matrix.nproc }} --config Release
+      run: |
+        echo "::add-matcher::.github/workflows/cpp-problem-matcher.json"
+        cmake --build . -j ${{ matrix.nproc }} --config Release
+        echo "::remove-matcher owner=gcc-problem-matcher::"
 
     - name: Branch Test
       working-directory: ./branch/build
