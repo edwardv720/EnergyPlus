@@ -152,6 +152,9 @@ jobs:
         -DUSE_OpenMP:BOOL=OFF
         ../
 
+    - name: Setup upterm session
+      uses: lhotari/action-upterm@v1
+
     - name: Branch Build
       id: branch_build
       working-directory: ./branch/build
