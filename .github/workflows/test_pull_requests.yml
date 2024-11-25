@@ -152,14 +152,11 @@ jobs:
         -DUSE_OpenMP:BOOL=OFF
         ../
 
-    - name: Setup upterm session
-      uses: lhotari/action-upterm@v1
-
     - name: Branch Build
       id: branch_build
       working-directory: ./branch/build
       run: |
-        echo "::add-matcher::../../.github/workflows/cpp-problem-matcher.json"
+        echo "::add-matcher::../.github/workflows/cpp-problem-matcher.json"
         cmake --build . -j ${{ matrix.nproc }} --config Release
         echo "::remove-matcher owner=gcc-problem-matcher::"
 
