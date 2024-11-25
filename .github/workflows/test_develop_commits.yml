@@ -136,7 +136,7 @@ jobs:
       id: build
       working-directory: ./build
       run: |
-        echo "::add-matcher::.github/workflows/cpp-problem-matcher.json"
+        echo "::add-matcher::../.github/workflows/cpp-problem-matcher.json"
         cmake --build . -j ${{ matrix.nproc }} --config Release
         echo "::remove-matcher owner=gcc-problem-matcher::"
 
