@@ -717,21 +717,12 @@ namespace WindowAC {
         //       AUTHOR         Fred Buhl
         //       DATE WRITTEN   May 2000
         //       MODIFIED       Chandan Sharma, FSEC, March 2011: Added zone sys avail manager
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // This subroutine is for initializations of the Window AC Components.
 
         // METHODOLOGY EMPLOYED:
         // Uses the status flags to trigger initializations.
-
-        using DataZoneEquipment::CheckZoneEquipmentList;
-        using HVAC::SmallLoad;
-
-        int AirRelNode;      // relief air node number in window AC loop
-        Real64 RhoAir;       // air density at InNode
-        Real64 QToCoolSetPt; // sensible load to cooling setpoint (W)
-        Real64 NoCompOutput; // sensible load delivered with compressor off (W)
 
         // Do the one time initializations
         if (state.dataWindowAC->MyOneTimeFlag) {
@@ -759,9 +750,9 @@ namespace WindowAC {
         if (!state.dataWindowAC->ZoneEquipmentListChecked && state.dataZoneEquip->ZoneEquipInputsFilled) {
             state.dataWindowAC->ZoneEquipmentListChecked = true;
             for (int Loop = 1; Loop <= state.dataWindowAC->NumWindAC; ++Loop) {
-                if (CheckZoneEquipmentList(state,
-                                           state.dataWindowAC->cWindowAC_UnitTypes(state.dataWindowAC->WindAC(Loop).UnitType),
-                                           state.dataWindowAC->WindAC(Loop).Name))
+                if (DataZoneEquipment::CheckZoneEquipmentList(state,
+                                                              state.dataWindowAC->cWindowAC_UnitTypes(state.dataWindowAC->WindAC(Loop).UnitType),
+                                                              state.dataWindowAC->WindAC(Loop).Name))
                     continue;
                 ShowSevereError(state,
                                 format("InitWindowAC: Window AC Unit=[{},{}] is not on any ZoneHVAC:EquipmentList.  It will not be simulated.",
@@ -782,7 +773,7 @@ namespace WindowAC {
             int InNode = state.dataWindowAC->WindAC(WindACNum).AirInNode;
             int OutNode = state.dataWindowAC->WindAC(WindACNum).AirOutNode;
             int OutsideAirNode = state.dataWindowAC->WindAC(WindACNum).OutsideAirNode;
-            RhoAir = state.dataEnvrn->StdRhoAir;
+            Real64 RhoAir = state.dataEnvrn->StdRhoAir;
             // set the mass flow rates from the input volume flow rates
             state.dataWindowAC->WindAC(WindACNum).MaxAirMassFlow = RhoAir * state.dataWindowAC->WindAC(WindACNum).MaxAirVolFlow;
             state.dataWindowAC->WindAC(WindACNum).OutAirMassFlow = RhoAir * state.dataWindowAC->WindAC(WindACNum).OutAirVolFlow;
@@ -811,7 +802,7 @@ namespace WindowAC {
         // These initializations are done every iteration
         int InletNode = state.dataWindowAC->WindAC(WindACNum).AirInNode;
         int OutsideAirNode = state.dataWindowAC->WindAC(WindACNum).OutsideAirNode;
-        AirRelNode = state.dataWindowAC->WindAC(WindACNum).AirReliefNode;
+        int AirRelNode = state.dataWindowAC->WindAC(WindACNum).AirReliefNode;
         // Set the inlet node mass flow rate
         if (GetCurrentScheduleValue(state, state.dataWindowAC->WindAC(WindACNum).SchedPtr) <= 0.0 ||
             (GetCurrentScheduleValue(state, state.dataWindowAC->WindAC(WindACNum).FanAvailSchedPtr) <= 0.0 && !state.dataHVACGlobal->TurnFansOn) ||
@@ -840,7 +831,7 @@ namespace WindowAC {
         }
 
         // Original thermostat control logic (works only for cycling fan systems)
-        if (QZnReq < (-1.0 * SmallLoad) && !state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum) &&
+        if (QZnReq < (-1.0 * HVAC::SmallLoad) && !state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum) &&
             state.dataWindowAC->WindAC(WindACNum).PartLoadFrac > 0.0) {
             state.dataWindowAC->CoolingLoad = true;
         } else {
@@ -852,12 +843,14 @@ namespace WindowAC {
             (GetCurrentScheduleValue(state, state.dataWindowAC->WindAC(WindACNum).FanAvailSchedPtr) > 0.0 || state.dataHVACGlobal->TurnFansOn) &&
             !state.dataHVACGlobal->TurnFansOff) {
 
+            Real64 NoCompOutput; // sensible load delivered with compressor off (W)
             CalcWindowACOutput(state, WindACNum, FirstHVACIteration, state.dataWindowAC->WindAC(WindACNum).fanOp, 0.0, false, NoCompOutput);
 
-            QToCoolSetPt = state.dataZoneEnergyDemand->ZoneSysEnergyDemand(ZoneNum).RemainingOutputReqToCoolSP;
+            Real64 QToCoolSetPt = state.dataZoneEnergyDemand->ZoneSysEnergyDemand(ZoneNum).RemainingOutputReqToCoolSP;
 
             // If the unit has a net heating capacity and the zone temp is below the Tstat cooling setpoint
-            if (NoCompOutput > (-1.0 * SmallLoad) && QToCoolSetPt > (-1.0 * SmallLoad) && state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum)) {
+            if (NoCompOutput > (-1.0 * HVAC::SmallLoad) && QToCoolSetPt > (-1.0 * HVAC::SmallLoad) &&
+                state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum)) {
                 if (NoCompOutput > QToCoolSetPt) {
                     QZnReq = QToCoolSetPt;
                     state.dataWindowAC->CoolingLoad = true;
