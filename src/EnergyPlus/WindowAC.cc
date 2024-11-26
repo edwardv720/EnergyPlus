@@ -867,7 +867,6 @@ namespace WindowAC {
         //       DATE WRITTEN   January 2002
         //       MODIFIED       August 2013 Daeho Kang, add component sizing table entries
         //                      July 2014, B. Nigusse, added scalable sizing
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // This subroutine is for sizing Window AC  Unit components for which flow rates have not been
@@ -878,24 +877,14 @@ namespace WindowAC {
 
         // Using/Aliasing
         using namespace DataSizing;
-        using HVAC::CoolingCapacitySizing;
 
         // SUBROUTINE PARAMETER DEFINITIONS:
         static constexpr std::string_view RoutineName("SizeWindowAC: "); // include trailing blank space
 
-        // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-        Real64 MaxAirVolFlowDes;  // Autosized maximum air flow for reporting
-        Real64 MaxAirVolFlowUser; // Hardsized maximum air flow for reporting
-        Real64 OutAirVolFlowDes;  // Autosized outdoor air flow for reporting
-        Real64 OutAirVolFlowUser; // Hardsized outdoor ari flow for reporting
-        std::string CompName;     // component name
-        std::string CompType;     // component type
-        Real64 TempSize;          // autosized value of coil input field
-
-        MaxAirVolFlowDes = 0.0;
-        MaxAirVolFlowUser = 0.0;
-        OutAirVolFlowDes = 0.0;
-        OutAirVolFlowUser = 0.0;
+        Real64 MaxAirVolFlowDes = 0.0;
+        Real64 MaxAirVolFlowUser = 0.0;
+        Real64 OutAirVolFlowDes = 0.0;
+        Real64 OutAirVolFlowUser = 0.0;
         state.dataSize->DataFracOfAutosizedCoolingAirflow = 1.0;
         state.dataSize->DataFracOfAutosizedHeatingAirflow = 1.0;
         state.dataSize->DataFracOfAutosizedCoolingCapacity = 1.0;
@@ -904,8 +893,8 @@ namespace WindowAC {
         state.dataSize->ZoneHeatingOnlyFan = false;
         state.dataSize->ZoneCoolingOnlyFan = true;
         state.dataSize->DataScalableCapSizingON = false;
-        CompType = "ZoneHVAC:WindowAirConditioner";
-        CompName = state.dataWindowAC->WindAC(WindACNum).Name;
+        std::string const CompType = "ZoneHVAC:WindowAirConditioner";
+        std::string const CompName = state.dataWindowAC->WindAC(WindACNum).Name;
         state.dataSize->DataZoneNumber = state.dataWindowAC->WindAC(WindACNum).ZonePtr;
         state.dataSize->DataFanType = state.dataWindowAC->WindAC(WindACNum).fanType;
         state.dataSize->DataFanIndex = state.dataWindowAC->WindAC(WindACNum).FanIndex;
@@ -915,6 +904,7 @@ namespace WindowAC {
             bool PrintFlag;           // TRUE when sizing information is reported in the eio file
             std::string SizingString; // input field sizing description (e.g., Nominal Capacity)
             auto &ZoneEqSizing = state.dataSize->ZoneEqSizing(state.dataSize->CurZoneEqNum);
+            Real64 TempSize; // autosized value of coil input field
 
             if (state.dataWindowAC->WindAC(WindACNum).HVACSizingIndex > 0) {
                 int zoneHVACIndex = state.dataWindowAC->WindAC(WindACNum).HVACSizingIndex;
@@ -954,7 +944,7 @@ namespace WindowAC {
                     state.dataWindowAC->WindAC(WindACNum).MaxAirVolFlow = sizingCoolingAirFlow.size(state, TempSize, errorsFound);
 
                 } else if (SAFMethod == FlowPerCoolingCapacity) {
-                    SizingMethod = CoolingCapacitySizing;
+                    SizingMethod = HVAC::CoolingCapacitySizing;
                     TempSize = AutoSize;
                     PrintFlag = false;
                     state.dataSize->DataScalableSizingON = true;
@@ -1061,7 +1051,6 @@ namespace WindowAC {
         //       AUTHOR         Fred Buhl
         //       DATE WRITTEN   May 2000
         //       MODIFIED       Buhl/Shirey Mar 2001, Shirey Aug 2009 (LatOutputProvided)
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // Simulate a cycling window air conditioner unit; adjust its output to match the
@@ -1071,37 +1060,27 @@ namespace WindowAC {
         // If unit is on, calls ControlWindACOutput to obtain the desired unit output
 
         Real64 PartLoadFrac; // unit part load fraction
-        Real64 QUnitOut;     // Dry air sens. cooling provided by AC unit [watts]
         Real64 SensCoolOut;  // Moist air sensible cooling rate [W]
-        Real64 LatentOutput; // Latent (moisture) add/removal rate, negative is dehumidification [kg/s]
-        bool UnitOn;         // TRUE if unit is on
-        bool CoilOn;         // TRUE if coil is on
-        int OutletNode;      // unit air outlet node
-        int InletNode;       // unit air inlet node
         Real64 QTotUnitOut;  // total unit output [watts]
-        Real64 AirMassFlow;  // air mass flow rate [kg/sec]
-        Real64 CpAir;        // inlet air specific heat [J/kg-C]
-        Real64 Test;
-        HVAC::FanOp fanOp; // operating mode (fan cycling or continious; DX coil always cycles)
-        Real64 MinHumRat;  // minimum of inlet & outlet humidity ratio
-        bool HXUnitOn;     // Used to control HX heat recovery as needed
-        Real64 SpecHumOut; // Specific humidity ratio of outlet air (kg moisture / kg moist air)
-        Real64 SpecHumIn;  // Specific humidity ratio of inlet air (kg moisture / kg moist air)
+        Real64 MinHumRat;    // minimum of inlet & outlet humidity ratio
+        bool HXUnitOn;       // Used to control HX heat recovery as needed
+        Real64 SpecHumOut;   // Specific humidity ratio of outlet air (kg moisture / kg moist air)
+        Real64 SpecHumIn;    // Specific humidity ratio of inlet air (kg moisture / kg moist air)
 
         // zero the DX coil electricity consumption
 
         state.dataHVACGlobal->DXElecCoolingPower = 0.0;
         // initialize local variables
-        UnitOn = true;
-        CoilOn = true;
-        QUnitOut = 0.0;
-        LatentOutput = 0.0;
-        OutletNode = state.dataWindowAC->WindAC(WindACNum).AirOutNode;
-        InletNode = state.dataWindowAC->WindAC(WindACNum).AirInNode;
-        AirMassFlow = state.dataLoopNodes->Node(InletNode).MassFlowRate;
-        Test = AirMassFlow;
-        CpAir = PsyCpAirFnW(state.dataLoopNodes->Node(InletNode).HumRat);
-        fanOp = state.dataWindowAC->WindAC(WindACNum).fanOp;
+        bool UnitOn = true;
+        bool CoilOn = true;
+        Real64 QUnitOut = 0.0;     // Dry air sens. cooling provided by AC unit [watts]
+        Real64 LatentOutput = 0.0; // Latent (moisture) add/removal rate, negative is dehumidification [kg/s]
+        int OutletNode = state.dataWindowAC->WindAC(WindACNum).AirOutNode;
+        int InletNode = state.dataWindowAC->WindAC(WindACNum).AirInNode;
+        Real64 AirMassFlow = state.dataLoopNodes->Node(InletNode).MassFlowRate;
+        Real64 Test = AirMassFlow;
+        Real64 CpAir = PsyCpAirFnW(state.dataLoopNodes->Node(InletNode).HumRat); // inlet air specific heat [J/kg-C]
+        HVAC::FanOp fanOp = state.dataWindowAC->WindAC(WindACNum).fanOp;
 
         // set the on/off flags
         if (state.dataWindowAC->WindAC(WindACNum).fanOp == HVAC::FanOp::Cycling) {
