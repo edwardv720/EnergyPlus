@@ -238,7 +238,7 @@ namespace Window {
                               Real64 &gr     // Gap gas Grashof number
     );
 
-    void WindowGasPropertiesAtTemp(EnergyPlusData &state,
+    void WindowGasPropertiesAtTemp(EnergyPlusData const &state,
                                    Real64 tmean, // Temperature of gas in gap (K)
                                    int IGap,     // Gap number
                                    Real64 &dens, // Gap gas density at tmean (kg/m3)
