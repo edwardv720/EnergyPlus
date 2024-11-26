@@ -117,7 +117,7 @@ namespace Window {
 
     Real64 solarSpectrumAverage(EnergyPlusData &state, gsl::span<Real64 const> p);
 
-    Real64 visibleSpectrumAverage(EnergyPlusData &state, gsl::span<Real64 const> p);
+    Real64 visibleSpectrumAverage(EnergyPlusData const &state, gsl::span<Real64 const> p);
 
     Real64 Interpolate(gsl::span<Real64 const> x, // Array of data points for independent variable
                        gsl::span<Real64 const> y, // Array of data points for dependent variable
