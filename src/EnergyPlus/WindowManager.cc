@@ -1909,7 +1909,7 @@ namespace Window {
         }
     } // SystemPropertiesAtLambdaAndPhi()
 
-    Real64 solarSpectrumAverage(EnergyPlusData &state, gsl::span<Real64 const> p)
+    Real64 solarSpectrumAverage(EnergyPlusData const &state, gsl::span<Real64 const> p)
     {
         Real64 num = 0.0;
         Real64 denom = 0.0;

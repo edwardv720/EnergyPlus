@@ -115,7 +115,7 @@ namespace Window {
                                         Array1A<Real64> aft // System absorptance of each glass layer
     );
 
-    Real64 solarSpectrumAverage(EnergyPlusData &state, gsl::span<Real64 const> p);
+    Real64 solarSpectrumAverage(EnergyPlusData const &state, gsl::span<Real64 const> p);
 
     Real64 visibleSpectrumAverage(EnergyPlusData const &state, gsl::span<Real64 const> p);
 
