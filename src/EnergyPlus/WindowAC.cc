@@ -240,8 +240,6 @@ namespace WindowAC {
         Array1D_int OANodeNums(4);       // Node numbers of Outdoor air mixer (OA, EA, RA, MA)
         int IOStatus;                    // Used in GetObjectItem
         bool ErrorsFound(false);         // Set to true if errors in input, fatal at end of routine
-        bool errFlag(false);             // Local error flag for GetOAMixerNodeNums
-        bool FanErrFlag(false);          // Error flag used in GetFanIndex call
         Real64 FanVolFlow;               // Fan volumetric flow rate
         bool CoilNodeErrFlag;            // Used in error messages for mining coil outlet node number
         std::string CurrentModuleObject; // Object type for getting and error messages
@@ -339,7 +337,7 @@ namespace WindowAC {
             state.dataWindowAC->WindAC(WindACNum).OAMixType = Alphas(5);
             state.dataWindowAC->WindAC(WindACNum).OAMixName = Alphas(6);
             // Get outdoor air mixer node numbers
-            errFlag = false;
+            bool errFlag = false;
             ValidateComponent(state,
                               state.dataWindowAC->WindAC(WindACNum).OAMixType,
                               state.dataWindowAC->WindAC(WindACNum).OAMixName,
@@ -372,11 +370,9 @@ namespace WindowAC {
 
             if (windAC.fanType != HVAC::FanType::OnOff && windAC.fanType != HVAC::FanType::Constant && windAC.fanType != HVAC::FanType::SystemModel) {
                 ShowSevereInvalidKey(state, eoh, cAlphaFields(8), Alphas(8), "Fan Type must be Fan:OnOff, Fan:ConstantVolume, or Fan:SystemModel.");
-                FanErrFlag = true;
 
             } else if ((windAC.FanIndex = Fans::GetFanIndex(state, windAC.FanName)) == 0) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(8), windAC.FanName);
-                FanErrFlag = true;
 
             } else {
                 auto *fan = state.dataFans->fans(windAC.FanIndex);
@@ -732,13 +728,8 @@ namespace WindowAC {
         using DataZoneEquipment::CheckZoneEquipmentList;
         using HVAC::SmallLoad;
 
-        int InNode;          // inlet node number in window AC loop
-        int OutNode;         // outlet node number in window AC loop
-        int InletNode;       // inlet node number for window AC WindACNum
-        int OutsideAirNode;  // outside air node number in window AC loop
         int AirRelNode;      // relief air node number in window AC loop
         Real64 RhoAir;       // air density at InNode
-        int Loop;            // loop counter
         Real64 QToCoolSetPt; // sensible load to cooling setpoint (W)
         Real64 NoCompOutput; // sensible load delivered with compressor off (W)
 
@@ -767,7 +758,7 @@ namespace WindowAC {
         // need to check all Window AC units to see if they are on Zone Equipment List or issue warning
         if (!state.dataWindowAC->ZoneEquipmentListChecked && state.dataZoneEquip->ZoneEquipInputsFilled) {
             state.dataWindowAC->ZoneEquipmentListChecked = true;
-            for (Loop = 1; Loop <= state.dataWindowAC->NumWindAC; ++Loop) {
+            for (int Loop = 1; Loop <= state.dataWindowAC->NumWindAC; ++Loop) {
                 if (CheckZoneEquipmentList(state,
                                            state.dataWindowAC->cWindowAC_UnitTypes(state.dataWindowAC->WindAC(Loop).UnitType),
                                            state.dataWindowAC->WindAC(Loop).Name))
@@ -788,9 +779,9 @@ namespace WindowAC {
 
         // Do the Begin Environment initializations
         if (state.dataGlobal->BeginEnvrnFlag && state.dataWindowAC->MyEnvrnFlag(WindACNum)) {
-            InNode = state.dataWindowAC->WindAC(WindACNum).AirInNode;
-            OutNode = state.dataWindowAC->WindAC(WindACNum).AirOutNode;
-            OutsideAirNode = state.dataWindowAC->WindAC(WindACNum).OutsideAirNode;
+            int InNode = state.dataWindowAC->WindAC(WindACNum).AirInNode;
+            int OutNode = state.dataWindowAC->WindAC(WindACNum).AirOutNode;
+            int OutsideAirNode = state.dataWindowAC->WindAC(WindACNum).OutsideAirNode;
             RhoAir = state.dataEnvrn->StdRhoAir;
             // set the mass flow rates from the input volume flow rates
             state.dataWindowAC->WindAC(WindACNum).MaxAirMassFlow = RhoAir * state.dataWindowAC->WindAC(WindACNum).MaxAirVolFlow;
@@ -818,8 +809,8 @@ namespace WindowAC {
         }
 
         // These initializations are done every iteration
-        InletNode = state.dataWindowAC->WindAC(WindACNum).AirInNode;
-        OutsideAirNode = state.dataWindowAC->WindAC(WindACNum).OutsideAirNode;
+        int InletNode = state.dataWindowAC->WindAC(WindACNum).AirInNode;
+        int OutsideAirNode = state.dataWindowAC->WindAC(WindACNum).OutsideAirNode;
         AirRelNode = state.dataWindowAC->WindAC(WindACNum).AirReliefNode;
         // Set the inlet node mass flow rate
         if (GetCurrentScheduleValue(state, state.dataWindowAC->WindAC(WindACNum).SchedPtr) <= 0.0 ||
