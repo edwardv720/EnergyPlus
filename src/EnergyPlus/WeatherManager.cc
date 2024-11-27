@@ -144,9 +144,9 @@ namespace Weather {
 
         InitializeWeather(state, state.dataWeather->PrintEnvrnStamp);
 
-        bool anyEMSRan = false;
         // Cannot call this during sizing, because EMS will not initialize properly until after simulation kickoff
         if (!state.dataGlobal->DoingSizing && !state.dataGlobal->KickOffSimulation) {
+            bool anyEMSRan = false;
             EMSManager::ManageEMS(state,
                                   EMSManager::EMSCallFrom::BeginZoneTimestepBeforeSetCurrentWeather,
                                   anyEMSRan,
@@ -341,12 +341,6 @@ namespace Weather {
         static constexpr std::string_view EnvDSTYFormat("Environment:Daylight Saving,Yes,{},{},{}\n");
         static constexpr std::string_view DateFormat("{:02}/{:02}");
         static constexpr std::string_view DateFormatWithYear("{:02}/{:02}/{:04}");
-        std::string StDate;
-        std::string EnDate;
-        int DSTActStMon;
-        int DSTActStDay;
-        int DSTActEnMon;
-        int DSTActEnDay;
 
         if (state.dataGlobal->BeginSimFlag && state.dataWeather->GetEnvironmentFirstCall) {
 
@@ -833,8 +827,14 @@ namespace Weather {
                         state.dataWeather->PrntEnvHeaders = false;
                     }
 
+                    std::string StDate;
+                    std::string EnDate;
                     if ((state.dataGlobal->KindOfSim == Constant::KindOfSim::RunPeriodWeather) ||
                         (state.dataGlobal->KindOfSim == Constant::KindOfSim::RunPeriodDesign)) {
+                        int DSTActStMon;
+                        int DSTActStDay;
+                        int DSTActEnMon;
+                        int DSTActEnDay;
                         std::string kindOfRunPeriod = envCurr.cKindOfEnvrn;
                         state.dataEnvrn->RunPeriodEnvironment = state.dataGlobal->KindOfSim == Constant::KindOfSim::RunPeriodWeather;
                         state.dataEnvrn->CurrentYearIsLeapYear = state.dataWeather->Environment(state.dataWeather->Envrn).IsLeapYear;
@@ -868,7 +868,7 @@ namespace Weather {
 
                         if (envCurr.ActualWeather) {
                             // Actual weather
-                            for (auto &dataperiod : state.dataWeather->DataPeriods) {
+                            for (auto const &dataperiod : state.dataWeather->DataPeriods) {
                                 int runStartJulian = dataperiod.DataStJDay;
                                 int runEndJulian = dataperiod.DataEnJDay;
                                 if (!dataperiod.HasYearData) {
@@ -1226,7 +1226,7 @@ namespace Weather {
                     CurWeekDay -= 7;
                 }
                 WeekDays(i) = CurWeekDay;
-            } else if ((i >= 4) && (i <= 12)) {
+            } else {
                 CurWeekDay += state.dataWeather->EndDayOfMonth(i - 1);
                 while (CurWeekDay > 7) {
                     CurWeekDay -= 7;
@@ -1324,7 +1324,7 @@ namespace Weather {
                         CurWeekDay -= 7;
                     }
                     WeekDays(i) = CurWeekDay;
-                } else if ((i >= 4) && (i <= 12)) {
+                } else {
                     CurWeekDay += state.dataWeather->EndDayOfMonth(i - 1);
                     while (CurWeekDay > 7) {
                         CurWeekDay -= 7;
@@ -1419,7 +1419,7 @@ namespace Weather {
                             CurWeekDay -= 7;
                         }
                         WeekDays(i) = CurWeekDay;
-                    } else if ((i >= 4) && (i <= 12)) {
+                    } else {
                         CurWeekDay += state.dataWeather->EndDayOfMonth(i - 1);
                         while (CurWeekDay > 7) {
                             CurWeekDay -= 7;
@@ -2067,9 +2067,9 @@ namespace Weather {
 
             auto const &envCurr = state.dataWeather->Environment(state.dataWeather->Envrn);
             int const envrnDayNum = envCurr.DesignDayNum;
-            auto &desDayInput = state.dataWeather->DesDayInput(envrnDayNum);
+            auto const &desDayInput = state.dataWeather->DesDayInput(envrnDayNum);
             auto &spSiteSchedule = state.dataWeather->spSiteSchedules(envrnDayNum);
-            auto &desDayMod = state.dataWeather->desDayMods(envrnDayNum)(state.dataGlobal->TimeStep, state.dataGlobal->HourOfDay);
+            auto const &desDayMod = state.dataWeather->desDayMods(envrnDayNum)(state.dataGlobal->TimeStep, state.dataGlobal->HourOfDay);
 
             if (desDayInput.dryBulbRangeType != DesDayDryBulbRangeType::Default) {
                 spSiteSchedule.OutDryBulbTemp = desDayMod.OutDryBulbTemp;
@@ -5570,7 +5570,7 @@ namespace Weather {
                 specialDay.WeekDay = PWeekDay;
                 specialDay.CompDate = 0;
                 specialDay.WthrFile = false;
-            } else if (dateType == DateType::Invalid) {
+            } else {
                 ShowSevereInvalidKey(state, eoh, ipsc->cAlphaFieldNames(2), AlphArray(2));
                 ErrorsFound = true;
             }
@@ -6607,20 +6607,20 @@ namespace Weather {
             wpSkyTemp.Name = !ipsc->lAlphaFieldBlanks(1) ? ipsc->cAlphaArgs(1) : "All RunPeriods";
 
             // Validate Calculation Type.
-            std::string units;
+            // std::string units;
             Constant::Units unitType;
             wpSkyTemp.skyTempModel = static_cast<SkyTempModel>(getEnumValue(Weather::SkyTempModelNamesUC, ipsc->cAlphaArgs(2)));
 
             switch (wpSkyTemp.skyTempModel) {
             case SkyTempModel::ScheduleValue: {
                 wpSkyTemp.IsSchedule = true;
-                units = "[C]";
+                // units = "[C]";
                 unitType = Constant::Units::C;
             } break;
             case SkyTempModel::DryBulbDelta:
             case SkyTempModel::DewPointDelta: {
                 wpSkyTemp.IsSchedule = true;
-                units = "[deltaC]";
+                // units = "[deltaC]";
                 unitType = Constant::Units::deltaC;
             } break;
             case SkyTempModel::Brunt:
@@ -7233,7 +7233,6 @@ namespace Weather {
         Real64 tz; // resultant tz meridian
         for (int i = -12; i <= 12; ++i) {
             if (temp > longl(i) && temp <= longh(i)) {
-                tz = i;
                 tz = mod(i, 24.0);
                 GetSTM = tz;
                 break;
@@ -7739,7 +7738,7 @@ namespace Weather {
                                 specialDay.Duration = 1;
                                 specialDay.DayType = 1;
                                 specialDay.WthrFile = true;
-                            } else if (dateType == DateType::Invalid) {
+                            } else {
                                 ShowSevereError(state, format("Invalid SpecialDay Date Field(WeatherFile)={}", Line.substr(0, Pos)));
                                 ErrorsFound = true;
                             }
