@@ -5916,15 +5916,15 @@ namespace Weather {
                 desDayInput.dryBulbRangeType = DesDayDryBulbRangeType::Default;
             }
 
-            std::string units;
+            // std::string units; // not used
             if (desDayInput.dryBulbRangeType == DesDayDryBulbRangeType::Multiplier) {
-                units = "[]";
+                // units = "[]";
                 unitType = Constant::Units::None;
             } else if (desDayInput.dryBulbRangeType == DesDayDryBulbRangeType::Difference) {
-                units = "[deltaC]";
+                // units = "[deltaC]";
                 unitType = Constant::Units::deltaC;
             } else if (desDayInput.dryBulbRangeType == DesDayDryBulbRangeType::Profile) {
-                units = "[C]";
+                // units = "[C]";
                 unitType = Constant::Units::C;
             }
 
@@ -6107,12 +6107,12 @@ namespace Weather {
             } break;
 
             case DesDayHumIndType::RelHumSch: {
-                units = "[%]";
+                // units = "[%]";
                 unitType = Constant::Units::Perc;
             } break;
 
             case DesDayHumIndType::WBProfMul: {
-                units = "[]";
+                // units = "[]";
                 unitType = Constant::Units::None;
                 if (ipsc->lNumericFieldBlanks(5)) {
                     ShowSevereEmptyField(state, eoh, ipsc->cNumericFieldNames(5), ipsc->cAlphaFieldNames(5), ipsc->cAlphaArgs(5));
@@ -6123,7 +6123,7 @@ namespace Weather {
             } break;
 
             case DesDayHumIndType::WBProfDif: {
-                units = "[]";
+                // units = "[]";
                 unitType = Constant::Units::None;
                 if (ipsc->lNumericFieldBlanks(5)) {
                     ShowSevereEmptyField(state, eoh, ipsc->cNumericFieldNames(5), ipsc->cAlphaFieldNames(5), ipsc->cAlphaArgs(5));
@@ -6279,7 +6279,7 @@ namespace Weather {
                             desDayModsEnvrn(iTS, iHr).BeamSolarRad = tmp(iTS, iHr);
 
                     unitType = Constant::Units::W_m2;
-                    units = "[W/m2]";
+                    // units = "[W/m2]";
                     if (std::find(state.dataWeather->spSiteSchedNums.begin(),
                                   state.dataWeather->spSiteSchedNums.end(),
                                   desDayInput.BeamSolarSchPtr) == state.dataWeather->spSiteSchedNums.end()) {
@@ -6317,7 +6317,7 @@ namespace Weather {
                         for (int iTS = 1; iTS <= state.dataGlobal->NumOfTimeStepInHour; ++iTS)
                             desDayModsEnvrn(iTS, iHr).DifSolarRad = tmp(iTS, iHr);
 
-                    units = "[W/m2]";
+                    // units = "[W/m2]";
                     unitType = Constant::Units::W_m2;
                     if (std::find(state.dataWeather->spSiteSchedNums.begin(),
                                   state.dataWeather->spSiteSchedNums.end(),
