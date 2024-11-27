@@ -7672,7 +7672,7 @@ namespace Window {
 
         // Argument array dimensioning
         c.dim(15);
-        // p.dim(16); // not actually used
+        p.dim(16); // not actually used
 
         Array1D<Real64> fEdgeSource(10); // Slat edge correction factor vs source elevation
         Array1D<Real64> fEdgeA(2);       // Average slat edge correction factor for upper and lower quadrants
@@ -7800,11 +7800,11 @@ namespace Window {
         Real64 fEdge = 0.5 * (fEdgeA(1) + fEdgeA(2)); // Slat edge correction factor
 
         //     Front diffuse-diffuse transmittance (transmittance of slat edge assumed zero)
-        // p(9) = G(2) * (1.0 - fEdge);
+        p(9) = G(2) * (1.0 - fEdge);
 
         //     Front diffuse-diffuse reflectance (edge of slat is assumed to have same diffuse
         //     reflectance as front side of slat, c(11))
-        // p(10) = G(1) * (1.0 - fEdge) + fEdge * c(11);
+        p(10) = G(1) * (1.0 - fEdge) + fEdge * c(11);
 
         //-----------Calculate diffuse short-wave properties for the back side of the blind
 
@@ -7837,10 +7837,10 @@ namespace Window {
         }
 
         //     Back diffuse-diffuse transmittance
-        // p(11) = G(1) * (1.0 - fEdge);
+        p(11) = G(1) * (1.0 - fEdge);
 
         //     Back hemi-hemi reflectance
-        // p(12) = G(2) * (1.0 - fEdge) + fEdge * c(11);
+        p(12) = G(2) * (1.0 - fEdge) + fEdge * c(11);
 
         if (ISolVis == 1) {
 
@@ -7897,14 +7897,14 @@ namespace Window {
             }
 
             //     Front diffuse-diffuse IR transmittance (transmittance of slat edge assumed zero)
-            // p(13) = G(2) * (1.0 - fEdge);
+            p(13) = G(2) * (1.0 - fEdge);
 
             //     Front diffuse-diffuse IR reflectance (edge of slat is assumed to have same IR
             //     reflectance as front side of slat, ri)
-            // Real64 BlindIRreflFront = G(1) * (1.0 - fEdge) + fEdge * ri; // Blind front IR reflectance
+            Real64 BlindIRreflFront = G(1) * (1.0 - fEdge) + fEdge * ri; // Blind front IR reflectance
 
             //     Front IR emissivity
-            // p(14) = max(0.0001, 1.0 - p(13) - BlindIRreflFront);
+            p(14) = max(0.0001, 1.0 - p(13) - BlindIRreflFront);
 
             //-----------Calculate diffuse IR properties for the BACK side of the blind
 
@@ -7937,10 +7937,10 @@ namespace Window {
             }
 
             //     Back diffuse-diffuse IR reflectance
-            // Real64 BlindIRreflBack = G(2) * (1.0 - fEdge) + fEdge * ri; // Blind back IR reflectance
+            Real64 BlindIRreflBack = G(2) * (1.0 - fEdge) + fEdge * ri; // Blind back IR reflectance
 
             //     Back IR emissivity
-            // p(15) = max(0.0001, 1.0 - p(13) - BlindIRreflBack);
+            p(15) = max(0.0001, 1.0 - p(13) - BlindIRreflBack);
 
         } // End of IR properties calculation
     }     // BlindOpticsDiffuse()
