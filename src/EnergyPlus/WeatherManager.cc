@@ -831,10 +831,10 @@ namespace Weather {
                     std::string EnDate;
                     if ((state.dataGlobal->KindOfSim == Constant::KindOfSim::RunPeriodWeather) ||
                         (state.dataGlobal->KindOfSim == Constant::KindOfSim::RunPeriodDesign)) {
-                        int DSTActStMon;
-                        int DSTActStDay;
-                        int DSTActEnMon;
-                        int DSTActEnDay;
+                        int DSTActStMon = 0;
+                        int DSTActStDay = 0;
+                        int DSTActEnMon = 0;
+                        int DSTActEnDay = 0;
                         std::string kindOfRunPeriod = envCurr.cKindOfEnvrn;
                         state.dataEnvrn->RunPeriodEnvironment = state.dataGlobal->KindOfSim == Constant::KindOfSim::RunPeriodWeather;
                         state.dataEnvrn->CurrentYearIsLeapYear = state.dataWeather->Environment(state.dataWeather->Envrn).IsLeapYear;
@@ -8073,8 +8073,6 @@ namespace Weather {
         // Create arrays (InterpolationValues, SolarInterpolationValues) dependent on
         // Number of Time Steps in Hour.  This will be used in the "SetCurrentWeather" procedure.
 
-        int halfpoint = 0;
-
         state.dataWeather->Interpolation.allocate(state.dataGlobal->NumOfTimeStepInHour);
         state.dataWeather->SolarInterpolation.allocate(state.dataGlobal->NumOfTimeStepInHour);
         state.dataWeather->Interpolation = 0.0;
@@ -8087,7 +8085,7 @@ namespace Weather {
 
         if (mod(state.dataGlobal->NumOfTimeStepInHour, 2) == 0) {
             // even number of time steps.
-            halfpoint = state.dataGlobal->NumOfTimeStepInHour / 2;
+            int halfpoint = state.dataGlobal->NumOfTimeStepInHour / 2;
             state.dataWeather->SolarInterpolation(halfpoint) = 1.0;
             Real64 tweight = 1.0 / double(state.dataGlobal->NumOfTimeStepInHour);
             for (int tloop = halfpoint + 1, hpoint = 1; tloop <= state.dataGlobal->NumOfTimeStepInHour; ++tloop, ++hpoint) {
@@ -8105,7 +8103,7 @@ namespace Weather {
                 state.dataWeather->SolarInterpolation(3) = 0.5;
             } else {
                 Real64 tweight = 1.0 / double(state.dataGlobal->NumOfTimeStepInHour);
-                halfpoint = state.dataGlobal->NumOfTimeStepInHour / 2;
+                int halfpoint = state.dataGlobal->NumOfTimeStepInHour / 2;
                 Real64 tweight1 = 1.0 - tweight / 2.0;
                 state.dataWeather->SolarInterpolation(halfpoint) = tweight1;
                 state.dataWeather->SolarInterpolation(halfpoint + 1) = tweight1;
