@@ -3605,7 +3605,7 @@ namespace Weather {
             WBRange = desDayInput.DailyWBRange;
         }
 
-        auto const &desDayModsEnvrn = state.dataWeather->desDayMods(EnvrnNum);
+        auto &desDayModsEnvrn = state.dataWeather->desDayMods(EnvrnNum);
         for (int hour = 1; hour <= Constant::HoursInDay; ++hour) {
             for (int ts = 1; ts <= state.dataGlobal->NumOfTimeStepInHour; ++ts) {
                 auto const &desDayModsTS = desDayModsEnvrn(ts, hour);
@@ -3789,7 +3789,6 @@ namespace Weather {
             case SkyTempModel::ScheduleValue: {
                 Array2D<Real64> tmp = Array2D<Real64>(state.dataGlobal->NumOfTimeStepInHour, Constant::HoursInDay);
                 ScheduleManager::GetSingleDayScheduleValues(state, state.dataWeather->WPSkyTemperature(envCurr.WP_Type1).SchedulePtr, tmp);
-                auto &desDayModsEnvrn = state.dataWeather->desDayMods(EnvrnNum);
                 ForAllHrTs(state, [&state, &tmp, &desDayModsEnvrn](int iHr, int iTS) {
                     state.dataWeather->wvarsHrTsTomorrow(iTS, iHr).SkyTemp = desDayModsEnvrn(iTS, iHr).SkyTemp = tmp(iTS, iHr);
                 });
@@ -3797,7 +3796,6 @@ namespace Weather {
             case SkyTempModel::DryBulbDelta: {
                 Array2D<Real64> tmp = Array2D<Real64>(state.dataGlobal->NumOfTimeStepInHour, Constant::HoursInDay);
                 ScheduleManager::GetSingleDayScheduleValues(state, state.dataWeather->WPSkyTemperature(envCurr.WP_Type1).SchedulePtr, tmp);
-                auto &desDayModsEnvrn = state.dataWeather->desDayMods(EnvrnNum);
                 ForAllHrTs(state, [&state, &tmp, &desDayModsEnvrn](int iHr, int iTS) {
                     auto &tomorrowTS = state.dataWeather->wvarsHrTsTomorrow(iTS, iHr);
                     desDayModsEnvrn(iTS, iHr).SkyTemp = tmp(iTS, iHr);
@@ -3807,7 +3805,6 @@ namespace Weather {
             case SkyTempModel::DewPointDelta: {
                 Array2D<Real64> tmp = Array2D<Real64>(state.dataGlobal->NumOfTimeStepInHour, Constant::HoursInDay);
                 ScheduleManager::GetSingleDayScheduleValues(state, state.dataWeather->WPSkyTemperature(envCurr.WP_Type1).SchedulePtr, tmp);
-                auto &desDayModsEnvrn = state.dataWeather->desDayMods(EnvrnNum);
                 ForAllHrTs(state, [&state, &tmp, &desDayModsEnvrn](int iHr, int iTS) {
                     auto &tomorrowTS = state.dataWeather->wvarsHrTsTomorrow(iTS, iHr);
                     desDayModsEnvrn(iTS, iHr).SkyTemp = tmp(iTS, iHr);
@@ -7155,10 +7152,10 @@ namespace Weather {
         state.dataEnvrn->SkyClearness =
             ((state.dataEnvrn->DifSolarRad + state.dataEnvrn->BeamSolarRad) / (state.dataEnvrn->DifSolarRad + 0.0001) + Zeta) / (1.0 + Zeta);
         // Relative optical air mass
-        Real64 const AirMass = (1.0 - 0.1 * state.dataEnvrn->Elevation / 1000.0) /
-                               (SinSunAltitude + 0.15 / std::pow(SunAltitude / Constant::DegToRadians + 3.885, 1.253));
+        Real64 const relAirMass = (1.0 - 0.1 * state.dataEnvrn->Elevation / 1000.0) /
+                                  (SinSunAltitude + 0.15 / std::pow(SunAltitude / Constant::DegToRadians + 3.885, 1.253));
         // In the following, 93.73 is the extraterrestrial luminous efficacy
-        state.dataEnvrn->SkyBrightness = (state.dataEnvrn->DifSolarRad * 93.73) * AirMass / ExtraDirNormIll[state.dataEnvrn->Month - 1];
+        state.dataEnvrn->SkyBrightness = (state.dataEnvrn->DifSolarRad * 93.73) * relAirMass / ExtraDirNormIll[state.dataEnvrn->Month - 1];
         int ISkyClearness; // Sky clearness bin
         if (state.dataEnvrn->SkyClearness <= 1.065) {
             ISkyClearness = 0;
@@ -8503,12 +8500,10 @@ namespace Weather {
                     // increase number of days for february by one day if weather data has leap year
                     EndDayOfMonthLocal(2) = EndDayOfMonthLocal(2) + 1;
                 }
-                int DayNum;
-                int DaysCountOfMonth;
                 for (int i = 1; i <= 12; ++i) {
                     Real64 MonthlyDailyDryBulbAvg = 0.0;
-                    DaysCountOfMonth = EndDayOfMonthLocal(i);
-                    for (DayNum = 1; DayNum <= DaysCountOfMonth; ++DayNum) {
+                    int DaysCountOfMonth = EndDayOfMonthLocal(i);
+                    for (int DayNum = 1; DayNum <= DaysCountOfMonth; ++DayNum) {
                         Real64 DailyAverageDryBulbTemp = 0.0;
                         std::string::size_type pos;
                         for (int j = 1; j <= 24; ++j) {
