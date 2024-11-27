@@ -1060,12 +1060,7 @@ namespace WindowAC {
         // If unit is on, calls ControlWindACOutput to obtain the desired unit output
 
         Real64 PartLoadFrac; // unit part load fraction
-        Real64 SensCoolOut;  // Moist air sensible cooling rate [W]
-        Real64 QTotUnitOut;  // total unit output [watts]
-        Real64 MinHumRat;    // minimum of inlet & outlet humidity ratio
         bool HXUnitOn;       // Used to control HX heat recovery as needed
-        Real64 SpecHumOut;   // Specific humidity ratio of outlet air (kg moisture / kg moist air)
-        Real64 SpecHumIn;    // Specific humidity ratio of inlet air (kg moisture / kg moist air)
 
         // zero the DX coil electricity consumption
 
@@ -1117,19 +1112,19 @@ namespace WindowAC {
         // manipulated in subroutine CalcWindowACOutput
 
         AirMassFlow = state.dataLoopNodes->Node(InletNode).MassFlowRate;
-        MinHumRat = min(state.dataLoopNodes->Node(InletNode).HumRat, state.dataLoopNodes->Node(OutletNode).HumRat);
+        Real64 MinHumRat = min(state.dataLoopNodes->Node(InletNode).HumRat, state.dataLoopNodes->Node(OutletNode).HumRat);
         QUnitOut = AirMassFlow * (PsyHFnTdbW(state.dataLoopNodes->Node(OutletNode).Temp, MinHumRat) -
                                   PsyHFnTdbW(state.dataLoopNodes->Node(InletNode).Temp, MinHumRat));
 
-        SensCoolOut = AirMassFlow * (PsyHFnTdbW(state.dataLoopNodes->Node(OutletNode).Temp, MinHumRat) -
-                                     PsyHFnTdbW(state.dataLoopNodes->Node(InletNode).Temp, MinHumRat));
+        Real64 SensCoolOut = AirMassFlow * (PsyHFnTdbW(state.dataLoopNodes->Node(OutletNode).Temp, MinHumRat) -
+                                            PsyHFnTdbW(state.dataLoopNodes->Node(InletNode).Temp, MinHumRat));
 
         // CR9155 Remove specific humidity calculations
-        SpecHumOut = state.dataLoopNodes->Node(OutletNode).HumRat;
-        SpecHumIn = state.dataLoopNodes->Node(InletNode).HumRat;
+        Real64 SpecHumOut = state.dataLoopNodes->Node(OutletNode).HumRat;
+        Real64 SpecHumIn = state.dataLoopNodes->Node(InletNode).HumRat;
         LatentOutput = AirMassFlow * (SpecHumOut - SpecHumIn); // Latent rate, kg/s
 
-        QTotUnitOut = AirMassFlow * (state.dataLoopNodes->Node(OutletNode).Enthalpy - state.dataLoopNodes->Node(InletNode).Enthalpy);
+        Real64 QTotUnitOut = AirMassFlow * (state.dataLoopNodes->Node(OutletNode).Enthalpy - state.dataLoopNodes->Node(InletNode).Enthalpy);
 
         // report variables
         state.dataWindowAC->WindAC(WindACNum).CompPartLoadRatio = state.dataWindowAC->WindAC(WindACNum).PartLoadFrac;
@@ -1161,8 +1156,6 @@ namespace WindowAC {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         Fred Buhl
         //       DATE WRITTEN   May 2000
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // Fills some of the report variables for the window AC units
@@ -1195,7 +1188,6 @@ namespace WindowAC {
         //       AUTHOR         Fred Buhl
         //       DATE WRITTEN   May 2000
         //       MODIFIED       July 2012, Chandan Sharma - FSEC: Added zone sys avail managers
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // Simulate the components making up the cycling window AC unit.
@@ -1203,20 +1195,10 @@ namespace WindowAC {
         // METHODOLOGY EMPLOYED:
         // Simulates the unit components sequentially in the air flow direction.
 
-        using DXCoils::SimDXCoil;
-        using HVACHXAssistedCoolingCoil::SimHXAssistedCoolingCoil;
-
-        int OutletNode;     // unit air outlet node
-        int InletNode;      // unit air inlet node
-        int OutsideAirNode; // outside air node number in window AC loop
-        int AirRelNode;     // relief air node number in window AC loop
-        Real64 AirMassFlow; // total mass flow through the unit
-        Real64 MinHumRat;   // minimum of inlet & outlet humidity ratio
-
-        OutletNode = state.dataWindowAC->WindAC(WindACNum).AirOutNode;
-        InletNode = state.dataWindowAC->WindAC(WindACNum).AirInNode;
-        OutsideAirNode = state.dataWindowAC->WindAC(WindACNum).OutsideAirNode;
-        AirRelNode = state.dataWindowAC->WindAC(WindACNum).AirReliefNode;
+        int OutletNode = state.dataWindowAC->WindAC(WindACNum).AirOutNode;
+        int InletNode = state.dataWindowAC->WindAC(WindACNum).AirInNode;
+        int OutsideAirNode = state.dataWindowAC->WindAC(WindACNum).OutsideAirNode;
+        int AirRelNode = state.dataWindowAC->WindAC(WindACNum).AirReliefNode;
         // for cycling fans, pretend we have VAV
         if (fanOp == HVAC::FanOp::Cycling) {
             state.dataLoopNodes->Node(InletNode).MassFlowRate = state.dataLoopNodes->Node(InletNode).MassFlowRateMax * PartLoadFrac;
@@ -1225,7 +1207,7 @@ namespace WindowAC {
                 min(state.dataLoopNodes->Node(OutsideAirNode).MassFlowRateMax, state.dataLoopNodes->Node(InletNode).MassFlowRate);
             state.dataLoopNodes->Node(AirRelNode).MassFlowRate = state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate;
         }
-        AirMassFlow = state.dataLoopNodes->Node(InletNode).MassFlowRate;
+        Real64 AirMassFlow = state.dataLoopNodes->Node(InletNode).MassFlowRate;
         MixedAir::SimOAMixer(state, state.dataWindowAC->WindAC(WindACNum).OAMixName, state.dataWindowAC->WindAC(WindACNum).OAMixIndex);
 
         // if blow through, simulate fan then coil. For draw through, simulate coil then fan.
@@ -1234,14 +1216,14 @@ namespace WindowAC {
         }
 
         if (state.dataWindowAC->WindAC(WindACNum).DXCoilType_Num == CoilDX_CoolingHXAssisted) {
-            SimHXAssistedCoolingCoil(state,
-                                     state.dataWindowAC->WindAC(WindACNum).DXCoilName,
-                                     FirstHVACIteration,
-                                     HVAC::CompressorOp::On,
-                                     PartLoadFrac,
-                                     state.dataWindowAC->WindAC(WindACNum).DXCoilIndex,
-                                     state.dataWindowAC->WindAC(WindACNum).fanOp,
-                                     HXUnitOn);
+            HVACHXAssistedCoolingCoil::SimHXAssistedCoolingCoil(state,
+                                                                state.dataWindowAC->WindAC(WindACNum).DXCoilName,
+                                                                FirstHVACIteration,
+                                                                HVAC::CompressorOp::On,
+                                                                PartLoadFrac,
+                                                                state.dataWindowAC->WindAC(WindACNum).DXCoilIndex,
+                                                                state.dataWindowAC->WindAC(WindACNum).fanOp,
+                                                                HXUnitOn);
         } else if (state.dataWindowAC->WindAC(WindACNum).DXCoilType_Num == HVAC::Coil_CoolingAirToAirVariableSpeed) {
             Real64 QZnReq(-1.0);           // Zone load (W), input to variable-speed DX coil
             Real64 QLatReq(0.0);           // Zone latent load, input to variable-speed DX coil
@@ -1260,20 +1242,20 @@ namespace WindowAC {
                                                       OnOffAirFlowRatio);
 
         } else {
-            SimDXCoil(state,
-                      state.dataWindowAC->WindAC(WindACNum).DXCoilName,
-                      HVAC::CompressorOp::On,
-                      FirstHVACIteration,
-                      state.dataWindowAC->WindAC(WindACNum).DXCoilIndex,
-                      state.dataWindowAC->WindAC(WindACNum).fanOp,
-                      PartLoadFrac);
+            DXCoils::SimDXCoil(state,
+                               state.dataWindowAC->WindAC(WindACNum).DXCoilName,
+                               HVAC::CompressorOp::On,
+                               FirstHVACIteration,
+                               state.dataWindowAC->WindAC(WindACNum).DXCoilIndex,
+                               state.dataWindowAC->WindAC(WindACNum).fanOp,
+                               PartLoadFrac);
         }
 
         if (state.dataWindowAC->WindAC(WindACNum).fanPlace == HVAC::FanPlace::DrawThru) {
             state.dataFans->fans(state.dataWindowAC->WindAC(WindACNum).FanIndex)->simulate(state, FirstHVACIteration, PartLoadFrac);
         }
 
-        MinHumRat = min(state.dataLoopNodes->Node(InletNode).HumRat, state.dataLoopNodes->Node(OutletNode).HumRat);
+        Real64 MinHumRat = min(state.dataLoopNodes->Node(InletNode).HumRat, state.dataLoopNodes->Node(OutletNode).HumRat);
         LoadMet = AirMassFlow * (PsyHFnTdbW(state.dataLoopNodes->Node(OutletNode).Temp, MinHumRat) -
                                  PsyHFnTdbW(state.dataLoopNodes->Node(InletNode).Temp, MinHumRat));
     }
@@ -1292,7 +1274,6 @@ namespace WindowAC {
         //       AUTHOR         Fred Buhl
         //       DATE WRITTEN   May 2000
         //       MODIFIED       Shirey, May 2001
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // Determine the part load fraction of the air conditioner for this time step
@@ -1306,13 +1287,6 @@ namespace WindowAC {
         Real64 FullOutput;   // unit full output [W]
         Real64 NoCoolOutput; // output when no active cooling [W]
         Real64 ActualOutput; // output at current partloadfrac [W]
-        Real64 Error;        // error between QznReq and ActualOutput [W]
-        Real64 ErrorToler;   // error tolerance
-        int Iter;            // iteration counter
-        // CHARACTER(len=20) :: ErrNum
-        // INTEGER,SAVE :: ErrCount=0
-        Real64 DelPLF;
-        Real64 Relax;
 
         // DX Cooling HX assisted coils can cycle the heat exchanger, see if coil ON, HX OFF can meet humidity setpoint if one exists
         if (state.dataWindowAC->WindAC(WindACNum).DXCoilType_Num == CoilDX_CoolingHXAssisted) {
@@ -1369,16 +1343,16 @@ namespace WindowAC {
 
         PartLoadFrac = max(MinPLF, std::abs(QZnReq - NoCoolOutput) / std::abs(FullOutput - NoCoolOutput));
 
-        ErrorToler = state.dataWindowAC->WindAC(WindACNum).ConvergenceTol; // Error tolerance for convergence from input deck
-        Error = 1.0;                                                       // initialize error value for comparison against tolerance
-        Iter = 0;                                                          // initialize iteration counter
-        Relax = 1.0;
+        Real64 ErrorToler = state.dataWindowAC->WindAC(WindACNum).ConvergenceTol; // Error tolerance for convergence from input deck
+        Real64 Error = 1.0;                                                       // initialize error value for comparison against tolerance
+        int Iter = 0;                                                             // initialize iteration counter
+        Real64 Relax = 1.0;
 
         while ((std::abs(Error) > ErrorToler) && (Iter <= MaxIter) && PartLoadFrac > MinPLF) {
             // Get result when DX coil is operating at partloadfrac
             CalcWindowACOutput(state, WindACNum, FirstHVACIteration, fanOp, PartLoadFrac, HXUnitOn, ActualOutput);
             Error = (QZnReq - ActualOutput) / QZnReq;
-            DelPLF = (QZnReq - ActualOutput) / FullOutput;
+            Real64 DelPLF = (QZnReq - ActualOutput) / FullOutput;
             PartLoadFrac += Relax * DelPLF;
             PartLoadFrac = max(MinPLF, min(1.0, PartLoadFrac));
             ++Iter;
@@ -1427,7 +1401,7 @@ namespace WindowAC {
                 // Get result when DX coil is operating at partloadfrac
                 CalcWindowACOutput(state, WindACNum, FirstHVACIteration, fanOp, PartLoadFrac, HXUnitOn, ActualOutput);
                 Error = (QZnReq - ActualOutput) / QZnReq;
-                DelPLF = (QZnReq - ActualOutput) / FullOutput;
+                Real64 DelPLF = (QZnReq - ActualOutput) / FullOutput;
                 PartLoadFrac += Relax * DelPLF;
                 PartLoadFrac = max(MinPLF, min(1.0, PartLoadFrac));
                 ++Iter;
@@ -1480,8 +1454,6 @@ namespace WindowAC {
         // FUNCTION INFORMATION:
         //       AUTHOR         B Griffith
         //       DATE WRITTEN   Dec  2006
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS FUNCTION:
         // lookup function for zone inlet node
@@ -1505,23 +1477,16 @@ namespace WindowAC {
         // FUNCTION INFORMATION:
         //       AUTHOR         B Griffith
         //       DATE WRITTEN   Dec  2006
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS FUNCTION:
         // lookup function for OA inlet node
-
-        // Return value
-        int GetWindowACOutAirNode;
 
         if (state.dataWindowAC->GetWindowACInputFlag) {
             GetWindowAC(state);
             state.dataWindowAC->GetWindowACInputFlag = false;
         }
 
-        GetWindowACOutAirNode = state.dataWindowAC->WindAC(WindACNum).OutsideAirNode;
-
-        return GetWindowACOutAirNode;
+        return state.dataWindowAC->WindAC(WindACNum).OutsideAirNode;
     }
 
     int GetWindowACReturnAirNode(EnergyPlusData &state, int const WindACNum)
@@ -1530,13 +1495,9 @@ namespace WindowAC {
         // FUNCTION INFORMATION:
         //       AUTHOR         B Griffith
         //       DATE WRITTEN   Dec  2006
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS FUNCTION:
         // lookup function for mixer return air node for ventilation load reporting
-
-        using MixedAir::GetOAMixerReturnNodeNumber;
 
         // Return value
         int GetWindowACReturnAirNode;
@@ -1548,7 +1509,7 @@ namespace WindowAC {
 
         if (WindACNum > 0 && WindACNum <= state.dataWindowAC->NumWindAC) {
             if (state.dataWindowAC->WindAC(WindACNum).OAMixIndex > 0) {
-                GetWindowACReturnAirNode = GetOAMixerReturnNodeNumber(state, state.dataWindowAC->WindAC(WindACNum).OAMixIndex);
+                GetWindowACReturnAirNode = MixedAir::GetOAMixerReturnNodeNumber(state, state.dataWindowAC->WindAC(WindACNum).OAMixIndex);
             } else {
                 GetWindowACReturnAirNode = 0;
             }
@@ -1565,13 +1526,9 @@ namespace WindowAC {
         // FUNCTION INFORMATION:
         //       AUTHOR         B Griffith
         //       DATE WRITTEN   Dec  2006
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS FUNCTION:
         // lookup function for mixed air node for ventilation rate reporting
-
-        using MixedAir::GetOAMixerMixedNodeNumber;
 
         // Return value
         int GetWindowACMixedAirNode;
@@ -1583,7 +1540,7 @@ namespace WindowAC {
 
         if (WindACNum > 0 && WindACNum <= state.dataWindowAC->NumWindAC) {
             if (state.dataWindowAC->WindAC(WindACNum).OAMixIndex > 0) {
-                GetWindowACMixedAirNode = GetOAMixerMixedNodeNumber(state, state.dataWindowAC->WindAC(WindACNum).OAMixIndex);
+                GetWindowACMixedAirNode = MixedAir::GetOAMixerMixedNodeNumber(state, state.dataWindowAC->WindAC(WindACNum).OAMixIndex);
             } else {
                 GetWindowACMixedAirNode = 0;
             }
