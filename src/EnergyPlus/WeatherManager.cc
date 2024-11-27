@@ -6954,7 +6954,8 @@ namespace Weather {
         }
     }
 
-    Real64 WaterMainsTempFromCorrelation(EnergyPlusData &state, Real64 const AnnualOAAvgDryBulbTemp, Real64 const MonthlyOAAvgDryBulbTempMaxDiff)
+    Real64
+    WaterMainsTempFromCorrelation(EnergyPlusData const &state, Real64 const AnnualOAAvgDryBulbTemp, Real64 const MonthlyOAAvgDryBulbTempMaxDiff)
     {
 
         // SUBROUTINE INFORMATION:
@@ -8649,7 +8650,7 @@ namespace Weather {
         }
     }
 
-    void ForAllHrTs(EnergyPlusData &state, std::function<void(int, int)> f)
+    void ForAllHrTs(EnergyPlusData const &state, std::function<void(int, int)> f)
     {
         for (int iHr = 1; iHr <= Constant::HoursInDay; ++iHr)
             for (int iTS = 1; iTS <= state.dataGlobal->NumOfTimeStepInHour; ++iTS)

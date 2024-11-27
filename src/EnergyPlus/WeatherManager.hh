@@ -642,7 +642,7 @@ namespace Weather {
 
     void CalcWaterMainsTemp(EnergyPlusData &state);
 
-    Real64 WaterMainsTempFromCorrelation(EnergyPlusData &state,
+    Real64 WaterMainsTempFromCorrelation(EnergyPlusData const &state,
                                          Real64 AnnualOAAvgDryBulbTemp,        // annual average OA drybulb temperature
                                          Real64 MonthlyOAAvgDryBulbTempMaxDiff // monthly daily average OA drybulb temperature maximum difference
     );
@@ -763,7 +763,7 @@ namespace Weather {
     };
 
     // Here's a fun little function
-    void ForAllHrTs(EnergyPlusData &state, std::function<void(int, int)> f);
+    void ForAllHrTs(EnergyPlusData const &state, std::function<void(int, int)> f);
 } // namespace Weather
 
 struct WeatherManagerData : BaseGlobalStruct
