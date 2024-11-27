@@ -575,7 +575,7 @@ namespace Weather {
                                    Real64 &CosineSolarDeclination // Cosine of Solar Declination
     );
 
-    void CalculateSunDirectionCosines(EnergyPlusData &state,
+    void CalculateSunDirectionCosines(EnergyPlusData const &state,
                                       Real64 TimeValue,    // Current Time of Day
                                       Real64 EqOfTime,     // Equation of Time
                                       Real64 SinSolDeclin, // Sine of Solar Declination

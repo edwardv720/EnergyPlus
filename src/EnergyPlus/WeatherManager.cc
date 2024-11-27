@@ -4030,7 +4030,7 @@ namespace Weather {
             ASHRAE_C_Coef[8] * (pow_2(pow_2(CosX) - pow_2(SinX)) - pow_2(SinX * CosX * 2.0));
     }
 
-    void CalculateSunDirectionCosines(EnergyPlusData &state,
+    void CalculateSunDirectionCosines(EnergyPlusData const &state,
                                       Real64 const TimeValue,    // Current Time of Day
                                       Real64 const EqOfTime,     // Equation of Time
                                       Real64 const SinSolDeclin, // Sine of Solar Declination
