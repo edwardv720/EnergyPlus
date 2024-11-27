@@ -489,7 +489,8 @@ void CalcCoPlanarNess(Array1D<Vector> &Surf, int const NSides, bool &IsCoPlanar,
     if (std::abs(MaxDist) > Constant::SmallDistance) IsCoPlanar = false;
 }
 
-std::vector<int> PointsInPlane(Array1D<Vector> &BaseSurf, int const BaseSides, Array1D<Vector> &QuerySurf, int const QuerySides, bool &ErrorFound)
+std::vector<int>
+PointsInPlane(Array1D<Vector> &BaseSurf, int const BaseSides, Array1D<Vector> const &QuerySurf, int const QuerySides, bool &ErrorFound)
 {
     std::vector<int> pointIndices;
 
