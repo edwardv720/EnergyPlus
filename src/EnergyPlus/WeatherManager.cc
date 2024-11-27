@@ -1094,8 +1094,8 @@ namespace Weather {
                             } else if (state.dataGlobal->DoOutputReporting) {
                                 print(state.files.eio, EnvDSTNFormat, Source);
                             }
-                            for (int i = 1; i <= state.dataWeather->NumSpecialDays; ++i) {
-                                auto &specialDay = state.dataWeather->SpecialDays(i);
+                            for (int k = 1; k <= state.dataWeather->NumSpecialDays; ++k) {
+                                auto &specialDay = state.dataWeather->SpecialDays(k);
                                 static constexpr std::string_view EnvSpDyFormat("Environment:Special Days,{},{},{},{},{:3}\n");
                                 if (specialDay.WthrFile && state.dataWeather->UseSpecialDays && state.dataReportFlag->DoWeatherInitReporting) {
                                     StDate = format(DateFormat, specialDay.ActStMon, specialDay.ActStDay);
@@ -3925,7 +3925,7 @@ namespace Weather {
         state.dataWeather->wvarsHrTsTomorrow.allocate(state.dataGlobal->NumOfTimeStepInHour, Constant::HoursInDay);
     }
 
-    void CalculateDailySolarCoeffs(EnergyPlusData &state,
+    void CalculateDailySolarCoeffs(EnergyPlusData const &state,
                                    int const DayOfYear,           // Day of year (1 - 366)
                                    Real64 &A,                     // ASHRAE "A" - Apparent solar irradiation at air mass = 0 [W/M**2]
                                    Real64 &B,                     // ASHRAE "B" - Atmospheric extinction coefficient

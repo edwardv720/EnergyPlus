@@ -564,7 +564,7 @@ namespace Weather {
 
     void AllocateWeatherData(EnergyPlusData &state);
 
-    void CalculateDailySolarCoeffs(EnergyPlusData &state,
+    void CalculateDailySolarCoeffs(EnergyPlusData const &state,
                                    int DayOfYear,                 // Day of year (1 - 366)
                                    Real64 &A,                     // ASHRAE "A" - Apparent solar irradiation at air mass = 0 [W/M**2]
                                    Real64 &B,                     // ASHRAE "B" - Atmospheric extinction coefficient
