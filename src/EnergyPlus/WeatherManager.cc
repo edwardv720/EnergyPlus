@@ -2406,13 +2406,13 @@ namespace Weather {
                         ErrorsFound = true;
                     }
 
-                    if (DirectRad < 9999.0 && DirectRad < 0.0) {
+                    if (DirectRad < 0.0) {
                         ShowSevereError(state, format("{}: {}", routineName, state.dataEnvrn->WeatherFileLocationTitle));
                         ShowContinueError(state, format("Direct Radiation ({:.2R}) is out of range [0.0, -]", DirectRad));
                         ErrorsFound = true;
                     }
 
-                    if (DiffuseRad < 9999.0 && DiffuseRad < 0.0) {
+                    if (DiffuseRad < 0.0) {
                         ShowSevereError(state, format("{}: {}", routineName, state.dataEnvrn->WeatherFileLocationTitle));
                         ShowContinueError(state, format("Diffuse Radiation ({:.2R}) is out of range [0.0, -]", DiffuseRad));
                         ErrorsFound = true;
@@ -5779,7 +5779,6 @@ namespace Weather {
         static constexpr std::string_view routineName = "GetDesignDayData";
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-        std::string units;
         Constant::Units unitType;
 
         state.dataWeather->DesDayInput.allocate(TotDesDays); // Allocate the array to the # of DD's
@@ -5917,6 +5916,7 @@ namespace Weather {
                 desDayInput.dryBulbRangeType = DesDayDryBulbRangeType::Default;
             }
 
+            std::string units;
             if (desDayInput.dryBulbRangeType == DesDayDryBulbRangeType::Multiplier) {
                 units = "[]";
                 unitType = Constant::Units::None;
