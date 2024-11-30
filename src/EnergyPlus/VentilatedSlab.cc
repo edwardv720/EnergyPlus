@@ -1830,8 +1830,7 @@ namespace VentilatedSlab {
         // SUBROUTINE PARAMETER DEFINITIONS:
         static constexpr std::string_view RoutineName("SizeVentilatedSlab");
 
-        auto &ZoneEqSizing(state.dataSize->ZoneEqSizing);
-        auto &CurZoneEqNum(state.dataSize->CurZoneEqNum);
+        int CurZoneEqNum = state.dataSize->CurZoneEqNum;
         auto &ventSlab = state.dataVentilatedSlab->VentSlab(Item);
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
@@ -1922,23 +1921,24 @@ namespace VentilatedSlab {
             FieldNum = 1;
             PrintFlag = true;
             SizingString = state.dataVentilatedSlab->VentSlabNumericFields(Item).FieldNames(FieldNum) + " [m3/s]";
+            auto &zoneEqSizing = state.dataSize->ZoneEqSizing(CurZoneEqNum);
             if (state.dataSize->ZoneHVACSizing(zoneHVACIndex).CoolingSAFMethod > 0) {
                 SizingMethod = HVAC::CoolingAirflowSizing;
                 SAFMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).CoolingSAFMethod;
-                ZoneEqSizing(CurZoneEqNum).SizingMethod(SizingMethod) = SAFMethod;
+                zoneEqSizing.SizingMethod(SizingMethod) = SAFMethod;
                 if (SAFMethod == None || SAFMethod == SupplyAirFlowRate || SAFMethod == FlowPerFloorArea ||
                     SAFMethod == FractionOfAutosizedCoolingAirflow) {
                     if (SAFMethod == SupplyAirFlowRate) {
                         if (state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxCoolAirVolFlow > 0.0) {
-                            ZoneEqSizing(CurZoneEqNum).AirVolFlow = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxCoolAirVolFlow;
-                            ZoneEqSizing(CurZoneEqNum).SystemAirFlow = true;
+                            zoneEqSizing.AirVolFlow = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxCoolAirVolFlow;
+                            zoneEqSizing.SystemAirFlow = true;
                         }
                         TempSize = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxCoolAirVolFlow;
                     } else if (SAFMethod == FlowPerFloorArea) {
-                        ZoneEqSizing(CurZoneEqNum).SystemAirFlow = true;
-                        ZoneEqSizing(CurZoneEqNum).AirVolFlow = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxCoolAirVolFlow *
-                                                                state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
-                        TempSize = ZoneEqSizing(CurZoneEqNum).AirVolFlow;
+                        zoneEqSizing.SystemAirFlow = true;
+                        zoneEqSizing.AirVolFlow = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxCoolAirVolFlow *
+                                                  state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
+                        TempSize = zoneEqSizing.AirVolFlow;
                         state.dataSize->DataScalableSizingON = true;
                     } else if (SAFMethod == FractionOfAutosizedCoolingAirflow) {
                         state.dataSize->DataFracOfAutosizedCoolingAirflow = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxCoolAirVolFlow;
@@ -1980,20 +1980,20 @@ namespace VentilatedSlab {
             if (state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingSAFMethod > 0) {
                 SizingMethod = HeatingAirflowSizing;
                 SAFMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingSAFMethod;
-                ZoneEqSizing(CurZoneEqNum).SizingMethod(SizingMethod) = SAFMethod;
+                zoneEqSizing.SizingMethod(SizingMethod) = SAFMethod;
                 if (SAFMethod == None || SAFMethod == SupplyAirFlowRate || SAFMethod == FlowPerFloorArea ||
                     SAFMethod == FractionOfAutosizedHeatingAirflow) {
                     if (SAFMethod == SupplyAirFlowRate) {
                         if (state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow > 0.0) {
-                            ZoneEqSizing(CurZoneEqNum).AirVolFlow = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow;
-                            ZoneEqSizing(CurZoneEqNum).SystemAirFlow = true;
+                            zoneEqSizing.AirVolFlow = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow;
+                            zoneEqSizing.SystemAirFlow = true;
                         }
                         TempSize = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow;
                     } else if (SAFMethod == FlowPerFloorArea) {
-                        ZoneEqSizing(CurZoneEqNum).SystemAirFlow = true;
-                        ZoneEqSizing(CurZoneEqNum).AirVolFlow = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow *
-                                                                state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
-                        TempSize = ZoneEqSizing(CurZoneEqNum).AirVolFlow;
+                        zoneEqSizing.SystemAirFlow = true;
+                        zoneEqSizing.AirVolFlow = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow *
+                                                  state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
+                        TempSize = zoneEqSizing.AirVolFlow;
                         state.dataSize->DataScalableSizingON = true;
                     } else if (SAFMethod == FractionOfAutosizedHeatingAirflow) {
                         state.dataSize->DataFracOfAutosizedHeatingAirflow = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow;
@@ -2176,27 +2176,26 @@ namespace VentilatedSlab {
                         }
                         if (DoWaterCoilSizing) {
                             if (state.dataSize->FinalZoneSizing(CurZoneEqNum).DesHeatMassFlow >= SmallAirVolFlow) {
+                                auto &zoneEqSizing = state.dataSize->ZoneEqSizing(CurZoneEqNum);
                                 SizingMethod = HeatingCapacitySizing;
                                 if (ventSlab.HVACSizingIndex > 0) {
                                     zoneHVACIndex = ventSlab.HVACSizingIndex;
                                     CapSizingMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingCapMethod;
-                                    ZoneEqSizing(CurZoneEqNum).SizingMethod(SizingMethod) = CapSizingMethod;
+                                    zoneEqSizing.SizingMethod(SizingMethod) = CapSizingMethod;
                                     if (CapSizingMethod == HeatingDesignCapacity || CapSizingMethod == CapacityPerFloorArea ||
                                         CapSizingMethod == FractionOfAutosizedHeatingCapacity) {
                                         if (CapSizingMethod == HeatingDesignCapacity) {
                                             if (state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity > 0.0) {
-                                                ZoneEqSizing(CurZoneEqNum).HeatingCapacity = true;
-                                                ZoneEqSizing(CurZoneEqNum).DesHeatingLoad =
-                                                    state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity;
+                                                zoneEqSizing.HeatingCapacity = true;
+                                                zoneEqSizing.DesHeatingLoad = state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity;
                                             } else {
                                                 state.dataSize->DataFlowUsedForSizing = state.dataSize->FinalZoneSizing(CurZoneEqNum).DesHeatVolFlow;
                                             }
                                             TempSize = state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity;
                                         } else if (CapSizingMethod == CapacityPerFloorArea) {
-                                            ZoneEqSizing(CurZoneEqNum).HeatingCapacity = true;
-                                            ZoneEqSizing(CurZoneEqNum).DesHeatingLoad =
-                                                state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity *
-                                                state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
+                                            zoneEqSizing.HeatingCapacity = true;
+                                            zoneEqSizing.DesHeatingLoad = state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity *
+                                                                          state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
                                             state.dataSize->DataScalableCapSizingON = true;
                                         } else if (CapSizingMethod == FractionOfAutosizedHeatingCapacity) {
                                             state.dataSize->DataFracOfAutosizedHeatingCapacity =
@@ -2300,25 +2299,24 @@ namespace VentilatedSlab {
                             if (state.dataSize->FinalZoneSizing(CurZoneEqNum).DesHeatMassFlow >= SmallAirVolFlow) {
                                 SizingMethod = HeatingCapacitySizing;
                                 if (ventSlab.HVACSizingIndex > 0) {
+                                    auto &zoneEqSizing = state.dataSize->ZoneEqSizing(CurZoneEqNum);
                                     zoneHVACIndex = ventSlab.HVACSizingIndex;
                                     CapSizingMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingCapMethod;
-                                    ZoneEqSizing(CurZoneEqNum).SizingMethod(SizingMethod) = CapSizingMethod;
+                                    zoneEqSizing.SizingMethod(SizingMethod) = CapSizingMethod;
                                     if (CapSizingMethod == HeatingDesignCapacity || CapSizingMethod == CapacityPerFloorArea ||
                                         CapSizingMethod == FractionOfAutosizedHeatingCapacity) {
                                         if (CapSizingMethod == HeatingDesignCapacity) {
                                             if (state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity > 0.0) {
-                                                ZoneEqSizing(CurZoneEqNum).HeatingCapacity = true;
-                                                ZoneEqSizing(CurZoneEqNum).DesHeatingLoad =
-                                                    state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity;
+                                                zoneEqSizing.HeatingCapacity = true;
+                                                zoneEqSizing.DesHeatingLoad = state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity;
                                             } else {
                                                 state.dataSize->DataFlowUsedForSizing = state.dataSize->FinalZoneSizing(CurZoneEqNum).DesHeatVolFlow;
                                             }
                                             TempSize = state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity;
                                         } else if (CapSizingMethod == CapacityPerFloorArea) {
-                                            ZoneEqSizing(CurZoneEqNum).HeatingCapacity = true;
-                                            ZoneEqSizing(CurZoneEqNum).DesHeatingLoad =
-                                                state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity *
-                                                state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
+                                            zoneEqSizing.HeatingCapacity = true;
+                                            zoneEqSizing.DesHeatingLoad = state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity *
+                                                                          state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
                                             state.dataSize->DataScalableCapSizingON = true;
                                         } else if (CapSizingMethod == FractionOfAutosizedHeatingCapacity) {
                                             state.dataSize->DataFracOfAutosizedHeatingCapacity =
@@ -2444,25 +2442,24 @@ namespace VentilatedSlab {
                         if (state.dataSize->FinalZoneSizing(CurZoneEqNum).DesCoolMassFlow >= SmallAirVolFlow) {
                             SizingMethod = CoolingCapacitySizing;
                             if (ventSlab.HVACSizingIndex > 0) {
+                                auto &zoneEqSizing = state.dataSize->ZoneEqSizing(CurZoneEqNum);
                                 zoneHVACIndex = ventSlab.HVACSizingIndex;
                                 CapSizingMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).CoolingCapMethod;
-                                ZoneEqSizing(CurZoneEqNum).SizingMethod(SizingMethod) = CapSizingMethod;
+                                zoneEqSizing.SizingMethod(SizingMethod) = CapSizingMethod;
                                 if (CapSizingMethod == CoolingDesignCapacity || CapSizingMethod == CapacityPerFloorArea ||
                                     CapSizingMethod == FractionOfAutosizedCoolingCapacity) {
                                     if (CapSizingMethod == CoolingDesignCapacity) {
                                         if (state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledCoolingCapacity > 0.0) {
-                                            ZoneEqSizing(CurZoneEqNum).CoolingCapacity = true;
-                                            ZoneEqSizing(CurZoneEqNum).DesCoolingLoad =
-                                                state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledCoolingCapacity;
+                                            zoneEqSizing.CoolingCapacity = true;
+                                            zoneEqSizing.DesCoolingLoad = state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledCoolingCapacity;
                                         } else {
                                             state.dataSize->DataFlowUsedForSizing = state.dataSize->FinalZoneSizing(CurZoneEqNum).DesCoolVolFlow;
                                         }
                                         TempSize = state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledCoolingCapacity;
                                     } else if (CapSizingMethod == CapacityPerFloorArea) {
-                                        ZoneEqSizing(CurZoneEqNum).CoolingCapacity = true;
-                                        ZoneEqSizing(CurZoneEqNum).DesCoolingLoad =
-                                            state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledCoolingCapacity *
-                                            state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
+                                        zoneEqSizing.CoolingCapacity = true;
+                                        zoneEqSizing.DesCoolingLoad = state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledCoolingCapacity *
+                                                                      state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
                                         state.dataSize->DataScalableCapSizingON = true;
                                     } else if (CapSizingMethod == FractionOfAutosizedCoolingCapacity) {
                                         state.dataSize->DataFracOfAutosizedHeatingCapacity =
@@ -2548,8 +2545,9 @@ namespace VentilatedSlab {
         WaterCoils::SetCoilDesFlow(state, ventSlab.heatingCoilTypeCh, ventSlab.heatingCoilName, ventSlab.MaxAirVolFlow, ErrorsFound);
 
         if (CurZoneEqNum > 0) {
-            ZoneEqSizing(CurZoneEqNum).MaxHWVolFlow = ventSlab.MaxVolHotWaterFlow;
-            ZoneEqSizing(CurZoneEqNum).MaxCWVolFlow = ventSlab.MaxVolColdWaterFlow;
+            auto &zoneEqSizing = state.dataSize->ZoneEqSizing(CurZoneEqNum);
+            zoneEqSizing.MaxHWVolFlow = ventSlab.MaxVolHotWaterFlow;
+            zoneEqSizing.MaxCWVolFlow = ventSlab.MaxVolColdWaterFlow;
         }
 
         if (ErrorsFound) {
@@ -2796,7 +2794,7 @@ namespace VentilatedSlab {
         RadSurfNum = ventSlab.NumOfSurfaces;
         Tinlet = state.dataLoopNodes->Node(InletNode).Temp;
         Toutdoor = state.dataLoopNodes->Node(OutsideAirNode).Temp;
-        auto &thisZoneHB = state.dataZoneTempPredictorCorrector->zoneHeatBalance(ZoneNum);
+        auto const &thisZoneHB = state.dataZoneTempPredictorCorrector->zoneHeatBalance(ZoneNum);
 
         // Control Type Check
         switch (ventSlab.controlType) {
@@ -3702,12 +3700,6 @@ namespace VentilatedSlab {
         Real64 CDiaDS;
         Real64 FlowFrac;
         Real64 MSlabAirInTemp;
-        bool ErrorsFound(false); // Set to true if errors in input, fatal at end of routine
-        std::string MSlabIn;
-        std::string MSlabOut;
-        std::string SlabName;
-        int MSlabInletNode;
-        int MSlabOutletNode;
 
         if (state.dataVentilatedSlab->FirstTimeFlag) {
             state.dataVentilatedSlab->AirTempOut.allocate(state.dataVentilatedSlab->MaxCloNumOfSurfaces);
@@ -4224,11 +4216,12 @@ namespace VentilatedSlab {
                 // Internal Node Temperature Check
 
                 MSlabAirInTemp = state.dataLoopNodes->Node(SlabInNode).Temp;
+                bool ErrorsFound = false; // Set to true if errors in input, fatal at end of routine
 
                 for (RadSurfNum = 1; RadSurfNum <= ventSlab.NumOfSurfaces; ++RadSurfNum) {
-                    SlabName = ventSlab.SurfaceName(RadSurfNum);
-                    MSlabIn = ventSlab.SlabIn(RadSurfNum);
-                    MSlabOut = ventSlab.SlabOut(RadSurfNum);
+                    std::string SlabName = ventSlab.SurfaceName(RadSurfNum);
+                    std::string MSlabIn = ventSlab.SlabIn(RadSurfNum);
+                    std::string MSlabOut = ventSlab.SlabOut(RadSurfNum);
                     ventSlab.MSlabInNode = GetOnlySingleNode(state,
                                                              MSlabIn,
                                                              ErrorsFound,
@@ -4247,8 +4240,8 @@ namespace VentilatedSlab {
                                                               DataLoopNode::ConnectionType::Internal,
                                                               NodeInputManager::CompFluidStream::Primary,
                                                               ObjectIsNotParent);
-                    MSlabInletNode = ventSlab.MSlabInNode;
-                    MSlabOutletNode = ventSlab.MSlabOutNode;
+                    int MSlabInletNode = ventSlab.MSlabInNode;
+                    int MSlabOutletNode = ventSlab.MSlabOutNode;
                     SurfNum = ventSlab.SurfacePtr(RadSurfNum);
 
                     if (AirMassFlow > 0.0) {
@@ -4344,7 +4337,7 @@ namespace VentilatedSlab {
         // outdoor air streams.
 
         // Using/Aliasing
-        auto &ventSlab = state.dataVentilatedSlab->VentSlab(Item);
+        auto const &ventSlab = state.dataVentilatedSlab->VentSlab(Item);
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         int AirRelNode;     // relief air node number in ventilated slab loop
