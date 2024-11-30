@@ -1261,7 +1261,6 @@ namespace UnitHeater {
         //       DATE WRITTEN   May 2000
         //       MODIFIED       Don Shirey, Aug 2009 (LatOutputProvided)
         //                      July 2012, Chandan Sharma - FSEC: Added zone sys avail managers
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // This subroutine mainly controls the action of the unit heater
@@ -1290,45 +1289,30 @@ namespace UnitHeater {
 
         // Using/Aliasing
         using namespace DataZoneEnergyDemands;
-        using General::SolveRoot;
 
         // SUBROUTINE PARAMETER DEFINITIONS:
-        int constexpr MaxIter(100); // maximum number of iterations
+        int constexpr MaxIter = 100; // maximum number of iterations
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-        int ControlNode;      // the hot water inlet node
-        int InletNode;        // unit air inlet node
-        int OutletNode;       // unit air outlet node
-        Real64 ControlOffset; // tolerance for output control
-        Real64 MaxWaterFlow;  // maximum water flow for heating or cooling [kg/sec]
-        Real64 MinWaterFlow;  // minimum water flow for heating or cooling [kg/sec]
-        Real64 QUnitOut;      // heating or sens. cooling provided by fan coil unit [watts]
-        Real64 LatentOutput;  // Latent (moisture) add/removal rate, negative is dehumidification [kg/s]
-        Real64 SpecHumOut;    // Specific humidity ratio of outlet air (kg moisture / kg moist air)
-        Real64 SpecHumIn;     // Specific humidity ratio of inlet air (kg moisture / kg moist air)
-        Real64 mdot;          // local temporary for fluid mass flow rate
-        HVAC::FanOp fanOp;
-        Real64 PartLoadFrac;
-        Real64 NoOutput;
-        Real64 FullOutput;
-        int SolFlag; // return flag from RegulaFalsi for sensible load
-        bool UnitOn;
+        Real64 SpecHumOut; // Specific humidity ratio of outlet air (kg moisture / kg moist air)
+        Real64 SpecHumIn;  // Specific humidity ratio of inlet air (kg moisture / kg moist air)
+        Real64 mdot;       // local temporary for fluid mass flow rate
 
         // initialize local variables
-        QUnitOut = 0.0;
-        NoOutput = 0.0;
-        FullOutput = 0.0;
-        LatentOutput = 0.0;
-        MaxWaterFlow = 0.0;
-        MinWaterFlow = 0.0;
-        PartLoadFrac = 0.0;
-        SolFlag = 0; // # of iterations IF positive, -1 means failed to converge, -2 means bounds are incorrect
-        InletNode = state.dataUnitHeaters->UnitHeat(UnitHeatNum).AirInNode;
-        OutletNode = state.dataUnitHeaters->UnitHeat(UnitHeatNum).AirOutNode;
-        ControlNode = state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode;
-        ControlOffset = state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlOffset;
-        UnitOn = false;
-        fanOp = state.dataUnitHeaters->UnitHeat(UnitHeatNum).fanOp;
+        Real64 QUnitOut = 0.0;
+        Real64 NoOutput = 0.0;
+        Real64 FullOutput = 0.0;
+        Real64 LatentOutput = 0.0; // Latent (moisture) add/removal rate, negative is dehumidification [kg/s]
+        Real64 MaxWaterFlow = 0.0;
+        Real64 MinWaterFlow = 0.0;
+        Real64 PartLoadFrac = 0.0;
+        int SolFlag = 0; // # of iterations IF positive, -1 means failed to converge, -2 means bounds are incorrect
+        int InletNode = state.dataUnitHeaters->UnitHeat(UnitHeatNum).AirInNode;
+        int OutletNode = state.dataUnitHeaters->UnitHeat(UnitHeatNum).AirOutNode;
+        int ControlNode = state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode;
+        Real64 ControlOffset = state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlOffset;
+        bool UnitOn = false;
+        HVAC::FanOp fanOp = state.dataUnitHeaters->UnitHeat(UnitHeatNum).fanOp;
 
         if (fanOp != HVAC::FanOp::Cycling) {
 
@@ -1517,7 +1501,7 @@ namespace UnitHeater {
                         };
 
                         // Tolerance is in fraction of load, MaxIter = 30, SolFalg = # of iterations or error as appropriate
-                        SolveRoot(state, 0.001, MaxIter, SolFlag, PartLoadFrac, f, 0.0, 1.0);
+                        General::SolveRoot(state, 0.001, MaxIter, SolFlag, PartLoadFrac, f, 0.0, 1.0);
                     }
                 }
 
@@ -1560,7 +1544,6 @@ namespace UnitHeater {
         //       AUTHOR         Rick Strand
         //       DATE WRITTEN   May 2000
         //       MODIFIED       July 2012, Chandan Sharma - FSEC: Added zone sys avail managers
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // This subroutine launches the individual component simulations.
@@ -1571,22 +1554,15 @@ namespace UnitHeater {
         // METHODOLOGY EMPLOYED:
         // Simply calls the different components in order.
 
-        // Using/Aliasing
-        using SteamCoils::SimulateSteamCoilComponents;
-        using WaterCoils::SimulateWaterCoilComponents;
-
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         Real64 AirMassFlow; // total mass flow through the unit
         Real64 CpAirZn;     // specific heat of dry air at zone conditions (zone conditions same as unit inlet)
         int HCoilInAirNode; // inlet node number for fan exit/coil inlet
-        int InletNode;      // unit air inlet node
-        int OutletNode;     // unit air outlet node
-        Real64 QCoilReq;    // Heat addition required from an electric/gas heating coil
         Real64 mdot;        // local temporary for fluid mass flow rate
 
-        InletNode = state.dataUnitHeaters->UnitHeat(UnitHeatNum).AirInNode;
-        OutletNode = state.dataUnitHeaters->UnitHeat(UnitHeatNum).AirOutNode;
-        QCoilReq = 0.0;
+        int InletNode = state.dataUnitHeaters->UnitHeat(UnitHeatNum).AirInNode;
+        int OutletNode = state.dataUnitHeaters->UnitHeat(UnitHeatNum).AirOutNode;
+        Real64 QCoilReq = 0.0;
 
         if (fanOp != HVAC::FanOp::Cycling) {
             state.dataFans->fans(state.dataUnitHeaters->UnitHeat(UnitHeatNum).Fan_Index)->simulate(state, FirstHVACIteration, _, _);
@@ -1595,10 +1571,10 @@ namespace UnitHeater {
 
             case HCoilType::WaterHeatingCoil: {
 
-                SimulateWaterCoilComponents(state,
-                                            state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName,
-                                            FirstHVACIteration,
-                                            state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoil_Index);
+                WaterCoils::SimulateWaterCoilComponents(state,
+                                                        state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName,
+                                                        FirstHVACIteration,
+                                                        state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoil_Index);
                 break;
             }
             case HCoilType::SteamCoil: {
@@ -1614,11 +1590,11 @@ namespace UnitHeater {
                                                              state.dataLoopNodes->Node(state.dataUnitHeaters->UnitHeat(UnitHeatNum).AirInNode).Temp);
                 }
                 if (QCoilReq < 0.0) QCoilReq = 0.0; // a heating coil can only heat, not cool
-                SimulateSteamCoilComponents(state,
-                                            state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName,
-                                            FirstHVACIteration,
-                                            state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoil_Index,
-                                            QCoilReq);
+                SteamCoils::SimulateSteamCoilComponents(state,
+                                                        state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName,
+                                                        FirstHVACIteration,
+                                                        state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoil_Index,
+                                                        QCoilReq);
                 break;
             }
             case HCoilType::Electric:
@@ -1683,13 +1659,13 @@ namespace UnitHeater {
                                                      state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode,
                                                      state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotCoilOutNodeNum,
                                                      state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc);
-                SimulateWaterCoilComponents(state,
-                                            state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName,
-                                            FirstHVACIteration,
-                                            state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoil_Index,
-                                            QCoilReq,
-                                            fanOp,
-                                            PartLoadRatio);
+                WaterCoils::SimulateWaterCoilComponents(state,
+                                                        state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName,
+                                                        FirstHVACIteration,
+                                                        state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoil_Index,
+                                                        QCoilReq,
+                                                        fanOp,
+                                                        PartLoadRatio);
                 break;
             }
             case HCoilType::SteamCoil: {
@@ -1711,14 +1687,14 @@ namespace UnitHeater {
                                                      state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode,
                                                      state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotCoilOutNodeNum,
                                                      state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc);
-                SimulateSteamCoilComponents(state,
-                                            state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName,
-                                            FirstHVACIteration,
-                                            state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoil_Index,
-                                            QCoilReq,
-                                            _,
-                                            fanOp,
-                                            PartLoadRatio);
+                SteamCoils::SimulateSteamCoilComponents(state,
+                                                        state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName,
+                                                        FirstHVACIteration,
+                                                        state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoil_Index,
+                                                        QCoilReq,
+                                                        _,
+                                                        fanOp,
+                                                        PartLoadRatio);
                 break;
             }
             case HCoilType::Electric:
@@ -1769,8 +1745,6 @@ namespace UnitHeater {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         Rick Strand
         //       DATE WRITTEN   May 2000
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // This subroutine needs a description.
