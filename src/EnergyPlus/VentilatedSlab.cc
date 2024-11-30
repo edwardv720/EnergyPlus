@@ -3068,11 +3068,10 @@ namespace VentilatedSlab {
                         // In this control type, the outdoor air flow rate is fixed to the maximum value
                         // which is equal to the minimum value, regardless of all the other conditions.
                         if (state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate > 0.0) {
-                            MaxOAFrac = GetCurrentScheduleValue(state, ventSlab.MaxOASchedPtr);
+                            MaxOAFrac = min(1.0, max(0.0, GetCurrentScheduleValue(state, ventSlab.MaxOASchedPtr)));
                         } else {
                             MaxOAFrac = 0.0;
                         }
-                        MaxOAFrac = min(1.0, max(0.0, MinOAFrac));
                         state.dataVentilatedSlab->OAMassFlowRate = MaxOAFrac * state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate;
                         break;
                     }
