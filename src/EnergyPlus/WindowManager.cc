@@ -4515,7 +4515,6 @@ namespace Window {
                 fcon[i - 1] = wmgas.con.c0 + wmgas.con.c1 * tmean + wmgas.con.c2 * tmean_2;
                 fvis[i - 1] = wmgas.vis.c0 + wmgas.vis.c1 * tmean + wmgas.vis.c2 * tmean_2;
                 fcp[i - 1] = wmgas.cp.c0 + wmgas.cp.c1 * tmean + wmgas.cp.c2 * tmean_2;
-                // fdens[i - 1] = pres * wmgas.wght / (gaslaw * tmean);
                 molmix += frct[i - 1] * wmgas.wght;                       // eq. 56
                 cpmixm += frct[i - 1] * fcp[i - 1] * wmgas.wght;          // eq. 58-59
                 kprime[i - 1] = 3.75 * gaslaw / wmgas.wght * fvis[i - 1]; // eq. 67
@@ -7672,7 +7671,7 @@ namespace Window {
 
         // Argument array dimensioning
         c.dim(15);
-        p.dim(16); // not actually used
+        p.dim(16);
 
         Array1D<Real64> fEdgeSource(10); // Slat edge correction factor vs source elevation
         Array1D<Real64> fEdgeA(2);       // Average slat edge correction factor for upper and lower quadrants
