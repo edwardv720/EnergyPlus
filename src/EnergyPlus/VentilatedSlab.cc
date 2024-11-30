@@ -117,11 +117,6 @@ namespace VentilatedSlab {
     // ASHRAE Systems and Equipment Handbook (SI), 1996. pp. 31.1-31.3
     // Fred Buhl's fan coil module (FanCoilUnits.cc)
 
-    // Using/Aliasing
-    using namespace DataLoopNode;
-    using namespace ScheduleManager;
-    using namespace Psychrometrics;
-
     static std::string const fluidNameSteam("STEAM");
     static std::string const fluidNameWater("WATER");
     std::string const cMO_VentilatedSlab = "ZoneHVAC:VentilatedSlab";
@@ -222,8 +217,6 @@ namespace VentilatedSlab {
         auto &GetWaterCoilMaxFlowRate(WaterCoils::GetCoilMaxWaterFlowRate);
         auto &GetSteamCoilMaxFlowRate(SteamCoils::GetCoilMaxWaterFlowRate);
         auto &GetHXAssistedCoilFlowRate(HVACHXAssistedCoolingCoil::GetCoilMaxWaterFlowRate);
-        using namespace DataLoopNode;
-        using namespace DataSurfaceLists;
 
         // SUBROUTINE PARAMETER DEFINITIONS:
         constexpr std::array<std::string_view, static_cast<int>(VentilatedSlabConfig::Num)> VentilatedSlabConfigNamesUC{
@@ -282,7 +275,7 @@ namespace VentilatedSlab {
         lNumericBlanks.dimension(NumNumbers, true);
 
         // make sure data is gotten for surface lists
-        BaseNum = GetNumberOfSurfListVentSlab(state);
+        BaseNum = DataSurfaceLists::GetNumberOfSurfListVentSlab(state);
 
         state.dataVentilatedSlab->NumOfVentSlabs = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, CurrentModuleObject);
         // Allocate the local derived type and do one-time initializations for all parts of it
@@ -487,7 +480,7 @@ namespace VentilatedSlab {
                                            cAlphaFields(7),
                                            state.dataIPShortCut->cAlphaArgs(7)));
                     ErrorsFound = true;
-                } else if (!CheckScheduleValueMinMax(state, ventSlab.MaxOASchedPtr, ">=", 0.0, "<=", 1.0)) {
+                } else if (!ScheduleManager::CheckScheduleValueMinMax(state, ventSlab.MaxOASchedPtr, ">=", 0.0, "<=", 1.0)) {
                     ShowSevereError(state,
                                     format("{}=\"{}\" invalid {}=\"{}\" values out of range [0,1].",
                                            CurrentModuleObject,
@@ -509,7 +502,7 @@ namespace VentilatedSlab {
                                            cAlphaFields(7),
                                            state.dataIPShortCut->cAlphaArgs(7)));
                     ErrorsFound = true;
-                } else if (!CheckScheduleValueMinMax(state, ventSlab.MaxOASchedPtr, true, 0.0)) {
+                } else if (!ScheduleManager::CheckScheduleValueMinMax(state, ventSlab.MaxOASchedPtr, true, 0.0)) {
                     ShowSevereError(state,
                                     format("{}=\"{}\" invalid {}=\"{}\" values out of range (must be >=0).",
                                            CurrentModuleObject,
@@ -755,7 +748,7 @@ namespace VentilatedSlab {
                                                                              DataLoopNode::NodeFluidType::Air,
                                                                              DataLoopNode::ConnectionType::Outlet,
                                                                              NodeInputManager::CompFluidStream::Primary,
-                                                                             ObjectIsNotParent);
+                                                                             DataLoopNode::ObjectIsNotParent);
                 ventSlab.ReturnAirNode = NodeInputManager::GetOnlySingleNode(state,
                                                                              state.dataIPShortCut->cAlphaArgs(18),
                                                                              ErrorsFound,
@@ -764,7 +757,7 @@ namespace VentilatedSlab {
                                                                              DataLoopNode::NodeFluidType::Air,
                                                                              DataLoopNode::ConnectionType::Inlet,
                                                                              NodeInputManager::CompFluidStream::Primary,
-                                                                             ObjectIsParent);
+                                                                             DataLoopNode::ObjectIsParent);
                 ventSlab.RadInNode = NodeInputManager::GetOnlySingleNode(state,
                                                                          state.dataIPShortCut->cAlphaArgs(19),
                                                                          ErrorsFound,
@@ -773,7 +766,7 @@ namespace VentilatedSlab {
                                                                          DataLoopNode::NodeFluidType::Air,
                                                                          DataLoopNode::ConnectionType::Inlet,
                                                                          NodeInputManager::CompFluidStream::Primary,
-                                                                         ObjectIsNotParent);
+                                                                         DataLoopNode::ObjectIsNotParent);
 
                 ventSlab.OAMixerOutNode = NodeInputManager::GetOnlySingleNode(state,
                                                                               state.dataIPShortCut->cAlphaArgs(23),
@@ -783,7 +776,7 @@ namespace VentilatedSlab {
                                                                               DataLoopNode::NodeFluidType::Air,
                                                                               DataLoopNode::ConnectionType::Outlet,
                                                                               NodeInputManager::CompFluidStream::Primary,
-                                                                              ObjectIsNotParent);
+                                                                              DataLoopNode::ObjectIsNotParent);
                 ventSlab.FanOutletNode = NodeInputManager::GetOnlySingleNode(state,
                                                                              state.dataIPShortCut->cAlphaArgs(24),
                                                                              ErrorsFound,
@@ -792,7 +785,7 @@ namespace VentilatedSlab {
                                                                              DataLoopNode::NodeFluidType::Air,
                                                                              DataLoopNode::ConnectionType::Internal,
                                                                              NodeInputManager::CompFluidStream::Primary,
-                                                                             ObjectIsParent);
+                                                                             DataLoopNode::ObjectIsParent);
 
             } else if (ventSlab.SysConfg == VentilatedSlabConfig::SeriesSlabs) {
 
@@ -804,7 +797,7 @@ namespace VentilatedSlab {
                                                                              DataLoopNode::NodeFluidType::Air,
                                                                              DataLoopNode::ConnectionType::Outlet,
                                                                              NodeInputManager::CompFluidStream::Primary,
-                                                                             ObjectIsNotParent);
+                                                                             DataLoopNode::ObjectIsNotParent);
                 ventSlab.ReturnAirNode = NodeInputManager::GetOnlySingleNode(state,
                                                                              state.dataIPShortCut->cAlphaArgs(18),
                                                                              ErrorsFound,
@@ -813,7 +806,7 @@ namespace VentilatedSlab {
                                                                              DataLoopNode::NodeFluidType::Air,
                                                                              DataLoopNode::ConnectionType::Inlet,
                                                                              NodeInputManager::CompFluidStream::Primary,
-                                                                             ObjectIsParent);
+                                                                             DataLoopNode::ObjectIsParent);
                 ventSlab.RadInNode = NodeInputManager::GetOnlySingleNode(state,
                                                                          state.dataIPShortCut->cAlphaArgs(19),
                                                                          ErrorsFound,
@@ -822,7 +815,7 @@ namespace VentilatedSlab {
                                                                          DataLoopNode::NodeFluidType::Air,
                                                                          DataLoopNode::ConnectionType::Inlet,
                                                                          NodeInputManager::CompFluidStream::Primary,
-                                                                         ObjectIsNotParent);
+                                                                         DataLoopNode::ObjectIsNotParent);
 
                 ventSlab.OAMixerOutNode = NodeInputManager::GetOnlySingleNode(state,
                                                                               state.dataIPShortCut->cAlphaArgs(23),
@@ -832,7 +825,7 @@ namespace VentilatedSlab {
                                                                               DataLoopNode::NodeFluidType::Air,
                                                                               DataLoopNode::ConnectionType::Outlet,
                                                                               NodeInputManager::CompFluidStream::Primary,
-                                                                              ObjectIsNotParent);
+                                                                              DataLoopNode::ObjectIsNotParent);
                 ventSlab.FanOutletNode = NodeInputManager::GetOnlySingleNode(state,
                                                                              state.dataIPShortCut->cAlphaArgs(24),
                                                                              ErrorsFound,
@@ -841,7 +834,7 @@ namespace VentilatedSlab {
                                                                              DataLoopNode::NodeFluidType::Air,
                                                                              DataLoopNode::ConnectionType::Internal,
                                                                              NodeInputManager::CompFluidStream::Primary,
-                                                                             ObjectIsParent);
+                                                                             DataLoopNode::ObjectIsParent);
 
             } else if (ventSlab.SysConfg == VentilatedSlabConfig::SlabAndZone) {
 
@@ -853,7 +846,7 @@ namespace VentilatedSlab {
                                                                              DataLoopNode::NodeFluidType::Air,
                                                                              DataLoopNode::ConnectionType::Inlet,
                                                                              NodeInputManager::CompFluidStream::Primary,
-                                                                             ObjectIsParent);
+                                                                             DataLoopNode::ObjectIsParent);
                 ventSlab.ReturnAirNode = NodeInputManager::GetOnlySingleNode(state,
                                                                              state.dataIPShortCut->cAlphaArgs(18),
                                                                              ErrorsFound,
@@ -862,7 +855,7 @@ namespace VentilatedSlab {
                                                                              DataLoopNode::NodeFluidType::Air,
                                                                              DataLoopNode::ConnectionType::Inlet,
                                                                              NodeInputManager::CompFluidStream::Primary,
-                                                                             ObjectIsParent);
+                                                                             DataLoopNode::ObjectIsParent);
                 ventSlab.ReturnAirNode = NodeInputManager::GetOnlySingleNode(state,
                                                                              state.dataIPShortCut->cAlphaArgs(18),
                                                                              ErrorsFound,
@@ -871,7 +864,7 @@ namespace VentilatedSlab {
                                                                              DataLoopNode::NodeFluidType::Air,
                                                                              DataLoopNode::ConnectionType::Inlet,
                                                                              NodeInputManager::CompFluidStream::Primary,
-                                                                             ObjectIsNotParent);
+                                                                             DataLoopNode::ObjectIsNotParent);
                 ventSlab.RadInNode = NodeInputManager::GetOnlySingleNode(state,
                                                                          state.dataIPShortCut->cAlphaArgs(19),
                                                                          ErrorsFound,
@@ -880,7 +873,7 @@ namespace VentilatedSlab {
                                                                          DataLoopNode::NodeFluidType::Air,
                                                                          DataLoopNode::ConnectionType::Inlet,
                                                                          NodeInputManager::CompFluidStream::Primary,
-                                                                         ObjectIsNotParent);
+                                                                         DataLoopNode::ObjectIsNotParent);
                 ventSlab.OAMixerOutNode = NodeInputManager::GetOnlySingleNode(state,
                                                                               state.dataIPShortCut->cAlphaArgs(23),
                                                                               ErrorsFound,
@@ -889,7 +882,7 @@ namespace VentilatedSlab {
                                                                               DataLoopNode::NodeFluidType::Air,
                                                                               DataLoopNode::ConnectionType::Outlet,
                                                                               NodeInputManager::CompFluidStream::Primary,
-                                                                              ObjectIsNotParent);
+                                                                              DataLoopNode::ObjectIsNotParent);
                 ventSlab.FanOutletNode = NodeInputManager::GetOnlySingleNode(state,
                                                                              state.dataIPShortCut->cAlphaArgs(24),
                                                                              ErrorsFound,
@@ -898,7 +891,7 @@ namespace VentilatedSlab {
                                                                              DataLoopNode::NodeFluidType::Air,
                                                                              DataLoopNode::ConnectionType::Internal,
                                                                              NodeInputManager::CompFluidStream::Primary,
-                                                                             ObjectIsParent);
+                                                                             DataLoopNode::ObjectIsParent);
             }
 
             if (ventSlab.SysConfg == VentilatedSlabConfig::SlabOnly) {
@@ -927,7 +920,7 @@ namespace VentilatedSlab {
                                                                              DataLoopNode::NodeFluidType::Air,
                                                                              DataLoopNode::ConnectionType::Outlet,
                                                                              NodeInputManager::CompFluidStream::Primary,
-                                                                             ObjectIsParent);
+                                                                             DataLoopNode::ObjectIsParent);
 
                 ventSlab.ZoneAirInNode = NodeInputManager::GetOnlySingleNode(state,
                                                                              state.dataIPShortCut->cAlphaArgs(20),
@@ -937,7 +930,7 @@ namespace VentilatedSlab {
                                                                              DataLoopNode::NodeFluidType::Air,
                                                                              DataLoopNode::ConnectionType::Outlet,
                                                                              NodeInputManager::CompFluidStream::Primary,
-                                                                             ObjectIsNotParent);
+                                                                             DataLoopNode::ObjectIsNotParent);
             }
 
             //  Set connection type to 'Inlet', because it now uses an OA node
@@ -949,7 +942,7 @@ namespace VentilatedSlab {
                                                                           DataLoopNode::NodeFluidType::Air,
                                                                           DataLoopNode::ConnectionType::Inlet,
                                                                           NodeInputManager::CompFluidStream::Primary,
-                                                                          ObjectIsNotParent);
+                                                                          DataLoopNode::ObjectIsNotParent);
 
             if (!lAlphaBlanks(21)) {
                 OutAirNodeManager::CheckAndAddAirNodeNumber(state, ventSlab.OutsideAirNode, IsValid);
@@ -968,7 +961,7 @@ namespace VentilatedSlab {
                                                                          DataLoopNode::NodeFluidType::Air,
                                                                          DataLoopNode::ConnectionType::ReliefAir,
                                                                          NodeInputManager::CompFluidStream::Primary,
-                                                                         ObjectIsNotParent);
+                                                                         DataLoopNode::ObjectIsNotParent);
 
             // Fan information:
             ventSlab.FanName = state.dataIPShortCut->cAlphaArgs(25);
@@ -1111,7 +1104,7 @@ namespace VentilatedSlab {
                                                                                       DataLoopNode::NodeFluidType::Water,
                                                                                       DataLoopNode::ConnectionType::Actuator,
                                                                                       NodeInputManager::CompFluidStream::Primary,
-                                                                                      ObjectIsParent);
+                                                                                      DataLoopNode::ObjectIsParent);
                     }
                     ventSlab.HotControlOffset = 0.001;
 
@@ -1219,7 +1212,7 @@ namespace VentilatedSlab {
                                                                                    DataLoopNode::NodeFluidType::Water,
                                                                                    DataLoopNode::ConnectionType::Actuator,
                                                                                    NodeInputManager::CompFluidStream::Primary,
-                                                                                   ObjectIsParent);
+                                                                                   DataLoopNode::ObjectIsParent);
 
                     if (lAlphaBlanks(32)) {
                         ShowSevereError(
@@ -1758,9 +1751,6 @@ namespace VentilatedSlab {
         // METHODOLOGY EMPLOYED:
         // Obtains flow rates from the zone sizing arrays and plant sizing data.
 
-        // Using/Aliasing
-        using namespace DataSizing;
-
         // SUBROUTINE PARAMETER DEFINITIONS:
         static constexpr std::string_view RoutineName("SizeVentilatedSlab");
 
@@ -1842,23 +1832,23 @@ namespace VentilatedSlab {
                 SizingMethod = HVAC::CoolingAirflowSizing;
                 int SAFMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).CoolingSAFMethod;
                 zoneEqSizing.SizingMethod(SizingMethod) = SAFMethod;
-                if (SAFMethod == None || SAFMethod == SupplyAirFlowRate || SAFMethod == FlowPerFloorArea ||
-                    SAFMethod == FractionOfAutosizedCoolingAirflow) {
-                    if (SAFMethod == SupplyAirFlowRate) {
+                if (SAFMethod == DataSizing::None || SAFMethod == DataSizing::SupplyAirFlowRate || SAFMethod == DataSizing::FlowPerFloorArea ||
+                    SAFMethod == DataSizing::FractionOfAutosizedCoolingAirflow) {
+                    if (SAFMethod == DataSizing::SupplyAirFlowRate) {
                         if (state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxCoolAirVolFlow > 0.0) {
                             zoneEqSizing.AirVolFlow = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxCoolAirVolFlow;
                             zoneEqSizing.SystemAirFlow = true;
                         }
                         TempSize = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxCoolAirVolFlow;
-                    } else if (SAFMethod == FlowPerFloorArea) {
+                    } else if (SAFMethod == DataSizing::FlowPerFloorArea) {
                         zoneEqSizing.SystemAirFlow = true;
                         zoneEqSizing.AirVolFlow = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxCoolAirVolFlow *
                                                   state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
                         TempSize = zoneEqSizing.AirVolFlow;
                         state.dataSize->DataScalableSizingON = true;
-                    } else if (SAFMethod == FractionOfAutosizedCoolingAirflow) {
+                    } else if (SAFMethod == DataSizing::FractionOfAutosizedCoolingAirflow) {
                         state.dataSize->DataFracOfAutosizedCoolingAirflow = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxCoolAirVolFlow;
-                        TempSize = AutoSize;
+                        TempSize = DataSizing::AutoSize;
                         state.dataSize->DataScalableSizingON = true;
                     } else {
                         TempSize = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxCoolAirVolFlow;
@@ -1871,8 +1861,8 @@ namespace VentilatedSlab {
                     sizingCoolingAirFlow.initializeWithinEP(state, CompType, CompName, PrintFlag, RoutineName);
                     CoolingAirVolFlowScalable = sizingCoolingAirFlow.size(state, TempSize, ErrorsFound);
 
-                } else if (SAFMethod == FlowPerCoolingCapacity) {
-                    TempSize = AutoSize;
+                } else if (SAFMethod == DataSizing::FlowPerCoolingCapacity) {
+                    TempSize = DataSizing::AutoSize;
                     PrintFlag = false;
                     state.dataSize->DataScalableSizingON = true;
                     state.dataSize->DataFlowUsedForSizing = state.dataSize->FinalZoneSizing(CurZoneEqNum).DesCoolVolFlow;
@@ -1882,7 +1872,7 @@ namespace VentilatedSlab {
                     state.dataSize->DataAutosizedCoolingCapacity = sizerCoolingCapacity.size(state, TempSize, ErrorsFound);
                     state.dataSize->DataFlowPerCoolingCapacity = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxCoolAirVolFlow;
                     PrintFlag = true;
-                    TempSize = AutoSize;
+                    TempSize = DataSizing::AutoSize;
                     CoolingAirFlowSizer sizingCoolingAirFlow;
                     std::string stringOverride = "Maximum Air Flow Rate [m3/s]";
                     if (state.dataGlobal->isEpJSON) stringOverride = "maximum_air_flow_rate [m3/s]";
@@ -1896,23 +1886,23 @@ namespace VentilatedSlab {
                 SizingMethod = HVAC::HeatingAirflowSizing;
                 int SAFMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingSAFMethod;
                 zoneEqSizing.SizingMethod(SizingMethod) = SAFMethod;
-                if (SAFMethod == None || SAFMethod == SupplyAirFlowRate || SAFMethod == FlowPerFloorArea ||
-                    SAFMethod == FractionOfAutosizedHeatingAirflow) {
-                    if (SAFMethod == SupplyAirFlowRate) {
+                if (SAFMethod == DataSizing::None || SAFMethod == DataSizing::SupplyAirFlowRate || SAFMethod == DataSizing::FlowPerFloorArea ||
+                    SAFMethod == DataSizing::FractionOfAutosizedHeatingAirflow) {
+                    if (SAFMethod == DataSizing::SupplyAirFlowRate) {
                         if (state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow > 0.0) {
                             zoneEqSizing.AirVolFlow = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow;
                             zoneEqSizing.SystemAirFlow = true;
                         }
                         TempSize = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow;
-                    } else if (SAFMethod == FlowPerFloorArea) {
+                    } else if (SAFMethod == DataSizing::FlowPerFloorArea) {
                         zoneEqSizing.SystemAirFlow = true;
                         zoneEqSizing.AirVolFlow = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow *
                                                   state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
                         TempSize = zoneEqSizing.AirVolFlow;
                         state.dataSize->DataScalableSizingON = true;
-                    } else if (SAFMethod == FractionOfAutosizedHeatingAirflow) {
+                    } else if (SAFMethod == DataSizing::FractionOfAutosizedHeatingAirflow) {
                         state.dataSize->DataFracOfAutosizedHeatingAirflow = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow;
-                        TempSize = AutoSize;
+                        TempSize = DataSizing::AutoSize;
                         state.dataSize->DataScalableSizingON = true;
                     } else {
                         TempSize = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow;
@@ -1922,8 +1912,8 @@ namespace VentilatedSlab {
                     // sizingHeatingAirFlow.setHVACSizingIndexData(FanCoil(FanCoilNum).HVACSizingIndex);
                     sizingHeatingAirFlow.initializeWithinEP(state, CompType, CompName, PrintFlag, RoutineName);
                     HeatingAirVolFlowScalable = sizingHeatingAirFlow.size(state, TempSize, ErrorsFound);
-                } else if (SAFMethod == FlowPerHeatingCapacity) {
-                    TempSize = AutoSize;
+                } else if (SAFMethod == DataSizing::FlowPerHeatingCapacity) {
+                    TempSize = DataSizing::AutoSize;
                     PrintFlag = false;
                     state.dataSize->DataScalableSizingON = true;
                     state.dataSize->DataFlowUsedForSizing = state.dataSize->FinalZoneSizing(CurZoneEqNum).DesHeatVolFlow;
@@ -1933,7 +1923,7 @@ namespace VentilatedSlab {
                     state.dataSize->DataAutosizedHeatingCapacity = sizerHeatingCapacity.size(state, TempSize, ErrorsFound);
                     state.dataSize->DataFlowPerHeatingCapacity = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow;
                     PrintFlag = true;
-                    TempSize = AutoSize;
+                    TempSize = DataSizing::AutoSize;
                     HeatingAirFlowSizer sizingHeatingAirFlow;
                     sizingHeatingAirFlow.overrideSizingString(SizingString);
                     // sizingHeatingAirFlow.setHVACSizingIndexData(FanCoil(FanCoilNum).HVACSizingIndex);
@@ -1959,7 +1949,7 @@ namespace VentilatedSlab {
         }
 
         bool IsAutoSize = false;
-        if (ventSlab.OutAirVolFlow == AutoSize) {
+        if (ventSlab.OutAirVolFlow == DataSizing::AutoSize) {
             IsAutoSize = true;
         }
         if (CurZoneEqNum > 0) {
@@ -2003,7 +1993,7 @@ namespace VentilatedSlab {
         }
 
         IsAutoSize = false;
-        if (ventSlab.MinOutAirVolFlow == AutoSize) {
+        if (ventSlab.MinOutAirVolFlow == DataSizing::AutoSize) {
             IsAutoSize = true;
         }
         if (CurZoneEqNum > 0) {
@@ -2052,7 +2042,7 @@ namespace VentilatedSlab {
         }
 
         IsAutoSize = false;
-        if (ventSlab.MaxVolHotWaterFlow == AutoSize) {
+        if (ventSlab.MaxVolHotWaterFlow == DataSizing::AutoSize) {
             IsAutoSize = true;
         }
         if (ventSlab.hCoilType == HeatingCoilType::Water) {
@@ -2095,9 +2085,9 @@ namespace VentilatedSlab {
                                     zoneHVACIndex = ventSlab.HVACSizingIndex;
                                     int CapSizingMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingCapMethod;
                                     zoneEqSizing.SizingMethod(SizingMethod) = CapSizingMethod;
-                                    if (CapSizingMethod == HeatingDesignCapacity || CapSizingMethod == CapacityPerFloorArea ||
-                                        CapSizingMethod == FractionOfAutosizedHeatingCapacity) {
-                                        if (CapSizingMethod == HeatingDesignCapacity) {
+                                    if (CapSizingMethod == DataSizing::HeatingDesignCapacity || CapSizingMethod == DataSizing::CapacityPerFloorArea ||
+                                        CapSizingMethod == DataSizing::FractionOfAutosizedHeatingCapacity) {
+                                        if (CapSizingMethod == DataSizing::HeatingDesignCapacity) {
                                             if (state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity > 0.0) {
                                                 zoneEqSizing.HeatingCapacity = true;
                                                 zoneEqSizing.DesHeatingLoad = state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity;
@@ -2105,16 +2095,16 @@ namespace VentilatedSlab {
                                                 state.dataSize->DataFlowUsedForSizing = state.dataSize->FinalZoneSizing(CurZoneEqNum).DesHeatVolFlow;
                                             }
                                             TempSize = state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity;
-                                        } else if (CapSizingMethod == CapacityPerFloorArea) {
+                                        } else if (CapSizingMethod == DataSizing::CapacityPerFloorArea) {
                                             zoneEqSizing.HeatingCapacity = true;
                                             zoneEqSizing.DesHeatingLoad = state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity *
                                                                           state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
                                             state.dataSize->DataScalableCapSizingON = true;
-                                        } else if (CapSizingMethod == FractionOfAutosizedHeatingCapacity) {
+                                        } else if (CapSizingMethod == DataSizing::FractionOfAutosizedHeatingCapacity) {
                                             state.dataSize->DataFracOfAutosizedHeatingCapacity =
                                                 state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity;
                                             state.dataSize->DataFlowUsedForSizing = state.dataSize->FinalZoneSizing(CurZoneEqNum).DesHeatVolFlow;
-                                            TempSize = AutoSize;
+                                            TempSize = DataSizing::AutoSize;
                                             state.dataSize->DataScalableCapSizingON = true;
                                         }
                                     }
@@ -2128,7 +2118,7 @@ namespace VentilatedSlab {
                                 } else {
                                     SizingString = "";
                                     PrintFlag = false;
-                                    TempSize = AutoSize;
+                                    TempSize = DataSizing::AutoSize;
                                     HeatingCapacitySizer sizerHeatingCapacity;
                                     sizerHeatingCapacity.overrideSizingString(SizingString);
                                     sizerHeatingCapacity.initializeWithinEP(state, CompType, CompName, PrintFlag, RoutineName);
@@ -2186,7 +2176,7 @@ namespace VentilatedSlab {
         }
 
         IsAutoSize = false;
-        if (ventSlab.MaxVolHotSteamFlow == AutoSize) {
+        if (ventSlab.MaxVolHotSteamFlow == DataSizing::AutoSize) {
             IsAutoSize = true;
         }
         if (ventSlab.hCoilType == HeatingCoilType::Steam) {
@@ -2213,9 +2203,9 @@ namespace VentilatedSlab {
                                     zoneHVACIndex = ventSlab.HVACSizingIndex;
                                     int CapSizingMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingCapMethod;
                                     zoneEqSizing.SizingMethod(SizingMethod) = CapSizingMethod;
-                                    if (CapSizingMethod == HeatingDesignCapacity || CapSizingMethod == CapacityPerFloorArea ||
-                                        CapSizingMethod == FractionOfAutosizedHeatingCapacity) {
-                                        if (CapSizingMethod == HeatingDesignCapacity) {
+                                    if (CapSizingMethod == DataSizing::HeatingDesignCapacity || CapSizingMethod == DataSizing::CapacityPerFloorArea ||
+                                        CapSizingMethod == DataSizing::FractionOfAutosizedHeatingCapacity) {
+                                        if (CapSizingMethod == DataSizing::HeatingDesignCapacity) {
                                             if (state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity > 0.0) {
                                                 zoneEqSizing.HeatingCapacity = true;
                                                 zoneEqSizing.DesHeatingLoad = state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity;
@@ -2223,16 +2213,16 @@ namespace VentilatedSlab {
                                                 state.dataSize->DataFlowUsedForSizing = state.dataSize->FinalZoneSizing(CurZoneEqNum).DesHeatVolFlow;
                                             }
                                             TempSize = state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity;
-                                        } else if (CapSizingMethod == CapacityPerFloorArea) {
+                                        } else if (CapSizingMethod == DataSizing::CapacityPerFloorArea) {
                                             zoneEqSizing.HeatingCapacity = true;
                                             zoneEqSizing.DesHeatingLoad = state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity *
                                                                           state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
                                             state.dataSize->DataScalableCapSizingON = true;
-                                        } else if (CapSizingMethod == FractionOfAutosizedHeatingCapacity) {
+                                        } else if (CapSizingMethod == DataSizing::FractionOfAutosizedHeatingCapacity) {
                                             state.dataSize->DataFracOfAutosizedHeatingCapacity =
                                                 state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity;
                                             state.dataSize->DataFlowUsedForSizing = state.dataSize->FinalZoneSizing(CurZoneEqNum).DesHeatVolFlow;
-                                            TempSize = AutoSize;
+                                            TempSize = DataSizing::AutoSize;
                                             state.dataSize->DataScalableCapSizingON = true;
                                         }
                                     }
@@ -2246,7 +2236,7 @@ namespace VentilatedSlab {
                                 } else {
                                     SizingString = "";
                                     PrintFlag = false;
-                                    TempSize = AutoSize;
+                                    TempSize = DataSizing::AutoSize;
                                     HeatingCapacitySizer sizerHeatingCapacity;
                                     sizerHeatingCapacity.overrideSizingString(SizingString);
                                     sizerHeatingCapacity.initializeWithinEP(state, CompType, CompName, PrintFlag, RoutineName);
@@ -2311,7 +2301,7 @@ namespace VentilatedSlab {
         }
 
         IsAutoSize = false;
-        if (ventSlab.MaxVolColdWaterFlow == AutoSize) {
+        if (ventSlab.MaxVolColdWaterFlow == DataSizing::AutoSize) {
             IsAutoSize = true;
         }
         if (CurZoneEqNum > 0) {
@@ -2360,9 +2350,9 @@ namespace VentilatedSlab {
                                 zoneHVACIndex = ventSlab.HVACSizingIndex;
                                 int CapSizingMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).CoolingCapMethod;
                                 zoneEqSizing.SizingMethod(SizingMethod) = CapSizingMethod;
-                                if (CapSizingMethod == CoolingDesignCapacity || CapSizingMethod == CapacityPerFloorArea ||
-                                    CapSizingMethod == FractionOfAutosizedCoolingCapacity) {
-                                    if (CapSizingMethod == CoolingDesignCapacity) {
+                                if (CapSizingMethod == DataSizing::CoolingDesignCapacity || CapSizingMethod == DataSizing::CapacityPerFloorArea ||
+                                    CapSizingMethod == DataSizing::FractionOfAutosizedCoolingCapacity) {
+                                    if (CapSizingMethod == DataSizing::CoolingDesignCapacity) {
                                         if (state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledCoolingCapacity > 0.0) {
                                             zoneEqSizing.CoolingCapacity = true;
                                             zoneEqSizing.DesCoolingLoad = state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledCoolingCapacity;
@@ -2370,16 +2360,16 @@ namespace VentilatedSlab {
                                             state.dataSize->DataFlowUsedForSizing = state.dataSize->FinalZoneSizing(CurZoneEqNum).DesCoolVolFlow;
                                         }
                                         TempSize = state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledCoolingCapacity;
-                                    } else if (CapSizingMethod == CapacityPerFloorArea) {
+                                    } else if (CapSizingMethod == DataSizing::CapacityPerFloorArea) {
                                         zoneEqSizing.CoolingCapacity = true;
                                         zoneEqSizing.DesCoolingLoad = state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledCoolingCapacity *
                                                                       state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
                                         state.dataSize->DataScalableCapSizingON = true;
-                                    } else if (CapSizingMethod == FractionOfAutosizedCoolingCapacity) {
+                                    } else if (CapSizingMethod == DataSizing::FractionOfAutosizedCoolingCapacity) {
                                         state.dataSize->DataFracOfAutosizedHeatingCapacity =
                                             state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledCoolingCapacity;
                                         state.dataSize->DataFlowUsedForSizing = state.dataSize->FinalZoneSizing(CurZoneEqNum).DesCoolVolFlow;
-                                        TempSize = AutoSize;
+                                        TempSize = DataSizing::AutoSize;
                                         state.dataSize->DataScalableCapSizingON = true;
                                     }
                                 }
@@ -2393,7 +2383,7 @@ namespace VentilatedSlab {
                             } else {
                                 SizingString = "";
                                 PrintFlag = false;
-                                TempSize = AutoSize;
+                                TempSize = DataSizing::AutoSize;
                                 state.dataSize->DataFlowUsedForSizing = state.dataSize->FinalZoneSizing(CurZoneEqNum).DesCoolVolFlow;
                                 CoolingCapacitySizer sizerCoolingCapacity;
                                 sizerCoolingCapacity.overrideSizingString(SizingString);
@@ -2709,8 +2699,8 @@ namespace VentilatedSlab {
             break;
         }
         case ControlType::DewPointTemp: {
-            SetPointTemp =
-                PsyTdpFnWPb(state, state.dataZoneTempPredictorCorrector->zoneHeatBalance(ventSlab.ZonePtr).airHumRat, state.dataEnvrn->OutBaroPress);
+            SetPointTemp = Psychrometrics::PsyTdpFnWPb(
+                state, state.dataZoneTempPredictorCorrector->zoneHeatBalance(ventSlab.ZonePtr).airHumRat, state.dataEnvrn->OutBaroPress);
             break;
         }
         default: {              // Should never get here
@@ -2774,7 +2764,7 @@ namespace VentilatedSlab {
                                                                                DataLoopNode::NodeFluidType::Air,
                                                                                DataLoopNode::ConnectionType::Internal,
                                                                                NodeInputManager::CompFluidStream::Primary,
-                                                                               ObjectIsNotParent);
+                                                                               DataLoopNode::ObjectIsNotParent);
                     ventSlab.MSlabOutNode = NodeInputManager::GetOnlySingleNode(state,
                                                                                 MSlabOut,
                                                                                 ErrorsFound,
@@ -2783,7 +2773,7 @@ namespace VentilatedSlab {
                                                                                 DataLoopNode::NodeFluidType::Air,
                                                                                 DataLoopNode::ConnectionType::Internal,
                                                                                 NodeInputManager::CompFluidStream::Primary,
-                                                                                ObjectIsNotParent);
+                                                                                DataLoopNode::ObjectIsNotParent);
                     int MSlabInletNode = ventSlab.MSlabInNode;
                     int MSlabOutletNode = ventSlab.MSlabOutNode;
 
@@ -3018,7 +3008,7 @@ namespace VentilatedSlab {
 
                     state.dataFans->fans(ventSlab.Fan_Index)->simulate(state, FirstHVACIteration, _, _);
 
-                    CpFan = PsyCpAirFnW(state.dataLoopNodes->Node(FanOutletNode).HumRat);
+                    CpFan = Psychrometrics::PsyCpAirFnW(state.dataLoopNodes->Node(FanOutletNode).HumRat);
                     QZnReq =
                         (state.dataLoopNodes->Node(OutletNode).MassFlowRate) * CpFan * (RadInTemp - state.dataLoopNodes->Node(FanOutletNode).Temp);
 
@@ -3282,7 +3272,7 @@ namespace VentilatedSlab {
                     SimVentSlabOAMixer(state, Item);
                     state.dataFans->fans(ventSlab.Fan_Index)->simulate(state, FirstHVACIteration, _, _);
 
-                    CpFan = PsyCpAirFnW(state.dataLoopNodes->Node(FanOutletNode).HumRat);
+                    CpFan = Psychrometrics::PsyCpAirFnW(state.dataLoopNodes->Node(FanOutletNode).HumRat);
                     QZnReq =
                         (state.dataLoopNodes->Node(OutletNode).MassFlowRate) * CpFan * (RadInTemp - state.dataLoopNodes->Node(FanOutletNode).Temp);
 
@@ -3400,7 +3390,7 @@ namespace VentilatedSlab {
                     QCoilReq = 0.0;
                 } else {
                     int HCoilInAirNode = ventSlab.FanOutletNode;
-                    CpAirZn = PsyCpAirFnW(state.dataLoopNodes->Node(HCoilInAirNode).HumRat);
+                    CpAirZn = Psychrometrics::PsyCpAirFnW(state.dataLoopNodes->Node(HCoilInAirNode).HumRat);
                     QCoilReq =
                         state.dataLoopNodes->Node(HCoilInAirNode).MassFlowRate * CpAirZn * (state.dataLoopNodes->Node(ventSlab.RadInNode).Temp) -
                         (state.dataLoopNodes->Node(HCoilInAirNode).Temp);
@@ -3419,7 +3409,7 @@ namespace VentilatedSlab {
                 } else {
                     HCoilInAirTemp = state.dataLoopNodes->Node(ventSlab.FanOutletNode).Temp;
                     HCoilOutAirTemp = state.dataLoopNodes->Node(ventSlab.RadInNode).Temp;
-                    CpAirZn = PsyCpAirFnW(state.dataLoopNodes->Node(ventSlab.RadInNode).HumRat);
+                    CpAirZn = Psychrometrics::PsyCpAirFnW(state.dataLoopNodes->Node(ventSlab.RadInNode).HumRat);
                     QCoilReq = state.dataLoopNodes->Node(ventSlab.FanOutletNode).MassFlowRate * CpAirZn * (HCoilOutAirTemp - HCoilInAirTemp);
                 }
 
@@ -3438,8 +3428,8 @@ namespace VentilatedSlab {
         OutletNode = ventSlab.RadInNode;
         AirMassFlow = state.dataLoopNodes->Node(OutletNode).MassFlowRate;
 
-        LoadMet = AirMassFlow * (PsyHFnTdbW(state.dataLoopNodes->Node(OutletNode).Temp, state.dataLoopNodes->Node(InletNode).HumRat) -
-                                 PsyHFnTdbW(state.dataLoopNodes->Node(InletNode).Temp, state.dataLoopNodes->Node(InletNode).HumRat));
+        LoadMet = AirMassFlow * (Psychrometrics::PsyHFnTdbW(state.dataLoopNodes->Node(OutletNode).Temp, state.dataLoopNodes->Node(InletNode).HumRat) -
+                                 Psychrometrics::PsyHFnTdbW(state.dataLoopNodes->Node(InletNode).Temp, state.dataLoopNodes->Node(InletNode).HumRat));
     }
 
     void CalcVentilatedSlabCoilOutput(EnergyPlusData &state,
@@ -3478,10 +3468,12 @@ namespace VentilatedSlab {
         AirMassFlow = state.dataLoopNodes->Node(OutletNode).MassFlowRate;
 
         //        QTotUnitOut = AirMassFlow * ( Node( OutletNode ).Enthalpy - Node( FanOutletNode ).Enthalpy );
-        QTotUnitOut = AirMassFlow * (PsyHFnTdbW(state.dataLoopNodes->Node(OutletNode).Temp, state.dataLoopNodes->Node(OutletNode).HumRat) -
-                                     PsyHFnTdbW(state.dataLoopNodes->Node(FanOutletNode).Temp, state.dataLoopNodes->Node(FanOutletNode).HumRat));
-        QUnitOut = AirMassFlow * (PsyHFnTdbW(state.dataLoopNodes->Node(OutletNode).Temp, state.dataLoopNodes->Node(FanOutletNode).HumRat) -
-                                  PsyHFnTdbW(state.dataLoopNodes->Node(FanOutletNode).Temp, state.dataLoopNodes->Node(FanOutletNode).HumRat));
+        QTotUnitOut = AirMassFlow *
+                      (Psychrometrics::PsyHFnTdbW(state.dataLoopNodes->Node(OutletNode).Temp, state.dataLoopNodes->Node(OutletNode).HumRat) -
+                       Psychrometrics::PsyHFnTdbW(state.dataLoopNodes->Node(FanOutletNode).Temp, state.dataLoopNodes->Node(FanOutletNode).HumRat));
+        QUnitOut = AirMassFlow *
+                   (Psychrometrics::PsyHFnTdbW(state.dataLoopNodes->Node(OutletNode).Temp, state.dataLoopNodes->Node(FanOutletNode).HumRat) -
+                    Psychrometrics::PsyHFnTdbW(state.dataLoopNodes->Node(FanOutletNode).Temp, state.dataLoopNodes->Node(FanOutletNode).HumRat));
         // Limit sensible <= total when cooling (which is negative, so use max)
         QUnitOut = max(QUnitOut, QTotUnitOut);
 
@@ -3678,7 +3670,7 @@ namespace VentilatedSlab {
                     Cl = Ch + ((Ci * (Cc + Cb * Cf) + Cj * (Cf + Ce * Cc)) / (1.0 - Ce * Cb));
 
                     Mdot = AirMassFlow * ventSlab.SurfaceFlowFrac(RadSurfNum);
-                    CpAirZn = PsyCpAirFnW(state.dataLoopNodes->Node(ventSlab.RadInNode).HumRat);
+                    CpAirZn = Psychrometrics::PsyCpAirFnW(state.dataLoopNodes->Node(ventSlab.RadInNode).HumRat);
 
                     state.dataHeatBalFanSys->QRadSysSource(SurfNum) = ventSlab.CoreNumbers * EpsMdotCpAirZn * (AirTempIn - Ck) /
                                                                       (1.0 + (EpsMdotCpAirZn * Cl / state.dataSurface->Surface(SurfNum).Area));
@@ -3757,7 +3749,7 @@ namespace VentilatedSlab {
                     // conditions.
 
                     if (state.dataVentilatedSlab->OperatingMode == CoolingMode) {
-                        DewPointTemp = PsyTdpFnWPb(state, thisZoneHB.airHumRat, state.dataEnvrn->OutBaroPress);
+                        DewPointTemp = Psychrometrics::PsyTdpFnWPb(state, thisZoneHB.airHumRat, state.dataEnvrn->OutBaroPress);
                         for (int RadSurfNum2 = 1; RadSurfNum2 <= ventSlab.NumOfSurfaces; ++RadSurfNum2) {
                             if (state.dataHeatBalSurf->SurfInsideTempHist(1)(ventSlab.SurfacePtr(RadSurfNum2)) < (DewPointTemp + CondDeltaTemp)) {
                                 // Condensation warning--must shut off radiant system
@@ -3828,7 +3820,7 @@ namespace VentilatedSlab {
                 // Return Air temp Check
                 if (ventSlab.SysConfg == VentilatedSlabConfig::SlabOnly) {
                     if (AirMassFlow > 0.0) {
-                        CpAirZn = PsyCpAirFnW(state.dataLoopNodes->Node(ventSlab.RadInNode).HumRat);
+                        CpAirZn = Psychrometrics::PsyCpAirFnW(state.dataLoopNodes->Node(ventSlab.RadInNode).HumRat);
                         state.dataLoopNodes->Node(ReturnAirNode).Temp =
                             state.dataLoopNodes->Node(SlabInNode).Temp - (TotalVentSlabRadPower / (AirMassFlow * CpAirZn));
                         if ((std::abs(state.dataLoopNodes->Node(ReturnAirNode).Temp - AirOutletTempCheck) > TempCheckLimit) &&
@@ -3955,7 +3947,7 @@ namespace VentilatedSlab {
                     Cl = Ch + ((Ci * (Cc + Cb * Cf) + Cj * (Cf + Ce * Cc)) / (1.0 - Ce * Cb));
 
                     Mdot = AirMassFlow * FlowFrac;
-                    CpAirZn = PsyCpAirFnW(state.dataLoopNodes->Node(ventSlab.RadInNode).HumRat);
+                    CpAirZn = Psychrometrics::PsyCpAirFnW(state.dataLoopNodes->Node(ventSlab.RadInNode).HumRat);
 
                     state.dataHeatBalFanSys->QRadSysSource(SurfNum) =
                         CNumDS * EpsMdotCpAirZn * (AirTempIn - Ck) / (1.0 + (EpsMdotCpAirZn * Cl / state.dataSurface->Surface(SurfNum).Area));
@@ -4009,9 +4001,10 @@ namespace VentilatedSlab {
                     // conditions.
 
                     if (state.dataVentilatedSlab->OperatingMode == CoolingMode) {
-                        DewPointTemp = PsyTdpFnWPb(state,
-                                                   state.dataZoneTempPredictorCorrector->zoneHeatBalance(ventSlab.ZPtr(RadSurfNum)).airHumRat,
-                                                   state.dataEnvrn->OutBaroPress);
+                        DewPointTemp =
+                            Psychrometrics::PsyTdpFnWPb(state,
+                                                        state.dataZoneTempPredictorCorrector->zoneHeatBalance(ventSlab.ZPtr(RadSurfNum)).airHumRat,
+                                                        state.dataEnvrn->OutBaroPress);
                         for (int RadSurfNum2 = 1; RadSurfNum2 <= ventSlab.NumOfSurfaces; ++RadSurfNum2) {
                             if (state.dataHeatBalSurf->SurfInsideTempHist(1)(ventSlab.SurfacePtr(RadSurfNum2)) < (DewPointTemp + CondDeltaTemp)) {
                                 // Condensation warning--must shut off radiant system
@@ -4095,7 +4088,7 @@ namespace VentilatedSlab {
                                                                                DataLoopNode::NodeFluidType::Air,
                                                                                DataLoopNode::ConnectionType::Internal,
                                                                                NodeInputManager::CompFluidStream::Primary,
-                                                                               ObjectIsNotParent);
+                                                                               DataLoopNode::ObjectIsNotParent);
                     ventSlab.MSlabOutNode = NodeInputManager::GetOnlySingleNode(state,
                                                                                 MSlabOut,
                                                                                 ErrorsFound,
@@ -4104,14 +4097,14 @@ namespace VentilatedSlab {
                                                                                 DataLoopNode::NodeFluidType::Air,
                                                                                 DataLoopNode::ConnectionType::Internal,
                                                                                 NodeInputManager::CompFluidStream::Primary,
-                                                                                ObjectIsNotParent);
+                                                                                DataLoopNode::ObjectIsNotParent);
                     int MSlabInletNode = ventSlab.MSlabInNode;
                     int MSlabOutletNode = ventSlab.MSlabOutNode;
                     SurfNum = ventSlab.SurfacePtr(RadSurfNum);
 
                     if (AirMassFlow > 0.0) {
 
-                        CpAirZn = PsyCpAirFnW(state.dataLoopNodes->Node(ventSlab.RadInNode).HumRat);
+                        CpAirZn = Psychrometrics::PsyCpAirFnW(state.dataLoopNodes->Node(ventSlab.RadInNode).HumRat);
 
                         state.dataLoopNodes->Node(MSlabInletNode).Temp = MSlabAirInTemp;
                         state.dataLoopNodes->Node(MSlabOutletNode).Temp = state.dataLoopNodes->Node(MSlabInletNode).Temp -
@@ -4126,7 +4119,7 @@ namespace VentilatedSlab {
                 // Return Air temp Check
                 if (AirMassFlow > 0.0) {
 
-                    CpAirZn = PsyCpAirFnW(state.dataLoopNodes->Node(ventSlab.RadInNode).HumRat);
+                    CpAirZn = Psychrometrics::PsyCpAirFnW(state.dataLoopNodes->Node(ventSlab.RadInNode).HumRat);
                     state.dataLoopNodes->Node(ReturnAirNode).Temp =
                         state.dataLoopNodes->Node(SlabInNode).Temp - (TotalVentSlabRadPower / (AirMassFlow * CpAirZn));
 
@@ -4240,7 +4233,7 @@ namespace VentilatedSlab {
         }
 
         state.dataLoopNodes->Node(InletNode).Enthalpy =
-            PsyHFnTdbW(state.dataLoopNodes->Node(InletNode).Temp, state.dataLoopNodes->Node(InletNode).HumRat);
+            Psychrometrics::PsyHFnTdbW(state.dataLoopNodes->Node(InletNode).Temp, state.dataLoopNodes->Node(InletNode).HumRat);
 
         // Perform an energy and moisture mass balance on the mixing portion of the OA Mixer of the ventilated slab
         state.dataLoopNodes->Node(OAMixOutNode).Enthalpy =
@@ -4250,7 +4243,7 @@ namespace VentilatedSlab {
 
         // Find the other key state points based on calculated conditions
         state.dataLoopNodes->Node(OAMixOutNode).Temp =
-            PsyTdbFnHW(state.dataLoopNodes->Node(OAMixOutNode).Enthalpy, state.dataLoopNodes->Node(OAMixOutNode).HumRat);
+            Psychrometrics::PsyTdbFnHW(state.dataLoopNodes->Node(OAMixOutNode).Enthalpy, state.dataLoopNodes->Node(OAMixOutNode).HumRat);
         state.dataLoopNodes->Node(OAMixOutNode).Press = state.dataLoopNodes->Node(InletNode).Press;
     }
 
@@ -4295,7 +4288,7 @@ namespace VentilatedSlab {
         int FanOutNode = ventSlab.FanOutletNode;
         Real64 AirMassFlow = state.dataLoopNodes->Node(AirOutletNode).MassFlowRate;
         int ZoneInletNode = ventSlab.ZoneAirInNode; // Node number for the air side inlet of the ventilated slab
-        Real64 CpAppAir = PsyCpAirFnW(state.dataLoopNodes->Node(AirOutletNode).HumRat);
+        Real64 CpAppAir = Psychrometrics::PsyCpAirFnW(state.dataLoopNodes->Node(AirOutletNode).HumRat);
         int AirInletNode = ventSlab.ReturnAirNode; // Node number for the air side inlet of the ventilated slab
 
         for (int RadSurfNum = 1; RadSurfNum <= TotRadSurfaces; ++RadSurfNum) {
@@ -4379,7 +4372,7 @@ namespace VentilatedSlab {
                 OAFraction * state.dataLoopNodes->Node(OANode).HumRat + (1.0 - OAFraction) * state.dataLoopNodes->Node(AirInletNode).HumRat;
 
             state.dataLoopNodes->Node(MixOutNode).Temp =
-                PsyTdbFnHW(state.dataLoopNodes->Node(MixOutNode).Enthalpy, state.dataLoopNodes->Node(MixOutNode).HumRat);
+                Psychrometrics::PsyTdbFnHW(state.dataLoopNodes->Node(MixOutNode).Enthalpy, state.dataLoopNodes->Node(MixOutNode).HumRat);
         }
     }
 
@@ -4485,7 +4478,7 @@ namespace VentilatedSlab {
             PRactual = Pr[Index - 1] + InterpFrac * (Pr[Index] - Pr[Index - 1]);
         }
         // arguments are glycol name, temperature, and concentration
-        CpAppAir = PsyCpAirFnW(state.dataLoopNodes->Node(ventSlab.RadInNode).HumRat);
+        CpAppAir = Psychrometrics::PsyCpAirFnW(state.dataLoopNodes->Node(ventSlab.RadInNode).HumRat);
         SysAirMassFlow = AirMassFlow / CoreNumbers;
 
         // Calculate the Reynold's number from RE=(4*Mdot)/(Pi*Mu*Diameter)
@@ -4526,9 +4519,6 @@ namespace VentilatedSlab {
 
         // PURPOSE OF THIS SUBROUTINE:
         // This subroutine simply produces output for the low temperature radiant system.
-
-        // METHODOLOGY EMPLOYED:
-        // Standard EnergyPlus methodology.
 
         // Using/Aliasing
         Real64 TimeStepSysSec = state.dataHVACGlobal->TimeStepSysSec;
