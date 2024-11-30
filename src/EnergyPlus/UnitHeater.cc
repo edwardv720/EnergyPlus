@@ -110,10 +110,6 @@ namespace UnitHeater {
     // Rick Strand's unit heater module which was based upon Fred Buhl's fan coil
     // module (FanCoilUnits.cc)
 
-    // Using/Aliasing
-    using namespace DataLoopNode;
-    using namespace ScheduleManager;
-
     static constexpr std::string_view fluidNameSteam("STEAM");
 
     void SimUnitHeater(EnergyPlusData &state,
@@ -275,7 +271,8 @@ namespace UnitHeater {
             if (lAlphaBlanks(2)) {
                 state.dataUnitHeaters->UnitHeat(UnitHeatNum).SchedPtr = ScheduleManager::ScheduleAlwaysOn;
             } else {
-                state.dataUnitHeaters->UnitHeat(UnitHeatNum).SchedPtr = GetScheduleIndex(state, Alphas(2)); // convert schedule name to pointer
+                state.dataUnitHeaters->UnitHeat(UnitHeatNum).SchedPtr =
+                    ScheduleManager::GetScheduleIndex(state, Alphas(2)); // convert schedule name to pointer
                 if (state.dataUnitHeaters->UnitHeat(UnitHeatNum).SchedPtr == 0) {
                     ShowSevereError(state,
                                     format("{}{}: invalid {} entered ={} for {}={}",
@@ -299,7 +296,7 @@ namespace UnitHeater {
                                                     DataLoopNode::NodeFluidType::Air,
                                                     DataLoopNode::ConnectionType::Inlet,
                                                     NodeInputManager::CompFluidStream::Primary,
-                                                    ObjectIsParent);
+                                                    DataLoopNode::ObjectIsParent);
 
             state.dataUnitHeaters->UnitHeat(UnitHeatNum).AirOutNode =
                 NodeInputManager::GetOnlySingleNode(state,
@@ -310,7 +307,7 @@ namespace UnitHeater {
                                                     DataLoopNode::NodeFluidType::Air,
                                                     DataLoopNode::ConnectionType::Outlet,
                                                     NodeInputManager::CompFluidStream::Primary,
-                                                    ObjectIsParent);
+                                                    DataLoopNode::ObjectIsParent);
 
             auto &unitHeat = state.dataUnitHeaters->UnitHeat(UnitHeatNum);
             // Fan information:
@@ -406,7 +403,7 @@ namespace UnitHeater {
                 }
             }
 
-            unitHeat.FanSchedPtr = GetScheduleIndex(state, Alphas(9));
+            unitHeat.FanSchedPtr = ScheduleManager::GetScheduleIndex(state, Alphas(9));
             // Default to cycling fan when fan operating mode schedule is not present
             if (!lAlphaBlanks(9) && unitHeat.FanSchedPtr == 0) {
                 ShowSevereError(state, format("{} \"{}\" {} not found: {}", CurrentModuleObject, unitHeat.Name, cAlphaFields(9), Alphas(9)));
@@ -421,7 +418,7 @@ namespace UnitHeater {
 
             // Check fan's schedule for cycling fan operation if constant volume fan is used
             if (unitHeat.FanSchedPtr > 0 && unitHeat.fanType == HVAC::FanType::Constant) {
-                if (!CheckScheduleValueMinMax(state, unitHeat.FanSchedPtr, ">", 0.0, "<=", 1.0)) {
+                if (!ScheduleManager::CheckScheduleValueMinMax(state, unitHeat.FanSchedPtr, ">", 0.0, "<=", 1.0)) {
                     ShowSevereError(state, format("{} = {}", CurrentModuleObject, Alphas(1)));
                     ShowContinueError(state, format("For {} = {}", cAlphaFields(5), Alphas(5)));
                     ShowContinueError(state, "Fan operating mode must be continuous (fan operating mode schedule values > 0).");
@@ -608,9 +605,6 @@ namespace UnitHeater {
         // METHODOLOGY EMPLOYED:
         // Uses the status flags to trigger initializations.
 
-        // Using/Aliasing
-        using namespace DataZoneEnergyDemands;
-
         // SUBROUTINE PARAMETER DEFINITIONS:
         static constexpr std::string_view RoutineName("InitUnitHeater");
 
@@ -751,7 +745,7 @@ namespace UnitHeater {
 
         state.dataUnitHeaters->QZnReq = state.dataZoneEnergyDemand->ZoneSysEnergyDemand(ZoneNum).RemainingOutputReqToHeatSP; // zone load needed
         if (state.dataUnitHeaters->UnitHeat(UnitHeatNum).FanSchedPtr > 0) {
-            if (GetCurrentScheduleValue(state, state.dataUnitHeaters->UnitHeat(UnitHeatNum).FanSchedPtr) == 0.0 &&
+            if (ScheduleManager::GetCurrentScheduleValue(state, state.dataUnitHeaters->UnitHeat(UnitHeatNum).FanSchedPtr) == 0.0 &&
                 state.dataUnitHeaters->UnitHeat(UnitHeatNum).fanType == HVAC::FanType::OnOff) {
                 state.dataUnitHeaters->UnitHeat(UnitHeatNum).fanOp = HVAC::FanOp::Cycling;
             } else {
@@ -760,15 +754,15 @@ namespace UnitHeater {
             if ((state.dataUnitHeaters->QZnReq < HVAC::SmallLoad) || state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum)) {
                 // Unit is available, but there is no load on it or we are in setback/deadband
                 if (!state.dataUnitHeaters->UnitHeat(UnitHeatNum).FanOffNoHeating &&
-                    GetCurrentScheduleValue(state, state.dataUnitHeaters->UnitHeat(UnitHeatNum).FanSchedPtr) > 0.0) {
+                    ScheduleManager::GetCurrentScheduleValue(state, state.dataUnitHeaters->UnitHeat(UnitHeatNum).FanSchedPtr) > 0.0) {
                     state.dataUnitHeaters->UnitHeat(UnitHeatNum).fanOp = HVAC::FanOp::Continuous;
                 }
             }
         }
 
         state.dataUnitHeaters->SetMassFlowRateToZero = false;
-        if (GetCurrentScheduleValue(state, state.dataUnitHeaters->UnitHeat(UnitHeatNum).SchedPtr) > 0) {
-            if ((GetCurrentScheduleValue(state, state.dataUnitHeaters->UnitHeat(UnitHeatNum).FanAvailSchedPtr) > 0 ||
+        if (ScheduleManager::GetCurrentScheduleValue(state, state.dataUnitHeaters->UnitHeat(UnitHeatNum).SchedPtr) > 0) {
+            if ((ScheduleManager::GetCurrentScheduleValue(state, state.dataUnitHeaters->UnitHeat(UnitHeatNum).FanAvailSchedPtr) > 0 ||
                  state.dataHVACGlobal->TurnFansOn) &&
                 !state.dataHVACGlobal->TurnFansOff) {
                 if (state.dataUnitHeaters->UnitHeat(UnitHeatNum).FanOffNoHeating &&
@@ -825,9 +819,6 @@ namespace UnitHeater {
         // METHODOLOGY EMPLOYED:
         // Obtains flow rates from the zone sizing arrays and plant sizing data.
 
-        // Using/Aliasing
-        using namespace DataSizing;
-
         // SUBROUTINE PARAMETER DEFINITIONS:
         static constexpr std::string_view RoutineName("SizeUnitHeater");
 
@@ -878,21 +869,21 @@ namespace UnitHeater {
                 SizingString = state.dataUnitHeaters->UnitHeatNumericFields(UnitHeatNum).FieldNames(FieldNum) + " [m3/s]";
                 int SAFMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingSAFMethod;
                 ZoneEqSizing.SizingMethod(SizingMethod) = SAFMethod;
-                if (SAFMethod == None || SAFMethod == SupplyAirFlowRate || SAFMethod == FlowPerFloorArea ||
-                    SAFMethod == FractionOfAutosizedHeatingAirflow) {
-                    if (SAFMethod == SupplyAirFlowRate) {
+                if (SAFMethod == DataSizing::None || SAFMethod == DataSizing::SupplyAirFlowRate || SAFMethod == DataSizing::FlowPerFloorArea ||
+                    SAFMethod == DataSizing::FractionOfAutosizedHeatingAirflow) {
+                    if (SAFMethod == DataSizing::SupplyAirFlowRate) {
                         if (state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow > 0.0) {
                             ZoneEqSizing.AirVolFlow = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow;
                             ZoneEqSizing.SystemAirFlow = true;
                         }
                         TempSize = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow;
-                    } else if (SAFMethod == FlowPerFloorArea) {
+                    } else if (SAFMethod == DataSizing::FlowPerFloorArea) {
                         ZoneEqSizing.SystemAirFlow = true;
                         ZoneEqSizing.AirVolFlow = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow *
                                                   state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
                         TempSize = ZoneEqSizing.AirVolFlow;
                         state.dataSize->DataScalableSizingON = true;
-                    } else if (SAFMethod == FractionOfAutosizedHeatingAirflow) {
+                    } else if (SAFMethod == DataSizing::FractionOfAutosizedHeatingAirflow) {
                         state.dataSize->DataFracOfAutosizedCoolingAirflow = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow;
                         TempSize = DataSizing::AutoSize;
                         state.dataSize->DataScalableSizingON = true;
@@ -906,7 +897,7 @@ namespace UnitHeater {
                     sizingHeatingAirFlow.initializeWithinEP(state, CompType, CompName, PrintFlag, RoutineName);
                     state.dataUnitHeaters->UnitHeat(UnitHeatNum).MaxAirVolFlow = sizingHeatingAirFlow.size(state, TempSize, errorsFound);
 
-                } else if (SAFMethod == FlowPerHeatingCapacity) {
+                } else if (SAFMethod == DataSizing::FlowPerHeatingCapacity) {
                     TempSize = DataSizing::AutoSize;
                     PrintFlag = false;
                     state.dataSize->DataScalableSizingON = true;
@@ -916,7 +907,7 @@ namespace UnitHeater {
                     sizerHeatingCapacity.overrideSizingString(SizingString);
                     sizerHeatingCapacity.initializeWithinEP(state, CompType, CompName, PrintFlag, RoutineName);
                     TempSize = sizerHeatingCapacity.size(state, TempSize, errorsFound);
-                    if (state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingCapMethod == FractionOfAutosizedHeatingCapacity) {
+                    if (state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingCapMethod == DataSizing::FractionOfAutosizedHeatingCapacity) {
                         state.dataSize->DataFracOfAutosizedHeatingCapacity = state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity;
                     }
                     state.dataSize->DataAutosizedHeatingCapacity = TempSize;
@@ -1004,9 +995,9 @@ namespace UnitHeater {
                                 zoneHVACIndex = state.dataUnitHeaters->UnitHeat(UnitHeatNum).HVACSizingIndex;
                                 int CapSizingMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingCapMethod;
                                 ZoneEqSizing.SizingMethod(SizingMethod) = CapSizingMethod;
-                                if (CapSizingMethod == HeatingDesignCapacity || CapSizingMethod == CapacityPerFloorArea ||
-                                    CapSizingMethod == FractionOfAutosizedHeatingCapacity) {
-                                    if (CapSizingMethod == HeatingDesignCapacity) {
+                                if (CapSizingMethod == DataSizing::HeatingDesignCapacity || CapSizingMethod == DataSizing::CapacityPerFloorArea ||
+                                    CapSizingMethod == DataSizing::FractionOfAutosizedHeatingCapacity) {
+                                    if (CapSizingMethod == DataSizing::HeatingDesignCapacity) {
                                         if (state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity == DataSizing::AutoSize) {
                                             ZoneEqSizing.DesHeatingLoad = state.dataSize->FinalZoneSizing(CurZoneEqNum).DesHeatLoad;
                                         } else {
@@ -1014,12 +1005,12 @@ namespace UnitHeater {
                                         }
                                         ZoneEqSizing.HeatingCapacity = true;
                                         TempSize = DataSizing::AutoSize;
-                                    } else if (CapSizingMethod == CapacityPerFloorArea) {
+                                    } else if (CapSizingMethod == DataSizing::CapacityPerFloorArea) {
                                         ZoneEqSizing.HeatingCapacity = true;
                                         ZoneEqSizing.DesHeatingLoad = state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity *
                                                                       state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
                                         state.dataSize->DataScalableCapSizingON = true;
-                                    } else if (CapSizingMethod == FractionOfAutosizedHeatingCapacity) {
+                                    } else if (CapSizingMethod == DataSizing::FractionOfAutosizedHeatingCapacity) {
                                         state.dataSize->DataFracOfAutosizedHeatingCapacity =
                                             state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity;
                                         state.dataSize->DataScalableCapSizingON = true;
@@ -1139,9 +1130,9 @@ namespace UnitHeater {
                                 int SizingMethod = HVAC::HeatingCapacitySizing;
                                 int CapSizingMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingCapMethod;
                                 ZoneEqSizing.SizingMethod(SizingMethod) = CapSizingMethod;
-                                if (CapSizingMethod == HeatingDesignCapacity || CapSizingMethod == CapacityPerFloorArea ||
-                                    CapSizingMethod == FractionOfAutosizedHeatingCapacity) {
-                                    if (CapSizingMethod == HeatingDesignCapacity) {
+                                if (CapSizingMethod == DataSizing::HeatingDesignCapacity || CapSizingMethod == DataSizing::CapacityPerFloorArea ||
+                                    CapSizingMethod == DataSizing::FractionOfAutosizedHeatingCapacity) {
+                                    if (CapSizingMethod == DataSizing::HeatingDesignCapacity) {
                                         if (state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity == DataSizing::AutoSize) {
                                             ZoneEqSizing.DesHeatingLoad = state.dataSize->FinalZoneSizing(CurZoneEqNum).DesHeatLoad;
                                         } else {
@@ -1149,12 +1140,12 @@ namespace UnitHeater {
                                         }
                                         ZoneEqSizing.HeatingCapacity = true;
                                         TempSize = DataSizing::AutoSize;
-                                    } else if (CapSizingMethod == CapacityPerFloorArea) {
+                                    } else if (CapSizingMethod == DataSizing::CapacityPerFloorArea) {
                                         ZoneEqSizing.HeatingCapacity = true;
                                         ZoneEqSizing.DesHeatingLoad = state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity *
                                                                       state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
                                         state.dataSize->DataScalableCapSizingON = true;
-                                    } else if (CapSizingMethod == FractionOfAutosizedHeatingCapacity) {
+                                    } else if (CapSizingMethod == DataSizing::FractionOfAutosizedHeatingCapacity) {
                                         state.dataSize->DataFracOfAutosizedHeatingCapacity =
                                             state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity;
                                         TempSize = DataSizing::AutoSize;
@@ -1287,9 +1278,6 @@ namespace UnitHeater {
         // REFERENCES:
         // ASHRAE Systems and Equipment Handbook (SI), 1996. page 31.7
 
-        // Using/Aliasing
-        using namespace DataZoneEnergyDemands;
-
         // SUBROUTINE PARAMETER DEFINITIONS:
         int constexpr MaxIter = 100; // maximum number of iterations
 
@@ -1306,18 +1294,16 @@ namespace UnitHeater {
         Real64 MaxWaterFlow = 0.0;
         Real64 MinWaterFlow = 0.0;
         Real64 PartLoadFrac = 0.0;
-        int SolFlag = 0; // # of iterations IF positive, -1 means failed to converge, -2 means bounds are incorrect
         int InletNode = state.dataUnitHeaters->UnitHeat(UnitHeatNum).AirInNode;
         int OutletNode = state.dataUnitHeaters->UnitHeat(UnitHeatNum).AirOutNode;
         int ControlNode = state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode;
         Real64 ControlOffset = state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlOffset;
-        bool UnitOn = false;
         HVAC::FanOp fanOp = state.dataUnitHeaters->UnitHeat(UnitHeatNum).fanOp;
 
         if (fanOp != HVAC::FanOp::Cycling) {
 
-            if (GetCurrentScheduleValue(state, state.dataUnitHeaters->UnitHeat(UnitHeatNum).SchedPtr) <= 0 ||
-                ((GetCurrentScheduleValue(state, state.dataUnitHeaters->UnitHeat(UnitHeatNum).FanAvailSchedPtr) <= 0 &&
+            if (ScheduleManager::GetCurrentScheduleValue(state, state.dataUnitHeaters->UnitHeat(UnitHeatNum).SchedPtr) <= 0 ||
+                ((ScheduleManager::GetCurrentScheduleValue(state, state.dataUnitHeaters->UnitHeat(UnitHeatNum).FanAvailSchedPtr) <= 0 &&
                   !state.dataHVACGlobal->TurnFansOn) ||
                  state.dataHVACGlobal->TurnFansOff)) {
                 // Case 1: OFF-->unit schedule says that it it not available
@@ -1456,8 +1442,8 @@ namespace UnitHeater {
             }
         } else { // OnOff fan and cycling
             if ((state.dataUnitHeaters->QZnReq < HVAC::SmallLoad) || (state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum)) ||
-                GetCurrentScheduleValue(state, state.dataUnitHeaters->UnitHeat(UnitHeatNum).SchedPtr) <= 0 ||
-                ((GetCurrentScheduleValue(state, state.dataUnitHeaters->UnitHeat(UnitHeatNum).FanAvailSchedPtr) <= 0 &&
+                ScheduleManager::GetCurrentScheduleValue(state, state.dataUnitHeaters->UnitHeat(UnitHeatNum).SchedPtr) <= 0 ||
+                ((ScheduleManager::GetCurrentScheduleValue(state, state.dataUnitHeaters->UnitHeat(UnitHeatNum).FanAvailSchedPtr) <= 0 &&
                   !state.dataHVACGlobal->TurnFansOn) ||
                  state.dataHVACGlobal->TurnFansOff)) {
                 // Case 1: OFF-->unit schedule says that it it not available
@@ -1475,7 +1461,6 @@ namespace UnitHeater {
             } else { // Case 4: HEATING-->unit is available and there is a heating load
 
                 state.dataUnitHeaters->HCoilOn = true;
-                UnitOn = true;
 
                 // Find part load ratio of unit heater coils
                 PartLoadFrac = 0.0;
@@ -1501,6 +1486,7 @@ namespace UnitHeater {
                         };
 
                         // Tolerance is in fraction of load, MaxIter = 30, SolFalg = # of iterations or error as appropriate
+                        int SolFlag = 0; // # of iterations IF positive, -1 means failed to converge, -2 means bounds are incorrect
                         General::SolveRoot(state, 0.001, MaxIter, SolFlag, PartLoadFrac, f, 0.0, 1.0);
                     }
                 }
