@@ -600,7 +600,6 @@ namespace UnitHeater {
         //       AUTHOR         Rick Strand
         //       DATE WRITTEN   May 2000
         //       MODIFIED       Chandan Sharma, FSEC, March 2011: Added ZoneHVAC sys avail manager
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // This subroutine initializes all of the data elements which are necessary
@@ -610,13 +609,7 @@ namespace UnitHeater {
         // Uses the status flags to trigger initializations.
 
         // Using/Aliasing
-        using DataZoneEquipment::CheckZoneEquipmentList;
-        using FluidProperties::GetDensityGlycol;
-        using PlantUtilities::InitComponentNodes;
-        using PlantUtilities::ScanPlantLoopsForObject;
-        using PlantUtilities::SetComponentFlowRate;
         using namespace DataZoneEnergyDemands;
-        using WaterCoils::SimulateWaterCoilComponents;
 
         // SUBROUTINE PARAMETER DEFINITIONS:
         static constexpr std::string_view RoutineName("InitUnitHeater");
@@ -657,16 +650,16 @@ namespace UnitHeater {
             if ((state.dataUnitHeaters->UnitHeat(UnitHeatNum).HeatingCoilType == DataPlant::PlantEquipmentType::CoilWaterSimpleHeating) ||
                 (state.dataUnitHeaters->UnitHeat(UnitHeatNum).HeatingCoilType == DataPlant::PlantEquipmentType::CoilSteamAirHeating)) {
                 bool errFlag = false;
-                ScanPlantLoopsForObject(state,
-                                        state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName,
-                                        state.dataUnitHeaters->UnitHeat(UnitHeatNum).HeatingCoilType,
-                                        state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc,
-                                        errFlag,
-                                        _,
-                                        _,
-                                        _,
-                                        _,
-                                        _);
+                PlantUtilities::ScanPlantLoopsForObject(state,
+                                                        state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName,
+                                                        state.dataUnitHeaters->UnitHeat(UnitHeatNum).HeatingCoilType,
+                                                        state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc,
+                                                        errFlag,
+                                                        _,
+                                                        _,
+                                                        _,
+                                                        _,
+                                                        _);
                 if (errFlag) {
                     ShowContinueError(state,
                                       format("Reference Unit=\"{}\", type=ZoneHVAC:UnitHeater", state.dataUnitHeaters->UnitHeat(UnitHeatNum).Name));
@@ -684,7 +677,7 @@ namespace UnitHeater {
         if (!state.dataUnitHeaters->ZoneEquipmentListChecked && state.dataZoneEquip->ZoneEquipInputsFilled) {
             state.dataUnitHeaters->ZoneEquipmentListChecked = true;
             for (int Loop = 1; Loop <= state.dataUnitHeaters->NumOfUnitHeats; ++Loop) {
-                if (CheckZoneEquipmentList(state, "ZoneHVAC:UnitHeater", state.dataUnitHeaters->UnitHeat(Loop).Name)) continue;
+                if (DataZoneEquipment::CheckZoneEquipmentList(state, "ZoneHVAC:UnitHeater", state.dataUnitHeaters->UnitHeat(Loop).Name)) continue;
                 ShowSevereError(state,
                                 format("InitUnitHeater: Unit=[UNIT HEATER,{}] is not on any ZoneHVAC:EquipmentList.  It will not be simulated.",
                                        state.dataUnitHeaters->UnitHeat(Loop).Name));
@@ -716,19 +709,20 @@ namespace UnitHeater {
             state.dataLoopNodes->Node(InNode).MassFlowRateMin = 0.0;
 
             if (state.dataUnitHeaters->UnitHeat(UnitHeatNum).Type == HCoilType::WaterHeatingCoil) {
-                rho = GetDensityGlycol(state,
-                                       state.dataPlnt->PlantLoop(state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc.loopNum).FluidName,
-                                       Constant::HWInitConvTemp,
-                                       state.dataPlnt->PlantLoop(state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc.loopNum).FluidIndex,
-                                       RoutineName);
+                rho = FluidProperties::GetDensityGlycol(
+                    state,
+                    state.dataPlnt->PlantLoop(state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc.loopNum).FluidName,
+                    Constant::HWInitConvTemp,
+                    state.dataPlnt->PlantLoop(state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc.loopNum).FluidIndex,
+                    RoutineName);
 
                 state.dataUnitHeaters->UnitHeat(UnitHeatNum).MaxHotWaterFlow = rho * state.dataUnitHeaters->UnitHeat(UnitHeatNum).MaxVolHotWaterFlow;
                 state.dataUnitHeaters->UnitHeat(UnitHeatNum).MinHotWaterFlow = rho * state.dataUnitHeaters->UnitHeat(UnitHeatNum).MinVolHotWaterFlow;
-                InitComponentNodes(state,
-                                   state.dataUnitHeaters->UnitHeat(UnitHeatNum).MinHotWaterFlow,
-                                   state.dataUnitHeaters->UnitHeat(UnitHeatNum).MaxHotWaterFlow,
-                                   state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode,
-                                   state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotCoilOutNodeNum);
+                PlantUtilities::InitComponentNodes(state,
+                                                   state.dataUnitHeaters->UnitHeat(UnitHeatNum).MinHotWaterFlow,
+                                                   state.dataUnitHeaters->UnitHeat(UnitHeatNum).MaxHotWaterFlow,
+                                                   state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode,
+                                                   state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotCoilOutNodeNum);
             }
             if (state.dataUnitHeaters->UnitHeat(UnitHeatNum).Type == HCoilType::SteamCoil) {
                 TempSteamIn = 100.00;
@@ -739,11 +733,11 @@ namespace UnitHeater {
                 state.dataUnitHeaters->UnitHeat(UnitHeatNum).MinHotSteamFlow =
                     SteamDensity * state.dataUnitHeaters->UnitHeat(UnitHeatNum).MinVolHotSteamFlow;
 
-                InitComponentNodes(state,
-                                   state.dataUnitHeaters->UnitHeat(UnitHeatNum).MinHotSteamFlow,
-                                   state.dataUnitHeaters->UnitHeat(UnitHeatNum).MaxHotSteamFlow,
-                                   state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode,
-                                   state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotCoilOutNodeNum);
+                PlantUtilities::InitComponentNodes(state,
+                                                   state.dataUnitHeaters->UnitHeat(UnitHeatNum).MinHotSteamFlow,
+                                                   state.dataUnitHeaters->UnitHeat(UnitHeatNum).MaxHotSteamFlow,
+                                                   state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode,
+                                                   state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotCoilOutNodeNum);
             }
 
             state.dataUnitHeaters->MyEnvrnFlag(UnitHeatNum) = false;
@@ -833,55 +827,41 @@ namespace UnitHeater {
 
         // Using/Aliasing
         using namespace DataSizing;
-        using HVAC::HeatingAirflowSizing;
-        using HVAC::HeatingCapacitySizing;
-        using PlantUtilities::MyPlantSizingIndex;
-        using Psychrometrics::CPHW;
-        using SteamCoils::GetCoilSteamOutletNode;
 
         // SUBROUTINE PARAMETER DEFINITIONS:
         static constexpr std::string_view RoutineName("SizeUnitHeater");
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         int PltSizHeatNum; // index of plant sizing object for 1st heating loop
-        bool ErrorsFound;
         Real64 DesCoilLoad;
         Real64 TempSteamIn;
         Real64 EnthSteamInDry;
         Real64 EnthSteamOutWet;
         Real64 LatentHeatSteam;
         Real64 SteamDensity;
-        Real64 Cp;                     // local temporary for fluid specific heat
-        Real64 rho;                    // local temporary for fluid density
-        Real64 MaxAirVolFlowDes;       // Autosized maximum air flow for reporting
-        Real64 MaxAirVolFlowUser;      // Hardsized maximum air flow for reporting
-        Real64 MaxVolHotWaterFlowDes;  // Autosized maximum hot water flow for reporting
-        Real64 MaxVolHotWaterFlowUser; // Hardsized maximum hot water flow for reporting
-        Real64 MaxVolHotSteamFlowDes;  // Autosized maximum hot steam flow for reporting
-        Real64 MaxVolHotSteamFlowUser; // Hardsized maximum hot steam flow for reporting
-        std::string CompName;          // component name
-        std::string CompType;          // component type
-        std::string SizingString;      // input field sizing description (e.g., Nominal Capacity)
-        Real64 TempSize;               // autosized value of coil input field
-        bool PrintFlag;                // TRUE when sizing information is reported in the eio file
-        int zoneHVACIndex;             // index of zoneHVAC equipment sizing specification
-        Real64 WaterCoilSizDeltaT;     // water coil deltaT for design water flow rate autosizing
+        Real64 Cp;                 // local temporary for fluid specific heat
+        Real64 rho;                // local temporary for fluid density
+        std::string SizingString;  // input field sizing description (e.g., Nominal Capacity)
+        Real64 TempSize;           // autosized value of coil input field
+        bool PrintFlag;            // TRUE when sizing information is reported in the eio file
+        int zoneHVACIndex;         // index of zoneHVAC equipment sizing specification
+        Real64 WaterCoilSizDeltaT; // water coil deltaT for design water flow rate autosizing
 
         int &CurZoneEqNum = state.dataSize->CurZoneEqNum;
 
-        ErrorsFound = false;
-        MaxAirVolFlowDes = 0.0;
-        MaxAirVolFlowUser = 0.0;
-        MaxVolHotWaterFlowDes = 0.0;
-        MaxVolHotWaterFlowUser = 0.0;
-        MaxVolHotSteamFlowDes = 0.0;
-        MaxVolHotSteamFlowUser = 0.0;
+        bool ErrorsFound = false;
+        Real64 MaxAirVolFlowDes = 0.0;
+        Real64 MaxAirVolFlowUser = 0.0;
+        Real64 MaxVolHotWaterFlowDes = 0.0;
+        Real64 MaxVolHotWaterFlowUser = 0.0;
+        Real64 MaxVolHotSteamFlowDes = 0.0;
+        Real64 MaxVolHotSteamFlowUser = 0.0;
 
         state.dataSize->DataScalableSizingON = false;
         state.dataSize->DataScalableCapSizingON = false;
         state.dataSize->ZoneHeatingOnlyFan = true;
-        CompType = "ZoneHVAC:UnitHeater";
-        CompName = state.dataUnitHeaters->UnitHeat(UnitHeatNum).Name;
+        std::string CompType = "ZoneHVAC:UnitHeater";
+        std::string CompName = state.dataUnitHeaters->UnitHeat(UnitHeatNum).Name;
         state.dataSize->DataZoneNumber = state.dataUnitHeaters->UnitHeat(UnitHeatNum).ZonePtr;
         state.dataSize->DataFanType = state.dataUnitHeaters->UnitHeat(UnitHeatNum).fanType;
         state.dataSize->DataFanIndex = state.dataUnitHeaters->UnitHeat(UnitHeatNum).Fan_Index;
@@ -892,7 +872,7 @@ namespace UnitHeater {
             auto &ZoneEqSizing = state.dataSize->ZoneEqSizing(CurZoneEqNum);
             if (state.dataUnitHeaters->UnitHeat(UnitHeatNum).HVACSizingIndex > 0) {
                 zoneHVACIndex = state.dataUnitHeaters->UnitHeat(UnitHeatNum).HVACSizingIndex;
-                int SizingMethod = HeatingAirflowSizing;
+                int SizingMethod = HVAC::HeatingAirflowSizing;
                 int FieldNum = 1; //  N1 , \field Maximum Supply Air Flow Rate
                 PrintFlag = true;
                 SizingString = state.dataUnitHeaters->UnitHeatNumericFields(UnitHeatNum).FieldNames(FieldNum) + " [m3/s]";
@@ -992,12 +972,12 @@ namespace UnitHeater {
                         state, "Coil:Heating:Water", state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName, ErrorsFound);
                     if (IsAutoSize) {
                         bool DoWaterCoilSizing = false; // if TRUE do water coil sizing calculation
-                        PltSizHeatNum = MyPlantSizingIndex(state,
-                                                           "Coil:Heating:Water",
-                                                           state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName,
-                                                           CoilWaterInletNode,
-                                                           CoilWaterOutletNode,
-                                                           ErrorsFound);
+                        PltSizHeatNum = PlantUtilities::MyPlantSizingIndex(state,
+                                                                           "Coil:Heating:Water",
+                                                                           state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName,
+                                                                           CoilWaterInletNode,
+                                                                           CoilWaterOutletNode,
+                                                                           ErrorsFound);
                         int CoilNum = WaterCoils::GetWaterCoilIndex(
                             state, "COIL:HEATING:WATER", state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName, ErrorsFound);
                         if (state.dataWaterCoils->WaterCoil(CoilNum).UseDesignWaterDeltaTemp) {
@@ -1019,7 +999,7 @@ namespace UnitHeater {
 
                         if (DoWaterCoilSizing) {
                             auto &ZoneEqSizing = state.dataSize->ZoneEqSizing(CurZoneEqNum);
-                            int SizingMethod = HeatingCapacitySizing;
+                            int SizingMethod = HVAC::HeatingCapacitySizing;
                             if (state.dataUnitHeaters->UnitHeat(UnitHeatNum).HVACSizingIndex > 0) {
                                 zoneHVACIndex = state.dataUnitHeaters->UnitHeat(UnitHeatNum).HVACSizingIndex;
                                 int CapSizingMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingCapMethod;
@@ -1147,16 +1127,16 @@ namespace UnitHeater {
                     int CoilSteamOutletNode = SteamCoils::GetCoilSteamInletNode(
                         state, "Coil:Heating:Steam", state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName, ErrorsFound);
                     if (IsAutoSize) {
-                        PltSizHeatNum = MyPlantSizingIndex(state,
-                                                           "Coil:Heating:Steam",
-                                                           state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName,
-                                                           CoilSteamInletNode,
-                                                           CoilSteamOutletNode,
-                                                           ErrorsFound);
+                        PltSizHeatNum = PlantUtilities::MyPlantSizingIndex(state,
+                                                                           "Coil:Heating:Steam",
+                                                                           state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName,
+                                                                           CoilSteamInletNode,
+                                                                           CoilSteamOutletNode,
+                                                                           ErrorsFound);
                         if (PltSizHeatNum > 0) {
                             if (state.dataUnitHeaters->UnitHeat(UnitHeatNum).HVACSizingIndex > 0) {
                                 zoneHVACIndex = state.dataUnitHeaters->UnitHeat(UnitHeatNum).HVACSizingIndex;
-                                int SizingMethod = HeatingCapacitySizing;
+                                int SizingMethod = HVAC::HeatingCapacitySizing;
                                 int CapSizingMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingCapMethod;
                                 ZoneEqSizing.SizingMethod(SizingMethod) = CapSizingMethod;
                                 if (CapSizingMethod == HeatingDesignCapacity || CapSizingMethod == CapacityPerFloorArea ||
@@ -1201,8 +1181,9 @@ namespace UnitHeater {
                                 SteamDensity = FluidProperties::GetSatDensityRefrig(
                                     state, fluidNameSteam, TempSteamIn, 1.0, state.dataUnitHeaters->RefrigIndex, RoutineName);
                                 MaxVolHotSteamFlowDes =
-                                    DesCoilLoad / (SteamDensity * (LatentHeatSteam + state.dataSize->PlantSizData(PltSizHeatNum).DeltaT *
-                                                                                         CPHW(state.dataSize->PlantSizData(PltSizHeatNum).ExitTemp)));
+                                    DesCoilLoad / (SteamDensity * (LatentHeatSteam +
+                                                                   state.dataSize->PlantSizData(PltSizHeatNum).DeltaT *
+                                                                       Psychrometrics::CPHW(state.dataSize->PlantSizData(PltSizHeatNum).ExitTemp)));
                             } else {
                                 MaxVolHotSteamFlowDes = 0.0;
                             }
@@ -1310,7 +1291,6 @@ namespace UnitHeater {
         // Using/Aliasing
         using namespace DataZoneEnergyDemands;
         using General::SolveRoot;
-        using PlantUtilities::SetComponentFlowRate;
 
         // SUBROUTINE PARAMETER DEFINITIONS:
         int constexpr MaxIter(100); // maximum number of iterations
@@ -1363,20 +1343,20 @@ namespace UnitHeater {
                 if (state.dataUnitHeaters->UnitHeat(UnitHeatNum).Type == HCoilType::WaterHeatingCoil) {
                     mdot = 0.0; // try to turn off
 
-                    SetComponentFlowRate(state,
-                                         mdot,
-                                         state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode,
-                                         state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotCoilOutNodeNum,
-                                         state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc);
+                    PlantUtilities::SetComponentFlowRate(state,
+                                                         mdot,
+                                                         state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode,
+                                                         state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotCoilOutNodeNum,
+                                                         state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc);
                 }
                 if (state.dataUnitHeaters->UnitHeat(UnitHeatNum).Type == HCoilType::SteamCoil) {
                     mdot = 0.0; // try to turn off
 
-                    SetComponentFlowRate(state,
-                                         mdot,
-                                         state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode,
-                                         state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotCoilOutNodeNum,
-                                         state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc);
+                    PlantUtilities::SetComponentFlowRate(state,
+                                                         mdot,
+                                                         state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode,
+                                                         state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotCoilOutNodeNum,
+                                                         state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc);
                 }
                 CalcUnitHeaterComponents(state, UnitHeatNum, FirstHVACIteration, QUnitOut);
 
@@ -1390,20 +1370,20 @@ namespace UnitHeater {
                     if (state.dataUnitHeaters->UnitHeat(UnitHeatNum).Type == HCoilType::WaterHeatingCoil) {
                         mdot = 0.0; // try to turn off
 
-                        SetComponentFlowRate(state,
-                                             mdot,
-                                             state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode,
-                                             state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotCoilOutNodeNum,
-                                             state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc);
+                        PlantUtilities::SetComponentFlowRate(state,
+                                                             mdot,
+                                                             state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode,
+                                                             state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotCoilOutNodeNum,
+                                                             state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc);
                     }
                     if (state.dataUnitHeaters->UnitHeat(UnitHeatNum).Type == HCoilType::SteamCoil) {
                         mdot = 0.0; // try to turn off
 
-                        SetComponentFlowRate(state,
-                                             mdot,
-                                             state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode,
-                                             state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotCoilOutNodeNum,
-                                             state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc);
+                        PlantUtilities::SetComponentFlowRate(state,
+                                                             mdot,
+                                                             state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode,
+                                                             state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotCoilOutNodeNum,
+                                                             state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc);
                     }
                     CalcUnitHeaterComponents(state, UnitHeatNum, FirstHVACIteration, QUnitOut);
 
@@ -1418,21 +1398,21 @@ namespace UnitHeater {
                         mdot = 0.0; // try to turn off
 
                         if (state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc.loopNum > 0) {
-                            SetComponentFlowRate(state,
-                                                 mdot,
-                                                 state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode,
-                                                 state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotCoilOutNodeNum,
-                                                 state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc);
+                            PlantUtilities::SetComponentFlowRate(state,
+                                                                 mdot,
+                                                                 state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode,
+                                                                 state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotCoilOutNodeNum,
+                                                                 state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc);
                         }
                     }
                     if (state.dataUnitHeaters->UnitHeat(UnitHeatNum).Type == HCoilType::SteamCoil) {
                         mdot = 0.0; // try to turn off
                         if (state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc.loopNum > 0) {
-                            SetComponentFlowRate(state,
-                                                 mdot,
-                                                 state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode,
-                                                 state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotCoilOutNodeNum,
-                                                 state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc);
+                            PlantUtilities::SetComponentFlowRate(state,
+                                                                 mdot,
+                                                                 state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode,
+                                                                 state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotCoilOutNodeNum,
+                                                                 state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc);
                         }
                     }
 
@@ -1592,8 +1572,6 @@ namespace UnitHeater {
         // Simply calls the different components in order.
 
         // Using/Aliasing
-        using HeatingCoils::SimulateHeatingCoilComponents;
-        using PlantUtilities::SetComponentFlowRate;
         using SteamCoils::SimulateSteamCoilComponents;
         using WaterCoils::SimulateWaterCoilComponents;
 
@@ -1657,11 +1635,11 @@ namespace UnitHeater {
                                                              state.dataLoopNodes->Node(state.dataUnitHeaters->UnitHeat(UnitHeatNum).AirInNode).Temp);
                 }
                 if (QCoilReq < 0.0) QCoilReq = 0.0; // a heating coil can only heat, not cool
-                SimulateHeatingCoilComponents(state,
-                                              state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName,
-                                              FirstHVACIteration,
-                                              QCoilReq,
-                                              state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoil_Index);
+                HeatingCoils::SimulateHeatingCoilComponents(state,
+                                                            state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName,
+                                                            FirstHVACIteration,
+                                                            QCoilReq,
+                                                            state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoil_Index);
                 break;
             }
             default:
@@ -1700,11 +1678,11 @@ namespace UnitHeater {
                     mdot = state.dataUnitHeaters->UnitHeat(UnitHeatNum).MaxHotWaterFlow * PartLoadRatio;
                 }
                 if (QCoilReq < 0.0) QCoilReq = 0.0; // a heating coil can only heat, not cool
-                SetComponentFlowRate(state,
-                                     mdot,
-                                     state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode,
-                                     state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotCoilOutNodeNum,
-                                     state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc);
+                PlantUtilities::SetComponentFlowRate(state,
+                                                     mdot,
+                                                     state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode,
+                                                     state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotCoilOutNodeNum,
+                                                     state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc);
                 SimulateWaterCoilComponents(state,
                                             state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName,
                                             FirstHVACIteration,
@@ -1728,11 +1706,11 @@ namespace UnitHeater {
                     mdot = state.dataUnitHeaters->UnitHeat(UnitHeatNum).MaxHotSteamFlow * PartLoadRatio;
                 }
                 if (QCoilReq < 0.0) QCoilReq = 0.0; // a heating coil can only heat, not cool
-                SetComponentFlowRate(state,
-                                     mdot,
-                                     state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode,
-                                     state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotCoilOutNodeNum,
-                                     state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc);
+                PlantUtilities::SetComponentFlowRate(state,
+                                                     mdot,
+                                                     state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode,
+                                                     state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotCoilOutNodeNum,
+                                                     state.dataUnitHeaters->UnitHeat(UnitHeatNum).HWplantLoc);
                 SimulateSteamCoilComponents(state,
                                             state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName,
                                             FirstHVACIteration,
@@ -1757,15 +1735,15 @@ namespace UnitHeater {
                                                              state.dataLoopNodes->Node(state.dataUnitHeaters->UnitHeat(UnitHeatNum).AirInNode).Temp);
                 }
                 if (QCoilReq < 0.0) QCoilReq = 0.0; // a heating coil can only heat, not cool
-                SimulateHeatingCoilComponents(state,
-                                              state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName,
-                                              FirstHVACIteration,
-                                              QCoilReq,
-                                              state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoil_Index,
-                                              _,
-                                              _,
-                                              fanOp,
-                                              PartLoadRatio);
+                HeatingCoils::SimulateHeatingCoilComponents(state,
+                                                            state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName,
+                                                            FirstHVACIteration,
+                                                            QCoilReq,
+                                                            state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoil_Index,
+                                                            _,
+                                                            _,
+                                                            fanOp,
+                                                            PartLoadRatio);
                 break;
             }
             default:
