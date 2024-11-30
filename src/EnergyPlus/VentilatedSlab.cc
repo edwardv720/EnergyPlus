@@ -222,15 +222,10 @@ namespace VentilatedSlab {
         auto &GetWaterCoilMaxFlowRate(WaterCoils::GetCoilMaxWaterFlowRate);
         auto &GetSteamCoilMaxFlowRate(SteamCoils::GetCoilMaxWaterFlowRate);
         auto &GetHXAssistedCoilFlowRate(HVACHXAssistedCoolingCoil::GetCoilMaxWaterFlowRate);
-        using HVACHXAssistedCoolingCoil::GetHXCoilTypeAndName;
-        using ScheduleManager::GetScheduleIndex;
         using namespace DataLoopNode;
         using namespace DataSurfaceLists;
 
-        using OutAirNodeManager::CheckAndAddAirNodeNumber;
-
         // SUBROUTINE PARAMETER DEFINITIONS:
-
         constexpr std::array<std::string_view, static_cast<int>(VentilatedSlabConfig::Num)> VentilatedSlabConfigNamesUC{
             "SLABONLY", "SLABANDZONE", "SERIESSLABS"};
 
@@ -322,7 +317,8 @@ namespace VentilatedSlab {
             ventSlab.Name = state.dataIPShortCut->cAlphaArgs(1);
             if (lAlphaBlanks(2)) {
                 ventSlab.SchedPtr = ScheduleManager::ScheduleAlwaysOn;
-            } else if ((ventSlab.SchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(2))) == 0) { // convert schedule name to pointer
+            } else if ((ventSlab.SchedPtr = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(2))) ==
+                       0) { // convert schedule name to pointer
                 ShowSevereError(state,
                                 format(R"({}="{}" invalid {}="{}" not found.)",
                                        CurrentModuleObject,
@@ -481,7 +477,8 @@ namespace VentilatedSlab {
 
             switch (ventSlab.outsideAirControlType) {
             case OutsideAirControlType::VariablePercent: {
-                ventSlab.MaxOASchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(7)); // convert schedule name to pointer
+                ventSlab.MaxOASchedPtr =
+                    ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(7)); // convert schedule name to pointer
                 if (ventSlab.MaxOASchedPtr == 0) {
                     ShowSevereError(state,
                                     format(R"({}="{}" invalid {}="{}" not found.)",
@@ -502,7 +499,8 @@ namespace VentilatedSlab {
                 break;
             }
             case OutsideAirControlType::FixedOAControl: {
-                ventSlab.MaxOASchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(7)); // convert schedule name to pointer
+                ventSlab.MaxOASchedPtr =
+                    ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(7)); // convert schedule name to pointer
                 if (ventSlab.MaxOASchedPtr == 0) {
                     ShowSevereError(state,
                                     format(R"({}="{}" invalid {}="{}" not found.)",
@@ -523,7 +521,8 @@ namespace VentilatedSlab {
                 break;
             }
             case OutsideAirControlType::FixedTemperature: {
-                ventSlab.TempSchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(7)); // convert schedule name to pointer
+                ventSlab.TempSchedPtr =
+                    ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(7)); // convert schedule name to pointer
                 if (ventSlab.TempSchedPtr == 0) {
                     ShowSevereError(state,
                                     format(R"({}="{}" invalid {}="{}" not found.)",
@@ -542,7 +541,8 @@ namespace VentilatedSlab {
             }
             }
 
-            ventSlab.MinOASchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(6)); // convert schedule name to pointer
+            ventSlab.MinOASchedPtr =
+                ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(6)); // convert schedule name to pointer
             if (ventSlab.MinOASchedPtr == 0) {
                 ShowSevereError(state,
                                 format(R"({}="{}" invalid {}="{}" not found.)",
@@ -614,7 +614,7 @@ namespace VentilatedSlab {
             // Heating User Input Data For Ventilated Slab Control :
 
             // High Air Temp :
-            ventSlab.HotAirHiTempSchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(10));
+            ventSlab.HotAirHiTempSchedPtr = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(10));
             if ((ventSlab.HotAirHiTempSchedPtr == 0) && (!lAlphaBlanks(10))) {
                 ShowSevereError(state,
                                 format(R"({}="{}" invalid {}="{}" not found.)",
@@ -627,7 +627,7 @@ namespace VentilatedSlab {
 
             // Low Air Temp :
 
-            ventSlab.HotAirLoTempSchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(11));
+            ventSlab.HotAirLoTempSchedPtr = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(11));
             if ((ventSlab.HotAirLoTempSchedPtr == 0) && (!lAlphaBlanks(11))) {
                 ShowSevereError(state,
                                 format(R"({}="{}" invalid {}="{}" not found.)",
@@ -638,7 +638,7 @@ namespace VentilatedSlab {
                 ErrorsFound = true;
             }
 
-            ventSlab.HotCtrlHiTempSchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(12));
+            ventSlab.HotCtrlHiTempSchedPtr = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(12));
             if ((ventSlab.HotCtrlHiTempSchedPtr == 0) && (!lAlphaBlanks(12))) {
                 ShowSevereError(state,
                                 format(R"({}="{}" invalid {}="{}" not found.)",
@@ -649,7 +649,7 @@ namespace VentilatedSlab {
                 ErrorsFound = true;
             }
 
-            ventSlab.HotCtrlLoTempSchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(13));
+            ventSlab.HotCtrlLoTempSchedPtr = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(13));
             if ((ventSlab.HotCtrlLoTempSchedPtr == 0) && (!lAlphaBlanks(13))) {
                 ShowSevereError(state,
                                 format(R"({}="{}" invalid {}="{}" not found.)",
@@ -662,7 +662,7 @@ namespace VentilatedSlab {
 
             // Cooling User Input Data For Ventilated Slab Control :
             // Cooling High Temp Sch.
-            ventSlab.ColdAirHiTempSchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(14));
+            ventSlab.ColdAirHiTempSchedPtr = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(14));
             if ((ventSlab.ColdAirHiTempSchedPtr == 0) && (!lAlphaBlanks(14))) {
                 ShowSevereError(state,
                                 format(R"({}="{}" invalid {}="{}" not found.)",
@@ -675,7 +675,7 @@ namespace VentilatedSlab {
 
             // Cooling Low Temp Sch.
 
-            ventSlab.ColdAirLoTempSchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(15));
+            ventSlab.ColdAirLoTempSchedPtr = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(15));
             if ((ventSlab.ColdAirLoTempSchedPtr == 0) && (!lAlphaBlanks(15))) {
                 ShowSevereError(state,
                                 format(R"({}="{}" invalid {}="{}" not found.)",
@@ -688,7 +688,7 @@ namespace VentilatedSlab {
 
             // Cooling Control High Sch.
 
-            ventSlab.ColdCtrlHiTempSchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(16));
+            ventSlab.ColdCtrlHiTempSchedPtr = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(16));
             if ((ventSlab.ColdCtrlHiTempSchedPtr == 0) && (!lAlphaBlanks(16))) {
                 ShowSevereError(state,
                                 format(R"({}="{}" invalid {}="{}" not found.)",
@@ -701,7 +701,7 @@ namespace VentilatedSlab {
 
             // Cooling Control Low Sch.
 
-            ventSlab.ColdCtrlLoTempSchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(17));
+            ventSlab.ColdCtrlLoTempSchedPtr = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(17));
             if ((ventSlab.ColdCtrlLoTempSchedPtr == 0) && (!lAlphaBlanks(17))) {
                 ShowSevereError(state,
                                 format(R"({}="{}" invalid {}="{}" not found.)",
@@ -952,7 +952,7 @@ namespace VentilatedSlab {
                                                                           ObjectIsNotParent);
 
             if (!lAlphaBlanks(21)) {
-                CheckAndAddAirNodeNumber(state, ventSlab.OutsideAirNode, IsValid);
+                OutAirNodeManager::CheckAndAddAirNodeNumber(state, ventSlab.OutsideAirNode, IsValid);
                 if (!IsValid) {
                     ShowWarningError(
                         state,
@@ -1161,12 +1161,12 @@ namespace VentilatedSlab {
                         break;
                     }
                     case CoolingCoilType::HXAssisted: {
-                        GetHXCoilTypeAndName(state,
-                                             state.dataIPShortCut->cAlphaArgs(30),
-                                             state.dataIPShortCut->cAlphaArgs(31),
-                                             ErrorsFound,
-                                             ventSlab.coolingCoilPlantType,
-                                             ventSlab.coolingCoilPlantName);
+                        HVACHXAssistedCoolingCoil::GetHXCoilTypeAndName(state,
+                                                                        state.dataIPShortCut->cAlphaArgs(30),
+                                                                        state.dataIPShortCut->cAlphaArgs(31),
+                                                                        ErrorsFound,
+                                                                        ventSlab.coolingCoilPlantType,
+                                                                        ventSlab.coolingCoilPlantName);
                         if (Util::SameString(ventSlab.coolingCoilPlantType, "Coil:Cooling:Water")) {
                             ventSlab.coolingCoilType = DataPlant::PlantEquipmentType::CoilWaterCooling;
                         } else if (Util::SameString(ventSlab.coolingCoilPlantType, "Coil:Cooling:Water:DetailedGeometry")) {
@@ -1319,18 +1319,6 @@ namespace VentilatedSlab {
 
         // Setup Report variables for the VENTILATED SLAB
         for (Item = 1; Item <= state.dataVentilatedSlab->NumOfVentSlabs; ++Item) {
-            //   CALL SetupOutputVariable(state, 'Ventilated Slab Direct Heat Loss Rate [W]', &
-            //                             VentSlab(Item)%DirectHeatLossRate,'System', &
-            //                             'Average', VentSlab(Item)%Name)
-            //   CALL SetupOutputVariable(state, 'Ventilated Slab Direct Heat Loss [W]',        &
-            //                             VentSlab(Item)%DirectHeatLoss,'System', &
-            //                             'Sum', VentSlab(Item)%Name)
-            //   CALL SetupOutputVariable(state, 'Ventilated Slab Direct Heat Gain Rate [W]',        &
-            //                             VentSlab(Item)%DirectHeatGainRate,'System', &
-            //                            'Average', VentSlab(Item)%Name)
-            //   CALL SetupOutputVariable(state, 'Ventilated Slab Direct Heat Gain [J]',        &
-            //                           VentSlab(Item)%DirectHeatGain,'System', &
-            //                             'Sum', VentSlab(Item)%Name)
             auto &ventSlab = state.dataVentilatedSlab->VentSlab(Item);
             SetupOutputVariable(state,
                                 "Zone Ventilated Slab Radiant Heating Rate",
@@ -1494,7 +1482,6 @@ namespace VentilatedSlab {
         //       AUTHOR         Young Tae Chae, Rick Strand
         //       DATE WRITTEN   June 2008
         //       MODIFIED       July 2012, Chandan Sharma - FSEC: Added zone sys avail managers
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // This subroutine initializes all of the data elements which are necessary
@@ -1503,20 +1490,8 @@ namespace VentilatedSlab {
         // METHODOLOGY EMPLOYED:
         // Uses the status flags to trigger initializations.
 
-        // REFERENCES:
-        // na
-
         // Using/Aliasing
         auto &ventSlab = state.dataVentilatedSlab->VentSlab(Item);
-
-        using DataZoneEquipment::CheckZoneEquipmentList;
-        using FluidProperties::GetDensityGlycol;
-        using PlantUtilities::InitComponentNodes;
-        using PlantUtilities::ScanPlantLoopsForObject;
-        using ScheduleManager::GetCurrentScheduleValue;
-
-        // Locals
-        // SUBROUTINE ARGUMENT DEFINITIONS:
 
         // SUBROUTINE PARAMETER DEFINITIONS:
         static constexpr std::string_view RoutineName("InitVentilatedSlab");
@@ -1569,7 +1544,8 @@ namespace VentilatedSlab {
             if ((ventSlab.heatingCoilType == DataPlant::PlantEquipmentType::CoilWaterSimpleHeating) ||
                 (ventSlab.heatingCoilType == DataPlant::PlantEquipmentType::CoilSteamAirHeating)) {
                 bool errFlag = false;
-                ScanPlantLoopsForObject(state, ventSlab.heatingCoilName, ventSlab.heatingCoilType, ventSlab.HWPlantLoc, errFlag, _, _, _, _, _);
+                PlantUtilities::ScanPlantLoopsForObject(
+                    state, ventSlab.heatingCoilName, ventSlab.heatingCoilType, ventSlab.HWPlantLoc, errFlag, _, _, _, _, _);
                 if (errFlag) {
                     ShowContinueError(state, format("Reference Unit=\"{}\", type=ZoneHVAC:VentilatedSlab", ventSlab.Name));
                     ShowFatalError(state, "InitVentilatedSlab: Program terminated due to previous condition(s).");
@@ -1580,7 +1556,7 @@ namespace VentilatedSlab {
             if ((ventSlab.coolingCoilType == DataPlant::PlantEquipmentType::CoilWaterCooling) ||
                 (ventSlab.coolingCoilType == DataPlant::PlantEquipmentType::CoilWaterDetailedFlatCooling)) {
                 bool errFlag = false;
-                ScanPlantLoopsForObject(state, ventSlab.coolingCoilPlantName, ventSlab.coolingCoilType, ventSlab.CWPlantLoc, errFlag);
+                PlantUtilities::ScanPlantLoopsForObject(state, ventSlab.coolingCoilPlantName, ventSlab.coolingCoilType, ventSlab.CWPlantLoc, errFlag);
                 if (errFlag) {
                     ShowContinueError(state, format("Reference Unit=\"{}\", type=ZoneHVAC:VentilatedSlab", ventSlab.Name));
                     ShowFatalError(state, "InitVentilatedSlab: Program terminated due to previous condition(s).");
@@ -1599,7 +1575,7 @@ namespace VentilatedSlab {
         if (!state.dataVentilatedSlab->ZoneEquipmentListChecked && state.dataZoneEquip->ZoneEquipInputsFilled) {
             state.dataVentilatedSlab->ZoneEquipmentListChecked = true;
             for (int RadNum = 1; RadNum <= state.dataVentilatedSlab->NumOfVentSlabs; ++RadNum) {
-                if (CheckZoneEquipmentList(state, cMO_VentilatedSlab, state.dataVentilatedSlab->VentSlab(RadNum).Name)) continue;
+                if (DataZoneEquipment::CheckZoneEquipmentList(state, cMO_VentilatedSlab, state.dataVentilatedSlab->VentSlab(RadNum).Name)) continue;
                 ShowSevereError(
                     state,
                     format("InitVentilatedSlab: Ventilated Slab Unit=[{},{}] is not on any ZoneHVAC:EquipmentList.  It will not be simulated.",
@@ -1666,16 +1642,16 @@ namespace VentilatedSlab {
 
                 if (ventSlab.heatingCoilType == DataPlant::PlantEquipmentType::CoilWaterSimpleHeating &&
                     !state.dataVentilatedSlab->MyPlantScanFlag(Item)) {
-                    rho = GetDensityGlycol(state,
-                                           state.dataPlnt->PlantLoop(ventSlab.HWPlantLoc.loopNum).FluidName,
-                                           Constant::HWInitConvTemp,
-                                           state.dataPlnt->PlantLoop(ventSlab.HWPlantLoc.loopNum).FluidIndex,
-                                           RoutineName);
+                    rho = FluidProperties::GetDensityGlycol(state,
+                                                            state.dataPlnt->PlantLoop(ventSlab.HWPlantLoc.loopNum).FluidName,
+                                                            Constant::HWInitConvTemp,
+                                                            state.dataPlnt->PlantLoop(ventSlab.HWPlantLoc.loopNum).FluidIndex,
+                                                            RoutineName);
 
                     ventSlab.MaxHotWaterFlow = rho * ventSlab.MaxVolHotWaterFlow;
                     ventSlab.MinHotWaterFlow = rho * ventSlab.MinVolHotWaterFlow;
 
-                    InitComponentNodes(
+                    PlantUtilities::InitComponentNodes(
                         state, ventSlab.MinHotWaterFlow, ventSlab.MaxHotWaterFlow, ventSlab.HotControlNode, ventSlab.HotCoilOutNodeNum);
                 }
                 if (ventSlab.heatingCoilType == DataPlant::PlantEquipmentType::CoilSteamAirHeating &&
@@ -1686,7 +1662,7 @@ namespace VentilatedSlab {
                     ventSlab.MaxHotSteamFlow = SteamDensity * ventSlab.MaxVolHotSteamFlow;
                     ventSlab.MinHotSteamFlow = SteamDensity * ventSlab.MinVolHotSteamFlow;
 
-                    InitComponentNodes(
+                    PlantUtilities::InitComponentNodes(
                         state, ventSlab.MinHotSteamFlow, ventSlab.MaxHotSteamFlow, ventSlab.HotControlNode, ventSlab.HotCoilOutNodeNum);
                 }
             } //(VentSlab(Item)%HCoilPresent)
@@ -1695,14 +1671,14 @@ namespace VentilatedSlab {
                 // Only initialize these if a cooling coil is actually present
                 if ((ventSlab.coolingCoilType == DataPlant::PlantEquipmentType::CoilWaterCooling) ||
                     (ventSlab.coolingCoilType == DataPlant::PlantEquipmentType::CoilWaterDetailedFlatCooling)) {
-                    rho = GetDensityGlycol(state,
-                                           state.dataPlnt->PlantLoop(ventSlab.CWPlantLoc.loopNum).FluidName,
-                                           Constant::CWInitConvTemp,
-                                           state.dataPlnt->PlantLoop(ventSlab.CWPlantLoc.loopNum).FluidIndex,
-                                           RoutineName);
+                    rho = FluidProperties::GetDensityGlycol(state,
+                                                            state.dataPlnt->PlantLoop(ventSlab.CWPlantLoc.loopNum).FluidName,
+                                                            Constant::CWInitConvTemp,
+                                                            state.dataPlnt->PlantLoop(ventSlab.CWPlantLoc.loopNum).FluidIndex,
+                                                            RoutineName);
                     ventSlab.MaxColdWaterFlow = rho * ventSlab.MaxVolColdWaterFlow;
                     ventSlab.MinColdWaterFlow = rho * ventSlab.MinVolColdWaterFlow;
-                    InitComponentNodes(
+                    PlantUtilities::InitComponentNodes(
                         state, ventSlab.MinColdWaterFlow, ventSlab.MaxColdWaterFlow, ventSlab.ColdControlNode, ventSlab.ColdCoilOutNodeNum);
                 }
             }
@@ -1774,7 +1750,6 @@ namespace VentilatedSlab {
         //       DATE WRITTEN   June 2008
         //       MODIFIED       July 2013 Daeho Kang, add component sizing table entries
         //                      July 2014, B. Nigusse, added scalable sizing
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // This subroutine is for sizing Ventilated Slab components for which flow rates have not been
@@ -1785,16 +1760,6 @@ namespace VentilatedSlab {
 
         // Using/Aliasing
         using namespace DataSizing;
-        using FluidProperties::GetDensityGlycol;
-        using FluidProperties::GetSpecificHeatGlycol;
-        using HVAC::CoolingCapacitySizing;
-        using HVAC::HeatingAirflowSizing;
-        using HVAC::HeatingCapacitySizing;
-        using HVACHXAssistedCoolingCoil::GetHXCoilType;
-        using HVACHXAssistedCoolingCoil::GetHXDXCoilName;
-        using PlantUtilities::MyPlantSizingIndex;
-        using SteamCoils::GetCoilSteamInletNode;
-        using SteamCoils::GetCoilSteamOutletNode;
 
         // SUBROUTINE PARAMETER DEFINITIONS:
         static constexpr std::string_view RoutineName("SizeVentilatedSlab");
@@ -1928,7 +1893,7 @@ namespace VentilatedSlab {
                 }
             }
             if (state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingSAFMethod > 0) {
-                SizingMethod = HeatingAirflowSizing;
+                SizingMethod = HVAC::HeatingAirflowSizing;
                 int SAFMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingSAFMethod;
                 zoneEqSizing.SizingMethod(SizingMethod) = SAFMethod;
                 if (SAFMethod == None || SAFMethod == SupplyAirFlowRate || SAFMethod == FlowPerFloorArea ||
@@ -2104,7 +2069,7 @@ namespace VentilatedSlab {
                     int CoilWaterInletNode = WaterCoils::GetCoilWaterInletNode(state, "Coil:Heating:Water", ventSlab.heatingCoilName, ErrorsFound);
                     int CoilWaterOutletNode = WaterCoils::GetCoilWaterOutletNode(state, "Coil:Heating:Water", ventSlab.heatingCoilName, ErrorsFound);
                     if (IsAutoSize) {
-                        int PltSizHeatNum = MyPlantSizingIndex(
+                        int PltSizHeatNum = PlantUtilities::MyPlantSizingIndex(
                             state, "Coil:Heating:Water", ventSlab.heatingCoilName, CoilWaterInletNode, CoilWaterOutletNode, ErrorsFound);
                         int CoilNum = WaterCoils::GetWaterCoilIndex(state, "COIL:HEATING:WATER", ventSlab.heatingCoilName, ErrorsFound);
                         if (state.dataWaterCoils->WaterCoil(CoilNum).UseDesignWaterDeltaTemp) {
@@ -2125,7 +2090,7 @@ namespace VentilatedSlab {
                         if (DoWaterCoilSizing) {
                             if (state.dataSize->FinalZoneSizing(CurZoneEqNum).DesHeatMassFlow >= HVAC::SmallAirVolFlow) {
                                 auto &zoneEqSizing = state.dataSize->ZoneEqSizing(CurZoneEqNum);
-                                SizingMethod = HeatingCapacitySizing;
+                                SizingMethod = HVAC::HeatingCapacitySizing;
                                 if (ventSlab.HVACSizingIndex > 0) {
                                     zoneHVACIndex = ventSlab.HVACSizingIndex;
                                     int CapSizingMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingCapMethod;
@@ -2169,16 +2134,16 @@ namespace VentilatedSlab {
                                     sizerHeatingCapacity.initializeWithinEP(state, CompType, CompName, PrintFlag, RoutineName);
                                     DesCoilLoad = sizerHeatingCapacity.size(state, TempSize, ErrorsFound);
                                 }
-                                rho = GetDensityGlycol(state,
-                                                       state.dataPlnt->PlantLoop(ventSlab.HWPlantLoc.loopNum).FluidName,
-                                                       Constant::HWInitConvTemp,
-                                                       state.dataPlnt->PlantLoop(ventSlab.HWPlantLoc.loopNum).FluidIndex,
-                                                       RoutineName);
-                                Cp = GetSpecificHeatGlycol(state,
-                                                           state.dataPlnt->PlantLoop(ventSlab.HWPlantLoc.loopNum).FluidName,
-                                                           Constant::HWInitConvTemp,
-                                                           state.dataPlnt->PlantLoop(ventSlab.HWPlantLoc.loopNum).FluidIndex,
-                                                           RoutineName);
+                                rho = FluidProperties::GetDensityGlycol(state,
+                                                                        state.dataPlnt->PlantLoop(ventSlab.HWPlantLoc.loopNum).FluidName,
+                                                                        Constant::HWInitConvTemp,
+                                                                        state.dataPlnt->PlantLoop(ventSlab.HWPlantLoc.loopNum).FluidIndex,
+                                                                        RoutineName);
+                                Cp = FluidProperties::GetSpecificHeatGlycol(state,
+                                                                            state.dataPlnt->PlantLoop(ventSlab.HWPlantLoc.loopNum).FluidName,
+                                                                            Constant::HWInitConvTemp,
+                                                                            state.dataPlnt->PlantLoop(ventSlab.HWPlantLoc.loopNum).FluidIndex,
+                                                                            RoutineName);
                                 MaxVolHotWaterFlowDes = DesCoilLoad / (WaterCoilSizDeltaT * Cp * rho);
                             } else {
                                 MaxVolHotWaterFlowDes = 0.0;
@@ -2235,14 +2200,14 @@ namespace VentilatedSlab {
                 } else { // Autosize or hard-size with sizing run
                     CheckZoneSizing(state, "ZoneHVAC:VentilatedSlab", ventSlab.Name);
 
-                    int CoilSteamInletNode = GetCoilSteamInletNode(state, "Coil:Heating:Steam", ventSlab.heatingCoilName, ErrorsFound);
-                    int CoilSteamOutletNode = GetCoilSteamOutletNode(state, "Coil:Heating:Steam", ventSlab.heatingCoilName, ErrorsFound);
+                    int CoilSteamInletNode = SteamCoils::GetCoilSteamInletNode(state, "Coil:Heating:Steam", ventSlab.heatingCoilName, ErrorsFound);
+                    int CoilSteamOutletNode = SteamCoils::GetCoilSteamOutletNode(state, "Coil:Heating:Steam", ventSlab.heatingCoilName, ErrorsFound);
                     if (IsAutoSize) {
-                        int PltSizHeatNum = MyPlantSizingIndex(
+                        int PltSizHeatNum = PlantUtilities::MyPlantSizingIndex(
                             state, "Coil:Heating:Steam", ventSlab.heatingCoilName, CoilSteamInletNode, CoilSteamOutletNode, ErrorsFound);
                         if (PltSizHeatNum > 0) {
                             if (state.dataSize->FinalZoneSizing(CurZoneEqNum).DesHeatMassFlow >= HVAC::SmallAirVolFlow) {
-                                SizingMethod = HeatingCapacitySizing;
+                                SizingMethod = HVAC::HeatingCapacitySizing;
                                 if (ventSlab.HVACSizingIndex > 0) {
                                     auto &zoneEqSizing = state.dataSize->ZoneEqSizing(CurZoneEqNum);
                                     zoneHVACIndex = ventSlab.HVACSizingIndex;
@@ -2296,8 +2261,10 @@ namespace VentilatedSlab {
                                 SteamDensity = FluidProperties::GetSatDensityRefrig(
                                     state, fluidNameSteam, TempSteamIn, 1.0, ventSlab.heatingCoil_FluidIndex, RoutineName);
                                 int DummyWaterIndex = 1;
-                                Cp = GetSpecificHeatGlycol(state, fluidNameWater, Constant::HWInitConvTemp, DummyWaterIndex, RoutineName);
-                                rho = GetDensityGlycol(state, fluidNameWater, Constant::HWInitConvTemp, DummyWaterIndex, RoutineName);
+                                Cp = FluidProperties::GetSpecificHeatGlycol(
+                                    state, fluidNameWater, Constant::HWInitConvTemp, DummyWaterIndex, RoutineName);
+                                rho =
+                                    FluidProperties::GetDensityGlycol(state, fluidNameWater, Constant::HWInitConvTemp, DummyWaterIndex, RoutineName);
                                 MaxVolHotSteamFlowDes =
                                     DesCoilLoad / ((state.dataSize->PlantSizData(PltSizHeatNum).DeltaT * Cp * rho) + SteamDensity * LatentHeatSteam);
                             } else {
@@ -2356,8 +2323,10 @@ namespace VentilatedSlab {
             } else {
                 CheckZoneSizing(state, cMO_VentilatedSlab, ventSlab.Name);
                 if (ventSlab.cCoilType == CoolingCoilType::HXAssisted) {
-                    CoolingCoilName = GetHXDXCoilName(state, ventSlab.coolingCoilTypeCh, ventSlab.coolingCoilName, ErrorsFound);
-                    CoolingCoilType = GetHXCoilType(state, ventSlab.coolingCoilTypeCh, ventSlab.coolingCoilName, ErrorsFound);
+                    CoolingCoilName =
+                        HVACHXAssistedCoolingCoil::GetHXDXCoilName(state, ventSlab.coolingCoilTypeCh, ventSlab.coolingCoilName, ErrorsFound);
+                    CoolingCoilType =
+                        HVACHXAssistedCoolingCoil::GetHXCoilType(state, ventSlab.coolingCoilTypeCh, ventSlab.coolingCoilName, ErrorsFound);
                 } else {
                     CoolingCoilName = ventSlab.coolingCoilName;
                     CoolingCoilType = ventSlab.coolingCoilTypeCh;
@@ -2365,8 +2334,8 @@ namespace VentilatedSlab {
                 int CoilWaterInletNode = WaterCoils::GetCoilWaterInletNode(state, CoolingCoilType, CoolingCoilName, ErrorsFound);
                 int CoilWaterOutletNode = WaterCoils::GetCoilWaterOutletNode(state, CoolingCoilType, CoolingCoilName, ErrorsFound);
                 if (IsAutoSize) {
-                    int PltSizCoolNum =
-                        MyPlantSizingIndex(state, CoolingCoilType, CoolingCoilName, CoilWaterInletNode, CoilWaterOutletNode, ErrorsFound);
+                    int PltSizCoolNum = PlantUtilities::MyPlantSizingIndex(
+                        state, CoolingCoilType, CoolingCoilName, CoilWaterInletNode, CoilWaterOutletNode, ErrorsFound);
                     int CoilNum = WaterCoils::GetWaterCoilIndex(state, CoolingCoilType, CoolingCoilName, ErrorsFound);
                     if (state.dataWaterCoils->WaterCoil(CoilNum).UseDesignWaterDeltaTemp) {
                         WaterCoilSizDeltaT = state.dataWaterCoils->WaterCoil(CoilNum).DesignWaterDeltaTemp;
@@ -2385,7 +2354,7 @@ namespace VentilatedSlab {
                     }
                     if (DoWaterCoilSizing) {
                         if (state.dataSize->FinalZoneSizing(CurZoneEqNum).DesCoolMassFlow >= HVAC::SmallAirVolFlow) {
-                            SizingMethod = CoolingCapacitySizing;
+                            SizingMethod = HVAC::CoolingCapacitySizing;
                             if (ventSlab.HVACSizingIndex > 0) {
                                 auto &zoneEqSizing = state.dataSize->ZoneEqSizing(CurZoneEqNum);
                                 zoneHVACIndex = ventSlab.HVACSizingIndex;
@@ -2431,16 +2400,16 @@ namespace VentilatedSlab {
                                 sizerCoolingCapacity.initializeWithinEP(state, CompType, CompName, PrintFlag, RoutineName);
                                 DesCoilLoad = sizerCoolingCapacity.size(state, TempSize, ErrorsFound);
                             }
-                            rho = GetDensityGlycol(state,
-                                                   state.dataPlnt->PlantLoop(ventSlab.CWPlantLoc.loopNum).FluidName,
-                                                   5.,
-                                                   state.dataPlnt->PlantLoop(ventSlab.CWPlantLoc.loopNum).FluidIndex,
-                                                   RoutineName);
-                            Cp = GetSpecificHeatGlycol(state,
-                                                       state.dataPlnt->PlantLoop(ventSlab.CWPlantLoc.loopNum).FluidName,
-                                                       5.,
-                                                       state.dataPlnt->PlantLoop(ventSlab.CWPlantLoc.loopNum).FluidIndex,
-                                                       RoutineName);
+                            rho = FluidProperties::GetDensityGlycol(state,
+                                                                    state.dataPlnt->PlantLoop(ventSlab.CWPlantLoc.loopNum).FluidName,
+                                                                    5.,
+                                                                    state.dataPlnt->PlantLoop(ventSlab.CWPlantLoc.loopNum).FluidIndex,
+                                                                    RoutineName);
+                            Cp = FluidProperties::GetSpecificHeatGlycol(state,
+                                                                        state.dataPlnt->PlantLoop(ventSlab.CWPlantLoc.loopNum).FluidName,
+                                                                        5.,
+                                                                        state.dataPlnt->PlantLoop(ventSlab.CWPlantLoc.loopNum).FluidIndex,
+                                                                        RoutineName);
                             MaxVolColdWaterFlowDes = DesCoilLoad / (WaterCoilSizDeltaT * Cp * rho);
                         } else {
                             MaxVolColdWaterFlowDes = 0.0;
@@ -2478,8 +2447,8 @@ namespace VentilatedSlab {
         }
 
         if (ventSlab.cCoilType == CoolingCoilType::HXAssisted) {
-            CoolingCoilName = GetHXDXCoilName(state, ventSlab.coolingCoilTypeCh, ventSlab.coolingCoilName, ErrorsFound);
-            CoolingCoilType = GetHXCoilType(state, ventSlab.coolingCoilTypeCh, ventSlab.coolingCoilName, ErrorsFound);
+            CoolingCoilName = HVACHXAssistedCoolingCoil::GetHXDXCoilName(state, ventSlab.coolingCoilTypeCh, ventSlab.coolingCoilName, ErrorsFound);
+            CoolingCoilType = HVACHXAssistedCoolingCoil::GetHXCoilType(state, ventSlab.coolingCoilTypeCh, ventSlab.coolingCoilName, ErrorsFound);
         } else {
             CoolingCoilName = ventSlab.coolingCoilName;
             CoolingCoilType = ventSlab.coolingCoilTypeCh;
@@ -2512,7 +2481,6 @@ namespace VentilatedSlab {
         //       DATE WRITTEN   June 2008
         //       MODIFIED       Don Shirey, Aug 2009 (LatOutputProvided)
         //                      July 2012, Chandan Sharma - FSEC: Added zone sys avail managers
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // This subroutine mainly controls the action of the Ventilated Slab
@@ -2550,35 +2518,22 @@ namespace VentilatedSlab {
         // REFERENCES:
         // ASHRAE Systems and Equipment Handbook (SI), 1996. page 31.3
 
-        // USE STATEMENTS:
-
         // Using/Aliasing
         auto &ventSlab = state.dataVentilatedSlab->VentSlab(Item);
 
         using HeatingCoils::CheckHeatingCoilSchedule;
         using HVACHXAssistedCoolingCoil::CheckHXAssistedCoolingCoilSchedule;
-        using ScheduleManager::GetCurrentScheduleValue;
         using SteamCoils::CheckSteamCoilSchedule;
         using WaterCoils::CheckWaterCoilSchedule;
 
-        // Locals
-        Real64 QZnReq;
-
-        // SUBROUTINE ARGUMENT DEFINITIONS:
-
         // SUBROUTINE PARAMETER DEFINITIONS:
-
         Real64 constexpr LowTempDiff(0.1); // Smallest allowed temperature difference for comparisons
         // (below this value the temperatures are assumed equal)
         Real64 constexpr LowOAFracDiff(0.01); // Smallest allowed outside air fraction difference for comparison
         // (below this value the fractions are assumed equal)
 
-        // INTERFACE BLOCK SPECIFICATIONS
-
-        // DERIVED TYPE DEFINITIONS
-        // na
-
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
+        Real64 QZnReq;
         Real64 AirMassFlow;  // air mass flow rate [kg/sec]
         int AirRelNode;      // outside air relief node
         int ControlNode;     // the hot water or cold water inlet node
@@ -2772,10 +2727,11 @@ namespace VentilatedSlab {
 
         // Load Check
 
-        AirTempHeatHi = GetCurrentScheduleValue(state, ventSlab.HotCtrlHiTempSchedPtr);
-        AirTempCoolLo = GetCurrentScheduleValue(state, ventSlab.ColdCtrlLoTempSchedPtr);
+        AirTempHeatHi = ScheduleManager::GetCurrentScheduleValue(state, ventSlab.HotCtrlHiTempSchedPtr);
+        AirTempCoolLo = ScheduleManager::GetCurrentScheduleValue(state, ventSlab.ColdCtrlLoTempSchedPtr);
 
-        if (((SetPointTemp >= AirTempHeatHi) && (SetPointTemp <= AirTempCoolLo)) || (GetCurrentScheduleValue(state, ventSlab.SchedPtr) <= 0)) {
+        if (((SetPointTemp >= AirTempHeatHi) && (SetPointTemp <= AirTempCoolLo)) ||
+            (ScheduleManager::GetCurrentScheduleValue(state, ventSlab.SchedPtr) <= 0)) {
 
             // System is off or has no load upon it; set the flow rates to zero and then
             // simulate the components with the no flow conditions
@@ -2849,15 +2805,15 @@ namespace VentilatedSlab {
                 state.dataVentilatedSlab->OperatingMode = HeatingMode;
 
                 // Check the setpoint and temperature span
-                SetPointTempHi = GetCurrentScheduleValue(state, ventSlab.HotCtrlHiTempSchedPtr);
-                SetPointTempLo = GetCurrentScheduleValue(state, ventSlab.HotCtrlLoTempSchedPtr);
+                SetPointTempHi = ScheduleManager::GetCurrentScheduleValue(state, ventSlab.HotCtrlHiTempSchedPtr);
+                SetPointTempLo = ScheduleManager::GetCurrentScheduleValue(state, ventSlab.HotCtrlLoTempSchedPtr);
                 if (SetPointTempHi < SetPointTempLo) {
                     ShowSevereError(state, format("Heating setpoint temperature mismatch in{}", ventSlab.Name));
                     ShowContinueError(state, "High setpoint temperature is less than low setpoint temperature--check your schedule input");
                     ShowFatalError(state, "Preceding condition causes termination.");
                 }
-                AirTempHi = GetCurrentScheduleValue(state, ventSlab.HotAirHiTempSchedPtr);
-                AirTempLo = GetCurrentScheduleValue(state, ventSlab.HotAirLoTempSchedPtr);
+                AirTempHi = ScheduleManager::GetCurrentScheduleValue(state, ventSlab.HotAirHiTempSchedPtr);
+                AirTempLo = ScheduleManager::GetCurrentScheduleValue(state, ventSlab.HotAirLoTempSchedPtr);
 
                 if (AirTempHi < AirTempLo) {
                     ShowSevereError(state, format("Heating Air temperature mismatch in{}", ventSlab.Name));
@@ -2901,7 +2857,7 @@ namespace VentilatedSlab {
                 state.dataVentilatedSlab->HCoilOn = true;
 
                 if (state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate > 0.0) {
-                    MinOAFrac = GetCurrentScheduleValue(state, ventSlab.MinOASchedPtr) *
+                    MinOAFrac = ScheduleManager::GetCurrentScheduleValue(state, ventSlab.MinOASchedPtr) *
                                 (ventSlab.MinOutAirMassFlow / state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate);
                 } else {
                     MinOAFrac = 0.0;
@@ -2943,14 +2899,14 @@ namespace VentilatedSlab {
 
                         } else { // Tinlet < Toutdoor
 
-                            MaxOAFrac = GetCurrentScheduleValue(state, ventSlab.MaxOASchedPtr);
+                            MaxOAFrac = ScheduleManager::GetCurrentScheduleValue(state, ventSlab.MaxOASchedPtr);
                             state.dataVentilatedSlab->OAMassFlowRate = MaxOAFrac * state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate;
                         }
                         break;
                     }
                     case OutsideAirControlType::FixedTemperature: {
                         // This is basically the same algorithm as for the heating case...
-                        Tdesired = GetCurrentScheduleValue(state, ventSlab.TempSchedPtr);
+                        Tdesired = ScheduleManager::GetCurrentScheduleValue(state, ventSlab.TempSchedPtr);
                         MaxOAFrac = 1.0;
 
                         if (std::abs(Tinlet - Toutdoor) <= LowTempDiff) { // no difference in indoor and outdoor conditions-->set OA to minimum
@@ -3003,7 +2959,7 @@ namespace VentilatedSlab {
                         // In this control type, the outdoor air flow rate is fixed to the maximum value
                         // which is equal to the minimum value, regardless of all the other conditions.
                         if (state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate > 0.0) {
-                            MaxOAFrac = min(1.0, max(0.0, GetCurrentScheduleValue(state, ventSlab.MaxOASchedPtr)));
+                            MaxOAFrac = min(1.0, max(0.0, ScheduleManager::GetCurrentScheduleValue(state, ventSlab.MaxOASchedPtr)));
                         } else {
                             MaxOAFrac = 0.0;
                         }
@@ -3019,7 +2975,7 @@ namespace VentilatedSlab {
                     }
                     case OutsideAirControlType::FixedTemperature: {
                         // This is basically the same algorithm as for the heating case...
-                        Tdesired = GetCurrentScheduleValue(state, ventSlab.TempSchedPtr);
+                        Tdesired = ScheduleManager::GetCurrentScheduleValue(state, ventSlab.TempSchedPtr);
                         MaxOAFrac = 1.0;
 
                         if (std::abs(Tinlet - Toutdoor) <= LowTempDiff) { // no difference in indoor and outdoor conditions-->set OA to minimum
@@ -3114,16 +3070,16 @@ namespace VentilatedSlab {
 
                 state.dataVentilatedSlab->OperatingMode = CoolingMode;
 
-                SetPointTempHi = GetCurrentScheduleValue(state, ventSlab.ColdCtrlHiTempSchedPtr);
-                SetPointTempLo = GetCurrentScheduleValue(state, ventSlab.ColdCtrlLoTempSchedPtr);
+                SetPointTempHi = ScheduleManager::GetCurrentScheduleValue(state, ventSlab.ColdCtrlHiTempSchedPtr);
+                SetPointTempLo = ScheduleManager::GetCurrentScheduleValue(state, ventSlab.ColdCtrlLoTempSchedPtr);
                 if (SetPointTempHi < SetPointTempLo) {
                     ShowSevereError(state, format("Cooling setpoint temperature mismatch in{}", ventSlab.Name));
                     ShowContinueError(state, "High setpoint temperature is less than low setpoint temperature--check your schedule input");
                     ShowFatalError(state, "Preceding condition causes termination.");
                 }
 
-                AirTempHi = GetCurrentScheduleValue(state, ventSlab.ColdAirHiTempSchedPtr);
-                AirTempLo = GetCurrentScheduleValue(state, ventSlab.ColdAirLoTempSchedPtr);
+                AirTempHi = ScheduleManager::GetCurrentScheduleValue(state, ventSlab.ColdAirHiTempSchedPtr);
+                AirTempLo = ScheduleManager::GetCurrentScheduleValue(state, ventSlab.ColdAirLoTempSchedPtr);
                 if (AirTempHi < AirTempLo) {
                     ShowSevereError(state, format("Cooling Air temperature mismatch in{}", ventSlab.Name));
                     ShowContinueError(state, "High Air temperature is less than low Air temperature--check your schedule input");
@@ -3154,7 +3110,7 @@ namespace VentilatedSlab {
                 state.dataVentilatedSlab->HCoilOn = false;
 
                 if (state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate > 0.0) {
-                    MinOAFrac = GetCurrentScheduleValue(state, ventSlab.MinOASchedPtr) *
+                    MinOAFrac = ScheduleManager::GetCurrentScheduleValue(state, ventSlab.MinOASchedPtr) *
                                 (ventSlab.MinOutAirMassFlow / state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate);
                 } else {
                     MinOAFrac = 0.0;
@@ -3177,7 +3133,7 @@ namespace VentilatedSlab {
                         // In this control type, the outdoor air flow rate is fixed to the maximum value
                         // which is equal to the minimum value, regardless of all the other conditions.
                         if (state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate > 0.0) {
-                            MaxOAFrac = min(1.0, max(0.0, GetCurrentScheduleValue(state, ventSlab.MaxOASchedPtr)));
+                            MaxOAFrac = min(1.0, max(0.0, ScheduleManager::GetCurrentScheduleValue(state, ventSlab.MaxOASchedPtr)));
                         } else {
                             MaxOAFrac = 0.0;
                         }
@@ -3201,14 +3157,14 @@ namespace VentilatedSlab {
 
                         } else { // Tinlet > Toutdoor
 
-                            MaxOAFrac = GetCurrentScheduleValue(state, ventSlab.MaxOASchedPtr);
+                            MaxOAFrac = ScheduleManager::GetCurrentScheduleValue(state, ventSlab.MaxOASchedPtr);
                             state.dataVentilatedSlab->OAMassFlowRate = MaxOAFrac * state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate;
                         }
                         break;
                     }
                     case OutsideAirControlType::FixedTemperature: {
                         // This is basically the same algorithm as for the heating case...
-                        Tdesired = GetCurrentScheduleValue(state, ventSlab.TempSchedPtr);
+                        Tdesired = ScheduleManager::GetCurrentScheduleValue(state, ventSlab.TempSchedPtr);
                         MaxOAFrac = 1.0;
 
                         if (std::abs(Tinlet - Toutdoor) <= LowTempDiff) { // no difference in indoor and outdoor conditions-->set OA to minimum
@@ -3266,7 +3222,7 @@ namespace VentilatedSlab {
                         // In this control type, the outdoor air flow rate is fixed to the maximum value
                         // which is equal to the minimum value, regardless of all the other conditions.
                         if (state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate > 0.0) {
-                            MaxOAFrac = min(1.0, max(0.0, GetCurrentScheduleValue(state, ventSlab.MaxOASchedPtr)));
+                            MaxOAFrac = min(1.0, max(0.0, ScheduleManager::GetCurrentScheduleValue(state, ventSlab.MaxOASchedPtr)));
                         } else {
                             MaxOAFrac = 0.0;
                         }
@@ -3280,7 +3236,7 @@ namespace VentilatedSlab {
                     }
                     case OutsideAirControlType::FixedTemperature: {
                         // This is basically the same algorithm as for the heating case...
-                        Tdesired = GetCurrentScheduleValue(state, ventSlab.TempSchedPtr);
+                        Tdesired = ScheduleManager::GetCurrentScheduleValue(state, ventSlab.TempSchedPtr);
 
                         MaxOAFrac = 1.0;
 
