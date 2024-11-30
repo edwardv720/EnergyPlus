@@ -912,10 +912,8 @@ namespace UnitHeater {
         std::string CompType;          // component type
         std::string SizingString;      // input field sizing description (e.g., Nominal Capacity)
         Real64 TempSize;               // autosized value of coil input field
-        int SizingMethod;  // Integer representation of sizing method name (e.g., CoolingAirflowSizing, HeatingAirflowSizing, CoolingCapacitySizing,
-                           // HeatingCapacitySizing, etc.)
-        bool PrintFlag;    // TRUE when sizing information is reported in the eio file
-        int zoneHVACIndex; // index of zoneHVAC equipment sizing specification
+        bool PrintFlag;                // TRUE when sizing information is reported in the eio file
+        int zoneHVACIndex;             // index of zoneHVAC equipment sizing specification
         int CapSizingMethod(0);    // capacity sizing methods (HeatingDesignCapacity, CapacityPerFloorArea, FractionOfAutosizedCoolingCapacity, and
                                    // FractionOfAutosizedHeatingCapacity )
         Real64 WaterCoilSizDeltaT; // water coil deltaT for design water flow rate autosizing
@@ -947,7 +945,7 @@ namespace UnitHeater {
             auto &ZoneEqSizing = state.dataSize->ZoneEqSizing(CurZoneEqNum);
             if (state.dataUnitHeaters->UnitHeat(UnitHeatNum).HVACSizingIndex > 0) {
                 zoneHVACIndex = state.dataUnitHeaters->UnitHeat(UnitHeatNum).HVACSizingIndex;
-                SizingMethod = HeatingAirflowSizing;
+                int SizingMethod = HeatingAirflowSizing;
                 int FieldNum = 1; //  N1 , \field Maximum Supply Air Flow Rate
                 PrintFlag = true;
                 SizingString = state.dataUnitHeaters->UnitHeatNumericFields(UnitHeatNum).FieldNames(FieldNum) + " [m3/s]";
@@ -982,7 +980,6 @@ namespace UnitHeater {
                     state.dataUnitHeaters->UnitHeat(UnitHeatNum).MaxAirVolFlow = sizingHeatingAirFlow.size(state, TempSize, errorsFound);
 
                 } else if (SAFMethod == FlowPerHeatingCapacity) {
-                    SizingMethod = HeatingCapacitySizing;
                     TempSize = AutoSize;
                     PrintFlag = false;
                     state.dataSize->DataScalableSizingON = true;
@@ -997,7 +994,6 @@ namespace UnitHeater {
                     }
                     state.dataSize->DataAutosizedHeatingCapacity = TempSize;
                     state.dataSize->DataFlowPerHeatingCapacity = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow;
-                    SizingMethod = HeatingAirflowSizing;
                     PrintFlag = true;
                     TempSize = AutoSize;
                     errorsFound = false;
@@ -1011,7 +1007,6 @@ namespace UnitHeater {
             } else {
                 // no scalble sizing method has been specified. Sizing proceeds using the method
                 // specified in the zoneHVAC object
-                SizingMethod = HeatingAirflowSizing;
                 int FieldNum = 1; // N1 , \field Maximum Supply Air Flow Rate
                 PrintFlag = true;
                 SizingString = state.dataUnitHeaters->UnitHeatNumericFields(UnitHeatNum).FieldNames(FieldNum) + " [m3/s]";
@@ -1077,7 +1072,7 @@ namespace UnitHeater {
 
                         if (DoWaterCoilSizing) {
                             auto &ZoneEqSizing = state.dataSize->ZoneEqSizing(CurZoneEqNum);
-                            SizingMethod = HeatingCapacitySizing;
+                            int SizingMethod = HeatingCapacitySizing;
                             if (state.dataUnitHeaters->UnitHeat(UnitHeatNum).HVACSizingIndex > 0) {
                                 zoneHVACIndex = state.dataUnitHeaters->UnitHeat(UnitHeatNum).HVACSizingIndex;
                                 CapSizingMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingCapMethod;
@@ -1142,8 +1137,6 @@ namespace UnitHeater {
                                 MaxVolHotWaterFlowDes = 0.0;
                             }
                         }
-                    }
-                    if (IsAutoSize) {
                         state.dataUnitHeaters->UnitHeat(UnitHeatNum).MaxVolHotWaterFlow = MaxVolHotWaterFlowDes;
                         BaseSizer::reportSizerOutput(state,
                                                      "ZoneHVAC:UnitHeater",
@@ -1216,7 +1209,7 @@ namespace UnitHeater {
                         if (PltSizHeatNum > 0) {
                             if (state.dataUnitHeaters->UnitHeat(UnitHeatNum).HVACSizingIndex > 0) {
                                 zoneHVACIndex = state.dataUnitHeaters->UnitHeat(UnitHeatNum).HVACSizingIndex;
-                                SizingMethod = HeatingCapacitySizing;
+                                int SizingMethod = HeatingCapacitySizing;
                                 CapSizingMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingCapMethod;
                                 ZoneEqSizing.SizingMethod(SizingMethod) = CapSizingMethod;
                                 if (CapSizingMethod == HeatingDesignCapacity || CapSizingMethod == CapacityPerFloorArea ||
@@ -1241,7 +1234,6 @@ namespace UnitHeater {
                                         state.dataSize->DataScalableCapSizingON = true;
                                     }
                                 }
-                                SizingMethod = HeatingCapacitySizing;
                                 PrintFlag = false;
                                 bool errorsFound = false;
                                 HeatingCapacitySizer sizerHeatingCapacity;
@@ -1273,8 +1265,6 @@ namespace UnitHeater {
                                               format("Occurs in ZoneHVAC:UnitHeater Object={}", state.dataUnitHeaters->UnitHeat(UnitHeatNum).Name));
                             ErrorsFound = true;
                         }
-                    }
-                    if (IsAutoSize) {
                         state.dataUnitHeaters->UnitHeat(UnitHeatNum).MaxVolHotSteamFlow = MaxVolHotSteamFlowDes;
                         BaseSizer::reportSizerOutput(state,
                                                      "ZoneHVAC:UnitHeater",
@@ -1588,7 +1578,6 @@ namespace UnitHeater {
                     CalcUnitHeaterComponents(state, UnitHeatNum, FirstHVACIteration, FullOutput, fanOp, PartLoadFrac);
                     if ((FullOutput - state.dataUnitHeaters->QZnReq) > SmallLoad) {
                         // Unit heater full load capacity is able to meet the load, Find PLR
-                        HVAC::FanOp fanOp = state.dataUnitHeaters->UnitHeat(UnitHeatNum).fanOp;
 
                         auto f = [&state, UnitHeatNum, FirstHVACIteration, fanOp](Real64 const PartLoadRatio) {
                             // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
