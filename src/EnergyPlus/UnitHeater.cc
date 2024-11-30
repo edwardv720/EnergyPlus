@@ -668,9 +668,9 @@ namespace UnitHeater {
         static constexpr std::string_view RoutineName("InitUnitHeater");
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-        int InNode;     // inlet node number in unit heater loop
-        int OutNode;    // outlet node number in unit heater loop
-        Real64 RhoAir;  // air density at InNode
+        int InNode;    // inlet node number in unit heater loop
+        int OutNode;   // outlet node number in unit heater loop
+        Real64 RhoAir; // air density at InNode
         Real64 TempSteamIn;
         Real64 SteamDensity;
         Real64 rho; // local fluid density
@@ -916,14 +916,11 @@ namespace UnitHeater {
                            // HeatingCapacitySizing, etc.)
         bool PrintFlag;    // TRUE when sizing information is reported in the eio file
         int zoneHVACIndex; // index of zoneHVAC equipment sizing specification
-        int CapSizingMethod(0); // capacity sizing methods (HeatingDesignCapacity, CapacityPerFloorArea, FractionOfAutosizedCoolingCapacity, and
-                                // FractionOfAutosizedHeatingCapacity )
-        bool DoWaterCoilSizing = false; // if TRUE do water coil sizing calculation
-        Real64 WaterCoilSizDeltaT;      // water coil deltaT for design water flow rate autosizing
-        int CoilNum;                    // index of water coil object
+        int CapSizingMethod(0);    // capacity sizing methods (HeatingDesignCapacity, CapacityPerFloorArea, FractionOfAutosizedCoolingCapacity, and
+                                   // FractionOfAutosizedHeatingCapacity )
+        Real64 WaterCoilSizDeltaT; // water coil deltaT for design water flow rate autosizing
 
-        auto &ZoneEqSizing = state.dataSize->ZoneEqSizing;
-        auto &CurZoneEqNum = state.dataSize->CurZoneEqNum;
+        int &CurZoneEqNum = state.dataSize->CurZoneEqNum;
 
         PltSizHeatNum = 0;
         ErrorsFound = false;
@@ -947,6 +944,7 @@ namespace UnitHeater {
         state.dataSize->DataFanPlacement = HVAC::FanPlace::BlowThru;
 
         if (CurZoneEqNum > 0) {
+            auto &ZoneEqSizing = state.dataSize->ZoneEqSizing(CurZoneEqNum);
             if (state.dataUnitHeaters->UnitHeat(UnitHeatNum).HVACSizingIndex > 0) {
                 zoneHVACIndex = state.dataUnitHeaters->UnitHeat(UnitHeatNum).HVACSizingIndex;
                 SizingMethod = HeatingAirflowSizing;
@@ -954,20 +952,20 @@ namespace UnitHeater {
                 PrintFlag = true;
                 SizingString = state.dataUnitHeaters->UnitHeatNumericFields(UnitHeatNum).FieldNames(FieldNum) + " [m3/s]";
                 int SAFMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingSAFMethod;
-                ZoneEqSizing(CurZoneEqNum).SizingMethod(SizingMethod) = SAFMethod;
+                ZoneEqSizing.SizingMethod(SizingMethod) = SAFMethod;
                 if (SAFMethod == None || SAFMethod == SupplyAirFlowRate || SAFMethod == FlowPerFloorArea ||
                     SAFMethod == FractionOfAutosizedHeatingAirflow) {
                     if (SAFMethod == SupplyAirFlowRate) {
                         if (state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow > 0.0) {
-                            ZoneEqSizing(CurZoneEqNum).AirVolFlow = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow;
-                            ZoneEqSizing(CurZoneEqNum).SystemAirFlow = true;
+                            ZoneEqSizing.AirVolFlow = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow;
+                            ZoneEqSizing.SystemAirFlow = true;
                         }
                         TempSize = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow;
                     } else if (SAFMethod == FlowPerFloorArea) {
-                        ZoneEqSizing(CurZoneEqNum).SystemAirFlow = true;
-                        ZoneEqSizing(CurZoneEqNum).AirVolFlow = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow *
-                                                                state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
-                        TempSize = ZoneEqSizing(CurZoneEqNum).AirVolFlow;
+                        ZoneEqSizing.SystemAirFlow = true;
+                        ZoneEqSizing.AirVolFlow = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow *
+                                                  state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
+                        TempSize = ZoneEqSizing.AirVolFlow;
                         state.dataSize->DataScalableSizingON = true;
                     } else if (SAFMethod == FractionOfAutosizedHeatingAirflow) {
                         state.dataSize->DataFracOfAutosizedCoolingAirflow = state.dataSize->ZoneHVACSizing(zoneHVACIndex).MaxHeatAirVolFlow;
@@ -1051,13 +1049,14 @@ namespace UnitHeater {
                     int CoilWaterOutletNode = WaterCoils::GetCoilWaterOutletNode(
                         state, "Coil:Heating:Water", state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName, ErrorsFound);
                     if (IsAutoSize) {
+                        bool DoWaterCoilSizing = false; // if TRUE do water coil sizing calculation
                         PltSizHeatNum = MyPlantSizingIndex(state,
                                                            "Coil:Heating:Water",
                                                            state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName,
                                                            CoilWaterInletNode,
                                                            CoilWaterOutletNode,
                                                            ErrorsFound);
-                        CoilNum = WaterCoils::GetWaterCoilIndex(
+                        int CoilNum = WaterCoils::GetWaterCoilIndex(
                             state, "COIL:HEATING:WATER", state.dataUnitHeaters->UnitHeat(UnitHeatNum).HCoilName, ErrorsFound);
                         if (state.dataWaterCoils->WaterCoil(CoilNum).UseDesignWaterDeltaTemp) {
                             WaterCoilSizDeltaT = state.dataWaterCoils->WaterCoil(CoilNum).DesignWaterDeltaTemp;
@@ -1077,27 +1076,26 @@ namespace UnitHeater {
                         }
 
                         if (DoWaterCoilSizing) {
+                            auto &ZoneEqSizing = state.dataSize->ZoneEqSizing(CurZoneEqNum);
                             SizingMethod = HeatingCapacitySizing;
                             if (state.dataUnitHeaters->UnitHeat(UnitHeatNum).HVACSizingIndex > 0) {
                                 zoneHVACIndex = state.dataUnitHeaters->UnitHeat(UnitHeatNum).HVACSizingIndex;
                                 CapSizingMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingCapMethod;
-                                ZoneEqSizing(CurZoneEqNum).SizingMethod(SizingMethod) = CapSizingMethod;
+                                ZoneEqSizing.SizingMethod(SizingMethod) = CapSizingMethod;
                                 if (CapSizingMethod == HeatingDesignCapacity || CapSizingMethod == CapacityPerFloorArea ||
                                     CapSizingMethod == FractionOfAutosizedHeatingCapacity) {
                                     if (CapSizingMethod == HeatingDesignCapacity) {
                                         if (state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity == AutoSize) {
-                                            ZoneEqSizing(CurZoneEqNum).DesHeatingLoad = state.dataSize->FinalZoneSizing(CurZoneEqNum).DesHeatLoad;
+                                            ZoneEqSizing.DesHeatingLoad = state.dataSize->FinalZoneSizing(CurZoneEqNum).DesHeatLoad;
                                         } else {
-                                            ZoneEqSizing(CurZoneEqNum).DesHeatingLoad =
-                                                state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity;
+                                            ZoneEqSizing.DesHeatingLoad = state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity;
                                         }
-                                        ZoneEqSizing(CurZoneEqNum).HeatingCapacity = true;
+                                        ZoneEqSizing.HeatingCapacity = true;
                                         TempSize = AutoSize;
                                     } else if (CapSizingMethod == CapacityPerFloorArea) {
-                                        ZoneEqSizing(CurZoneEqNum).HeatingCapacity = true;
-                                        ZoneEqSizing(CurZoneEqNum).DesHeatingLoad =
-                                            state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity *
-                                            state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
+                                        ZoneEqSizing.HeatingCapacity = true;
+                                        ZoneEqSizing.DesHeatingLoad = state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity *
+                                                                      state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
                                         state.dataSize->DataScalableCapSizingON = true;
                                     } else if (CapSizingMethod == FractionOfAutosizedHeatingCapacity) {
                                         state.dataSize->DataFracOfAutosizedHeatingCapacity =
@@ -1117,8 +1115,8 @@ namespace UnitHeater {
                                 SizingString = "";
                                 PrintFlag = false;
                                 TempSize = AutoSize;
-                                ZoneEqSizing(CurZoneEqNum).HeatingCapacity = true;
-                                ZoneEqSizing(CurZoneEqNum).DesHeatingLoad = state.dataSize->FinalZoneSizing(CurZoneEqNum).DesHeatLoad;
+                                ZoneEqSizing.HeatingCapacity = true;
+                                ZoneEqSizing.DesHeatingLoad = state.dataSize->FinalZoneSizing(CurZoneEqNum).DesHeatLoad;
                                 bool errorsFound = false;
                                 HeatingCapacitySizer sizerHeatingCapacity;
                                 sizerHeatingCapacity.overrideSizingString(SizingString);
@@ -1201,6 +1199,7 @@ namespace UnitHeater {
                                                      state.dataUnitHeaters->UnitHeat(UnitHeatNum).MaxVolHotSteamFlow);
                     }
                 } else {
+                    auto &ZoneEqSizing = state.dataSize->ZoneEqSizing(CurZoneEqNum);
                     CheckZoneSizing(state, "ZoneHVAC:UnitHeater", state.dataUnitHeaters->UnitHeat(UnitHeatNum).Name);
 
                     int CoilSteamInletNode =
@@ -1219,23 +1218,21 @@ namespace UnitHeater {
                                 zoneHVACIndex = state.dataUnitHeaters->UnitHeat(UnitHeatNum).HVACSizingIndex;
                                 SizingMethod = HeatingCapacitySizing;
                                 CapSizingMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingCapMethod;
-                                ZoneEqSizing(CurZoneEqNum).SizingMethod(SizingMethod) = CapSizingMethod;
+                                ZoneEqSizing.SizingMethod(SizingMethod) = CapSizingMethod;
                                 if (CapSizingMethod == HeatingDesignCapacity || CapSizingMethod == CapacityPerFloorArea ||
                                     CapSizingMethod == FractionOfAutosizedHeatingCapacity) {
                                     if (CapSizingMethod == HeatingDesignCapacity) {
                                         if (state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity == AutoSize) {
-                                            ZoneEqSizing(CurZoneEqNum).DesHeatingLoad = state.dataSize->FinalZoneSizing(CurZoneEqNum).DesHeatLoad;
+                                            ZoneEqSizing.DesHeatingLoad = state.dataSize->FinalZoneSizing(CurZoneEqNum).DesHeatLoad;
                                         } else {
-                                            ZoneEqSizing(CurZoneEqNum).DesHeatingLoad =
-                                                state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity;
+                                            ZoneEqSizing.DesHeatingLoad = state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity;
                                         }
-                                        ZoneEqSizing(CurZoneEqNum).HeatingCapacity = true;
+                                        ZoneEqSizing.HeatingCapacity = true;
                                         TempSize = AutoSize;
                                     } else if (CapSizingMethod == CapacityPerFloorArea) {
-                                        ZoneEqSizing(CurZoneEqNum).HeatingCapacity = true;
-                                        ZoneEqSizing(CurZoneEqNum).DesHeatingLoad =
-                                            state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity *
-                                            state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
+                                        ZoneEqSizing.HeatingCapacity = true;
+                                        ZoneEqSizing.DesHeatingLoad = state.dataSize->ZoneHVACSizing(zoneHVACIndex).ScaledHeatingCapacity *
+                                                                      state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
                                         state.dataSize->DataScalableCapSizingON = true;
                                     } else if (CapSizingMethod == FractionOfAutosizedHeatingCapacity) {
                                         state.dataSize->DataFracOfAutosizedHeatingCapacity =
@@ -1323,7 +1320,8 @@ namespace UnitHeater {
                                    state.dataUnitHeaters->UnitHeat(UnitHeatNum).MaxAirVolFlow,
                                    ErrorsFound);
         if (CurZoneEqNum > 0) {
-            ZoneEqSizing(CurZoneEqNum).MaxHWVolFlow = state.dataUnitHeaters->UnitHeat(UnitHeatNum).MaxVolHotWaterFlow;
+            auto &ZoneEqSizing = state.dataSize->ZoneEqSizing(CurZoneEqNum);
+            ZoneEqSizing.MaxHWVolFlow = state.dataUnitHeaters->UnitHeat(UnitHeatNum).MaxVolHotWaterFlow;
         }
 
         if (ErrorsFound) {
