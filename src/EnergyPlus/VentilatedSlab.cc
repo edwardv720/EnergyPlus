@@ -1841,10 +1841,6 @@ namespace VentilatedSlab {
         Real64 EnthSteamOutWet;
         Real64 LatentHeatSteam;
         Real64 SteamDensity;
-        int CoilWaterInletNode(0);
-        int CoilWaterOutletNode(0);
-        int CoilSteamInletNode(0);
-        int CoilSteamOutletNode(0);
         std::string CoolingCoilName;
         std::string CoolingCoilType;
         Real64 rho;
@@ -2142,8 +2138,8 @@ namespace VentilatedSlab {
                 } else { // Autosize or hard-size with sizing run
                     CheckZoneSizing(state, cMO_VentilatedSlab, ventSlab.Name);
 
-                    CoilWaterInletNode = WaterCoils::GetCoilWaterInletNode(state, "Coil:Heating:Water", ventSlab.heatingCoilName, ErrorsFound);
-                    CoilWaterOutletNode = WaterCoils::GetCoilWaterOutletNode(state, "Coil:Heating:Water", ventSlab.heatingCoilName, ErrorsFound);
+                    int CoilWaterInletNode = WaterCoils::GetCoilWaterInletNode(state, "Coil:Heating:Water", ventSlab.heatingCoilName, ErrorsFound);
+                    int CoilWaterOutletNode = WaterCoils::GetCoilWaterOutletNode(state, "Coil:Heating:Water", ventSlab.heatingCoilName, ErrorsFound);
                     if (IsAutoSize) {
                         int PltSizHeatNum = MyPlantSizingIndex(
                             state, "Coil:Heating:Water", ventSlab.heatingCoilName, CoilWaterInletNode, CoilWaterOutletNode, ErrorsFound);
@@ -2279,8 +2275,8 @@ namespace VentilatedSlab {
                 } else { // Autosize or hard-size with sizing run
                     CheckZoneSizing(state, "ZoneHVAC:VentilatedSlab", ventSlab.Name);
 
-                    CoilSteamInletNode = GetCoilSteamInletNode(state, "Coil:Heating:Steam", ventSlab.heatingCoilName, ErrorsFound);
-                    CoilSteamOutletNode = GetCoilSteamOutletNode(state, "Coil:Heating:Steam", ventSlab.heatingCoilName, ErrorsFound);
+                    int CoilSteamInletNode = GetCoilSteamInletNode(state, "Coil:Heating:Steam", ventSlab.heatingCoilName, ErrorsFound);
+                    int CoilSteamOutletNode = GetCoilSteamOutletNode(state, "Coil:Heating:Steam", ventSlab.heatingCoilName, ErrorsFound);
                     if (IsAutoSize) {
                         int PltSizHeatNum = MyPlantSizingIndex(
                             state, "Coil:Heating:Steam", ventSlab.heatingCoilName, CoilSteamInletNode, CoilSteamOutletNode, ErrorsFound);
@@ -2407,8 +2403,8 @@ namespace VentilatedSlab {
                     CoolingCoilName = ventSlab.coolingCoilName;
                     CoolingCoilType = ventSlab.coolingCoilTypeCh;
                 }
-                CoilWaterInletNode = WaterCoils::GetCoilWaterInletNode(state, CoolingCoilType, CoolingCoilName, ErrorsFound);
-                CoilWaterOutletNode = WaterCoils::GetCoilWaterOutletNode(state, CoolingCoilType, CoolingCoilName, ErrorsFound);
+                int CoilWaterInletNode = WaterCoils::GetCoilWaterInletNode(state, CoolingCoilType, CoolingCoilName, ErrorsFound);
+                int CoilWaterOutletNode = WaterCoils::GetCoilWaterOutletNode(state, CoolingCoilType, CoolingCoilName, ErrorsFound);
                 if (IsAutoSize) {
                     int PltSizCoolNum =
                         MyPlantSizingIndex(state, CoolingCoilType, CoolingCoilName, CoilWaterInletNode, CoilWaterOutletNode, ErrorsFound);
@@ -3467,7 +3463,6 @@ namespace VentilatedSlab {
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         Real64 AirMassFlow; // total mass flow through the system
         Real64 CpAirZn;     // specific heat of dry air at zone conditions (zone conditions same as system inlet)
-        int HCoilInAirNode; // inlet node number for fan exit/coil inlet
         int InletNode;      // system air inlet node
         int OutletNode;     // system air outlet node
         // unused0309  INTEGER        :: HCoilOutAirNode
@@ -3507,7 +3502,7 @@ namespace VentilatedSlab {
                 if (!state.dataVentilatedSlab->HCoilOn) {
                     QCoilReq = 0.0;
                 } else {
-                    HCoilInAirNode = ventSlab.FanOutletNode;
+                    int HCoilInAirNode = ventSlab.FanOutletNode;
                     CpAirZn = PsyCpAirFnW(state.dataLoopNodes->Node(HCoilInAirNode).HumRat);
                     QCoilReq =
                         state.dataLoopNodes->Node(HCoilInAirNode).MassFlowRate * CpAirZn * (state.dataLoopNodes->Node(ventSlab.RadInNode).Temp) -
@@ -3646,7 +3641,6 @@ namespace VentilatedSlab {
         static std::string const CurrentModuleObject("ZoneHVAC:VentilatedSlab");
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-        int ConstrNum;         // Index for construction number in Construct derived type
         Real64 CpAirZn;        // Intermediate calculational variable for specific heat of air
         Real64 DewPointTemp;   // Dew-point temperature based on the zone air conditions
         Real64 EpsMdotCpAirZn; // Epsilon (heat exchanger terminology) times water mass flow rate times water specific heat
@@ -3660,12 +3654,8 @@ namespace VentilatedSlab {
         int SurfNum2; // Index for radiant surface in Surface derived type
         // unused0309  INTEGER  :: RadSurfNumNum
         Real64 TotalVentSlabRadPower; // Total heat source/sink to radiant system
-        Real64 AirMassFlow;           // air mass flow rate in the radiant system, kg/s
-        int SlabInNode;               // Node number of the air entering the radiant system
         Real64 AirOutletTempCheck;    // Radiant system air outlet temperature (calculated from mixing all outlet streams together)
         Real64 AirTempIn;             // Temperature of the air entering the radiant system, in C
-        int ZoneNum;                  // number of zone being served
-        Real64 ZoneMult;              // Zone multiplier for this system
         Real64 Ca;                    // Coefficients to relate the inlet air temperature to the heat source
         Real64 Cb;
         Real64 Cc;
@@ -3679,11 +3669,6 @@ namespace VentilatedSlab {
         Real64 Ck;
         Real64 Cl;
         // For more info on Ca through Cl, refer Constant Flow Radiant System
-        int FanOutletNode; // unit air outlet node
-        int OAInletNode;   // unit air outlet node
-        int MixoutNode;    // unit air outlet node
-        int ReturnAirNode; // description
-        int ZoneAirInNode; // supply air node
         // For Phase 3
         Real64 CNumDS;
         Real64 CLengDS;
@@ -3696,17 +3681,17 @@ namespace VentilatedSlab {
             state.dataVentilatedSlab->FirstTimeFlag = false;
         }
 
-        SlabInNode = ventSlab.RadInNode;
-        FanOutletNode = ventSlab.FanOutletNode;
-        OAInletNode = ventSlab.OutsideAirNode;
-        MixoutNode = ventSlab.OAMixerOutNode;
-        ReturnAirNode = ventSlab.ReturnAirNode;
-        ZoneAirInNode = ventSlab.ZoneAirInNode;
+        int SlabInNode = ventSlab.RadInNode;
+        int FanOutletNode = ventSlab.FanOutletNode;
+        int OAInletNode = ventSlab.OutsideAirNode;
+        int MixoutNode = ventSlab.OAMixerOutNode;
+        int ReturnAirNode = ventSlab.ReturnAirNode;
+        int ZoneAirInNode = ventSlab.ZoneAirInNode;
 
         // Set the conditions on the air side inlet
-        ZoneNum = ventSlab.ZonePtr;
-        ZoneMult = double(state.dataHeatBal->Zone(ZoneNum).Multiplier * state.dataHeatBal->Zone(ZoneNum).ListMultiplier);
-        AirMassFlow = state.dataLoopNodes->Node(ventSlab.RadInNode).MassFlowRate / ZoneMult;
+        int ZoneNum = ventSlab.ZonePtr;
+        Real64 ZoneMult = double(state.dataHeatBal->Zone(ZoneNum).Multiplier * state.dataHeatBal->Zone(ZoneNum).ListMultiplier);
+        Real64 AirMassFlow = state.dataLoopNodes->Node(ventSlab.RadInNode).MassFlowRate / ZoneMult;
         auto &thisZoneHB = state.dataZoneTempPredictorCorrector->zoneHeatBalance(ZoneNum);
 
         if (state.dataVentilatedSlab->OperatingMode == HeatingMode) {
@@ -3783,7 +3768,7 @@ namespace VentilatedSlab {
                     // linking the inlet air temperature to the heat source/sink to the radiant system.
                     // The coefficients are based on the Constant Flow Radiation System.
 
-                    ConstrNum = state.dataSurface->Surface(SurfNum).Construction;
+                    int ConstrNum = state.dataSurface->Surface(SurfNum).Construction;
                     auto const &thisConstruct = state.dataConstruction->Construct(ConstrNum);
 
                     Ca = state.dataHeatBalFanSys->RadSysTiHBConstCoef(SurfNum);
@@ -4061,7 +4046,7 @@ namespace VentilatedSlab {
                     // linking the inlet air temperature to the heat source/sink to the radiant system.
                     // The coefficients are based on the Constant Flow Radiation System.
 
-                    ConstrNum = state.dataSurface->Surface(SurfNum).Construction;
+                    int ConstrNum = state.dataSurface->Surface(SurfNum).Construction;
 
                     Ca = state.dataHeatBalFanSys->RadSysTiHBConstCoef(SurfNum);
                     Cb = state.dataHeatBalFanSys->RadSysTiHBToutCoef(SurfNum);
