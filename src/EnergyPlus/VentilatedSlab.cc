@@ -1540,8 +1540,6 @@ namespace VentilatedSlab {
         int SurfNum;        // Intermediate variable for keeping track of the surface number
         int ZoneNum;        // Intermediate variable for keeping track of the zone number
         int AirRelNode;     // relief air node number in Ventilated Slab loop
-        int ColdConNode;    // cold water control node number in Ventilated Slab loop
-        int HotConNode;     // hot water control node number in Ventilated Slab loop
         int InNode;         // inlet node number in Ventilated Slab loop
         int OutNode;        // outlet node number in Ventilated Slab loop
         int OutsideAirNode; // outside air node number in Ventilated Slab loop
@@ -1644,8 +1642,6 @@ namespace VentilatedSlab {
             // Coil Part
             InNode = ventSlab.ReturnAirNode;
             OutNode = ventSlab.RadInNode;
-            HotConNode = ventSlab.HotControlNode;
-            ColdConNode = ventSlab.ColdControlNode;
             OutsideAirNode = ventSlab.OutsideAirNode;
             RhoAir = state.dataEnvrn->StdRhoAir;
 
