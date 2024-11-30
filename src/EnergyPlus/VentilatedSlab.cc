@@ -2521,11 +2521,6 @@ namespace VentilatedSlab {
         // Using/Aliasing
         auto &ventSlab = state.dataVentilatedSlab->VentSlab(Item);
 
-        using HeatingCoils::CheckHeatingCoilSchedule;
-        using HVACHXAssistedCoolingCoil::CheckHXAssistedCoolingCoilSchedule;
-        using SteamCoils::CheckSteamCoilSchedule;
-        using WaterCoils::CheckWaterCoilSchedule;
-
         // SUBROUTINE PARAMETER DEFINITIONS:
         Real64 constexpr LowTempDiff(0.1); // Smallest allowed temperature difference for comparisons
         // (below this value the temperatures are assumed equal)
@@ -2573,21 +2568,21 @@ namespace VentilatedSlab {
 
             switch (ventSlab.hCoilType) {
             case HeatingCoilType::Water: {
-                CheckWaterCoilSchedule(state, ventSlab.heatingCoilName, ventSlab.heatingCoilSchedValue, ventSlab.heatingCoil_Index);
+                WaterCoils::CheckWaterCoilSchedule(state, ventSlab.heatingCoilName, ventSlab.heatingCoilSchedValue, ventSlab.heatingCoil_Index);
                 break;
             }
             case HeatingCoilType::Steam: {
-                CheckSteamCoilSchedule(
+                SteamCoils::CheckSteamCoilSchedule(
                     state, "Coil:Heating:Steam", ventSlab.heatingCoilName, ventSlab.heatingCoilSchedValue, ventSlab.heatingCoil_Index);
                 break;
             }
             case HeatingCoilType::Electric: {
-                CheckHeatingCoilSchedule(
+                HeatingCoils::CheckHeatingCoilSchedule(
                     state, "Coil:Heating:Electric", ventSlab.heatingCoilName, ventSlab.heatingCoilSchedValue, ventSlab.heatingCoil_Index);
                 break;
             }
             case HeatingCoilType::Gas: {
-                CheckHeatingCoilSchedule(
+                HeatingCoils::CheckHeatingCoilSchedule(
                     state, "Coil:Heating:Fuel", ventSlab.heatingCoilName, ventSlab.heatingCoilSchedValue, ventSlab.heatingCoil_Index);
                 break;
             }
@@ -2598,15 +2593,15 @@ namespace VentilatedSlab {
             switch (ventSlab.cCoilType) {
             case CoolingCoilType::WaterCooling:
             case CoolingCoilType::DetailedCooling: {
-                CheckWaterCoilSchedule(state, ventSlab.coolingCoilName, ventSlab.coolingCoilSchedValue, ventSlab.coolingCoil_Index);
+                WaterCoils::CheckWaterCoilSchedule(state, ventSlab.coolingCoilName, ventSlab.coolingCoilSchedValue, ventSlab.coolingCoil_Index);
                 break;
             }
             case CoolingCoilType::HXAssisted: {
-                CheckHXAssistedCoolingCoilSchedule(state,
-                                                   "CoilSystem:Cooling:Water:HeatExchangerAssisted",
-                                                   ventSlab.coolingCoilName,
-                                                   ventSlab.coolingCoilSchedValue,
-                                                   ventSlab.coolingCoil_Index);
+                HVACHXAssistedCoolingCoil::CheckHXAssistedCoolingCoilSchedule(state,
+                                                                              "CoilSystem:Cooling:Water:HeatExchangerAssisted",
+                                                                              ventSlab.coolingCoilName,
+                                                                              ventSlab.coolingCoilSchedValue,
+                                                                              ventSlab.coolingCoil_Index);
                 break;
             }
             default:
@@ -2618,21 +2613,21 @@ namespace VentilatedSlab {
 
             switch (ventSlab.hCoilType) {
             case HeatingCoilType::Water: {
-                CheckWaterCoilSchedule(state, ventSlab.heatingCoilName, ventSlab.heatingCoilSchedValue, ventSlab.heatingCoil_Index);
+                WaterCoils::CheckWaterCoilSchedule(state, ventSlab.heatingCoilName, ventSlab.heatingCoilSchedValue, ventSlab.heatingCoil_Index);
                 break;
             }
             case HeatingCoilType::Steam: {
-                CheckSteamCoilSchedule(
+                SteamCoils::CheckSteamCoilSchedule(
                     state, "Coil:Heating:Steam", ventSlab.heatingCoilName, ventSlab.heatingCoilSchedValue, ventSlab.heatingCoil_Index);
                 break;
             }
             case HeatingCoilType::Electric: {
-                CheckHeatingCoilSchedule(
+                HeatingCoils::CheckHeatingCoilSchedule(
                     state, "Coil:Heating:Electric", ventSlab.heatingCoilName, ventSlab.heatingCoilSchedValue, ventSlab.heatingCoil_Index);
                 break;
             }
             case HeatingCoilType::Gas: {
-                CheckHeatingCoilSchedule(
+                HeatingCoils::CheckHeatingCoilSchedule(
                     state, "Coil:Heating:Fuel", ventSlab.heatingCoilName, ventSlab.heatingCoilSchedValue, ventSlab.heatingCoil_Index);
                 break;
             }
@@ -2646,15 +2641,15 @@ namespace VentilatedSlab {
             switch (ventSlab.cCoilType) {
             case CoolingCoilType::WaterCooling:
             case CoolingCoilType::DetailedCooling: {
-                CheckWaterCoilSchedule(state, ventSlab.coolingCoilName, ventSlab.coolingCoilSchedValue, ventSlab.coolingCoil_Index);
+                WaterCoils::CheckWaterCoilSchedule(state, ventSlab.coolingCoilName, ventSlab.coolingCoilSchedValue, ventSlab.coolingCoil_Index);
                 break;
             }
             case CoolingCoilType::HXAssisted: {
-                CheckHXAssistedCoolingCoilSchedule(state,
-                                                   "CoilSystem:Cooling:Water:HeatExchangerAssisted",
-                                                   ventSlab.coolingCoilName,
-                                                   ventSlab.coolingCoilSchedValue,
-                                                   ventSlab.coolingCoil_Index);
+                HVACHXAssistedCoolingCoil::CheckHXAssistedCoolingCoilSchedule(state,
+                                                                              "CoilSystem:Cooling:Water:HeatExchangerAssisted",
+                                                                              ventSlab.coolingCoilName,
+                                                                              ventSlab.coolingCoilSchedValue,
+                                                                              ventSlab.coolingCoil_Index);
                 break;
             }
             default:
@@ -3346,7 +3341,6 @@ namespace VentilatedSlab {
         //       AUTHOR         Young Tae Chae, Rick Strand
         //       DATE WRITTEN   June 2008
         //       MODIFIED       July 2012, Chandan Sharma - FSEC: Added zone sys avail managers
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // This subroutine launches the individual component simulations.
@@ -3362,10 +3356,6 @@ namespace VentilatedSlab {
 
         // Using/Aliasing
         auto &ventSlab = state.dataVentilatedSlab->VentSlab(Item);
-        using HeatingCoils::SimulateHeatingCoilComponents;
-        using HVACHXAssistedCoolingCoil::SimHXAssistedCoolingCoil;
-        using SteamCoils::SimulateSteamCoilComponents;
-        using WaterCoils::SimulateWaterCoilComponents;
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         Real64 AirMassFlow; // total mass flow through the system
@@ -3383,15 +3373,15 @@ namespace VentilatedSlab {
 
         if ((ventSlab.coolingCoilPresent) && (ventSlab.coolingCoilSchedValue >= 0.0)) {
             if (ventSlab.cCoilType == CoolingCoilType::HXAssisted) {
-                SimHXAssistedCoolingCoil(state,
-                                         ventSlab.coolingCoilName,
-                                         FirstHVACIteration,
-                                         HVAC::CompressorOp::On,
-                                         0.0,
-                                         ventSlab.coolingCoil_Index,
-                                         HVAC::FanOp::Continuous);
+                HVACHXAssistedCoolingCoil::SimHXAssistedCoolingCoil(state,
+                                                                    ventSlab.coolingCoilName,
+                                                                    FirstHVACIteration,
+                                                                    HVAC::CompressorOp::On,
+                                                                    0.0,
+                                                                    ventSlab.coolingCoil_Index,
+                                                                    HVAC::FanOp::Continuous);
             } else {
-                SimulateWaterCoilComponents(state, ventSlab.coolingCoilName, FirstHVACIteration, ventSlab.coolingCoil_Index);
+                WaterCoils::SimulateWaterCoilComponents(state, ventSlab.coolingCoilName, FirstHVACIteration, ventSlab.coolingCoil_Index);
             }
         }
 
@@ -3401,7 +3391,7 @@ namespace VentilatedSlab {
 
             case HeatingCoilType::Water: {
 
-                SimulateWaterCoilComponents(state, ventSlab.heatingCoilName, FirstHVACIteration, ventSlab.heatingCoil_Index);
+                WaterCoils::SimulateWaterCoilComponents(state, ventSlab.heatingCoilName, FirstHVACIteration, ventSlab.heatingCoil_Index);
                 break;
             }
             case HeatingCoilType::Steam: {
@@ -3418,7 +3408,7 @@ namespace VentilatedSlab {
 
                 if (QCoilReq < 0.0) QCoilReq = 0.0; // a heating coil can only heat, not cool
 
-                SimulateSteamCoilComponents(state, ventSlab.heatingCoilName, FirstHVACIteration, ventSlab.heatingCoil_Index, QCoilReq);
+                SteamCoils::SimulateSteamCoilComponents(state, ventSlab.heatingCoilName, FirstHVACIteration, ventSlab.heatingCoil_Index, QCoilReq);
                 break;
             }
             case HeatingCoilType::Electric:
@@ -3435,7 +3425,8 @@ namespace VentilatedSlab {
 
                 if (QCoilReq < 0.0) QCoilReq = 0.0; // a heating coil can only heat, not cool
 
-                SimulateHeatingCoilComponents(state, ventSlab.heatingCoilName, FirstHVACIteration, QCoilReq, ventSlab.heatingCoil_Index);
+                HeatingCoils::SimulateHeatingCoilComponents(
+                    state, ventSlab.heatingCoilName, FirstHVACIteration, QCoilReq, ventSlab.heatingCoil_Index);
                 break;
             }
             default:
@@ -3519,7 +3510,6 @@ namespace VentilatedSlab {
         //       AUTHOR         Young Tae Chae, Rick Strand
         //       DATE WRITTEN   June 2008
         //       MODIFIED       Sep 2011 LKL/BG - resimulate only zones needing it for Radiant systems
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // This subroutine launches the individual component simulations.
@@ -3534,9 +3524,6 @@ namespace VentilatedSlab {
         // simulation.  Other than that, the subroutine is very straightforward.
 
         // Using/Aliasing
-        using HeatingCoils::SimulateHeatingCoilComponents;
-        using SteamCoils::SimulateSteamCoilComponents;
-        using WaterCoils::SimulateWaterCoilComponents;
         auto &ventSlab = state.dataVentilatedSlab->VentSlab(Item);
 
         // SUBROUTINE PARAMETER DEFINITIONS:
@@ -4194,8 +4181,6 @@ namespace VentilatedSlab {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         Rick Strand
         //       DATE WRITTEN   May 2000
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // This responsibility of this subroutine is to set the air flow rates
@@ -4218,16 +4203,12 @@ namespace VentilatedSlab {
         auto const &ventSlab = state.dataVentilatedSlab->VentSlab(Item);
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-        int AirRelNode;     // relief air node number in ventilated slab loop
-        int InletNode;      // inlet node number for ventilated slab loop
-        Real64 OAFraction;  // Outside air fraction of inlet air
-        int OAMixOutNode;   // outside air mixer outlet node for ventilated slab loop
-        int OutsideAirNode; // outside air node number in ventilated slab loop
+        Real64 OAFraction; // Outside air fraction of inlet air
 
-        AirRelNode = ventSlab.AirReliefNode;
-        InletNode = ventSlab.ReturnAirNode;
-        OAMixOutNode = ventSlab.OAMixerOutNode;
-        OutsideAirNode = ventSlab.OutsideAirNode;
+        int AirRelNode = ventSlab.AirReliefNode;      // relief air node number in ventilated slab loop
+        int InletNode = ventSlab.ReturnAirNode;       // inlet node number for ventilated slab loop
+        int OAMixOutNode = ventSlab.OAMixerOutNode;   // outside air mixer outlet node for ventilated slab loop
+        int OutsideAirNode = ventSlab.OutsideAirNode; // outside air node number in ventilated slab loop
 
         // "Resolve" the air flow rates...
 
@@ -4282,8 +4263,6 @@ namespace VentilatedSlab {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         Young Tae Chae, Rick Strand
         //       DATE WRITTEN   November 2000
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // This subroutine does any updating that needs to be done for low
@@ -4418,7 +4397,6 @@ namespace VentilatedSlab {
         //       AUTHOR         Rick Strand
         //       DATE WRITTEN   December 2000
         //       MODIFIED       June 2008 (air properties)
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // This subroutine calculates the radiant system "heat exchanger"
@@ -4545,8 +4523,6 @@ namespace VentilatedSlab {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         Rick Strand
         //       DATE WRITTEN   November 2000
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // This subroutine simply produces output for the low temperature radiant system.
