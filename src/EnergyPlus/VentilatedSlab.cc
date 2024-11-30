@@ -4439,36 +4439,21 @@ namespace VentilatedSlab {
         auto &ventSlab = state.dataVentilatedSlab->VentSlab(Item);
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-        Real64 CpAppAir;        // Specific heat of air
-        int RadSurfNum;         // DO loop counter for radiant surfaces in the ventilated slab
-        int SurfNum;            // Surface index number for the current ventilated slab
-        int AirInletNode;       // Node number for the air side inlet of the ventilated slab
-        Real64 TotalHeatSource; // Total heat source or sink for a particular system (sum of all surface source/sinks)
-        int TotRadSurfaces;     // Total number of radiant surfaces in this system
-        Real64 AirMassFlow;     // Flow rate of water in the radiant system
-        int AirOutletNode;      // Node number for the water side outlet of the radiant system
-        int FanOutNode;         // Node number for the water side outlet of the radiant system
-        Real64 ZoneMult;        // Zone multiplier
-        int ZoneNum;            // Zone for this ventilated slab
-        int MixOutNode;         // Node number for the water side outlet of the radiant system
-        int OANode;             // Node number for the water side outlet of the radiant system
-        Real64 OAFraction;      // Outside air fraction of inlet air
-        int ZoneInletNode;      // Node number for the air side inlet of the ventilated slab
+        Real64 OAFraction; // Outside air fraction of inlet air
 
-        ZoneNum = ventSlab.ZonePtr;
-        TotRadSurfaces = ventSlab.NumOfSurfaces;
-        MixOutNode = ventSlab.OAMixerOutNode;
-        OANode = ventSlab.OutsideAirNode;
-        AirOutletNode = ventSlab.RadInNode;
-        FanOutNode = ventSlab.FanOutletNode;
-        AirMassFlow = state.dataLoopNodes->Node(AirOutletNode).MassFlowRate;
-        ZoneInletNode = ventSlab.ZoneAirInNode;
-        CpAppAir = PsyCpAirFnW(state.dataLoopNodes->Node(AirOutletNode).HumRat);
-        AirInletNode = ventSlab.ReturnAirNode;
+        int TotRadSurfaces = ventSlab.NumOfSurfaces;
+        int MixOutNode = ventSlab.OAMixerOutNode; // Node number for the water side outlet of the radiant system
+        int OANode = ventSlab.OutsideAirNode;
+        int AirOutletNode = ventSlab.RadInNode;
+        int FanOutNode = ventSlab.FanOutletNode;
+        Real64 AirMassFlow = state.dataLoopNodes->Node(AirOutletNode).MassFlowRate;
+        int ZoneInletNode = ventSlab.ZoneAirInNode; // Node number for the air side inlet of the ventilated slab
+        Real64 CpAppAir = PsyCpAirFnW(state.dataLoopNodes->Node(AirOutletNode).HumRat);
+        int AirInletNode = ventSlab.ReturnAirNode; // Node number for the air side inlet of the ventilated slab
 
-        for (RadSurfNum = 1; RadSurfNum <= TotRadSurfaces; ++RadSurfNum) {
+        for (int RadSurfNum = 1; RadSurfNum <= TotRadSurfaces; ++RadSurfNum) {
 
-            SurfNum = ventSlab.SurfacePtr(RadSurfNum);
+            int SurfNum = ventSlab.SurfacePtr(RadSurfNum);
 
             if (ventSlab.LastSysTimeElapsed == SysTimeElapsed) {
                 // Still iterating or reducing system time step, so subtract old values which were not valid
@@ -4483,13 +4468,13 @@ namespace VentilatedSlab {
         ventSlab.LastTimeStepSys = TimeStepSys;
 
         // First sum up all of the heat sources/sinks associated with this system
-        TotalHeatSource = 0.0;
-        for (RadSurfNum = 1; RadSurfNum <= ventSlab.NumOfSurfaces; ++RadSurfNum) {
-            SurfNum = ventSlab.SurfacePtr(RadSurfNum);
+        Real64 TotalHeatSource = 0.0;
+        for (int RadSurfNum = 1; RadSurfNum <= ventSlab.NumOfSurfaces; ++RadSurfNum) {
+            int SurfNum = ventSlab.SurfacePtr(RadSurfNum);
             TotalHeatSource += state.dataHeatBalFanSys->QRadSysSource(SurfNum);
         }
-        ZoneNum = ventSlab.ZonePtr;
-        ZoneMult = double(state.dataHeatBal->Zone(ZoneNum).Multiplier * state.dataHeatBal->Zone(ZoneNum).ListMultiplier);
+        int ZoneNum = ventSlab.ZonePtr;
+        int ZoneMult = double(state.dataHeatBal->Zone(ZoneNum).Multiplier * state.dataHeatBal->Zone(ZoneNum).ListMultiplier);
         TotalHeatSource *= ZoneMult;
 
         // Update the heating side of things
@@ -4515,12 +4500,12 @@ namespace VentilatedSlab {
         } else {
             if ((ventSlab.SysConfg == VentilatedSlabConfig::SlabOnly) || (ventSlab.SysConfg == VentilatedSlabConfig::SeriesSlabs)) {
                 state.dataLoopNodes->Node(FanOutNode) = state.dataLoopNodes->Node(AirOutletNode);
-                state.dataHeatBalFanSys->QRadSysSource(SurfNum) = 0.0;
+                state.dataHeatBalFanSys->QRadSysSource = 0.0;
 
             } else if (ventSlab.SysConfg == VentilatedSlabConfig::SlabAndZone) {
                 state.dataLoopNodes->Node(ZoneInletNode) = state.dataLoopNodes->Node(AirInletNode);
                 state.dataLoopNodes->Node(FanOutNode) = state.dataLoopNodes->Node(AirOutletNode); // Fan Resolve
-                state.dataHeatBalFanSys->QRadSysSource(SurfNum) = 0.0;
+                state.dataHeatBalFanSys->QRadSysSource = 0.0;
             }
         }
 
@@ -4705,20 +4690,14 @@ namespace VentilatedSlab {
         Real64 TimeStepSysSec = state.dataHVACGlobal->TimeStepSysSec;
         auto &ventSlab = state.dataVentilatedSlab->VentSlab(Item);
 
-        int RadSurfNum;               // DO loop counter for radiant surfaces in the system
-        int SurfNum;                  // Surface number (index) in Surface derived type
-        Real64 TotalVentSlabRadPower; // Total source/sink power for the radiant system (sum of all surfaces of the system)
-        Real64 ZoneMult;              // Total zone multiplier to apply to the system level variables
-
         // Slab Part
-        TotalVentSlabRadPower = 0.0;
-        ZoneMult = 1.0;
+        Real64 TotalVentSlabRadPower = 0.0; // Total source/sink power for the radiant system (sum of all surfaces of the system)
 
-        for (RadSurfNum = 1; RadSurfNum <= ventSlab.NumOfSurfaces; ++RadSurfNum) {
-            SurfNum = ventSlab.SurfacePtr(RadSurfNum);
+        for (int RadSurfNum = 1; RadSurfNum <= ventSlab.NumOfSurfaces; ++RadSurfNum) {
+            int SurfNum = ventSlab.SurfacePtr(RadSurfNum);
             TotalVentSlabRadPower += state.dataHeatBalFanSys->QRadSysSource(SurfNum);
         }
-        ZoneMult = double(state.dataHeatBal->Zone(ventSlab.ZonePtr).Multiplier * state.dataHeatBal->Zone(ventSlab.ZonePtr).ListMultiplier);
+        Real64 ZoneMult = double(state.dataHeatBal->Zone(ventSlab.ZonePtr).Multiplier * state.dataHeatBal->Zone(ventSlab.ZonePtr).ListMultiplier);
         TotalVentSlabRadPower *= ZoneMult;
         ventSlab.RadHeatingPower = 0.0;
         ventSlab.RadCoolingPower = 0.0;
