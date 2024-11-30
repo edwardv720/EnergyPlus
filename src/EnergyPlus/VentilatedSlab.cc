@@ -1548,8 +1548,6 @@ namespace VentilatedSlab {
         Real64 RhoAir;      // air density at InNode
         Real64 TempSteamIn;
         Real64 SteamDensity;
-        int ZoneAirInNode;
-        int MixOut;
         Real64 rho;
         bool errFlag;
 
@@ -1747,8 +1745,6 @@ namespace VentilatedSlab {
         OutNode = ventSlab.RadInNode;
         OutsideAirNode = ventSlab.OutsideAirNode;
         AirRelNode = ventSlab.AirReliefNode;
-        ZoneAirInNode = ventSlab.ZoneAirInNode;
-        MixOut = ventSlab.OAMixerOutNode;
 
         // First, set the flow conditions up so that there is flow through the ventilated
         // slab system(this will be shut down if the system is not available or there
@@ -1870,7 +1866,7 @@ namespace VentilatedSlab {
         int zoneHVACIndex; // index of zoneHVAC equipment sizing specification
         Real64 CoolingAirVolFlowScalable; // cooling airvolume for rate determined using scalable sizing method
         Real64 HeatingAirVolFlowScalable; // heating airvolume for rate determined using scalable sizing method
-        bool DoWaterCoilSizing = false;   // if TRUE do water coil sizing calculation
+        bool DoWaterCoilSizing;           // if TRUE do water coil sizing calculation
         Real64 WaterCoilSizDeltaT;        // water coil deltaT for design water flow rate autosizing
 
         WaterCoilSizDeltaT = 0.0;
@@ -2644,22 +2640,17 @@ namespace VentilatedSlab {
         Real64 Toutdoor;     // temperature of outdoor air being introduced into the ventilated slab [degrees C]
         Real64 MaxSteamFlow;
         Real64 MinSteamFlow;
-        Real64 RadInTemp;      // "Desired" radiant system air inlet temperature [Celsius]**setpoint
-        Real64 SetPointTemp;   // temperature that will be used to control the radiant system [Celsius]
-        Real64 SetPointTempHi; // Current high point in setpoint temperature range
-        Real64 SetPointTempLo; // Current low point in setpoint temperature range
-        Real64 AirTempHi;      // Current high point in water temperature range
-        Real64 AirTempLo;      // Current low point in water temperature range
-        Real64 AirTempHeatHi;  // Current high point in water temperature range
-        Real64 AirTempCoolLo;  // Current low point in water temperature range
-        Real64 CpFan;          // Intermediate calculational variable for specific heat of air <<NOV9 Updated
-        Real64 ZoneRadNum;     // number of zone being served *********************
-        int RadSurfNum;        // DO loop counter for the surfaces that comprise a particular radiant system
-        std::string MSlabIn;
-        std::string MSlabOut;
-        std::string SlabName;
-        int MSlabInletNode;
-        int MSlabOutletNode;
+        Real64 RadInTemp;        // "Desired" radiant system air inlet temperature [Celsius]**setpoint
+        Real64 SetPointTemp;     // temperature that will be used to control the radiant system [Celsius]
+        Real64 SetPointTempHi;   // Current high point in setpoint temperature range
+        Real64 SetPointTempLo;   // Current low point in setpoint temperature range
+        Real64 AirTempHi;        // Current high point in water temperature range
+        Real64 AirTempLo;        // Current low point in water temperature range
+        Real64 AirTempHeatHi;    // Current high point in water temperature range
+        Real64 AirTempCoolLo;    // Current low point in water temperature range
+        Real64 CpFan;            // Intermediate calculational variable for specific heat of air <<NOV9 Updated
+        Real64 ZoneRadNum;       // number of zone being served *********************
+        int RadSurfNum;          // DO loop counter for the surfaces that comprise a particular radiant system
         bool ErrorsFound(false); // Set to true if errors in input, fatal at end of routine
         static std::string const CurrentModuleObject("ZoneHVAC:VentilatedSlab");
 
@@ -2861,9 +2852,9 @@ namespace VentilatedSlab {
             // Node condition
             if (ventSlab.SysConfg == VentilatedSlabConfig::SeriesSlabs) {
                 for (RadSurfNum = 1; RadSurfNum <= ventSlab.NumOfSurfaces; ++RadSurfNum) {
-                    SlabName = ventSlab.SurfaceName(RadSurfNum);
-                    MSlabIn = ventSlab.SlabIn(RadSurfNum);
-                    MSlabOut = ventSlab.SlabOut(RadSurfNum);
+                    std::string SlabName = ventSlab.SurfaceName(RadSurfNum);
+                    std::string MSlabIn = ventSlab.SlabIn(RadSurfNum);
+                    std::string MSlabOut = ventSlab.SlabOut(RadSurfNum);
                     ventSlab.MSlabInNode = GetOnlySingleNode(state,
                                                              MSlabIn,
                                                              ErrorsFound,
@@ -2882,8 +2873,8 @@ namespace VentilatedSlab {
                                                               DataLoopNode::ConnectionType::Internal,
                                                               NodeInputManager::CompFluidStream::Primary,
                                                               ObjectIsNotParent);
-                    MSlabInletNode = ventSlab.MSlabInNode;
-                    MSlabOutletNode = ventSlab.MSlabOutNode;
+                    int MSlabInletNode = ventSlab.MSlabInNode;
+                    int MSlabOutletNode = ventSlab.MSlabOutNode;
 
                     state.dataLoopNodes->Node(MSlabInletNode).Temp = state.dataLoopNodes->Node(InletNode).Temp;
                     state.dataLoopNodes->Node(MSlabOutletNode).Temp = state.dataLoopNodes->Node(MSlabInletNode).Temp;
@@ -3646,12 +3637,9 @@ namespace VentilatedSlab {
         Real64 EpsMdotCpAirZn; // Epsilon (heat exchanger terminology) times water mass flow rate times water specific heat
         Real64 Mdot;           // Intermediate calculation variable for mass flow rate in a surface within the radiant system
         int RadSurfNum;        // DO loop counter for the surfaces that comprise a particular radiant system
-        int RadSurfNum2;       // DO loop counter for the surfaces that comprise a particular radiant system
-        int RadSurfNum3;       // DO loop counter for the surfaces that comprise a particular radiant system
         // unused0309  INTEGER  :: RadSurfNum4    ! DO loop counter for the surfaces that comprise a particular radiant system
 
-        int SurfNum;  // Index for radiant surface in Surface derived type
-        int SurfNum2; // Index for radiant surface in Surface derived type
+        int SurfNum; // Index for radiant surface in Surface derived type
         // unused0309  INTEGER  :: RadSurfNumNum
         Real64 TotalVentSlabRadPower; // Total heat source/sink to radiant system
         Real64 AirOutletTempCheck;    // Radiant system air outlet temperature (calculated from mixing all outlet streams together)
@@ -3836,8 +3824,8 @@ namespace VentilatedSlab {
                         state.dataLoopNodes->Node(ReturnAirNode).MassFlowRate = 0.0;
                         AirMassFlow = 0.0;
 
-                        for (RadSurfNum2 = 1; RadSurfNum2 <= ventSlab.NumOfSurfaces; ++RadSurfNum2) {
-                            SurfNum2 = ventSlab.SurfacePtr(RadSurfNum2);
+                        for (int RadSurfNum2 = 1; RadSurfNum2 <= ventSlab.NumOfSurfaces; ++RadSurfNum2) {
+                            int SurfNum2 = ventSlab.SurfacePtr(RadSurfNum2);
                             state.dataHeatBalFanSys->QRadSysSource(SurfNum2) = 0.0;
                             if (state.dataSurface->Surface(SurfNum2).ExtBoundCond > 0 &&
                                 state.dataSurface->Surface(SurfNum2).ExtBoundCond != SurfNum2)
@@ -3868,7 +3856,7 @@ namespace VentilatedSlab {
 
                     if (state.dataVentilatedSlab->OperatingMode == CoolingMode) {
                         DewPointTemp = PsyTdpFnWPb(state, thisZoneHB.airHumRat, state.dataEnvrn->OutBaroPress);
-                        for (RadSurfNum2 = 1; RadSurfNum2 <= ventSlab.NumOfSurfaces; ++RadSurfNum2) {
+                        for (int RadSurfNum2 = 1; RadSurfNum2 <= ventSlab.NumOfSurfaces; ++RadSurfNum2) {
                             if (state.dataHeatBalSurf->SurfInsideTempHist(1)(ventSlab.SurfacePtr(RadSurfNum2)) < (DewPointTemp + CondDeltaTemp)) {
                                 // Condensation warning--must shut off radiant system
                                 state.dataLoopNodes->Node(SlabInNode).MassFlowRate = 0.0;
@@ -3878,8 +3866,8 @@ namespace VentilatedSlab {
                                 state.dataLoopNodes->Node(ReturnAirNode).MassFlowRate = 0.0;
                                 state.dataLoopNodes->Node(FanOutletNode).Temp = state.dataLoopNodes->Node(SlabInNode).Temp;
                                 AirMassFlow = 0.0;
-                                for (RadSurfNum3 = 1; RadSurfNum3 <= ventSlab.NumOfSurfaces; ++RadSurfNum3) {
-                                    SurfNum2 = ventSlab.SurfacePtr(RadSurfNum3);
+                                for (int RadSurfNum3 = 1; RadSurfNum3 <= ventSlab.NumOfSurfaces; ++RadSurfNum3) {
+                                    int SurfNum2 = ventSlab.SurfacePtr(RadSurfNum3);
                                     state.dataHeatBalFanSys->QRadSysSource(SurfNum2) = 0.0;
                                     if (state.dataSurface->Surface(SurfNum2).ExtBoundCond > 0 &&
                                         state.dataSurface->Surface(SurfNum2).ExtBoundCond != SurfNum2)
@@ -4096,8 +4084,8 @@ namespace VentilatedSlab {
                             state.dataLoopNodes->Node(ReturnAirNode).MassFlowRate = 0.0;
                             AirMassFlow = 0.0;
 
-                            for (RadSurfNum2 = 1; RadSurfNum2 <= ventSlab.NumOfSurfaces; ++RadSurfNum2) {
-                                SurfNum2 = ventSlab.SurfacePtr(RadSurfNum2);
+                            for (int RadSurfNum2 = 1; RadSurfNum2 <= ventSlab.NumOfSurfaces; ++RadSurfNum2) {
+                                int SurfNum2 = ventSlab.SurfacePtr(RadSurfNum2);
                                 state.dataHeatBalFanSys->QRadSysSource(SurfNum2) = 0.0;
                                 if (state.dataSurface->Surface(SurfNum2).ExtBoundCond > 0 &&
                                     state.dataSurface->Surface(SurfNum2).ExtBoundCond != SurfNum2)
@@ -4122,7 +4110,7 @@ namespace VentilatedSlab {
                         DewPointTemp = PsyTdpFnWPb(state,
                                                    state.dataZoneTempPredictorCorrector->zoneHeatBalance(ventSlab.ZPtr(RadSurfNum)).airHumRat,
                                                    state.dataEnvrn->OutBaroPress);
-                        for (RadSurfNum2 = 1; RadSurfNum2 <= ventSlab.NumOfSurfaces; ++RadSurfNum2) {
+                        for (int RadSurfNum2 = 1; RadSurfNum2 <= ventSlab.NumOfSurfaces; ++RadSurfNum2) {
                             if (state.dataHeatBalSurf->SurfInsideTempHist(1)(ventSlab.SurfacePtr(RadSurfNum2)) < (DewPointTemp + CondDeltaTemp)) {
                                 // Condensation warning--must shut off radiant system
                                 state.dataLoopNodes->Node(SlabInNode).MassFlowRate = 0.0;
@@ -4132,8 +4120,8 @@ namespace VentilatedSlab {
                                 state.dataLoopNodes->Node(ReturnAirNode).MassFlowRate = 0.0;
                                 state.dataLoopNodes->Node(FanOutletNode).Temp = state.dataLoopNodes->Node(SlabInNode).Temp;
                                 AirMassFlow = 0.0;
-                                for (RadSurfNum3 = 1; RadSurfNum3 <= ventSlab.NumOfSurfaces; ++RadSurfNum3) {
-                                    SurfNum2 = ventSlab.SurfacePtr(RadSurfNum3);
+                                for (int RadSurfNum3 = 1; RadSurfNum3 <= ventSlab.NumOfSurfaces; ++RadSurfNum3) {
+                                    int SurfNum2 = ventSlab.SurfacePtr(RadSurfNum3);
                                     state.dataHeatBalFanSys->QRadSysSource(SurfNum2) = 0.0;
                                     if (state.dataSurface->Surface(SurfNum2).ExtBoundCond > 0 &&
                                         state.dataSurface->Surface(SurfNum2).ExtBoundCond != SurfNum2)
