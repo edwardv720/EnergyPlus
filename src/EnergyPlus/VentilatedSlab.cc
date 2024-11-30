@@ -263,7 +263,6 @@ namespace VentilatedSlab {
         int Item;                      // Item to be "gotten"
         int BaseNum;                   // Temporary number for creating RadiantSystemTypes structure
         bool errFlag;                  // interim error flag
-        int SurfListNum;               // Index within the SurfList derived type for a surface list name
         int SurfNum;                   // DO loop counter for surfaces
         bool IsValid;                  // Set for outside air node check
         Array1D_string cAlphaArgs;     // Alpha input items for object
@@ -357,7 +356,7 @@ namespace VentilatedSlab {
             }
 
             ventSlab.SurfListName = state.dataIPShortCut->cAlphaArgs(4);
-            SurfListNum = 0;
+            int SurfListNum = 0;
             //    IF (NumOfSlabLists > 0) SurfListNum = Util::FindItemInList(VentSlab(Item)%SurfListName, SlabList%Name, NumOfSlabLists)
             if (state.dataSurfLists->NumOfSurfListVentSlab > 0)
                 SurfListNum = Util::FindItemInList(ventSlab.SurfListName, state.dataSurfLists->SlabList);
@@ -1529,25 +1528,12 @@ namespace VentilatedSlab {
         // SUBROUTINE PARAMETER DEFINITIONS:
         static constexpr std::string_view RoutineName("InitVentilatedSlab");
 
-        // INTERFACE BLOCK SPECIFICATIONS
-        // na
-
-        // DERIVED TYPE DEFINITIONS
-        // na
-
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-        int RadNum;         // Number of the radiant system (DO loop counter)
-        int SurfNum;        // Intermediate variable for keeping track of the surface number
-        int ZoneNum;        // Intermediate variable for keeping track of the zone number
-        int AirRelNode;     // relief air node number in Ventilated Slab loop
-        int InNode;         // inlet node number in Ventilated Slab loop
-        int OutNode;        // outlet node number in Ventilated Slab loop
-        int OutsideAirNode; // outside air node number in Ventilated Slab loop
-        Real64 RhoAir;      // air density at InNode
+        int AirRelNode; // relief air node number in Ventilated Slab loop
+        Real64 RhoAir;  // air density at InNode
         Real64 TempSteamIn;
         Real64 SteamDensity;
         Real64 rho;
-        bool errFlag;
 
         // Do the one time initializations
 
@@ -1561,7 +1547,7 @@ namespace VentilatedSlab {
             for (auto &thisVentSlab : state.dataVentilatedSlab->VentSlab) {
                 thisVentSlab.TotalSurfaceArea = 0.0;
                 int numRadSurfs = thisVentSlab.NumOfSurfaces;
-                for (SurfNum = 1; SurfNum <= numRadSurfs; ++SurfNum) {
+                for (int SurfNum = 1; SurfNum <= numRadSurfs; ++SurfNum) {
                     thisVentSlab.TotalSurfaceArea += state.dataSurface->Surface(thisVentSlab.SurfacePtr(SurfNum)).Area;
                 }
                 thisVentSlab.QRadSysSrcAvg.dimension(numRadSurfs, 0.0);
@@ -1589,7 +1575,7 @@ namespace VentilatedSlab {
         if (state.dataVentilatedSlab->MyPlantScanFlag(Item) && allocated(state.dataPlnt->PlantLoop)) {
             if ((ventSlab.heatingCoilType == DataPlant::PlantEquipmentType::CoilWaterSimpleHeating) ||
                 (ventSlab.heatingCoilType == DataPlant::PlantEquipmentType::CoilSteamAirHeating)) {
-                errFlag = false;
+                bool errFlag = false;
                 ScanPlantLoopsForObject(state, ventSlab.heatingCoilName, ventSlab.heatingCoilType, ventSlab.HWPlantLoc, errFlag, _, _, _, _, _);
                 if (errFlag) {
                     ShowContinueError(state, format("Reference Unit=\"{}\", type=ZoneHVAC:VentilatedSlab", ventSlab.Name));
@@ -1600,7 +1586,7 @@ namespace VentilatedSlab {
             }
             if ((ventSlab.coolingCoilType == DataPlant::PlantEquipmentType::CoilWaterCooling) ||
                 (ventSlab.coolingCoilType == DataPlant::PlantEquipmentType::CoilWaterDetailedFlatCooling)) {
-                errFlag = false;
+                bool errFlag = false;
                 ScanPlantLoopsForObject(state, ventSlab.coolingCoilPlantName, ventSlab.coolingCoilType, ventSlab.CWPlantLoc, errFlag);
                 if (errFlag) {
                     ShowContinueError(state, format("Reference Unit=\"{}\", type=ZoneHVAC:VentilatedSlab", ventSlab.Name));
@@ -1619,7 +1605,7 @@ namespace VentilatedSlab {
         // need to check all Ventilated Slab units to see if they are on Zone Equipment List or issue warning
         if (!state.dataVentilatedSlab->ZoneEquipmentListChecked && state.dataZoneEquip->ZoneEquipInputsFilled) {
             state.dataVentilatedSlab->ZoneEquipmentListChecked = true;
-            for (RadNum = 1; RadNum <= state.dataVentilatedSlab->NumOfVentSlabs; ++RadNum) {
+            for (int RadNum = 1; RadNum <= state.dataVentilatedSlab->NumOfVentSlabs; ++RadNum) {
                 if (CheckZoneEquipmentList(state, cMO_VentilatedSlab, state.dataVentilatedSlab->VentSlab(RadNum).Name)) continue;
                 ShowSevereError(
                     state,
@@ -1636,13 +1622,14 @@ namespace VentilatedSlab {
             state.dataVentilatedSlab->MySizeFlag(Item) = false;
         }
 
+        int InNode = ventSlab.ReturnAirNode;
+        int OutNode = ventSlab.RadInNode;
+        int OutsideAirNode = ventSlab.OutsideAirNode;
+
         // Do the one time initializations
         if (state.dataGlobal->BeginEnvrnFlag && state.dataVentilatedSlab->MyEnvrnFlag(Item) && !state.dataVentilatedSlab->MyPlantScanFlag(Item)) {
 
             // Coil Part
-            InNode = ventSlab.ReturnAirNode;
-            OutNode = ventSlab.RadInNode;
-            OutsideAirNode = ventSlab.OutsideAirNode;
             RhoAir = state.dataEnvrn->StdRhoAir;
 
             if (state.dataVentilatedSlab->NumOfVentSlabs > 0) {
@@ -1737,9 +1724,6 @@ namespace VentilatedSlab {
         }
 
         // These initializations are done every iteration...
-        InNode = ventSlab.ReturnAirNode;
-        OutNode = ventSlab.RadInNode;
-        OutsideAirNode = ventSlab.OutsideAirNode;
         AirRelNode = ventSlab.AirReliefNode;
 
         // First, set the flow conditions up so that there is flow through the ventilated
@@ -1779,7 +1763,7 @@ namespace VentilatedSlab {
             state.dataLoopNodes->Node(OutsideAirNode).Press = state.dataEnvrn->OutBaroPress;
 
             // The first pass through in a particular time step
-            ZoneNum = ventSlab.ZonePtr;
+            int ZoneNum = ventSlab.ZonePtr;
             ventSlab.ZeroVentSlabSourceSumHATsurf =
                 state.dataHeatBal->Zone(ZoneNum).sumHATsurf(state); // Set this to figure what part of the load the radiant system meets
             ventSlab.QRadSysSrcAvg = 0.0;                           // Initialize this variable to zero (radiant system defaults to off)
@@ -1837,7 +1821,6 @@ namespace VentilatedSlab {
         std::string CoolingCoilType;
         Real64 rho;
         Real64 Cp;
-        int DummyWaterIndex(1);
         bool IsAutoSize;                // Indicator to autosize
         Real64 MaxAirVolFlowDes;        // Autosized maximum air flow for reporting
         Real64 MaxAirVolFlowUser;       // Hardsized maximum air flow for reporting
@@ -2327,6 +2310,7 @@ namespace VentilatedSlab {
                                 LatentHeatSteam = EnthSteamInDry - EnthSteamOutWet;
                                 SteamDensity = FluidProperties::GetSatDensityRefrig(
                                     state, fluidNameSteam, TempSteamIn, 1.0, ventSlab.heatingCoil_FluidIndex, RoutineName);
+                                int DummyWaterIndex = 1;
                                 Cp = GetSpecificHeatGlycol(state, fluidNameWater, Constant::HWInitConvTemp, DummyWaterIndex, RoutineName);
                                 rho = GetDensityGlycol(state, fluidNameWater, Constant::HWInitConvTemp, DummyWaterIndex, RoutineName);
                                 MaxVolHotSteamFlowDes =
@@ -2636,18 +2620,17 @@ namespace VentilatedSlab {
         Real64 Toutdoor;     // temperature of outdoor air being introduced into the ventilated slab [degrees C]
         Real64 MaxSteamFlow;
         Real64 MinSteamFlow;
-        Real64 RadInTemp;        // "Desired" radiant system air inlet temperature [Celsius]**setpoint
-        Real64 SetPointTemp;     // temperature that will be used to control the radiant system [Celsius]
-        Real64 SetPointTempHi;   // Current high point in setpoint temperature range
-        Real64 SetPointTempLo;   // Current low point in setpoint temperature range
-        Real64 AirTempHi;        // Current high point in water temperature range
-        Real64 AirTempLo;        // Current low point in water temperature range
-        Real64 AirTempHeatHi;    // Current high point in water temperature range
-        Real64 AirTempCoolLo;    // Current low point in water temperature range
-        Real64 CpFan;            // Intermediate calculational variable for specific heat of air <<NOV9 Updated
-        Real64 ZoneRadNum;       // number of zone being served *********************
-        int RadSurfNum;          // DO loop counter for the surfaces that comprise a particular radiant system
-        bool ErrorsFound(false); // Set to true if errors in input, fatal at end of routine
+        Real64 RadInTemp;      // "Desired" radiant system air inlet temperature [Celsius]**setpoint
+        Real64 SetPointTemp;   // temperature that will be used to control the radiant system [Celsius]
+        Real64 SetPointTempHi; // Current high point in setpoint temperature range
+        Real64 SetPointTempLo; // Current low point in setpoint temperature range
+        Real64 AirTempHi;      // Current high point in water temperature range
+        Real64 AirTempLo;      // Current low point in water temperature range
+        Real64 AirTempHeatHi;  // Current high point in water temperature range
+        Real64 AirTempCoolLo;  // Current low point in water temperature range
+        Real64 CpFan;          // Intermediate calculational variable for specific heat of air <<NOV9 Updated
+        Real64 ZoneRadNum;     // number of zone being served *********************
+        int RadSurfNum;        // DO loop counter for the surfaces that comprise a particular radiant system
         static std::string const CurrentModuleObject("ZoneHVAC:VentilatedSlab");
 
         switch (ventSlab.coilOption) {
@@ -2847,6 +2830,7 @@ namespace VentilatedSlab {
 
             // Node condition
             if (ventSlab.SysConfg == VentilatedSlabConfig::SeriesSlabs) {
+                bool ErrorsFound = false; // Set to true if errors in input, fatal at end of routine
                 for (RadSurfNum = 1; RadSurfNum <= ventSlab.NumOfSurfaces; ++RadSurfNum) {
                     std::string SlabName = ventSlab.SurfaceName(RadSurfNum);
                     std::string MSlabIn = ventSlab.SlabIn(RadSurfNum);
