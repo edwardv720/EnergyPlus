@@ -749,7 +749,6 @@ namespace UnitHeater {
             !state.dataUnitHeaters->MyPlantScanFlag(UnitHeatNum)) {
             InNode = state.dataUnitHeaters->UnitHeat(UnitHeatNum).AirInNode;
             OutNode = state.dataUnitHeaters->UnitHeat(UnitHeatNum).AirOutNode;
-            int HotConNode = state.dataUnitHeaters->UnitHeat(UnitHeatNum).HotControlNode; // hot water control node number in unit heater loop
             RhoAir = state.dataEnvrn->StdRhoAir;
 
             // set the mass flow rates from the input volume flow rates
@@ -901,7 +900,6 @@ namespace UnitHeater {
         Real64 SteamDensity;
         Real64 Cp;                     // local temporary for fluid specific heat
         Real64 rho;                    // local temporary for fluid density
-        bool IsAutoSize;               // Indicator to autosize
         Real64 MaxAirVolFlowDes;       // Autosized maximum air flow for reporting
         Real64 MaxAirVolFlowUser;      // Hardsized maximum air flow for reporting
         Real64 MaxVolHotWaterFlowDes;  // Autosized maximum hot water flow for reporting
@@ -914,15 +912,11 @@ namespace UnitHeater {
         Real64 TempSize;               // autosized value of coil input field
         bool PrintFlag;                // TRUE when sizing information is reported in the eio file
         int zoneHVACIndex;             // index of zoneHVAC equipment sizing specification
-        int CapSizingMethod(0);    // capacity sizing methods (HeatingDesignCapacity, CapacityPerFloorArea, FractionOfAutosizedCoolingCapacity, and
-                                   // FractionOfAutosizedHeatingCapacity )
         Real64 WaterCoilSizDeltaT; // water coil deltaT for design water flow rate autosizing
 
         int &CurZoneEqNum = state.dataSize->CurZoneEqNum;
 
-        PltSizHeatNum = 0;
         ErrorsFound = false;
-        IsAutoSize = false;
         MaxAirVolFlowDes = 0.0;
         MaxAirVolFlowUser = 0.0;
         MaxVolHotWaterFlowDes = 0.0;
@@ -1020,7 +1014,7 @@ namespace UnitHeater {
             }
         }
 
-        IsAutoSize = false;
+        bool IsAutoSize = false;
         if (state.dataUnitHeaters->UnitHeat(UnitHeatNum).MaxVolHotWaterFlow == AutoSize) {
             IsAutoSize = true;
         }
@@ -1075,7 +1069,7 @@ namespace UnitHeater {
                             int SizingMethod = HeatingCapacitySizing;
                             if (state.dataUnitHeaters->UnitHeat(UnitHeatNum).HVACSizingIndex > 0) {
                                 zoneHVACIndex = state.dataUnitHeaters->UnitHeat(UnitHeatNum).HVACSizingIndex;
-                                CapSizingMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingCapMethod;
+                                int CapSizingMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingCapMethod;
                                 ZoneEqSizing.SizingMethod(SizingMethod) = CapSizingMethod;
                                 if (CapSizingMethod == HeatingDesignCapacity || CapSizingMethod == CapacityPerFloorArea ||
                                     CapSizingMethod == FractionOfAutosizedHeatingCapacity) {
@@ -1210,7 +1204,7 @@ namespace UnitHeater {
                             if (state.dataUnitHeaters->UnitHeat(UnitHeatNum).HVACSizingIndex > 0) {
                                 zoneHVACIndex = state.dataUnitHeaters->UnitHeat(UnitHeatNum).HVACSizingIndex;
                                 int SizingMethod = HeatingCapacitySizing;
-                                CapSizingMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingCapMethod;
+                                int CapSizingMethod = state.dataSize->ZoneHVACSizing(zoneHVACIndex).HeatingCapMethod;
                                 ZoneEqSizing.SizingMethod(SizingMethod) = CapSizingMethod;
                                 if (CapSizingMethod == HeatingDesignCapacity || CapSizingMethod == CapacityPerFloorArea ||
                                     CapSizingMethod == FractionOfAutosizedHeatingCapacity) {
@@ -1539,9 +1533,6 @@ namespace UnitHeater {
                     break;
                 }
             }
-            QUnitOut = state.dataLoopNodes->Node(OutletNode).MassFlowRate *
-                       (PsyHFnTdbW(state.dataLoopNodes->Node(OutletNode).Temp, state.dataLoopNodes->Node(InletNode).HumRat) -
-                        PsyHFnTdbW(state.dataLoopNodes->Node(InletNode).Temp, state.dataLoopNodes->Node(InletNode).HumRat));
             if (state.dataLoopNodes->Node(InletNode).MassFlowRateMax > 0.0) {
                 state.dataUnitHeaters->UnitHeat(UnitHeatNum).FanPartLoadRatio =
                     state.dataLoopNodes->Node(InletNode).MassFlowRate / state.dataLoopNodes->Node(InletNode).MassFlowRateMax;
