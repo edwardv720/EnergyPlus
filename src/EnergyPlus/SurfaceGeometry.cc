@@ -5355,7 +5355,6 @@ namespace SurfaceGeometry {
         int IOStat; // IO Status when calling get input subroutine
         int Found;  // For matching base surfaces
         bool GettingIZSurfaces;
-        int WindowShadingField;
         int FrameField;
         int OtherSurfaceField;
         int ClassItem;
@@ -5368,42 +5367,36 @@ namespace SurfaceGeometry {
             if (Item == 1) {
                 ItemsToGet = TotWindows;
                 GettingIZSurfaces = false;
-                WindowShadingField = 4;
                 FrameField = 5;
                 OtherSurfaceField = 0;
                 ClassItem = 1;
             } else if (Item == 2) {
                 ItemsToGet = TotDoors;
                 GettingIZSurfaces = false;
-                WindowShadingField = 0;
                 FrameField = 0;
                 OtherSurfaceField = 0;
                 ClassItem = 2;
             } else if (Item == 3) {
                 ItemsToGet = TotGlazedDoors;
                 GettingIZSurfaces = false;
-                WindowShadingField = 4;
                 FrameField = 5;
                 OtherSurfaceField = 0;
                 ClassItem = 3;
             } else if (Item == 4) {
                 ItemsToGet = TotIZWindows;
                 GettingIZSurfaces = true;
-                WindowShadingField = 0;
                 FrameField = 0;
                 OtherSurfaceField = 4;
                 ClassItem = 1;
             } else if (Item == 5) {
                 ItemsToGet = TotIZDoors;
                 GettingIZSurfaces = true;
-                WindowShadingField = 0;
                 FrameField = 0;
                 OtherSurfaceField = 4;
                 ClassItem = 2;
             } else { // Item = 6
                 ItemsToGet = TotIZGlazedDoors;
                 GettingIZSurfaces = true;
-                WindowShadingField = 0;
                 FrameField = 0;
                 OtherSurfaceField = 4;
                 ClassItem = 3;
@@ -5719,7 +5712,6 @@ namespace SurfaceGeometry {
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         int ConstrNumSh;    // Construction number with Shade
-        int ConstrNum;      // Construction number
         int ShDevNum;       // Shading Device number
         int Lay;            // Layer number
         int TotGlassLayers; // Number of glass layers in window construction
@@ -5761,7 +5753,7 @@ namespace SurfaceGeometry {
 
             // Error checks for shades and blinds
 
-            ConstrNum = state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Construction;
+            int ConstrNum = state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Construction;
             if (!ErrorsFound && WSCPtr > 0 && ConstrNum > 0 && ConstrNumSh > 0) {
 
                 if (ANY_INTERIOR_SHADE_BLIND(state.dataSurface->WindowShadingControl(WSCPtr).ShadingType)) {
@@ -6060,11 +6052,9 @@ namespace SurfaceGeometry {
         using namespace DataErrorTracking;
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-        int NumShades; // count on number of shading layers
         int Lay;       // Layer number
         int LayerPtr;  // Layer pointer
         int ConstrNum; // Construction number
-        int Found;     // when item is found
 
         auto &s_mat = state.dataMaterial;
         // Warning if window has multiplier > 1 and SolarDistribution = FullExterior or FullInteriorExterior
@@ -6088,7 +6078,7 @@ namespace SurfaceGeometry {
         //  NOT have a shading device layer; use WindowShadingControl to specify a shading device.
         ConstrNum = state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Construction;
         if (ConstrNum > 0) {
-            NumShades = 0;
+            int NumShades = 0;
             for (Lay = 1; Lay <= state.dataConstruction->Construct(ConstrNum).TotLayers; ++Lay) {
                 LayerPtr = state.dataConstruction->Construct(ConstrNum).LayerPoint(Lay);
                 if (LayerPtr == 0) continue; // Error is caught already, will terminate later
@@ -6152,7 +6142,7 @@ namespace SurfaceGeometry {
                                       .ExtBoundCondName)) { // Base surface is an interzone surface
                         // Lookup interzone surface of the base surface
                         // (Interzone surfaces have not been assigned yet, but all base surfaces should already be loaded.)
-                        Found = Util::FindItemInList(
+                        int Found = Util::FindItemInList(
                             state.dataSurfaceGeometry->SurfaceTmp(state.dataSurfaceGeometry->SurfaceTmp(SurfNum).BaseSurf).ExtBoundCondName,
                             state.dataSurfaceGeometry->SurfaceTmp,
                             SurfNum);
@@ -7063,7 +7053,6 @@ namespace SurfaceGeometry {
         int IOStat;                // IO Status when calling get input subroutine
         int SurfaceNumAlpha;       // Number of material alpha names being passed
         int SurfaceNumArg;         // Number of material properties being passed
-        int ZoneNum;               // index to a zone
         int NumIntMassSurfaces(0); // total count of internal mass surfaces
         bool errFlag;              //  local error flag
 
@@ -7219,6 +7208,7 @@ namespace SurfaceGeometry {
                         state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ZoneName = state.dataSurface->IntMassObjects(Loop).ZoneOrZoneListName;
                         state.dataSurfaceGeometry->SurfaceTmp(SurfNum).HeatTransSurf = true;
                     } else {
+                        int ZoneNum; // index to a zone
                         if (state.dataSurface->IntMassObjects(Loop).ZoneListActive) {
                             CheckCreatedZoneItemName(
                                 state,
@@ -7535,8 +7525,6 @@ namespace SurfaceGeometry {
         constexpr Real64 AZITOL = 15.0; // Degree Azimuth Angle Tolerance
         constexpr Real64 TILTOL = 10.0; // Degree Tilt Angle Tolerance
         int SurfID;                     // local surface "pointer"
-        bool IsBlank;
-        bool ErrorInName;
 
         auto &s_ipsc = state.dataIPShortCut;
         s_ipsc->cCurrentModuleObject = "SurfaceProperty:ExteriorNaturalVentedCavity";
@@ -7567,8 +7555,8 @@ namespace SurfaceGeometry {
                                                                      s_ipsc->cAlphaFieldNames,
                                                                      s_ipsc->cNumericFieldNames);
             // first handle cAlphaArgs
-            ErrorInName = false;
-            IsBlank = false;
+            bool ErrorInName = false;
+            bool IsBlank = false;
 
             Util::VerifyName(state,
                              s_ipsc->cAlphaArgs(1),
@@ -8071,9 +8059,6 @@ namespace SurfaceGeometry {
         // INTERFACE BLOCK SPECIFICATIONS:na
         // DERIVED TYPE DEFINITIONS:na
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-        int NumAlpha;
-        int NumNumeric;
-        int IOStat;
 
         //-----------------------------------------------------------------------
         //                SurfaceProperty:LocalEnvironment
@@ -8084,6 +8069,9 @@ namespace SurfaceGeometry {
         state.dataSurface->TotSurfLocalEnv = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, s_ipsc->cCurrentModuleObject);
 
         if (state.dataSurface->TotSurfLocalEnv > 0) {
+            int NumAlpha;
+            int NumNumeric;
+            int IOStat;
 
             state.dataGlobal->AnyLocalEnvironmentsInModel = true;
 
