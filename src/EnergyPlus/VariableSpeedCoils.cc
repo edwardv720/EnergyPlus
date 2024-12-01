@@ -3904,7 +3904,6 @@ namespace VariableSpeedCoils {
         // na
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-        int AirInletNode;                  // Node Number of the air inlet
         int WaterInletNode;                // Node Number of the Water inlet
         Real64 rho;                        // local fluid density
         Real64 Cp;                         // local fluid specific heat
@@ -3917,7 +3916,8 @@ namespace VariableSpeedCoils {
         Real64 WaterFlowScale;             // water flow scaling factor match rated flow rate
 
         // SUBROUTINE PARAMETER DEFINITIONS:
-        static constexpr std::string_view RoutineName("InitVarSpeedCoil");
+        static constexpr std::string_view RoutineName = "InitVarSpeedCoil";
+        int AirInletNode = state.dataVariableSpeedCoils->VarSpeedCoil(DXCoilNum).AirInletNodeNum;
 
         if (state.dataVariableSpeedCoils->MyOneTimeFlag) {
             // initialize the environment and sizing flags
@@ -4333,8 +4333,6 @@ namespace VariableSpeedCoils {
             !state.dataVariableSpeedCoils->MyPlantScanFlag(DXCoilNum)) {
             // Do the initializations to start simulation
 
-            AirInletNode = state.dataVariableSpeedCoils->VarSpeedCoil(DXCoilNum).AirInletNodeNum;
-
             // Initialize all report variables to a known state at beginning of simulation
             state.dataVariableSpeedCoils->VarSpeedCoil(DXCoilNum).AirVolFlowRate = 0.0;
             state.dataVariableSpeedCoils->VarSpeedCoil(DXCoilNum).InletAirDBTemp = 0.0;
@@ -4417,7 +4415,6 @@ namespace VariableSpeedCoils {
 
         // Set water and air inlet nodes
 
-        AirInletNode = state.dataVariableSpeedCoils->VarSpeedCoil(DXCoilNum).AirInletNodeNum;
         WaterInletNode = state.dataVariableSpeedCoils->VarSpeedCoil(DXCoilNum).WaterInletNodeNum;
 
         if ((SensLoad != 0.0 || LatentLoad != 0.0) && (state.dataLoopNodes->Node(AirInletNode).MassFlowRate > 0.0)) {
@@ -5344,10 +5341,8 @@ namespace VariableSpeedCoils {
                 ShowContinueError(state, format("Occurs in COIL:{}{}  Object = {}", varSpeedCoil.CoolHeatType, CurrentObjSubfix, varSpeedCoil.Name));
                 ErrorsFound = true;
             }
-        }
 
-        // WRITE THE WATER SIZING OUTPUT
-        if (RatedWaterFlowAutoSized) {
+            // WRITE THE WATER SIZING OUTPUT
             // FORCE BACK TO THE RATED WATER FLOW RATE WITH THE SAME RATIO DEFINED BY THE CATLOG DATA
             if (RatedCapCoolTotalAutoSized) {
                 RatedWaterVolFlowRateDes = varSpeedCoil.RatedCapCoolTotal * varSpeedCoil.MSRatedWaterVolFlowPerRatedTotCap(NormSpeed);
@@ -6967,10 +6962,7 @@ namespace VariableSpeedCoils {
             OperatingHeatingCapacity = state.dataVariableSpeedCoils->VarSpeedCoil(DXCoilNum).MSRatedTotCap(SpeedCal) * TOTCAPTempModFac *
                                        TOTCAPAirFFModFac * TOTCAPWaterFFModFac;
 
-            state.dataVariableSpeedCoils->Winput = OperatingHeatingCapacity / COP;
-            OperatingHeatingPower = state.dataVariableSpeedCoils->Winput;
-
-            Winput2 = state.dataVariableSpeedCoils->Winput;
+            Winput2 = OperatingHeatingCapacity / COP;
             WHCAP2 = OperatingHeatingCapacity;
 
             // interpolation
