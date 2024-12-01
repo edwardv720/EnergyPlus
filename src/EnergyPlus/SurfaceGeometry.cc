@@ -11954,9 +11954,6 @@ namespace SurfaceGeometry {
         int IOStat;
         int Loop;
         int NMatInsul;
-        int SurfNum;
-        int MaterNum;
-        int SchNum;
 
         enum class InsulationType
         {
@@ -11985,10 +11982,10 @@ namespace SurfaceGeometry {
                                                                      s_ipsc->lAlphaFieldBlanks,
                                                                      s_ipsc->cAlphaFieldNames,
                                                                      s_ipsc->cNumericFieldNames);
-            SurfNum = Util::FindItemInList(s_ipsc->cAlphaArgs(2), state.dataSurface->Surface, state.dataSurface->TotSurfaces);
-            MaterNum = Material::GetMaterialNum(state, s_ipsc->cAlphaArgs(3));
+            int SurfNum = Util::FindItemInList(s_ipsc->cAlphaArgs(2), state.dataSurface->Surface, state.dataSurface->TotSurfaces);
+            int MaterNum = Material::GetMaterialNum(state, s_ipsc->cAlphaArgs(3));
             auto *thisMaterial = s_mat->materials(MaterNum);
-            SchNum = GetScheduleIndex(state, s_ipsc->cAlphaArgs(4));
+            int SchNum = GetScheduleIndex(state, s_ipsc->cAlphaArgs(4));
             InsulationType insulationType = static_cast<InsulationType>(getEnumValue(insulationTypeNamesUC, s_ipsc->cAlphaArgs(1)));
             if (insulationType == InsulationType::Invalid) {
                 ShowSevereError(
@@ -13029,18 +13026,14 @@ namespace SurfaceGeometry {
         Real64 ThisReveal;
         Real64 ThisWidth;
         Real64 ThisHeight;
-        int FrDivNum;        // Frame/divider number
         Real64 FrWidth;      // Frame width for exterior windows (m)
         Real64 FrArea;       // Frame area for exterior windows(m2)
         Real64 DivWidth;     // Divider width for exterior windows (m)
         Real64 DivArea;      // Divider area for exterior windows (m2)
         Real64 DivFrac;      // Fraction of divider area without overlaps
         bool ErrorInSurface; // false/true, depending on pass through routine
-        bool SError;         // Bool used for return value of calls to PlaneEquation
         bool HeatTransSurf;
-        bool IsCoPlanar;
         Real64 OutOfLine;
-        int LastVertexInError;
 
         // Object Data
         PlaneEq BasePlane;
@@ -13078,6 +13071,8 @@ namespace SurfaceGeometry {
 
         // IF (Surface(ThisSurf)%Name(1:3) /= 'Mir') THEN
         if (!surf.MirroredSurf) {
+            bool IsCoPlanar;
+            int LastVertexInError;
             CalcCoPlanarNess(surf.Vertex, surf.Sides, IsCoPlanar, OutOfLine, LastVertexInError);
             if (!IsCoPlanar) {
                 if (OutOfLine > 0.01) {
@@ -13176,6 +13171,7 @@ namespace SurfaceGeometry {
             }
 
             // Setting relative coordinates for shadowing calculations for subsurfaces
+            bool SError; // Bool used for return value of calls to PlaneEquation
             switch (ThisShape) {
             case SurfaceShape::RectangularDoorWindow: { // Rectangular heat transfer subsurface
                 PlaneEquation(state.dataSurface->Surface(surf.BaseSurf).Vertex, state.dataSurface->Surface(surf.BaseSurf).Sides, BasePlane, SError);
@@ -13228,7 +13224,7 @@ namespace SurfaceGeometry {
                 state.dataSurfaceGeometry->Zpsv(4) = ZLLC;
 
                 if (surf.Class == SurfaceClass::Window && surf.ExtBoundCond == ExternalEnvironment && surf.FrameDivider > 0) {
-                    FrDivNum = surf.FrameDivider;
+                    int FrDivNum = surf.FrameDivider;
                     // Set flag for calculating beam solar reflection from outside and/or inside window reveal
                     if ((surf.Reveal > 0.0 && state.dataSurface->FrameDivider(FrDivNum).OutsideRevealSolAbs > 0.0) ||
                         (state.dataSurface->FrameDivider(FrDivNum).InsideSillDepth > 0.0 &&
@@ -13557,7 +13553,6 @@ namespace SurfaceGeometry {
         using namespace Vectors;
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-        int I;        // Loop Control
         Real64 Gamma; // Intermediate Result
         Real64 DotSelfX23;
 
@@ -13575,7 +13570,7 @@ namespace SurfaceGeometry {
 
         if (DotSelfX23 <= Constant::OneMillionth) {
             ShowSevereError(state, format("CalcCoordinateTransformation: Invalid dot product, surface=\"{}\":", surf.Name));
-            for (I = 1; I <= surf.Sides; ++I) {
+            for (int I = 1; I <= surf.Sides; ++I) {
                 auto const &point = surf.Vertex(I);
                 ShowContinueError(state, format(" ({:8.3F},{:8.3F},{:8.3F})", point.x, point.y, point.z));
             }
@@ -13613,9 +13608,6 @@ namespace SurfaceGeometry {
         std::string ShDevName;    // Shading device material name
         std::string ConstrName;   // Unshaded construction name
         std::string ConstrNameSh; // Shaded construction name
-        int TotLayersOld;         // Total layers in old (unshaded) construction
-        int TotLayersNew;         // Total layers in new (shaded) construction
-        //  INTEGER :: loop                            ! DO loop index
 
         auto &s_mat = state.dataMaterial;
 
@@ -13653,8 +13645,8 @@ namespace SurfaceGeometry {
 
             state.dataConstruction->Construct(state.dataHeatBal->TotConstructs).setArraysBasedOnMaxSolidWinLayers(state);
 
-            TotLayersOld = state.dataConstruction->Construct(ConstrNum).TotLayers;
-            TotLayersNew = TotLayersOld + 1;
+            int TotLayersOld = state.dataConstruction->Construct(ConstrNum).TotLayers;
+            int TotLayersNew = TotLayersOld + 1;
 
             state.dataConstruction->Construct(ConstrNewSh).LayerPoint = 0;
 
@@ -13850,11 +13842,11 @@ namespace SurfaceGeometry {
     // create a new construction with storm based on an old construction and storm and gap materials
     int createConstructionWithStorm(EnergyPlusData &state, int oldConstruction, std::string name, int stormMaterial, int gapMaterial)
     {
-        auto &s_mat = state.dataMaterial;
         int newConstruct = Util::FindItemInList(name,
                                                 state.dataConstruction->Construct,
                                                 state.dataHeatBal->TotConstructs); // Number of shaded storm window construction that is created
         if (newConstruct == 0) {
+            auto &s_mat = state.dataMaterial;
             state.dataHeatBal->TotConstructs = state.dataHeatBal->TotConstructs + 1;
             newConstruct = state.dataHeatBal->TotConstructs;
             state.dataConstruction->Construct.redimension(state.dataHeatBal->TotConstructs);
