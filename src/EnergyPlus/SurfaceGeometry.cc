@@ -8276,9 +8276,6 @@ namespace SurfaceGeometry {
         // INTERFACE BLOCK SPECIFICATIONS:na
         // DERIVED TYPE DEFINITIONS:na
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-        int NumAlpha;
-        int NumNumeric;
-        int IOStat;
         int TotSrdSurfProperties;
 
         //-----------------------------------------------------------------------
@@ -8290,6 +8287,9 @@ namespace SurfaceGeometry {
         TotSrdSurfProperties = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, s_ipsc->cCurrentModuleObject);
 
         if (TotSrdSurfProperties > 0) {
+            int NumAlpha;
+            int NumNumeric;
+            int IOStat;
 
             if (!allocated(state.dataSurface->SurroundingSurfsProperty)) {
                 state.dataSurface->SurroundingSurfsProperty.allocate(TotSrdSurfProperties);
@@ -8474,10 +8474,6 @@ namespace SurfaceGeometry {
         int CountHTAlgoObjectsMultiSurf;
         int CountHTAlgoObjectsSurfList;
         int IOStatus; // Used in GetObjectItem
-        bool ErrorsFoundSingleSurf(false);
-        bool ErrorsFoundMultiSurf(false);
-        bool ErrorsFoundSurfList(false);
-        bool ErrorsFoundByConstruct(false);
         DataSurfaces::HeatTransferModel tmpAlgoInput;
         int Item;
         int Item1;
@@ -8595,7 +8591,7 @@ namespace SurfaceGeometry {
                                                                      s_ipsc->lAlphaFieldBlanks,
                                                                      s_ipsc->cAlphaFieldNames,
                                                                      s_ipsc->cNumericFieldNames);
-            ErrorsFoundSingleSurf = false;
+            bool ErrorsFoundSingleSurf = false;
             Found = Util::FindItemInList(s_ipsc->cAlphaArgs(1), state.dataSurface->Surface, state.dataSurface->TotSurfaces);
 
             if (Found == 0) {
@@ -8652,7 +8648,7 @@ namespace SurfaceGeometry {
                                                                      s_ipsc->lAlphaFieldBlanks,
                                                                      s_ipsc->cAlphaFieldNames,
                                                                      s_ipsc->cNumericFieldNames);
-            ErrorsFoundMultiSurf = false;
+            bool ErrorsFoundMultiSurf = false;
             {
                 std::string const &SELECT_CASE_var = s_ipsc->cAlphaArgs(3);
 
@@ -8825,7 +8821,7 @@ namespace SurfaceGeometry {
                                                                      s_ipsc->lAlphaFieldBlanks,
                                                                      s_ipsc->cAlphaFieldNames,
                                                                      s_ipsc->cNumericFieldNames);
-            ErrorsFoundSurfList = false;
+            bool ErrorsFoundSurfList = false;
             {
                 std::string const &SELECT_CASE_var = s_ipsc->cAlphaArgs(2);
 
@@ -8885,7 +8881,7 @@ namespace SurfaceGeometry {
                                                                      s_ipsc->lAlphaFieldBlanks,
                                                                      s_ipsc->cAlphaFieldNames,
                                                                      s_ipsc->cNumericFieldNames);
-            ErrorsFoundByConstruct = false;
+            bool ErrorsFoundByConstruct = false;
             {
                 std::string const &SELECT_CASE_var = s_ipsc->cAlphaArgs(2);
 
@@ -9266,7 +9262,6 @@ namespace SurfaceGeometry {
         Real64 Yb;        // Intermediate calculation
         int ZoneNum;
         int ThisCorner;
-        std::string TiltString;
         Real64 ThisWidth;
         Real64 ThisHeight;
         // unused    REAL(r64) :: ccwtest
@@ -9384,6 +9379,7 @@ namespace SurfaceGeometry {
             auto &surface = state.dataSurfaceGeometry->SurfaceTmp(SurfNum);
             auto &vertices = surface.Vertex;
             auto &nSides = surface.Sides;
+            std::string TiltString;
 
             while (true) {
                 PopCoincidentVertexReturn const popResult = checkPopCoincidentVertex(vertices);
@@ -9784,8 +9780,6 @@ namespace SurfaceGeometry {
         int IShadedConst;    // Construction number of shaded construction
         int IShadingDevice;  // Material number of shading device
         int NLayers;         // Layers in shaded construction
-        bool ErrorInName;
-        bool IsBlank;
         int Loop;
         bool BGShadeBlindError; // True if problem with construction that is supposed to have between-glass
         // shade or blind
@@ -9816,8 +9810,8 @@ namespace SurfaceGeometry {
                                                                      s_ipsc->cAlphaFieldNames,
                                                                      s_ipsc->cNumericFieldNames);
 
-            ErrorInName = false;
-            IsBlank = false;
+            bool ErrorInName = false;
+            bool IsBlank = false;
             Util::VerifyName(state,
                              s_ipsc->cAlphaArgs(1),
                              state.dataSurface->WindowShadingControl,
@@ -10411,8 +10405,6 @@ namespace SurfaceGeometry {
         int StormWinNumProp;  // Number of properties being passed
         int StormWinNum;      // Index for storm window number
         int loop;             // Do loop counter
-        int SurfNum;          // Surface number
-        int MatNum;           // Material number
 
         auto &s_ipsc = state.dataIPShortCut;
         auto &s_mat = state.dataMaterial;
@@ -10525,7 +10517,7 @@ namespace SurfaceGeometry {
 
         for (StormWinNum = 1; StormWinNum <= state.dataSurface->TotStormWin; ++StormWinNum) {
             // Require BaseWindowNum be that of an exterior window
-            SurfNum = state.dataSurface->StormWindow(StormWinNum).BaseWindowNum;
+            int SurfNum = state.dataSurface->StormWindow(StormWinNum).BaseWindowNum;
             if (SurfNum == 0) {
                 ShowSevereError(state, format("{}=\"{}\" invalid.", s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
                 ErrorsFound = true;
@@ -10540,7 +10532,7 @@ namespace SurfaceGeometry {
             }
 
             // Require that storm window material be glass
-            MatNum = state.dataSurface->StormWindow(StormWinNum).StormWinMaterialNum;
+            int MatNum = state.dataSurface->StormWindow(StormWinNum).StormWinMaterialNum;
             if (SurfNum > 0) {
                 if (MatNum == 0) {
                     ShowSevereError(state, format("{}=\"{}\"", s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
@@ -10613,9 +10605,7 @@ namespace SurfaceGeometry {
         int ControlNumAlpha;      // Number of control alpha names being passed
         int ControlNumProp;       // Number of control properties being passed
         int TotWinAirflowControl; // Total window airflow control statements
-        bool WrongSurfaceType;    // True if associated surface is not 2- or 3-pane exterior window
         int Loop;
-        int SurfNum;      // Surface number
         int ConstrNum(0); // Construction number
         int ConstrNumSh;  // Shaded Construction number
         int MatGapFlow;   // Material number of gas in airflow gap of window's construction
@@ -10650,14 +10640,14 @@ namespace SurfaceGeometry {
                                                                      s_ipsc->cAlphaFieldNames,
                                                                      s_ipsc->cNumericFieldNames);
 
-            SurfNum = Util::FindItemInList(s_ipsc->cAlphaArgs(1), state.dataSurface->Surface, state.dataSurface->TotSurfaces);
+            int SurfNum = Util::FindItemInList(s_ipsc->cAlphaArgs(1), state.dataSurface->Surface, state.dataSurface->TotSurfaces);
             if (SurfNum == 0) {
                 ShowSevereError(state, format("{}=\"{}\" not found.", s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
                 ErrorsFound = true;
             }
             // Check that associated surface is a 2- or 3-pane exterior window
-            WrongSurfaceType = false;
             if (SurfNum != 0) {
+                bool WrongSurfaceType = false;
                 auto const &surf = state.dataSurface->Surface(SurfNum);
                 if (surf.Class != SurfaceClass::Window) WrongSurfaceType = true;
                 if (surf.Class == SurfaceClass::Window) {
@@ -10914,7 +10904,6 @@ namespace SurfaceGeometry {
         static constexpr std::string_view routineName = "GetFoundationData";
 
         auto &s_ipsc = state.dataIPShortCut;
-        auto &s_mat = state.dataMaterial;
 
         // Read Kiva Settings
         s_ipsc->cCurrentModuleObject = "Foundation:Kiva:Settings";
@@ -11039,6 +11028,7 @@ namespace SurfaceGeometry {
         int TotKivaFnds = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, s_ipsc->cCurrentModuleObject);
 
         if (TotKivaFnds > 0) {
+            auto &s_mat = state.dataMaterial;
             for (int Loop = 1; Loop <= TotKivaFnds; ++Loop) {
                 state.dataInputProcessing->inputProcessor->getObjectItem(state,
                                                                          s_ipsc->cCurrentModuleObject,
@@ -11598,8 +11588,6 @@ namespace SurfaceGeometry {
         int Loop;
         int IOStat;
         int OSCNum;
-        bool ErrorInName;
-        bool IsBlank;
         std::string cOSCLimitsString;
 
         auto &s_ipsc = state.dataIPShortCut;
@@ -11622,8 +11610,8 @@ namespace SurfaceGeometry {
                                                                      s_ipsc->lAlphaFieldBlanks,
                                                                      s_ipsc->cAlphaFieldNames,
                                                                      s_ipsc->cNumericFieldNames);
-            ErrorInName = false;
-            IsBlank = false;
+            bool ErrorInName = false;
+            bool IsBlank = false;
             Util::VerifyName(
                 state, s_ipsc->cAlphaArgs(1), state.dataSurface->OSC, OSCNum, ErrorInName, IsBlank, s_ipsc->cCurrentModuleObject + " Name");
             if (ErrorInName) {
@@ -11810,8 +11798,6 @@ namespace SurfaceGeometry {
         int Loop;
         int IOStat;
         int OSCMNum;
-        bool ErrorInName;
-        bool IsBlank;
 
         auto &s_ipsc = state.dataIPShortCut;
         s_ipsc->cCurrentModuleObject = "SurfaceProperty:OtherSideConditionsModel";
@@ -11823,8 +11809,8 @@ namespace SurfaceGeometry {
         for (Loop = 1; Loop <= state.dataSurface->TotOSCM; ++Loop) {
             state.dataInputProcessing->inputProcessor->getObjectItem(
                 state, s_ipsc->cCurrentModuleObject, Loop, s_ipsc->cAlphaArgs, NumAlphas, s_ipsc->rNumericArgs, NumProps, IOStat);
-            ErrorInName = false;
-            IsBlank = false;
+            bool ErrorInName = false;
+            bool IsBlank = false;
             Util::VerifyName(
                 state, s_ipsc->cAlphaArgs(1), state.dataSurface->OSCM, OSCMNum, ErrorInName, IsBlank, s_ipsc->cCurrentModuleObject + " Name");
             if (ErrorInName) {
