@@ -456,7 +456,7 @@ namespace SurfaceGeometry {
                 print(state.files.debug, "{},{:.2R},{:.2R}\n", thisZone.Name, thisZone.ExtGrossWallArea, thisZone.ExtWindowArea);
             }
             for (int spaceNum : thisZone.spaceIndexes) {
-                auto &thisSpace = state.dataHeatBal->space(spaceNum);
+                auto const &thisSpace = state.dataHeatBal->space(spaceNum);
                 // Use AllSurfaceFirst which includes air boundaries
                 for (int SurfNum = thisSpace.AllSurfaceFirst; SurfNum <= thisSpace.AllSurfaceLast; ++SurfNum) {
                     auto &thisSurface = state.dataSurface->Surface(SurfNum);
@@ -551,7 +551,7 @@ namespace SurfaceGeometry {
                 thisZone.MaximumZ = state.dataSurface->Surface(thisZone.AllSurfaceFirst).Vertex(1).z;
             }
             for (int spaceNum : thisZone.spaceIndexes) {
-                auto &thisSpace = state.dataHeatBal->space(spaceNum);
+                auto const &thisSpace = state.dataHeatBal->space(spaceNum);
 
                 for (int SurfNum = thisSpace.AllSurfaceFirst; SurfNum <= thisSpace.AllSurfaceLast; ++SurfNum) {
                     auto &thisSurface = state.dataSurface->Surface(SurfNum);
@@ -597,7 +597,7 @@ namespace SurfaceGeometry {
 
         for (int ZoneNum = 1; ZoneNum <= state.dataGlobal->NumOfZones; ++ZoneNum) {
             for (int SurfNum = 1; SurfNum <= state.dataSurface->TotSurfaces; ++SurfNum) {
-                auto &thisSurface = state.dataSurface->Surface(SurfNum);
+                auto const &thisSurface = state.dataSurface->Surface(SurfNum);
                 if (!thisSurface.HeatTransSurf && thisSurface.ZoneName == state.dataHeatBal->Zone(ZoneNum).Name)
                     ++state.dataHeatBal->Zone(ZoneNum).NumShadingSurfaces;
 
@@ -616,7 +616,7 @@ namespace SurfaceGeometry {
         }     // zones
 
         for (int const SurfNum : state.dataSurface->AllSurfaceListReportOrder) {
-            auto &thisSurface = state.dataSurface->Surface(SurfNum);
+            auto const &thisSurface = state.dataSurface->Surface(SurfNum);
             bool isWithConvCoefValid = false;
             Real64 NominalUwithConvCoeffs = 0.0;
             if (thisSurface.Construction > 0 && thisSurface.Construction <= state.dataHeatBal->TotConstructs) {
@@ -2233,7 +2233,7 @@ namespace SurfaceGeometry {
                 auto &thisZone = state.dataHeatBal->Zone(thisSpace.zoneNum);
                 Real64 calcFloorArea = 0.0; // Calculated floor area used for this space
                 for (int SurfNum = thisSpace.HTSurfaceFirst; SurfNum <= thisSpace.HTSurfaceLast; ++SurfNum) {
-                    auto &thisSurf = state.dataSurface->Surface(SurfNum);
+                    auto const &thisSurf = state.dataSurface->Surface(SurfNum);
                     if (thisSurf.Class == SurfaceClass::Floor) {
                         thisZone.HasFloor = true;
                         thisSpace.hasFloor = true;
@@ -2462,10 +2462,10 @@ namespace SurfaceGeometry {
             int priorBaseSurfNum = 0;
 
             for (int spaceNum : thisZone.spaceIndexes) {
-                auto &thisSpace = state.dataHeatBal->space(spaceNum);
+                auto const &thisSpace = state.dataHeatBal->space(spaceNum);
                 if (thisSpace.HTSurfaceFirst == 0) continue; // Zone with no surfaces
                 for (int SurfNum = thisSpace.HTSurfaceFirst; SurfNum <= thisSpace.HTSurfaceLast; ++SurfNum) {
-                    auto &thisSurf = state.dataSurface->Surface(SurfNum);
+                    auto const &thisSurf = state.dataSurface->Surface(SurfNum);
                     if (thisSurf.Class == SurfaceClass::Floor || thisSurf.Class == SurfaceClass::Wall || thisSurf.Class == SurfaceClass::Roof)
                         ++OpaqueHTSurfs;
                     if (thisSurf.Class == SurfaceClass::IntMass) ++InternalMassSurfs;
@@ -2754,7 +2754,7 @@ namespace SurfaceGeometry {
             state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "ZoneProperty:UserViewFactors:BySurfaceName") == 0) {
             for (int zoneNum = 1; zoneNum <= state.dataGlobal->NumOfZones; ++zoneNum) {
                 for (int spaceNum : state.dataHeatBal->Zone(zoneNum).spaceIndexes) {
-                    auto &thisSpace = state.dataHeatBal->space(spaceNum);
+                    auto const &thisSpace = state.dataHeatBal->space(spaceNum);
                     for (int surfNum = thisSpace.HTSurfaceFirst; surfNum <= thisSpace.HTSurfaceLast; surfNum++) {
                         auto &surface(state.dataSurface->Surface(surfNum));
                         // Conditions where surface always needs to be unique
@@ -5037,7 +5037,7 @@ namespace SurfaceGeometry {
                 state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Class == SurfaceClass::TDD_Dome) {
 
                 if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Construction != 0) {
-                    auto &construction = state.dataConstruction->Construct(state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Construction);
+                    auto const &construction = state.dataConstruction->Construct(state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Construction);
                     if (!construction.TypeIsWindow && !construction.TypeIsAirBoundary) {
                         ErrorsFound = true;
                         ShowSevereError(state,
@@ -5464,7 +5464,7 @@ namespace SurfaceGeometry {
                     state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Class == SurfaceClass::GlassDoor) {
 
                     if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Construction != 0) {
-                        auto &construction = state.dataConstruction->Construct(state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Construction);
+                        auto const &construction = state.dataConstruction->Construct(state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Construction);
                         if (!construction.TypeIsWindow && !construction.TypeIsAirBoundary) {
                             ErrorsFound = true;
                             ShowSevereError(state,
@@ -8225,7 +8225,7 @@ namespace SurfaceGeometry {
         // Link surface properties to surface object
         for (int SurfLoop = 1; SurfLoop <= state.dataSurface->TotSurfaces; ++SurfLoop) {
             for (int Loop = 1; Loop <= state.dataSurface->TotSurfLocalEnv; ++Loop) {
-                auto &SurfLocalEnv = state.dataSurface->SurfLocalEnvironment(Loop);
+                auto const &SurfLocalEnv = state.dataSurface->SurfLocalEnvironment(Loop);
                 if (SurfLocalEnv.SurfPtr == SurfLoop) {
                     auto &surface = state.dataSurface->Surface(SurfLoop);
                     if (SurfLocalEnv.OutdoorAirNodePtr != 0) {
