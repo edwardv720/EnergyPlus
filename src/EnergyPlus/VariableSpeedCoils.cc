@@ -6766,15 +6766,6 @@ namespace VariableSpeedCoils {
             state.dataVariableSpeedCoils->VarSpeedCoil(DXCoilNum).SimFlag = true;
         }
 
-        MaxSpeed = state.dataVariableSpeedCoils->VarSpeedCoil(DXCoilNum).NumOfSpeeds;
-
-        // must be placed inside the loop, otherwise cause bug in release mode, need to be present at two places
-        if (SpeedNum > MaxSpeed) {
-            SpeedCal = MaxSpeed;
-        } else {
-            SpeedCal = SpeedNum;
-        }
-
         // part-load calculation
         state.dataHVACGlobal->OnOffFanPartLoadFraction = 1.0;
         state.dataVariableSpeedCoils->VarSpeedCoil(DXCoilNum).RunFrac = 1.0;
@@ -6796,6 +6787,8 @@ namespace VariableSpeedCoils {
                 state.dataVariableSpeedCoils->VarSpeedCoil(DXCoilNum).RunFrac = 0.0;
             }
         }
+
+        MaxSpeed = state.dataVariableSpeedCoils->VarSpeedCoil(DXCoilNum).NumOfSpeeds;
 
         // interpolate between speeds
         // must be placed inside the loop, otherwise cause bug in release mode
