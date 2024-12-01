@@ -619,24 +619,8 @@ namespace SurfaceGeometry {
             auto &thisSurface = state.dataSurface->Surface(SurfNum);
             bool isWithConvCoefValid = false;
             Real64 NominalUwithConvCoeffs = 0.0;
-            std::string cNominalUwithConvCoeffs;
-            std::string cNominalU;
             if (thisSurface.Construction > 0 && thisSurface.Construction <= state.dataHeatBal->TotConstructs) {
                 NominalUwithConvCoeffs = ComputeNominalUwithConvCoeffs(state, SurfNum, isWithConvCoefValid);
-                if (isWithConvCoefValid) {
-                    cNominalUwithConvCoeffs = format("{:.3R}", NominalUwithConvCoeffs);
-                } else {
-                    cNominalUwithConvCoeffs = "[invalid]";
-                }
-                if ((thisSurface.Class == SurfaceClass::Window) || (thisSurface.Class == SurfaceClass::TDD_Dome)) {
-                    // SurfaceClass::Window also covers glass doors and TDD:Diffusers
-                    cNominalU = "N/A";
-                } else {
-                    cNominalU = format("{:.3R}", state.dataHeatBal->NominalU(thisSurface.Construction));
-                }
-            } else {
-                cNominalUwithConvCoeffs = "**";
-                cNominalU = "**";
             }
 
             // populate the predefined report related to u-values with films
@@ -3088,7 +3072,6 @@ namespace SurfaceGeometry {
         int Found;
         std::string OutMsg;
         int ZoneNum; // For loop counter
-        bool RelWarning(false);
 
         auto &s_ipsc = state.dataIPShortCut;
 
@@ -3226,7 +3209,7 @@ namespace SurfaceGeometry {
                 ShowContinueError(state, format("{}=\"{}\".", s_ipsc->cAlphaFieldNames(5), GAlphas(5)));
             }
         } else {
-            RelWarning = false;
+            bool RelWarning = false;
             for (ZoneNum = 1; ZoneNum <= state.dataGlobal->NumOfZones; ++ZoneNum) {
                 if (state.dataHeatBal->Zone(ZoneNum).OriginX != 0.0) RelWarning = true;
                 if (state.dataHeatBal->Zone(ZoneNum).OriginY != 0.0) RelWarning = true;
@@ -7215,7 +7198,6 @@ namespace SurfaceGeometry {
         }
 
         if (NumIntMassSurfaces > 0) {
-            int spaceNum = 0;
             for (int Loop = 1; Loop <= TotIntMass; ++Loop) {
                 int numberOfZonesOrSpaces = 1;
                 if (state.dataSurface->IntMassObjects(Loop).ZoneListActive) {
@@ -7254,7 +7236,7 @@ namespace SurfaceGeometry {
 
                             ZoneNum = state.dataHeatBal->ZoneList(state.dataSurface->IntMassObjects(Loop).ZoneOrZoneListPtr).Zone(Item1);
                         } else if (state.dataSurface->IntMassObjects(Loop).spaceListActive) {
-                            spaceNum = state.dataHeatBal->spaceList(state.dataSurface->IntMassObjects(Loop).spaceOrSpaceListPtr).spaces(Item1);
+                            int spaceNum = state.dataHeatBal->spaceList(state.dataSurface->IntMassObjects(Loop).spaceOrSpaceListPtr).spaces(Item1);
                             ZoneNum = state.dataHeatBal->space(spaceNum).zoneNum;
                             const std::string spaceName = state.dataHeatBal->space(spaceNum).Name;
                             state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Name = spaceName + ' ' + state.dataSurface->IntMassObjects(Loop).Name;
@@ -9328,7 +9310,6 @@ namespace SurfaceGeometry {
         while (ThisCorner != UpperLeftCorner) {
             if (NSides < 4) {
                 if (ThisCorner == UpperRightCorner) {
-                    ThisCorner = UpperLeftCorner;
                     break;
                 }
             }
