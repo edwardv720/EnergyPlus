@@ -6931,7 +6931,6 @@ namespace VariableSpeedCoils {
                                        TOTCAPAirFFModFac * TOTCAPWaterFFModFac;
 
             state.dataVariableSpeedCoils->Winput = OperatingHeatingCapacity / COP;
-            OperatingHeatingPower = state.dataVariableSpeedCoils->Winput;
             Winput1 = state.dataVariableSpeedCoils->Winput;
             WHCAP1 = OperatingHeatingCapacity;
 
