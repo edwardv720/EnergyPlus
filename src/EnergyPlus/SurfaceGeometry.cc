@@ -1069,7 +1069,6 @@ namespace SurfaceGeometry {
         int TotOverhangsProjection;
         int TotFins;
         int TotFinsProjection;
-        bool RelWarning(false);
         int LayNumOutside;    // Outside material numbers for a shaded construction
         int AddedSubSurfaces; // Subsurfaces (windows) added when windows reference Window5 Data File
         // entries with two glazing systems
@@ -7123,7 +7122,7 @@ namespace SurfaceGeometry {
 
             if (!s_ipsc->lAlphaFieldBlanks(4)) {
                 state.dataSurface->IntMassObjects(Item).spaceOrSpaceListName = s_ipsc->cAlphaArgs(4);
-                int Item1 = Util::FindItemInList(s_ipsc->cAlphaArgs(4), state.dataHeatBal->space);
+                Item1 = Util::FindItemInList(s_ipsc->cAlphaArgs(4), state.dataHeatBal->space);
                 int SLItem = 0;
                 if (Item1 == 0 && int(state.dataHeatBal->spaceList.size()) > 0)
                     SLItem = Util::FindItemInList(s_ipsc->cAlphaArgs(4), state.dataHeatBal->spaceList);
@@ -7204,7 +7203,7 @@ namespace SurfaceGeometry {
                         state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ZoneName = state.dataSurface->IntMassObjects(Loop).ZoneOrZoneListName;
                         state.dataSurfaceGeometry->SurfaceTmp(SurfNum).HeatTransSurf = true;
                     } else {
-                        int ZoneNum; // index to a zone
+                        int ZoneNum = 0; // index to a zone
                         if (state.dataSurface->IntMassObjects(Loop).ZoneListActive) {
                             CheckCreatedZoneItemName(
                                 state,
@@ -7315,7 +7314,7 @@ namespace SurfaceGeometry {
             }
 
             if (!s_ipsc->lAlphaFieldBlanks(4)) {
-                int Item1 = Util::FindItemInList(s_ipsc->cAlphaArgs(4), state.dataHeatBal->space);
+                Item1 = Util::FindItemInList(s_ipsc->cAlphaArgs(4), state.dataHeatBal->space);
                 int SLItem = 0;
                 if (Item1 == 0 && int(state.dataHeatBal->spaceList.size()) > 0)
                     SLItem = Util::FindItemInList(s_ipsc->cAlphaArgs(4), state.dataHeatBal->spaceList);
@@ -9169,7 +9168,7 @@ namespace SurfaceGeometry {
         int poppedVertexPos = -1;
         int keptVertexPos = -1;
 
-        for (size_t index = 0; index < nSides; ++index) {
+        for (index = 0; index < nSides; ++index) {
             size_t const prevIndex = (index == 0) ? nSides - 1 : index - 1;
             Real64 &distanceThisToNext = distances[index];
             Real64 &distanceThisToPrev = distances[prevIndex];
@@ -13765,7 +13764,6 @@ namespace SurfaceGeometry {
                     }
                 }
                 if (ShAndSt) {
-                    auto &surf = state.dataSurface->Surface(SurfNum);
                     std::string ConstrNameStSh = "SHADEDCONSTRUCTIONWITHSTORMWIN:" + state.dataConstruction->Construct(iConstruction).Name + ":" +
                                                  ChrNum; // Name of shaded construction with storm window
                     int ConstrNewStSh = createConstructionWithStorm(
