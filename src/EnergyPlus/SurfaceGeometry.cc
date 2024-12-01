@@ -617,9 +617,9 @@ namespace SurfaceGeometry {
 
         for (int const SurfNum : state.dataSurface->AllSurfaceListReportOrder) {
             auto const &thisSurface = state.dataSurface->Surface(SurfNum);
-            bool isWithConvCoefValid = false;
             Real64 NominalUwithConvCoeffs = 0.0;
             if (thisSurface.Construction > 0 && thisSurface.Construction <= state.dataHeatBal->TotConstructs) {
+                bool isWithConvCoefValid = false;
                 NominalUwithConvCoeffs = ComputeNominalUwithConvCoeffs(state, SurfNum, isWithConvCoefValid);
             }
 
@@ -1070,7 +1070,6 @@ namespace SurfaceGeometry {
         int TotFins;
         int TotFinsProjection;
         bool RelWarning(false);
-        int ConstrNumSh;      // Shaded construction number for a window
         int LayNumOutside;    // Outside material numbers for a shaded construction
         int AddedSubSurfaces; // Subsurfaces (windows) added when windows reference Window5 Data File
         // entries with two glazing systems
@@ -1092,7 +1091,6 @@ namespace SurfaceGeometry {
         bool errFlag;
 
         int iTmp1;
-        int ErrCount;
         bool izConstDiff;    // differences in construction for IZ surfaces
         bool izConstDiffMsg; // display message about hb diffs only once.
 
@@ -1107,6 +1105,7 @@ namespace SurfaceGeometry {
         GetGeometryParameters(state, ErrorsFound);
 
         if (state.dataSurface->WorldCoordSystem) {
+            bool RelWarning = false;
             if (state.dataHeatBal->BuildingAzimuth != 0.0) RelWarning = true;
             for (int ZoneNum = 1; ZoneNum <= state.dataGlobal->NumOfZones; ++ZoneNum) {
                 if (state.dataHeatBal->Zone(ZoneNum).RelNorth != 0.0) RelWarning = true;
@@ -2228,7 +2227,7 @@ namespace SurfaceGeometry {
         Real64 constexpr floorAreaTolerance(0.05);
         Real64 constexpr floorAreaPercentTolerance(floorAreaTolerance * 100.0);
         if (!SurfError) {
-            ErrCount = 0;
+            int ErrCount = 0;
             for (auto &thisSpace : state.dataHeatBal->space) {
                 auto &thisZone = state.dataHeatBal->Zone(thisSpace.zoneNum);
                 Real64 calcFloorArea = 0.0; // Calculated floor area used for this space
@@ -2414,7 +2413,7 @@ namespace SurfaceGeometry {
                 auto &surf = state.dataSurface->Surface(SurfNum);
                 if (!surf.HasShadeControl) continue;
 
-                ConstrNumSh = surf.activeShadedConstruction;
+                int ConstrNumSh = surf.activeShadedConstruction;
                 if (ConstrNumSh <= 0) continue;
 
                 auto &winShadeCtrl = state.dataSurface->WindowShadingControl(surf.activeWindowShadingControl);
@@ -2927,7 +2926,6 @@ namespace SurfaceGeometry {
     )
     {
         bool sameSurfNormal(false); // True if surface has the same surface normal within tolerance
-        bool baseSurfHoriz(false);  // True if base surface is near horizontal
         Real64 constexpr warningTolerance(30.0);
         Real64 constexpr errorTolerance(90.0);
 
@@ -2944,6 +2942,7 @@ namespace SurfaceGeometry {
             subSurface.lcsz = baseSurface.lcsz;
             // }
         } else {
+            bool baseSurfHoriz = false; // True if base surface is near horizontal
             // // Not sure what this does, but keeping for now (MJW Dec 2015)
             // if (std::abs(subSurface.Azimuth - 360.0) < 0.01) {
             //     subSurface.Azimuth = 360.0 - subSurface.Azimuth;
@@ -3064,14 +3063,8 @@ namespace SurfaceGeometry {
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         int NumStmt;
         Array1D_string GAlphas(5);
-        int NAlphas;
         Array1D<Real64> GNum(1);
-        int NNum;
-        int IOStat;
-        bool OK;
-        int Found;
         std::string OutMsg;
-        int ZoneNum; // For loop counter
 
         auto &s_ipsc = state.dataIPShortCut;
 
@@ -3083,6 +3076,9 @@ namespace SurfaceGeometry {
             int const SELECT_CASE_var = NumStmt;
 
             if (SELECT_CASE_var == 1) {
+                int NNum;
+                int IOStat;
+                int NAlphas;
                 // This is the valid case
                 state.dataInputProcessing->inputProcessor->getObjectItem(state,
                                                                          s_ipsc->cCurrentModuleObject,
@@ -3103,8 +3099,8 @@ namespace SurfaceGeometry {
                 state.dataSurface->WorldCoordSystem = true;
                 state.dataSurface->CCW = true;
 
-                OK = false;
-                Found = Util::FindItem(GAlphas(1), FlCorners, 4);
+                bool OK = false;
+                int Found = Util::FindItem(GAlphas(1), FlCorners, 4);
                 if (Found == 0) {
                     ShowSevereError(state, format("{}: Invalid {}={}", s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaFieldNames(1), GAlphas(1)));
                     ErrorsFound = true;
@@ -3210,7 +3206,7 @@ namespace SurfaceGeometry {
             }
         } else {
             bool RelWarning = false;
-            for (ZoneNum = 1; ZoneNum <= state.dataGlobal->NumOfZones; ++ZoneNum) {
+            for (int ZoneNum = 1; ZoneNum <= state.dataGlobal->NumOfZones; ++ZoneNum) {
                 if (state.dataHeatBal->Zone(ZoneNum).OriginX != 0.0) RelWarning = true;
                 if (state.dataHeatBal->Zone(ZoneNum).OriginY != 0.0) RelWarning = true;
                 if (state.dataHeatBal->Zone(ZoneNum).OriginZ != 0.0) RelWarning = true;
