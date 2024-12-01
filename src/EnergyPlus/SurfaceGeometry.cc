@@ -10373,8 +10373,8 @@ namespace SurfaceGeometry {
     bool isWindowShadingControlSimilar(EnergyPlusData &state, int a, int b)
     {
         // Compares two window shading controls are the same except for the name, schedule name, construction, and material
-        auto &WindowShadingControlA = state.dataSurface->WindowShadingControl(a);
-        auto &WindowShadingControlB = state.dataSurface->WindowShadingControl(b);
+        auto const &WindowShadingControlA = state.dataSurface->WindowShadingControl(a);
+        auto const &WindowShadingControlB = state.dataSurface->WindowShadingControl(b);
         return (WindowShadingControlA.ZoneIndex == WindowShadingControlB.ZoneIndex &&
                 WindowShadingControlA.ShadingType == WindowShadingControlB.ShadingType &&
                 WindowShadingControlA.shadingControlType == WindowShadingControlB.shadingControlType &&
@@ -15089,7 +15089,7 @@ namespace SurfaceGeometry {
                             }
                         } else if (thisSideEnclosureNum != otherSideEnclosureNum) {
                             // If both sides are already assigned to an enclosure, then merge the two enclosures
-                            auto &thisEnclosure = Enclosures(thisSideEnclosureNum);
+                            auto const &thisEnclosure = Enclosures(thisSideEnclosureNum);
                             auto &otherEnclosure = Enclosures(otherSideEnclosureNum);
                             for (const auto &zName : thisEnclosure.spaceNames) {
                                 otherEnclosure.spaceNames.push_back(zName);
