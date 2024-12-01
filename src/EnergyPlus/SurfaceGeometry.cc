@@ -13802,8 +13802,7 @@ namespace SurfaceGeometry {
                 // can be added. (A storm window can be added if there is an interior shade or blind and up to three
                 // glass layers, or there is a between-glass shade or blind and two glass layers.)
                 bool ShAndSt = false; // True if unshaded and shaded window can have a storm window
-                std::string ConstrNameSh = state.dataConstruction->Construct(curConstruction).Name; // Name of original shaded window construction
-                int TotLayers = state.dataConstruction->Construct(curConstruction).TotLayers;       // Total layers in a construction
+                int TotLayers = state.dataConstruction->Construct(curConstruction).TotLayers;            // Total layers in a construction
                 int MatIntSh = state.dataConstruction->Construct(curConstruction).LayerPoint(TotLayers); // Material number of interior shade or blind
                 int MatBetweenGlassSh = 0; // Material number of between-glass shade or blind
                 if (TotLayers == 5) MatBetweenGlassSh = state.dataConstruction->Construct(curConstruction).LayerPoint(3);
@@ -15797,7 +15796,7 @@ namespace SurfaceGeometry {
         }
     }
 
-    void GetGeoSummaryRoof(EnergyPlusData &state, GeoSummary &geoSummaryRoof)
+    void GetGeoSummaryRoof(EnergyPlusData const &state, GeoSummary &geoSummaryRoof)
     {
         std::vector<Vector> uniqueRoofVertices;
         std::vector<SurfaceGeometry::EdgeOfSurf> uniqEdgeOfSurfs; // I'm only partially using this
