@@ -14597,12 +14597,8 @@ namespace SurfaceGeometry {
 
         Array1D_string cAlphas(1);
         Array1D<Real64> rNumerics(2);
-        int NAlphas;
-        int NNum;
-        int IOStat;
         auto &OldAspectRatio = state.dataSurfaceGeometry->OldAspectRatio;
         auto &NewAspectRatio = state.dataSurfaceGeometry->NewAspectRatio;
-        auto &transformPlane = state.dataSurfaceGeometry->transformPlane;
         int n;
         Real64 Xo;
         Real64 XnoRot;
@@ -14613,10 +14609,13 @@ namespace SurfaceGeometry {
         // begin execution
         // get user input...
 
-        auto &s_ipsc = state.dataIPShortCut;
-
         if (state.dataSurfaceGeometry->firstTime) {
             if (state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, CurrentModuleObject) == 1) {
+                int NAlphas;
+                int NNum;
+                int IOStat;
+                auto &s_ipsc = state.dataIPShortCut;
+                auto &transformPlane = state.dataSurfaceGeometry->transformPlane;
                 state.dataInputProcessing->inputProcessor->getObjectItem(state,
                                                                          CurrentModuleObject,
                                                                          1,
@@ -14860,10 +14859,7 @@ namespace SurfaceGeometry {
         int NumPVTs;
         int NumPVs;
         int SurfNum;
-        int Found;
         int CollectorNum;
-        int PVTnum;
-        int PVnum;
         int NumAlphas;  // Number of alpha names being passed
         int NumNumbers; // Number of numeric parameters being passed
         int IOStatus;
@@ -14900,7 +14896,7 @@ namespace SurfaceGeometry {
 
         if (NumPVTs > 0) {
             s_ipsc->cCurrentModuleObject = "SolarCollector:FlatPlate:PhotovoltaicThermal";
-            for (PVTnum = 1; PVTnum <= NumPVTs; ++PVTnum) {
+            for (int PVTnum = 1; PVTnum <= NumPVTs; ++PVTnum) {
 
                 state.dataInputProcessing->inputProcessor->getObjectItem(
                     state, s_ipsc->cCurrentModuleObject, PVTnum, s_ipsc->cAlphaArgs, NumAlphas, s_ipsc->rNumericArgs, NumNumbers, IOStatus);
@@ -14911,7 +14907,7 @@ namespace SurfaceGeometry {
 
         if (NumPVs > 0) {
             s_ipsc->cCurrentModuleObject = "Generator:Photovoltaic";
-            for (PVnum = 1; PVnum <= NumPVs; ++PVnum) {
+            for (int PVnum = 1; PVnum <= NumPVs; ++PVnum) {
                 state.dataInputProcessing->inputProcessor->getObjectItem(
                     state, s_ipsc->cCurrentModuleObject, PVnum, s_ipsc->cAlphaArgs, NumAlphas, s_ipsc->rNumericArgs, NumNumbers, IOStatus);
                 TmpCandidateSurfaceNames(NumOfFlatPlateUnits + NumPVTs + PVnum) = s_ipsc->cAlphaArgs(2);
@@ -14932,7 +14928,7 @@ namespace SurfaceGeometry {
         // loop through all the surfaces
         for (SurfNum = 1; SurfNum <= state.dataSurface->TotSurfaces; ++SurfNum) {
             auto &surf = state.dataSurface->Surface(SurfNum);
-            Found = Util::FindItemInList(surf.Name, TmpCandidateSurfaceNames, NumCandidateNames);
+            int Found = Util::FindItemInList(surf.Name, TmpCandidateSurfaceNames, NumCandidateNames);
             if (Found > 0) {
                 if (!surf.HeatTransSurf) { // not BIPV, must be a shading surf with solar device
                     // Setup missing values to allow shading surfaces to model incident solar and wind
