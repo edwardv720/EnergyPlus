@@ -238,10 +238,10 @@ namespace Util {
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
 
-        int Probe(0);
-        int LBnd(0);
-        int UBnd(NumItems + 1);
-        bool Found(false);
+        int Probe = 0;
+        int LBnd = 0;
+        int UBnd = NumItems + 1;
+        bool Found = false;
         while ((!Found) || (Probe != 0)) {
             Probe = (UBnd - LBnd) / 2;
             if (Probe == 0) break;
@@ -328,12 +328,9 @@ namespace Util {
         // list of names for this item (i.e., that there isn't one of that
         // name already and that this name is not blank).
 
-        // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-        int Found;
-
         ErrorFound = false;
         if (NumOfNames > 0) {
-            Found = FindItem(NameToVerify, NamesList, NumOfNames);
+            int Found = FindItem(NameToVerify, NamesList, NumOfNames);
             if (Found != 0) {
                 ShowSevereError(state, format("{}, duplicate name={}", StringToDisplay, NameToVerify));
                 ErrorFound = true;
@@ -497,8 +494,6 @@ int AbortEnergyPlus(EnergyPlusData &state)
     std::string NumSevereDuringWarmup;
     std::string NumWarningsDuringSizing;
     std::string NumSevereDuringSizing;
-    bool ErrFound;
-    bool TerminalError;
 
     if (state.dataSQLiteProcedures->sqlite) {
         state.dataSQLiteProcedures->sqlite->updateSQLiteSimulationRecord(true, false);
@@ -511,8 +506,8 @@ int AbortEnergyPlus(EnergyPlusData &state)
         ShowMessage(state, "Fatal error -- final processing.  More error messages may appear.");
         SetupNodeVarsForReporting(state);
 
-        ErrFound = false;
-        TerminalError = false;
+        bool ErrFound = false;
+        bool TerminalError = false;
         TestBranchIntegrity(state, ErrFound);
         if (ErrFound) TerminalError = true;
         TestAirPathIntegrity(state, ErrFound);
@@ -1675,17 +1670,11 @@ void ShowRecurringErrors(EnergyPlusData &state)
 
     static constexpr std::string_view StatMessageStart(" **   ~~~   ** ");
 
-    int Loop;
-    std::string StatMessage;
-    std::string MaxOut;
-    std::string MinOut;
-    std::string SumOut;
-
     if (state.dataErrTracking->NumRecurringErrors > 0) {
         ShowMessage(state, "");
         ShowMessage(state, "===== Recurring Error Summary =====");
         ShowMessage(state, "The following recurring error messages occurred.");
-        for (Loop = 1; Loop <= state.dataErrTracking->NumRecurringErrors; ++Loop) {
+        for (int Loop = 1; Loop <= state.dataErrTracking->NumRecurringErrors; ++Loop) {
             auto const &error = state.dataErrTracking->RecurringErrors(Loop);
             // Suppress reporting the count if it is a continue error
             if (has_prefix(error.Message, " **   ~~~   ** ")) {
@@ -1721,19 +1710,19 @@ void ShowRecurringErrors(EnergyPlusData &state)
                     state.dataGlobal->errorCallback(Error::Continue, "");
                 }
             }
-            StatMessage = "";
+            std::string StatMessage = "";
             if (error.ReportMax) {
-                MaxOut = format("{:.6f}", error.MaxValue);
+                std::string MaxOut = format("{:.6f}", error.MaxValue);
                 StatMessage += "  Max=" + MaxOut;
                 if (!error.MaxUnits.empty()) StatMessage += ' ' + error.MaxUnits;
             }
             if (error.ReportMin) {
-                MinOut = format("{:.6f}", error.MinValue);
+                std::string MinOut = format("{:.6f}", error.MinValue);
                 StatMessage += "  Min=" + MinOut;
                 if (!error.MinUnits.empty()) StatMessage += ' ' + error.MinUnits;
             }
             if (error.ReportSum) {
-                SumOut = format("{:.6f}", error.SumValue);
+                std::string SumOut = format("{:.6f}", error.SumValue);
                 StatMessage += "  Sum=" + SumOut;
                 if (!error.SumUnits.empty()) StatMessage += ' ' + error.SumUnits;
             }
