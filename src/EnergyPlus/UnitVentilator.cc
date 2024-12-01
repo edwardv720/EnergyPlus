@@ -1897,8 +1897,6 @@ namespace UnitVentilator {
                                 MaxVolHotWaterFlowDes = 0.0;
                             }
                         }
-                    }
-                    if (IsAutoSize) {
                         unitVent.MaxVolHotWaterFlow = MaxVolHotWaterFlowDes;
                         BaseSizer::reportSizerOutput(state,
                                                      state.dataUnitVentilators->cMO_UnitVentilator,
@@ -2034,8 +2032,6 @@ namespace UnitVentilator {
                             ShowContinueError(state, format("Occurs in {} = \"{}\"", state.dataUnitVentilators->cMO_UnitVentilator, unitVent.Name));
                             ErrorsFound = true;
                         }
-                    }
-                    if (IsAutoSize) {
                         unitVent.MaxVolHotSteamFlow = MaxVolHotSteamFlowDes;
                         BaseSizer::reportSizerOutput(state,
                                                      state.dataUnitVentilators->cMO_UnitVentilator,
@@ -2199,8 +2195,6 @@ namespace UnitVentilator {
                                 MaxVolColdWaterFlowDes = 0.0;
                             }
                         }
-                    }
-                    if (IsAutoSize) {
                         unitVent.MaxVolColdWaterFlow = MaxVolColdWaterFlowDes;
                         BaseSizer::reportSizerOutput(state,
                                                      state.dataUnitVentilators->cMO_UnitVentilator,
@@ -2390,9 +2384,9 @@ namespace UnitVentilator {
         HVAC::FanOp fanOp = unitVent.fanOp;
         Real64 PartLoadFrac = 0.0;
 
-        auto &inletNode(state.dataLoopNodes->Node(unitVent.AirInNode));
-        auto &outletNode(state.dataLoopNodes->Node(unitVent.AirOutNode));
-        auto &outsideAirNode(state.dataLoopNodes->Node(unitVent.OutsideAirNode));
+        auto const &inletNode = state.dataLoopNodes->Node(unitVent.AirInNode);
+        auto const &outletNode = state.dataLoopNodes->Node(unitVent.AirOutNode);
+        auto const &outsideAirNode = state.dataLoopNodes->Node(unitVent.OutsideAirNode);
 
         if ((std::abs(state.dataUnitVentilators->QZnReq) < HVAC::SmallLoad) || (state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum)) ||
             (ScheduleManager::GetCurrentScheduleValue(state, unitVent.SchedPtr) <= 0) ||
@@ -3201,7 +3195,7 @@ namespace UnitVentilator {
 
         auto &unitVent = state.dataUnitVentilators->UnitVent(UnitVentNum);
         auto &airRelNode = state.dataLoopNodes->Node(unitVent.AirReliefNode);
-        auto &inletNode = state.dataLoopNodes->Node(unitVent.AirInNode);
+        auto const &inletNode = state.dataLoopNodes->Node(unitVent.AirInNode);
         auto &OAMixOutNode = state.dataLoopNodes->Node(unitVent.OAMixerOutNode);
         auto &outsideAirNode = state.dataLoopNodes->Node(unitVent.OutsideAirNode);
         Real64 OutAirMassFlowRate = state.dataUnitVentilators->OAMassFlowRate;
@@ -3390,7 +3384,7 @@ namespace UnitVentilator {
     )
     {
 
-        Real64 ActualOAMassFlowRate(0.0); // Result or return value
+        Real64 ActualOAMassFlowRate = 0.0; // Result or return value
 
         if (Tinlet <= Toutdoor) {
 
