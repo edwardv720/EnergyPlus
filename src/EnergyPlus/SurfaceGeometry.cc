@@ -261,8 +261,7 @@ namespace SurfaceGeometry {
         //       RE-ENGINEERED  November 1997 (RKS,LKL)
 
         // PURPOSE OF THIS SUBROUTINE:
-        // This subroutine controls the processing of detached shadowing and
-        // zone surfaces for computing their vertices.
+        // This subroutine controls the processing of detached shadowing and zone surfaces for computing their vertices.
 
         static constexpr std::string_view RoutineName("SetUpZoneGeometry: ");
 
@@ -1021,7 +1020,6 @@ namespace SurfaceGeometry {
         bool subSurfaceError(false);
         bool errFlag;
 
-        int iTmp1;
         bool izConstDiff;    // differences in construction for IZ surfaces
         bool izConstDiffMsg; // display message about hb diffs only once.
 
@@ -2531,7 +2529,7 @@ namespace SurfaceGeometry {
         } // for (SurfNum)
 
         // Check for IRT surfaces in invalid places.
-        iTmp1 = 0;
+        int iTmp1 = 0;
         if (std::any_of(state.dataConstruction->Construct.begin(),
                         state.dataConstruction->Construct.end(),
                         [](Construction::ConstructionProps const &e) { return e.TypeIsIRT; })) {
@@ -15118,11 +15116,11 @@ namespace SurfaceGeometry {
         // METHODOLOGY EMPLOYED:
         // Transform the surface into an equivalent rectangular surface with the same area and aspect ratio.
 
-        Real64 AspectRatio;  // Aspect ratio
-        Real64 WidthEff;     // Effective width of the surface
-        Real64 WidthMax;     // X difference between the vertex on the most left and the one on the most right
-        Real64 HeightEff;    // Effective height of the surface
-        Real64 HeightMax;    // Y difference between the lowest and highest vertices
+        Real64 AspectRatio; // Aspect ratio
+        Real64 WidthEff;    // Effective width of the surface
+        Real64 WidthMax;    // X difference between the vertex on the most left and the one on the most right
+        Real64 HeightEff;   // Effective height of the surface
+        Real64 HeightMax;   // Y difference between the lowest and highest vertices
         Real64 Xp;
         Real64 Yp;
         Real64 Zp;
