@@ -103,15 +103,12 @@ namespace SurfaceGeometry {
     //       AUTHOR         Linda Lawrie
     //       DATE WRITTEN   June 2000
     //       MODIFIED       DJS (PSU Dec 2006) to add ecoroof
-    //       RE-ENGINEERED  na
 
     // PURPOSE OF THIS MODULE:
     // This module performs the functions required of the surface geometry.
 
     using namespace DataEnvironment;
     using namespace DataHeatBalance;
-    using namespace DataSurfaces;
-    using DataWindowEquivalentLayer::CFSMAXNL;
 
     static std::string const BlankString;
 
@@ -121,8 +118,8 @@ namespace SurfaceGeometry {
 
     void AllocateSurfaceWindows(EnergyPlusData &state, int NumSurfaces)
     {
-        state.dataSurface->SurfWinA.dimension(state.dataSurface->TotSurfaces, CFSMAXNL + 1, 0.0);
-        state.dataSurface->SurfWinADiffFront.dimension(state.dataSurface->TotSurfaces, CFSMAXNL + 1, 0.0);
+        state.dataSurface->SurfWinA.dimension(state.dataSurface->TotSurfaces, DataWindowEquivalentLayer::CFSMAXNL + 1, 0.0);
+        state.dataSurface->SurfWinADiffFront.dimension(state.dataSurface->TotSurfaces, DataWindowEquivalentLayer::CFSMAXNL + 1, 0.0);
         state.dataSurface->SurfWinACFOverlap.dimension(state.dataSurface->TotSurfaces, state.dataHeatBal->MaxSolidWinLayers, 0.0);
 
         state.dataSurface->SurfWinFrameQRadOutAbs.dimension(NumSurfaces, 0);
@@ -173,13 +170,13 @@ namespace SurfaceGeometry {
         state.dataSurface->SurfWinProfileAngHor.dimension(NumSurfaces, 0);
         state.dataSurface->SurfWinProfileAngVert.dimension(NumSurfaces, 0);
 
-        state.dataSurface->SurfWinShadingFlag.dimension(NumSurfaces, WinShadingType::ShadeOff);
+        state.dataSurface->SurfWinShadingFlag.dimension(NumSurfaces, DataSurfaces::WinShadingType::ShadeOff);
         state.dataSurface->SurfWinShadingFlagEMSOn.dimension(NumSurfaces, 0);
         state.dataSurface->SurfWinShadingFlagEMSValue.dimension(NumSurfaces, 0.0);
         state.dataSurface->SurfWinStormWinFlag.dimension(NumSurfaces, 0);
         state.dataSurface->SurfWinStormWinFlagPrevDay.dimension(NumSurfaces, 0);
         state.dataSurface->SurfWinFracTimeShadingDeviceOn.dimension(NumSurfaces, 0);
-        state.dataSurface->SurfWinExtIntShadePrevTS.dimension(NumSurfaces, WinShadingType::ShadeOff);
+        state.dataSurface->SurfWinExtIntShadePrevTS.dimension(NumSurfaces, DataSurfaces::WinShadingType::ShadeOff);
         state.dataSurface->SurfWinHasShadeOrBlindLayer.dimension(NumSurfaces, 0);
         state.dataSurface->SurfWinSurfDayLightInit.dimension(NumSurfaces, 0);
         state.dataSurface->SurfWinDaylFacPoint.dimension(NumSurfaces, 0);
@@ -246,7 +243,7 @@ namespace SurfaceGeometry {
         state.dataSurface->SurfWinDividerHeatLoss.dimension(NumSurfaces, 0);
         state.dataSurface->SurfWinTCLayerTemp.dimension(NumSurfaces, 0);
         state.dataSurface->SurfWinSpecTemp.dimension(NumSurfaces, 0);
-        state.dataSurface->SurfWinWindowModelType.dimension(NumSurfaces, WindowModel::Detailed);
+        state.dataSurface->SurfWinWindowModelType.dimension(NumSurfaces, DataSurfaces::WindowModel::Detailed);
         state.dataSurface->SurfWinTDDPipeNum.dimension(NumSurfaces, 0);
         state.dataSurface->SurfWinStormWinConstr.dimension(NumSurfaces, 0);
         state.dataSurface->SurfActiveConstruction.dimension(NumSurfaces, 0);
@@ -386,7 +383,8 @@ namespace SurfaceGeometry {
                 thisZone.TotalSurfArea += state.dataSurface->SurfWinFrameArea(SurfNum);
                 thisZone.HasWindow = true;
                 thisSpace.totalSurfArea += state.dataSurface->SurfWinFrameArea(SurfNum);
-                if (((thisSurface.ExtBoundCond == ExternalEnvironment) || (thisSurface.ExtBoundCond == OtherSideCondModeledExt)) &&
+                if (((thisSurface.ExtBoundCond == DataSurfaces::ExternalEnvironment) ||
+                     (thisSurface.ExtBoundCond == DataSurfaces::OtherSideCondModeledExt)) &&
                     (thisSurface.Class != SurfaceClass::TDD_Dome)) {
                     thisZone.ExtWindowArea += thisSurface.GrossArea;
                     thisSpace.extWindowArea += thisSurface.GrossArea;
@@ -401,7 +399,8 @@ namespace SurfaceGeometry {
                     }
                 }
             } else {
-                if (thisSurface.ExtBoundCond == ExternalEnvironment || thisSurface.ExtBoundCond == OtherSideCondModeledExt) {
+                if (thisSurface.ExtBoundCond == DataSurfaces::ExternalEnvironment ||
+                    thisSurface.ExtBoundCond == DataSurfaces::OtherSideCondModeledExt) {
                     thisZone.ExteriorTotalSurfArea += thisSurface.GrossArea;
                     thisSpace.ExteriorTotalSurfArea += thisSurface.GrossArea;
                     if (thisSurface.Class == SurfaceClass::Wall) {
@@ -419,8 +418,8 @@ namespace SurfaceGeometry {
                                   thisSurface.Tilt);
                         }
                     }
-                } else if (thisSurface.ExtBoundCond == Ground || thisSurface.ExtBoundCond == GroundFCfactorMethod ||
-                           thisSurface.ExtBoundCond == KivaFoundation) {
+                } else if (thisSurface.ExtBoundCond == DataSurfaces::Ground || thisSurface.ExtBoundCond == DataSurfaces::GroundFCfactorMethod ||
+                           thisSurface.ExtBoundCond == DataSurfaces::KivaFoundation) {
                     thisZone.ExteriorTotalGroundSurfArea += thisSurface.GrossArea;
                     if (thisSurface.Class == SurfaceClass::Wall) {
                         thisZone.ExtGrossGroundWallArea += thisSurface.GrossArea;
@@ -626,8 +625,8 @@ namespace SurfaceGeometry {
             // populate the predefined report related to u-values with films
             // only exterior surfaces including underground
             DataSurfaces::SurfaceClass const SurfaceClass(thisSurface.Class);
-            if ((thisSurface.ExtBoundCond == ExternalEnvironment) || (thisSurface.ExtBoundCond == Ground) ||
-                (thisSurface.ExtBoundCond == KivaFoundation) || (thisSurface.ExtBoundCond == GroundFCfactorMethod)) {
+            if ((thisSurface.ExtBoundCond == DataSurfaces::ExternalEnvironment) || (thisSurface.ExtBoundCond == DataSurfaces::Ground) ||
+                (thisSurface.ExtBoundCond == DataSurfaces::KivaFoundation) || (thisSurface.ExtBoundCond == DataSurfaces::GroundFCfactorMethod)) {
                 if ((SurfaceClass == SurfaceClass::Wall) || (SurfaceClass == SurfaceClass::Floor) || (SurfaceClass == SurfaceClass::Roof)) {
                     OutputReportPredefined::PreDefTableEntry(
                         state, state.dataOutRptPredefined->pdchOpUfactFilm, thisSurface.Name, NominalUwithConvCoeffs, 3);
@@ -922,8 +921,8 @@ namespace SurfaceGeometry {
         for (int SurfNum = 1; SurfNum <= state.dataSurface->TotSurfaces; ++SurfNum) {
             state.dataSurface->SurfLowTempErrCount(SurfNum) = 0;
             state.dataSurface->SurfHighTempErrCount(SurfNum) = 0;
-            state.dataSurface->surfIntConv(SurfNum) = SurfIntConv();
-            state.dataSurface->surfExtConv(SurfNum) = SurfExtConv();
+            state.dataSurface->surfIntConv(SurfNum) = DataSurfaces::SurfIntConv();
+            state.dataSurface->surfExtConv(SurfNum) = DataSurfaces::SurfExtConv();
             state.dataSurface->SurfTAirRef(SurfNum) = DataSurfaces::RefAirTemp::Invalid;
             state.dataSurface->SurfTAirRefRpt(SurfNum) = static_cast<int>(DataSurfaces::RefAirTemp::Invalid);
         }
@@ -2141,7 +2140,8 @@ namespace SurfaceGeometry {
                                    RoutineName,
                                    state.dataSurface->Surface(SurfNum).Name,
                                    state.dataSurface->Surface(state.dataSurface->Surface(SurfNum).BaseSurf).Name,
-                                   cExtBoundCondition(state.dataSurface->Surface(state.dataSurface->Surface(SurfNum).BaseSurf).ExtBoundCond)));
+                                   DataSurfaces::cExtBoundCondition(
+                                       state.dataSurface->Surface(state.dataSurface->Surface(SurfNum).BaseSurf).ExtBoundCond)));
                         SurfError = true;
                     } else if (state.dataSurface->Surface(SurfNum).ExtBoundCond > 0) {
                         ShowSevereError(
@@ -2150,27 +2150,29 @@ namespace SurfaceGeometry {
                                    RoutineName,
                                    state.dataSurface->Surface(SurfNum).Name,
                                    state.dataSurface->Surface(state.dataSurface->Surface(SurfNum).BaseSurf).Name,
-                                   cExtBoundCondition(state.dataSurface->Surface(state.dataSurface->Surface(SurfNum).BaseSurf).ExtBoundCond)));
+                                   DataSurfaces::cExtBoundCondition(
+                                       state.dataSurface->Surface(state.dataSurface->Surface(SurfNum).BaseSurf).ExtBoundCond)));
                         SurfError = true;
-                    } else if (state.dataSurface->Surface(state.dataSurface->Surface(SurfNum).BaseSurf).ExtBoundCond == OtherSideCondModeledExt) {
-                        ShowWarningError(
-                            state,
-                            format("{}Subsurface=\"{}\" exterior condition [{}] in a base surface=\"{}\" with exterior condition [{}]",
-                                   RoutineName,
-                                   state.dataSurface->Surface(SurfNum).Name,
-                                   cExtBoundCondition(state.dataSurface->Surface(SurfNum).ExtBoundCond),
-                                   state.dataSurface->Surface(state.dataSurface->Surface(SurfNum).BaseSurf).Name,
-                                   cExtBoundCondition(state.dataSurface->Surface(state.dataSurface->Surface(SurfNum).BaseSurf).ExtBoundCond)));
+                    } else if (state.dataSurface->Surface(state.dataSurface->Surface(SurfNum).BaseSurf).ExtBoundCond ==
+                               DataSurfaces::OtherSideCondModeledExt) {
+                        ShowWarningError(state,
+                                         format("{}Subsurface=\"{}\" exterior condition [{}] in a base surface=\"{}\" with exterior condition [{}]",
+                                                RoutineName,
+                                                state.dataSurface->Surface(SurfNum).Name,
+                                                DataSurfaces::cExtBoundCondition(state.dataSurface->Surface(SurfNum).ExtBoundCond),
+                                                state.dataSurface->Surface(state.dataSurface->Surface(SurfNum).BaseSurf).Name,
+                                                DataSurfaces::cExtBoundCondition(
+                                                    state.dataSurface->Surface(state.dataSurface->Surface(SurfNum).BaseSurf).ExtBoundCond)));
                         ShowContinueError(state, "...SubSurface will not use the exterior condition model of the base surface.");
                     } else {
-                        ShowSevereError(
-                            state,
-                            format("{}Subsurface=\"{}\" exterior condition [{}] in a base surface=\"{}\" with exterior condition [{}]",
-                                   RoutineName,
-                                   state.dataSurface->Surface(SurfNum).Name,
-                                   cExtBoundCondition(state.dataSurface->Surface(SurfNum).ExtBoundCond),
-                                   state.dataSurface->Surface(state.dataSurface->Surface(SurfNum).BaseSurf).Name,
-                                   cExtBoundCondition(state.dataSurface->Surface(state.dataSurface->Surface(SurfNum).BaseSurf).ExtBoundCond)));
+                        ShowSevereError(state,
+                                        format("{}Subsurface=\"{}\" exterior condition [{}] in a base surface=\"{}\" with exterior condition [{}]",
+                                               RoutineName,
+                                               state.dataSurface->Surface(SurfNum).Name,
+                                               DataSurfaces::cExtBoundCondition(state.dataSurface->Surface(SurfNum).ExtBoundCond),
+                                               state.dataSurface->Surface(state.dataSurface->Surface(SurfNum).BaseSurf).Name,
+                                               DataSurfaces::cExtBoundCondition(
+                                                   state.dataSurface->Surface(state.dataSurface->Surface(SurfNum).BaseSurf).ExtBoundCond)));
                         SurfError = true;
                     }
                     if (!SubSurfaceSevereDisplayed && SurfError) {
@@ -2195,7 +2197,7 @@ namespace SurfaceGeometry {
                             format("{}Subsurface=\"{}\" exterior condition [{}] in a base surface=\"{}\" with exterior condition [adiabatic surface]",
                                    RoutineName,
                                    state.dataSurface->Surface(SurfNum).Name,
-                                   cExtBoundCondition(state.dataSurface->Surface(SurfNum).ExtBoundCond),
+                                   DataSurfaces::cExtBoundCondition(state.dataSurface->Surface(SurfNum).ExtBoundCond),
                                    state.dataSurface->Surface(state.dataSurface->Surface(SurfNum).BaseSurf).Name));
                     }
                     if (!SubSurfaceSevereDisplayed) {
@@ -2440,7 +2442,7 @@ namespace SurfaceGeometry {
                     ShowContinueError(state, format("WindowShadingControl {} has errors, program will terminate.", winShadeCtrl.Name));
                 }
 
-                if (winShadeCtrl.slatAngleControl != SlatAngleControl::Fixed) {
+                if (winShadeCtrl.slatAngleControl != DataSurfaces::SlatAngleControl::Fixed) {
                     surfShade.blind.movableSlats = true;
                     state.dataSurface->AnyMovableSlat = true;
                     state.dataHeatBalSurf->SurfMovSlatsIndexList.push_back(SurfNum);
@@ -2576,14 +2578,14 @@ namespace SurfaceGeometry {
 
             // Exclude non-exterior heat transfer surfaces (but not OtherSideCondModeledExt = -4 CR7640)
             if (surf.HeatTransSurf && surf.ExtBoundCond > 0) continue;
-            if (surf.HeatTransSurf && surf.ExtBoundCond == Ground) continue;
-            if (surf.HeatTransSurf && surf.ExtBoundCond == KivaFoundation) {
+            if (surf.HeatTransSurf && surf.ExtBoundCond == DataSurfaces::Ground) continue;
+            if (surf.HeatTransSurf && surf.ExtBoundCond == DataSurfaces::KivaFoundation) {
                 state.dataSurface->AllHTKivaSurfaceList.push_back(SurfNum);
                 if (!ErrorsFound) state.dataSurfaceGeometry->kivaManager.foundationInputs[surf.OSCPtr].surfaces.push_back(SurfNum);
                 continue;
             }
-            if (surf.HeatTransSurf && surf.ExtBoundCond == OtherSideCoefNoCalcExt) continue;
-            if (surf.HeatTransSurf && surf.ExtBoundCond == OtherSideCoefCalcExt) continue;
+            if (surf.HeatTransSurf && surf.ExtBoundCond == DataSurfaces::OtherSideCoefNoCalcExt) continue;
+            if (surf.HeatTransSurf && surf.ExtBoundCond == DataSurfaces::OtherSideCoefCalcExt) continue;
             // Exclude windows and doors, i.e., consider only their base surfaces as possible obstructions
             if (surf.Class == SurfaceClass::Window || surf.Class == SurfaceClass::Door) continue;
             // Exclude duplicate shading surfaces
@@ -2625,35 +2627,35 @@ namespace SurfaceGeometry {
         }
 
         // Populate SurfaceFilter lists
-        for (int iSurfaceFilter = 1; iSurfaceFilter < static_cast<int>(SurfaceFilter::Num); ++iSurfaceFilter)
+        for (int iSurfaceFilter = 1; iSurfaceFilter < static_cast<int>(DataSurfaces::SurfaceFilter::Num); ++iSurfaceFilter)
             state.dataSurface->SurfaceFilterLists[iSurfaceFilter].reserve(state.dataSurface->TotSurfaces);
 
         for (int SurfNum = 1; SurfNum <= state.dataSurface->TotSurfaces; ++SurfNum) {
             auto const &surf = state.dataSurface->Surface(SurfNum);
             if (!surf.HeatTransSurf) continue;
             if (surf.ExtBoundCond > 0) {
-                state.dataSurface->SurfaceFilterLists[static_cast<int>(SurfaceFilter::AllInteriorSurfaces)].push_back(SurfNum);
+                state.dataSurface->SurfaceFilterLists[static_cast<int>(DataSurfaces::SurfaceFilter::AllInteriorSurfaces)].push_back(SurfNum);
                 if (state.dataConstruction->Construct(surf.Construction).TypeIsWindow) {
-                    state.dataSurface->SurfaceFilterLists[static_cast<int>(SurfaceFilter::AllInteriorWindows)].push_back(SurfNum);
+                    state.dataSurface->SurfaceFilterLists[static_cast<int>(DataSurfaces::SurfaceFilter::AllInteriorWindows)].push_back(SurfNum);
                 } else if (surf.Class == SurfaceClass::Wall) {
-                    state.dataSurface->SurfaceFilterLists[static_cast<int>(SurfaceFilter::AllInteriorWalls)].push_back(SurfNum);
+                    state.dataSurface->SurfaceFilterLists[static_cast<int>(DataSurfaces::SurfaceFilter::AllInteriorWalls)].push_back(SurfNum);
                 } else if (surf.Class == SurfaceClass::Floor) {
-                    state.dataSurface->SurfaceFilterLists[static_cast<int>(SurfaceFilter::AllInteriorFloors)].push_back(SurfNum);
+                    state.dataSurface->SurfaceFilterLists[static_cast<int>(DataSurfaces::SurfaceFilter::AllInteriorFloors)].push_back(SurfNum);
                 } else if (surf.Class == SurfaceClass::Roof) {
-                    state.dataSurface->SurfaceFilterLists[static_cast<int>(SurfaceFilter::AllInteriorRoofs)].push_back(SurfNum);
-                    state.dataSurface->SurfaceFilterLists[static_cast<int>(SurfaceFilter::AllInteriorCeilings)].push_back(SurfNum);
+                    state.dataSurface->SurfaceFilterLists[static_cast<int>(DataSurfaces::SurfaceFilter::AllInteriorRoofs)].push_back(SurfNum);
+                    state.dataSurface->SurfaceFilterLists[static_cast<int>(DataSurfaces::SurfaceFilter::AllInteriorCeilings)].push_back(SurfNum);
                 }
             } else {
-                state.dataSurface->SurfaceFilterLists[static_cast<int>(SurfaceFilter::AllExteriorSurfaces)].push_back(SurfNum);
+                state.dataSurface->SurfaceFilterLists[static_cast<int>(DataSurfaces::SurfaceFilter::AllExteriorSurfaces)].push_back(SurfNum);
                 if (state.dataConstruction->Construct(surf.Construction).TypeIsWindow) {
-                    state.dataSurface->SurfaceFilterLists[static_cast<int>(SurfaceFilter::AllExteriorWindows)].push_back(SurfNum);
+                    state.dataSurface->SurfaceFilterLists[static_cast<int>(DataSurfaces::SurfaceFilter::AllExteriorWindows)].push_back(SurfNum);
                 } else if (surf.Class == SurfaceClass::Wall) {
-                    state.dataSurface->SurfaceFilterLists[static_cast<int>(SurfaceFilter::AllExteriorWalls)].push_back(SurfNum);
+                    state.dataSurface->SurfaceFilterLists[static_cast<int>(DataSurfaces::SurfaceFilter::AllExteriorWalls)].push_back(SurfNum);
                 } else if (surf.Class == SurfaceClass::Floor) {
-                    state.dataSurface->SurfaceFilterLists[static_cast<int>(SurfaceFilter::AllExteriorFloors)].push_back(SurfNum);
+                    state.dataSurface->SurfaceFilterLists[static_cast<int>(DataSurfaces::SurfaceFilter::AllExteriorFloors)].push_back(SurfNum);
                 } else if (surf.Class == SurfaceClass::Roof) {
-                    state.dataSurface->SurfaceFilterLists[static_cast<int>(SurfaceFilter::AllExteriorRoofs)].push_back(SurfNum);
-                    state.dataSurface->SurfaceFilterLists[static_cast<int>(SurfaceFilter::AllInteriorCeilings)].push_back(SurfNum);
+                    state.dataSurface->SurfaceFilterLists[static_cast<int>(DataSurfaces::SurfaceFilter::AllExteriorRoofs)].push_back(SurfNum);
+                    state.dataSurface->SurfaceFilterLists[static_cast<int>(DataSurfaces::SurfaceFilter::AllInteriorCeilings)].push_back(SurfNum);
                 }
             }
         } // for (SurfNum)
@@ -2756,14 +2758,15 @@ namespace SurfaceGeometry {
                     for (int surfNum = thisSpace.HTSurfaceFirst; surfNum <= thisSpace.HTSurfaceLast; surfNum++) {
                         auto &surface(state.dataSurface->Surface(surfNum));
                         // Conditions where surface always needs to be unique
-                        bool forceUniqueSurface =
-                            surface.HasShadeControl ||
-                            state.dataSurface->SurfWinAirflowSource(surfNum) != DataSurfaces::WindowAirFlowSource::Invalid ||
-                            state.dataConstruction->Construct(surface.Construction).SourceSinkPresent || surface.Class == SurfaceClass::TDD_Dome ||
-                            (surface.Class == SurfaceClass::Window && (surface.OriginalClass == SurfaceClass::TDD_Diffuser ||
-                                                                       state.dataSurface->SurfWinWindowModelType(surfNum) != WindowModel::Detailed ||
-                                                                       state.dataWindowManager->inExtWindowModel->isExternalLibraryModel() ||
-                                                                       state.dataConstruction->Construct(surface.Construction).isTCWindow));
+                        bool forceUniqueSurface = surface.HasShadeControl ||
+                                                  state.dataSurface->SurfWinAirflowSource(surfNum) != DataSurfaces::WindowAirFlowSource::Invalid ||
+                                                  state.dataConstruction->Construct(surface.Construction).SourceSinkPresent ||
+                                                  surface.Class == SurfaceClass::TDD_Dome ||
+                                                  (surface.Class == SurfaceClass::Window &&
+                                                   (surface.OriginalClass == SurfaceClass::TDD_Diffuser ||
+                                                    state.dataSurface->SurfWinWindowModelType(surfNum) != DataSurfaces::WindowModel::Detailed ||
+                                                    state.dataWindowManager->inExtWindowModel->isExternalLibraryModel() ||
+                                                    state.dataConstruction->Construct(surface.Construction).isTCWindow));
                         if (!forceUniqueSurface) {
                             state.dataSurface->Surface(surfNum).set_representative_surface(state, surfNum);
                         }
@@ -3094,7 +3097,7 @@ namespace SurfaceGeometry {
 
                 // Even though these will be validated, set defaults in case error here -- wont
                 // cause aborts in later surface gets (hopefully)
-                state.dataSurface->Corner = UpperLeftCorner;
+                state.dataSurface->Corner = DataSurfaces::UpperLeftCorner;
                 state.dataSurface->WorldCoordSystem = true;
                 state.dataSurface->CCW = true;
 
@@ -3868,14 +3871,14 @@ namespace SurfaceGeometry {
                 state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCondName = s_ipsc->cAlphaArgs(ArgPointer + 1);
 
                 if (Util::SameString(s_ipsc->cAlphaArgs(ArgPointer), "Outdoors")) {
-                    state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = ExternalEnvironment;
+                    state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = DataSurfaces::ExternalEnvironment;
 
                 } else if (Util::SameString(s_ipsc->cAlphaArgs(ArgPointer), "Adiabatic")) {
                     state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = UnreconciledZoneSurface;
                     state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCondName = state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Name;
 
                 } else if (Util::SameString(s_ipsc->cAlphaArgs(ArgPointer), "Ground")) {
-                    state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = Ground;
+                    state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = DataSurfaces::Ground;
 
                     if (state.dataSurfaceGeometry->NoGroundTempObjWarning) {
                         if (!state.dataEnvrn->GroundTempInputs[(int)DataEnvironment::GroundTempType::BuildingSurface]) {
@@ -3891,7 +3894,7 @@ namespace SurfaceGeometry {
 
                     // Added for FCfactor method
                 } else if (Util::SameString(s_ipsc->cAlphaArgs(ArgPointer), "GroundFCfactorMethod")) {
-                    state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = GroundFCfactorMethod;
+                    state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = DataSurfaces::GroundFCfactorMethod;
                     if (state.dataSurfaceGeometry->NoFCGroundTempObjWarning) {
                         if (!state.dataEnvrn->GroundTempInputs[(int)DataEnvironment::GroundTempType::FCFactorMethod]) {
                             ShowSevereError(state,
@@ -3949,9 +3952,9 @@ namespace SurfaceGeometry {
                     } else {
                         state.dataSurfaceGeometry->SurfaceTmp(SurfNum).OSCPtr = Found;
                         if (state.dataSurface->OSC(Found).SurfFilmCoef > 0.0) {
-                            state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = OtherSideCoefCalcExt;
+                            state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = DataSurfaces::OtherSideCoefCalcExt;
                         } else {
-                            state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = OtherSideCoefNoCalcExt;
+                            state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = DataSurfaces::OtherSideCoefNoCalcExt;
                         }
                     }
 
@@ -4038,7 +4041,7 @@ namespace SurfaceGeometry {
                                                state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Name));
                         ErrorsFound = true;
                     }
-                    state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = KivaFoundation;
+                    state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = DataSurfaces::KivaFoundation;
 
                 } else if (Util::SameString(s_ipsc->cAlphaArgs(ArgPointer), "OtherSideConditionsModel")) {
                     Found = Util::FindItemInList(
@@ -4053,7 +4056,7 @@ namespace SurfaceGeometry {
                         ErrorsFound = true;
                     }
                     state.dataSurfaceGeometry->SurfaceTmp(SurfNum).OSCMPtr = Found;
-                    state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = OtherSideCondModeledExt;
+                    state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = DataSurfaces::OtherSideCondModeledExt;
 
                 } else if (Util::SameString(s_ipsc->cAlphaArgs(ArgPointer), "GroundSlabPreprocessorAverage") ||
                            Util::SameString(s_ipsc->cAlphaArgs(ArgPointer), "GroundSlabPreprocessorCore") ||
@@ -4087,8 +4090,8 @@ namespace SurfaceGeometry {
                 ArgPointer += 2;
                 // Set the logical flag for the exterior solar
                 if (Util::SameString(s_ipsc->cAlphaArgs(ArgPointer), "SunExposed")) {
-                    if ((state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond != ExternalEnvironment) &&
-                        (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond != OtherSideCondModeledExt)) {
+                    if ((state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond != DataSurfaces::ExternalEnvironment) &&
+                        (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond != DataSurfaces::OtherSideCondModeledExt)) {
                         ShowWarningError(state,
                                          format("{}=\"{}\", {}=\"{}\".",
                                                 s_ipsc->cCurrentModuleObject,
@@ -4334,7 +4337,7 @@ namespace SurfaceGeometry {
                 ItemsToGet = TotRectExtWalls;
                 GettingIZSurfaces = false;
                 OtherSurfaceField = 0;
-                ExtBoundCondition = ExternalEnvironment;
+                ExtBoundCondition = DataSurfaces::ExternalEnvironment;
                 ClassItem = 1;
             } else if (Item == 2) {
                 ItemsToGet = TotRectIntWalls;
@@ -4352,13 +4355,13 @@ namespace SurfaceGeometry {
                 ItemsToGet = TotRectUGWalls;
                 GettingIZSurfaces = false;
                 OtherSurfaceField = 0;
-                ExtBoundCondition = Ground;
+                ExtBoundCondition = DataSurfaces::Ground;
                 ClassItem = 1;
             } else if (Item == 5) {
                 ItemsToGet = TotRectRoofs;
                 GettingIZSurfaces = false;
                 OtherSurfaceField = 0;
-                ExtBoundCondition = ExternalEnvironment;
+                ExtBoundCondition = DataSurfaces::ExternalEnvironment;
                 ClassItem = 3;
             } else if (Item == 6) {
                 ItemsToGet = TotRectCeilings;
@@ -4376,7 +4379,7 @@ namespace SurfaceGeometry {
                 ItemsToGet = TotRectGCFloors;
                 GettingIZSurfaces = false;
                 OtherSurfaceField = 0;
-                ExtBoundCondition = Ground;
+                ExtBoundCondition = DataSurfaces::Ground;
                 ClassItem = 2;
             } else if (Item == 9) {
                 ItemsToGet = TotRectIntFloors;
@@ -4494,8 +4497,8 @@ namespace SurfaceGeometry {
                 if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Construction > 0) {
                     if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Class == SurfaceClass::Wall &&
                         state.dataConstruction->Construct(state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Construction).TypeIsCfactorWall &&
-                        state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == Ground) {
-                        state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = GroundFCfactorMethod;
+                        state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == DataSurfaces::Ground) {
+                        state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = DataSurfaces::GroundFCfactorMethod;
                     } else if (state.dataConstruction->Construct(state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Construction).TypeIsCfactorWall) {
                         ErrorsFound = true;
                         ShowSevereError(state,
@@ -4505,8 +4508,8 @@ namespace SurfaceGeometry {
                     }
                     if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Class == SurfaceClass::Floor &&
                         state.dataConstruction->Construct(state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Construction).TypeIsFfactorFloor &&
-                        state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == Ground) {
-                        state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = GroundFCfactorMethod;
+                        state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == DataSurfaces::Ground) {
+                        state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = DataSurfaces::GroundFCfactorMethod;
                     } else if (state.dataConstruction->Construct(state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Construction).TypeIsFfactorFloor) {
                         ErrorsFound = true;
                         ShowSevereError(state,
@@ -4519,7 +4522,7 @@ namespace SurfaceGeometry {
                 state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtWind = false;
                 state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ViewFactorGround = Constant::AutoCalculate;
 
-                if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == ExternalEnvironment) {
+                if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == DataSurfaces::ExternalEnvironment) {
                     state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtSolar = true;
                     state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtWind = true;
 
@@ -4542,7 +4545,7 @@ namespace SurfaceGeometry {
                         state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCondName = state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Name;
                     }
 
-                } else if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == Ground) {
+                } else if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == DataSurfaces::Ground) {
 
                     if (state.dataSurfaceGeometry->NoGroundTempObjWarning) {
                         if (!state.dataEnvrn->GroundTempInputs[(int)DataEnvironment::GroundTempType::BuildingSurface]) {
@@ -4556,7 +4559,7 @@ namespace SurfaceGeometry {
                         state.dataSurfaceGeometry->NoGroundTempObjWarning = false;
                     }
 
-                } else if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == GroundFCfactorMethod) {
+                } else if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == DataSurfaces::GroundFCfactorMethod) {
                     if (state.dataSurfaceGeometry->NoFCGroundTempObjWarning) {
                         if (!state.dataEnvrn->GroundTempInputs[(int)DataEnvironment::GroundTempType::FCFactorMethod]) {
                             ShowSevereError(state,
@@ -4610,7 +4613,7 @@ namespace SurfaceGeometry {
 
                 // Check wall height for the CFactor walls
                 if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Class == SurfaceClass::Wall &&
-                    state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == GroundFCfactorMethod) {
+                    state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == DataSurfaces::GroundFCfactorMethod) {
                     if (std::abs(state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Height -
                                  state.dataConstruction->Construct(state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Construction).Height) > 0.05) {
                         ShowWarningError(state,
@@ -4624,7 +4627,7 @@ namespace SurfaceGeometry {
 
                 // Check area and perimeter for the FFactor floors
                 if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Class == SurfaceClass::Floor &&
-                    state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == GroundFCfactorMethod) {
+                    state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == DataSurfaces::GroundFCfactorMethod) {
                     if (std::abs(state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Area -
                                  state.dataConstruction->Construct(state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Construction).Area) > 0.1) {
                         ShowWarningError(state,
@@ -5103,10 +5106,10 @@ namespace SurfaceGeometry {
             }
             if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Class == SurfaceClass::TDD_Dome ||
                 state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Class == SurfaceClass::TDD_Diffuser) {
-                state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = ExternalEnvironment;
+                state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = DataSurfaces::ExternalEnvironment;
             }
 
-            if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == ExternalEnvironment) {
+            if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == DataSurfaces::ExternalEnvironment) {
                 if (!s_ipsc->lAlphaFieldBlanks(5)) {
                     ShowWarningError(state,
                                      format("{}=\"{}\", invalid field {}",
@@ -5145,8 +5148,8 @@ namespace SurfaceGeometry {
                 // ignoring window5datafiles for now -- will need to add.
             }
 
-            if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == OtherSideCoefNoCalcExt ||
-                state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == OtherSideCoefCalcExt) {
+            if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == DataSurfaces::OtherSideCoefNoCalcExt ||
+                state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == DataSurfaces::OtherSideCoefCalcExt) {
                 if (!s_ipsc->lAlphaFieldBlanks(5)) { // Otherside Coef special Name
                     Found = Util::FindItemInList(s_ipsc->cAlphaArgs(5), state.dataSurface->OSC, state.dataSurface->TotOSC);
                     if (Found == 0) {
@@ -5164,16 +5167,16 @@ namespace SurfaceGeometry {
                         state.dataSurfaceGeometry->SurfaceTmp(SurfNum).OSCPtr = Found;
                         state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCondName = s_ipsc->cAlphaArgs(5);
                         if (state.dataSurface->OSC(Found).SurfFilmCoef > 0.0) {
-                            state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = OtherSideCoefCalcExt;
+                            state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = DataSurfaces::OtherSideCoefCalcExt;
                         } else {
-                            state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = OtherSideCoefNoCalcExt;
+                            state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = DataSurfaces::OtherSideCoefNoCalcExt;
                         }
                     }
                 }
             }
 
-            if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == OtherSideCondModeledExt) {
-                state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = ExternalEnvironment;
+            if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == DataSurfaces::OtherSideCondModeledExt) {
+                state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = DataSurfaces::ExternalEnvironment;
             }
 
             if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCondName == BlankString) {
@@ -5255,8 +5258,8 @@ namespace SurfaceGeometry {
                 state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Class == SurfaceClass::TDD_Diffuser ||
                 state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Class == SurfaceClass::TDD_Dome) {
 
-                if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == OtherSideCoefNoCalcExt ||
-                    state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == OtherSideCoefCalcExt) {
+                if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == DataSurfaces::OtherSideCoefNoCalcExt ||
+                    state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == DataSurfaces::OtherSideCoefCalcExt) {
                     ShowSevereError(state,
                                     format("{}=\"{}\", Other side coefficients are not allowed with windows.",
                                            s_ipsc->cCurrentModuleObject,
@@ -5264,7 +5267,7 @@ namespace SurfaceGeometry {
                     ErrorsFound = true;
                 }
 
-                if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == Ground) {
+                if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == DataSurfaces::Ground) {
                     ShowSevereError(state,
                                     format("{}=\"{}\", Exterior boundary condition = Ground is not allowed with windows.",
                                            s_ipsc->cCurrentModuleObject,
@@ -5272,7 +5275,7 @@ namespace SurfaceGeometry {
                     ErrorsFound = true;
                 }
 
-                if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == KivaFoundation) {
+                if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == DataSurfaces::KivaFoundation) {
                     ShowSevereError(state,
                                     format("{}=\"{}\", Exterior boundary condition = Foundation is not allowed with windows.",
                                            s_ipsc->cCurrentModuleObject,
@@ -5598,8 +5601,8 @@ namespace SurfaceGeometry {
                     }
                 }
 
-                if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == OtherSideCondModeledExt) {
-                    state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = ExternalEnvironment;
+                if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == DataSurfaces::OtherSideCondModeledExt) {
+                    state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond = DataSurfaces::ExternalEnvironment;
                 }
 
                 //      SurfaceTmp(SurfNum)%ViewFactorGround = AutoCalculate
@@ -5656,8 +5659,8 @@ namespace SurfaceGeometry {
                 if (!GettingIZSurfaces && (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Class == SurfaceClass::Window ||
                                            state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Class == SurfaceClass::GlassDoor)) {
 
-                    if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == OtherSideCoefNoCalcExt ||
-                        state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == OtherSideCoefCalcExt) {
+                    if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == DataSurfaces::OtherSideCoefNoCalcExt ||
+                        state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == DataSurfaces::OtherSideCoefCalcExt) {
                         ShowSevereError(state,
                                         format("{}=\"{}\", Other side coefficients are not allowed with windows.",
                                                s_ipsc->cCurrentModuleObject,
@@ -5665,7 +5668,7 @@ namespace SurfaceGeometry {
                         ErrorsFound = true;
                     }
 
-                    if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == Ground) {
+                    if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == DataSurfaces::Ground) {
                         ShowSevereError(state,
                                         format("{}=\"{}\", Exterior boundary condition = Ground is not allowed with windows.",
                                                s_ipsc->cCurrentModuleObject,
@@ -5861,7 +5864,7 @@ namespace SurfaceGeometry {
                         MatGap1 = state.dataConstruction->Construct(ConstrNumSh).LayerPoint(2 * TotGlassLayers - 2);
                         MatGap2 = state.dataConstruction->Construct(ConstrNumSh).LayerPoint(2 * TotGlassLayers);
                         MatSh = state.dataConstruction->Construct(ConstrNumSh).LayerPoint(2 * TotGlassLayers - 1);
-                        if (state.dataSurface->WindowShadingControl(WSCPtr).ShadingType == WinShadingType::BGBlind) {
+                        if (state.dataSurface->WindowShadingControl(WSCPtr).ShadingType == DataSurfaces::WinShadingType::BGBlind) {
                             MatGapCalc = std::abs(s_mat->materials(MatGap)->Thickness -
                                                   (s_mat->materials(MatGap1)->Thickness + s_mat->materials(MatGap2)->Thickness));
                             if (MatGapCalc > 0.001) {
@@ -6089,7 +6092,7 @@ namespace SurfaceGeometry {
 
         // Disallow glass transmittance dirt factor for interior windows and glass doors
 
-        if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond != ExternalEnvironment &&
+        if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond != DataSurfaces::ExternalEnvironment &&
             (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Class == SurfaceClass::Window ||
              state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Class == SurfaceClass::GlassDoor)) {
             ConstrNum = state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Construction;
@@ -6446,7 +6449,7 @@ namespace SurfaceGeometry {
                 ShowContinueError(state, "...trying to attach a shading device to an interzone surface.");
                 ErrorsFound = true;
                 state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond =
-                    ExternalEnvironment; // reset so program won't crash during "add surfaces"
+                    DataSurfaces::ExternalEnvironment; // reset so program won't crash during "add surfaces"
             }
             if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == UnreconciledZoneSurface) {
                 ShowSevereError(state,
@@ -6458,7 +6461,7 @@ namespace SurfaceGeometry {
                 ShowContinueError(state, "...trying to attach a shading device to an interior surface.");
                 ErrorsFound = true;
                 state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond =
-                    ExternalEnvironment; // reset so program won't crash during "add surfaces"
+                    DataSurfaces::ExternalEnvironment; // reset so program won't crash during "add surfaces"
             }
 
             if (!s_ipsc->lAlphaFieldBlanks(3)) {
@@ -6684,7 +6687,7 @@ namespace SurfaceGeometry {
                     ShowContinueError(state, "...trying to attach a shading device to an interzone surface.");
                     ErrorsFound = true;
                     state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond =
-                        ExternalEnvironment; // reset so program won't crash during "add surfaces"
+                        DataSurfaces::ExternalEnvironment; // reset so program won't crash during "add surfaces"
                 }
                 if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == UnreconciledZoneSurface) {
                     ShowSevereError(state,
@@ -6696,7 +6699,7 @@ namespace SurfaceGeometry {
                     ShowContinueError(state, "...trying to attach a shading device to an interior surface.");
                     ErrorsFound = true;
                     state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond =
-                        ExternalEnvironment; // reset so program won't crash during "add surfaces"
+                        DataSurfaces::ExternalEnvironment; // reset so program won't crash during "add surfaces"
                 }
 
                 state.dataSurfaceGeometry->SurfaceTmp(SurfNum).SchedShadowSurfIndex = 0;
@@ -7670,7 +7673,7 @@ namespace SurfaceGeometry {
                     ErrorsFound = true;
                     continue;
                 }
-                if (state.dataSurface->Surface(Found).ExtBoundCond != OtherSideCondModeledExt) {
+                if (state.dataSurface->Surface(Found).ExtBoundCond != DataSurfaces::OtherSideCondModeledExt) {
                     ShowSevereError(state,
                                     format("{}=\"{}\", is invalid", s_ipsc->cCurrentModuleObject, state.dataHeatBal->ExtVentedCavity(Item).Name));
                     ShowContinueError(state,
@@ -8357,7 +8360,7 @@ namespace SurfaceGeometry {
             for (auto instance = instancesValue.begin(); instance != instancesValue.end(); ++instance) {
                 auto const &fields = instance.value();
                 std::string const &thisObjectName = instance.key();
-                GroundSurfacesProperty thisGndSurfsObj;
+                DataSurfaces::GroundSurfacesProperty thisGndSurfsObj;
                 thisGndSurfsObj.Name = Util::makeUPPER(thisObjectName);
                 state.dataInputProcessing->inputProcessor->markObjectAsUsed(s_ipsc->cCurrentModuleObject, thisObjectName);
                 auto groundSurfaces = fields.find("ground_surfaces");
@@ -8365,7 +8368,7 @@ namespace SurfaceGeometry {
                     auto &groundSurfacesArray = groundSurfaces.value();
                     thisGndSurfsObj.NumGndSurfs = groundSurfacesArray.size();
                     for (auto &groundSurface : groundSurfacesArray) {
-                        GroundSurfacesData thisGndSurf;
+                        DataSurfaces::GroundSurfacesData thisGndSurf;
                         auto GndSurfName = groundSurface.find("ground_surface_name");
                         if (GndSurfName != groundSurface.end()) {
                             std::string ground_surf_name = GndSurfName.value().get<std::string>();
@@ -8709,7 +8712,7 @@ namespace SurfaceGeometry {
                     for (SurfNum = 1; SurfNum <= state.dataSurface->TotSurfaces; ++SurfNum) {
                         auto &surf = state.dataSurface->Surface(SurfNum);
                         if (!surf.HeatTransSurf) continue;
-                        if (surf.ExtBoundCond != Ground) continue; // ground BC
+                        if (surf.ExtBoundCond != DataSurfaces::Ground) continue; // ground BC
                         if (state.dataConstruction->Construct(surf.Construction).TypeIsWindow) continue;
                         SurfacesOfType = true;
                         surf.HeatTransferAlgorithm = tmpAlgoInput;
@@ -8908,7 +8911,7 @@ namespace SurfaceGeometry {
 
         // Change algorithm for Kiva and air boundary foundation surfaces
         for (auto &surf : state.dataSurface->Surface) {
-            if (surf.ExtBoundCond == KivaFoundation) {
+            if (surf.ExtBoundCond == DataSurfaces::KivaFoundation) {
                 surf.HeatTransferAlgorithm = DataSurfaces::HeatTransferModel::Kiva;
                 state.dataHeatBal->AnyKiva = true;
             }
@@ -9101,7 +9104,7 @@ namespace SurfaceGeometry {
         for (Item = 1; Item <= state.dataSurface->TotSurfaces; ++Item) {
             if (state.dataSurface->Surface(Item).Class == SurfaceClass::Window || state.dataSurface->Surface(Item).Class == SurfaceClass::GlassDoor) {
                 // todo, add complex fenestration switch  HeatTransferModel_ComplexFenestration
-                if (state.dataSurface->SurfWinWindowModelType(Item) == WindowModel::BSDF) {
+                if (state.dataSurface->SurfWinWindowModelType(Item) == DataSurfaces::WindowModel::BSDF) {
                     state.dataSurface->Surface(Item).HeatTransferAlgorithm = DataSurfaces::HeatTransferModel::ComplexFenestration;
                 } else {
                     state.dataSurface->Surface(Item).HeatTransferAlgorithm = DataSurfaces::HeatTransferModel::Window5;
@@ -9280,9 +9283,9 @@ namespace SurfaceGeometry {
         // 2/2011 - don't think the shading calculations have a corner preference.  Will keep this for
         // consistency (for now)
         ThisCorner = state.dataSurface->Corner;
-        while (ThisCorner != UpperLeftCorner) {
+        while (ThisCorner != DataSurfaces::UpperLeftCorner) {
             if (NSides < 4) {
-                if (ThisCorner == UpperRightCorner) {
+                if (ThisCorner == DataSurfaces::UpperRightCorner) {
                     break;
                 }
             }
@@ -9719,7 +9722,7 @@ namespace SurfaceGeometry {
                                                            "BETWEENGLASSBLIND"  // 9
                                                        });
 
-        constexpr std::array<std::string_view, static_cast<int>(WindowShadingControlType::Num)> WindowShadingControlTypeNamesUC{
+        constexpr std::array<std::string_view, static_cast<int>(DataSurfaces::WindowShadingControlType::Num)> WindowShadingControlTypeNamesUC{
             "ALWAYSON",
             "ALWAYSOFF",
             "ONIFSCHEDULEALLOWS",
@@ -9745,10 +9748,11 @@ namespace SurfaceGeometry {
             "ONIFHIGHSOLARORHIGHLUMINANCETILLSUNSET",
             "ONIFHIGHSOLARORHIGHLUMINANCETILLNEXTMORNING"};
 
-        constexpr std::array<std::string_view, static_cast<int>(SlatAngleControl::Num)> SlatAngleNamesUC{
+        constexpr std::array<std::string_view, static_cast<int>(DataSurfaces::SlatAngleControl::Num)> SlatAngleNamesUC{
             "FIXEDSLATANGLE", "SCHEDULEDSLATANGLE", "BLOCKBEAMSOLAR"};
 
-        constexpr std::array<std::string_view, static_cast<int>(MultiSurfaceControl::Num)> MultiSurfaceControlNamesUC = {"SEQUENTIAL", "GROUP"};
+        constexpr std::array<std::string_view, static_cast<int>(DataSurfaces::MultiSurfaceControl::Num)> MultiSurfaceControlNamesUC = {"SEQUENTIAL",
+                                                                                                                                       "GROUP"};
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         int IOStat;          // IO Status when calling get input subroutine
@@ -9836,10 +9840,10 @@ namespace SurfaceGeometry {
             windowShadingControl.DaylightingControlName = s_ipsc->cAlphaArgs(12);
 
             windowShadingControl.multiSurfaceControl =
-                static_cast<MultiSurfaceControl>(getEnumValue(MultiSurfaceControlNamesUC, Util::makeUPPER(s_ipsc->cAlphaArgs(13))));
+                static_cast<DataSurfaces::MultiSurfaceControl>(getEnumValue(MultiSurfaceControlNamesUC, Util::makeUPPER(s_ipsc->cAlphaArgs(13))));
 
-            if (windowShadingControl.multiSurfaceControl == MultiSurfaceControl::Invalid) {
-                windowShadingControl.multiSurfaceControl = MultiSurfaceControl::Sequential;
+            if (windowShadingControl.multiSurfaceControl == DataSurfaces::MultiSurfaceControl::Invalid) {
+                windowShadingControl.multiSurfaceControl = DataSurfaces::MultiSurfaceControl::Sequential;
                 ShowWarningError(state,
                                  format("{}=\"{}\" should be either SEQUENTIAL or GROUP {}=\"{}\", defaulting to \"SEQUENTIAL\"",
                                         s_ipsc->cCurrentModuleObject,
@@ -9862,14 +9866,14 @@ namespace SurfaceGeometry {
                                        s_ipsc->cAlphaArgs(1)));
             }
 
-            windowShadingControl.shadingControlType =
-                static_cast<WindowShadingControlType>(getEnumValue(WindowShadingControlTypeNamesUC, Util::makeUPPER(s_ipsc->cAlphaArgs(5))));
+            windowShadingControl.shadingControlType = static_cast<DataSurfaces::WindowShadingControlType>(
+                getEnumValue(WindowShadingControlTypeNamesUC, Util::makeUPPER(s_ipsc->cAlphaArgs(5))));
 
             if (windowShadingControl.ShadingDevice > 0) {
                 if (s_mat->materials(windowShadingControl.ShadingDevice)->group == Material::Group::Screen &&
-                    !(windowShadingControl.shadingControlType == WindowShadingControlType::AlwaysOn ||
-                      windowShadingControl.shadingControlType == WindowShadingControlType::AlwaysOff ||
-                      windowShadingControl.shadingControlType == WindowShadingControlType::OnIfScheduled)) {
+                    !(windowShadingControl.shadingControlType == DataSurfaces::WindowShadingControlType::AlwaysOn ||
+                      windowShadingControl.shadingControlType == DataSurfaces::WindowShadingControlType::AlwaysOff ||
+                      windowShadingControl.shadingControlType == DataSurfaces::WindowShadingControlType::OnIfScheduled)) {
                     ErrorsFound = true;
                     ShowSevereError(state,
                                     format("{}=\"{}\" invalid {}=\"{}\" for exterior screens.",
@@ -9885,9 +9889,9 @@ namespace SurfaceGeometry {
                     state.dataConstruction->Construct(windowShadingControl.getInputShadedConstruction).IsUsed = true;
                     if (s_mat->materials(state.dataConstruction->Construct(windowShadingControl.getInputShadedConstruction).LayerPoint(1))->group ==
                             Material::Group::Screen &&
-                        !(windowShadingControl.shadingControlType == WindowShadingControlType::AlwaysOn ||
-                          windowShadingControl.shadingControlType == WindowShadingControlType::AlwaysOff ||
-                          windowShadingControl.shadingControlType == WindowShadingControlType::OnIfScheduled)) {
+                        !(windowShadingControl.shadingControlType == DataSurfaces::WindowShadingControlType::AlwaysOn ||
+                          windowShadingControl.shadingControlType == DataSurfaces::WindowShadingControlType::AlwaysOff ||
+                          windowShadingControl.shadingControlType == DataSurfaces::WindowShadingControlType::OnIfScheduled)) {
                         ErrorsFound = true;
                         ShowSevereError(state,
                                         format("{}=\"{}\" invalid {}=\"{}\" for exterior screens.",
@@ -9914,10 +9918,10 @@ namespace SurfaceGeometry {
             }
 
             // Warning if setpoint is unintentionally zero
-            if (windowShadingControl.SetPoint == 0 && windowShadingControl.shadingControlType != WindowShadingControlType::AlwaysOn &&
-                windowShadingControl.shadingControlType != WindowShadingControlType::AlwaysOff &&
-                windowShadingControl.shadingControlType != WindowShadingControlType::OnIfScheduled &&
-                windowShadingControl.shadingControlType != WindowShadingControlType::HiGlare) {
+            if (windowShadingControl.SetPoint == 0 && windowShadingControl.shadingControlType != DataSurfaces::WindowShadingControlType::AlwaysOn &&
+                windowShadingControl.shadingControlType != DataSurfaces::WindowShadingControlType::AlwaysOff &&
+                windowShadingControl.shadingControlType != DataSurfaces::WindowShadingControlType::OnIfScheduled &&
+                windowShadingControl.shadingControlType != DataSurfaces::WindowShadingControlType::HiGlare) {
                 ShowWarningError(state, format("{}=\"{}\", The first SetPoint is zero.", s_ipsc->cCurrentModuleObject, windowShadingControl.Name));
                 ShowContinueError(state, "..You may have forgotten to specify that setpoint.");
             }
@@ -9942,7 +9946,7 @@ namespace SurfaceGeometry {
                                        s_ipsc->cAlphaArgs(8)));
             }
 
-            if ((windowShadingControl.shadingControlType == WindowShadingControlType::OnIfScheduled) &&
+            if ((windowShadingControl.shadingControlType == DataSurfaces::WindowShadingControlType::OnIfScheduled) &&
                 (!windowShadingControl.ShadingControlIsScheduled)) { // CR 7709 BG
                 ErrorsFound = true;
                 ShowSevereError(state,
@@ -9953,7 +9957,7 @@ namespace SurfaceGeometry {
                                        s_ipsc->cAlphaFieldNames(5)));
             }
             windowShadingControl.slatAngleControl =
-                static_cast<SlatAngleControl>(getEnumValue(SlatAngleNamesUC, Util::makeUPPER(s_ipsc->cAlphaArgs(10))));
+                static_cast<DataSurfaces::SlatAngleControl>(getEnumValue(SlatAngleNamesUC, Util::makeUPPER(s_ipsc->cAlphaArgs(10))));
 
             // For upward compatibility change old "noninsulating" and "insulating" shade types to
             // INTERIORSHADE or EXTERIORSHADE
@@ -9964,7 +9968,7 @@ namespace SurfaceGeometry {
                                         windowShadingControl.Name,
                                         s_ipsc->cAlphaFieldNames(3),
                                         s_ipsc->cAlphaArgs(3)));
-                windowShadingControl.ShadingType = WinShadingType::IntShade;
+                windowShadingControl.ShadingType = DataSurfaces::WinShadingType::IntShade;
                 s_ipsc->cAlphaArgs(3) = "INTERIORSHADE";
             }
             if (s_ipsc->cAlphaArgs(3) == "EXTERIORNONINSULATINGSHADE" || s_ipsc->cAlphaArgs(3) == "EXTERIORINSULATINGSHADE") {
@@ -9974,11 +9978,11 @@ namespace SurfaceGeometry {
                                         windowShadingControl.Name,
                                         s_ipsc->cAlphaFieldNames(3),
                                         s_ipsc->cAlphaArgs(3)));
-                windowShadingControl.ShadingType = WinShadingType::ExtShade;
+                windowShadingControl.ShadingType = DataSurfaces::WinShadingType::ExtShade;
                 s_ipsc->cAlphaArgs(3) = "EXTERIORSHADE";
             }
 
-            if (windowShadingControl.shadingControlType == WindowShadingControlType::MeetDaylIlumSetp &&
+            if (windowShadingControl.shadingControlType == DataSurfaces::WindowShadingControlType::MeetDaylIlumSetp &&
                 s_ipsc->cAlphaArgs(3) != "SWITCHABLEGLAZING") {
                 ErrorsFound = true;
                 ShowSevereError(state,
@@ -10004,10 +10008,10 @@ namespace SurfaceGeometry {
                                        s_ipsc->cAlphaFieldNames(3),
                                        s_ipsc->cAlphaArgs(3)));
             } else {
-                windowShadingControl.ShadingType = WinShadingType(Found);
+                windowShadingControl.ShadingType = DataSurfaces::WinShadingType(Found);
             }
 
-            WinShadingType ShTyp = windowShadingControl.ShadingType;
+            DataSurfaces::WinShadingType ShTyp = windowShadingControl.ShadingType;
             IShadedConst = windowShadingControl.getInputShadedConstruction;
             IShadingDevice = windowShadingControl.ShadingDevice;
 
@@ -10018,7 +10022,7 @@ namespace SurfaceGeometry {
                                        windowShadingControl.Name));
                 ErrorsFound = true;
             } else if (IShadedConst == 0 && IShadingDevice > 0) {
-                if (ShTyp == WinShadingType::SwitchableGlazing) {
+                if (ShTyp == DataSurfaces::WinShadingType::SwitchableGlazing) {
                     ShowSevereError(state,
                                     format("{}=\"{}\" has {}= SwitchableGlazing but no matching shaded construction",
                                            s_ipsc->cCurrentModuleObject,
@@ -10026,7 +10030,7 @@ namespace SurfaceGeometry {
                                            s_ipsc->cAlphaArgs(3)));
                     ErrorsFound = true;
                 }
-                if ((ShTyp == WinShadingType::IntShade || ShTyp == WinShadingType::ExtShade) &&
+                if ((ShTyp == DataSurfaces::WinShadingType::IntShade || ShTyp == DataSurfaces::WinShadingType::ExtShade) &&
                     s_mat->materials(IShadingDevice)->group != Material::Group::Shade) {
                     ShowSevereError(state,
                                     format("{}=\"{}\" has {}= InteriorShade or ExteriorShade but matching shading device is not a window shade",
@@ -10036,7 +10040,7 @@ namespace SurfaceGeometry {
                     ShowContinueError(state, format("{} in error=\"{}\".", s_ipsc->cAlphaFieldNames(8), s_mat->materials(IShadingDevice)->Name));
                     ErrorsFound = true;
                 }
-                if ((ShTyp == WinShadingType::ExtScreen) && s_mat->materials(IShadingDevice)->group != Material::Group::Screen) {
+                if ((ShTyp == DataSurfaces::WinShadingType::ExtScreen) && s_mat->materials(IShadingDevice)->group != Material::Group::Screen) {
                     ShowSevereError(state,
                                     format("{}=\"{}\" has {}= ExteriorScreen but matching shading device is not a window screen",
                                            s_ipsc->cCurrentModuleObject,
@@ -10045,7 +10049,7 @@ namespace SurfaceGeometry {
                     ShowContinueError(state, format("{} in error=\"{}\".", s_ipsc->cAlphaFieldNames(8), s_mat->materials(IShadingDevice)->Name));
                     ErrorsFound = true;
                 }
-                if ((ShTyp == WinShadingType::IntBlind || ShTyp == WinShadingType::ExtBlind) &&
+                if ((ShTyp == DataSurfaces::WinShadingType::IntBlind || ShTyp == DataSurfaces::WinShadingType::ExtBlind) &&
                     s_mat->materials(IShadingDevice)->group != Material::Group::Blind) {
                     ShowSevereError(state,
                                     format("{}=\"{}\" has {}= InteriorBlind or ExteriorBlind but matching shading device is not a window blind",
@@ -10055,7 +10059,7 @@ namespace SurfaceGeometry {
                     ShowContinueError(state, format("{} in error=\"{}\".", s_ipsc->cAlphaFieldNames(8), s_mat->materials(IShadingDevice)->Name));
                     ErrorsFound = true;
                 }
-                if (ShTyp == WinShadingType::BGShade || ShTyp == WinShadingType::BGBlind) {
+                if (ShTyp == DataSurfaces::WinShadingType::BGShade || ShTyp == DataSurfaces::WinShadingType::BGBlind) {
                     ShowSevereError(state,
                                     format("{}=\"{}\" has {}= BetweenGlassShade or BetweenGlassBlind and",
                                            s_ipsc->cCurrentModuleObject,
@@ -10085,7 +10089,7 @@ namespace SurfaceGeometry {
                 BGShadeBlindError = false;
                 IShadingDevice = 0;
                 if (state.dataConstruction->Construct(IShadedConst).LayerPoint(NLayers) != 0) {
-                    if (windowShadingControl.ShadingType == WinShadingType::IntShade) {
+                    if (windowShadingControl.ShadingType == DataSurfaces::WinShadingType::IntShade) {
                         IShadingDevice = state.dataConstruction->Construct(IShadedConst).LayerPoint(NLayers);
                         if (s_mat->materials(state.dataConstruction->Construct(IShadedConst).LayerPoint(NLayers))->group != Material::Group::Shade) {
                             ErrorsFound = true;
@@ -10100,7 +10104,7 @@ namespace SurfaceGeometry {
                                                      s_ipsc->cAlphaFieldNames(3),
                                                      s_ipsc->cAlphaArgs(3)));
                         }
-                    } else if (windowShadingControl.ShadingType == WinShadingType::ExtShade) {
+                    } else if (windowShadingControl.ShadingType == DataSurfaces::WinShadingType::ExtShade) {
                         IShadingDevice = state.dataConstruction->Construct(IShadedConst).LayerPoint(1);
                         if (s_mat->materials(state.dataConstruction->Construct(IShadedConst).LayerPoint(1))->group != Material::Group::Shade) {
                             ErrorsFound = true;
@@ -10115,7 +10119,7 @@ namespace SurfaceGeometry {
                                                      s_ipsc->cAlphaFieldNames(3),
                                                      s_ipsc->cAlphaArgs(3)));
                         }
-                    } else if (windowShadingControl.ShadingType == WinShadingType::ExtScreen) {
+                    } else if (windowShadingControl.ShadingType == DataSurfaces::WinShadingType::ExtScreen) {
                         IShadingDevice = state.dataConstruction->Construct(IShadedConst).LayerPoint(1);
                         if (s_mat->materials(state.dataConstruction->Construct(IShadedConst).LayerPoint(1))->group != Material::Group::Screen) {
                             ErrorsFound = true;
@@ -10130,7 +10134,7 @@ namespace SurfaceGeometry {
                                                      s_ipsc->cAlphaFieldNames(3),
                                                      s_ipsc->cAlphaArgs(3)));
                         }
-                    } else if (windowShadingControl.ShadingType == WinShadingType::IntBlind) {
+                    } else if (windowShadingControl.ShadingType == DataSurfaces::WinShadingType::IntBlind) {
                         IShadingDevice = state.dataConstruction->Construct(IShadedConst).LayerPoint(NLayers);
                         if (s_mat->materials(state.dataConstruction->Construct(IShadedConst).LayerPoint(NLayers))->group != Material::Group::Blind) {
                             ErrorsFound = true;
@@ -10145,7 +10149,7 @@ namespace SurfaceGeometry {
                                                      s_ipsc->cAlphaFieldNames(3),
                                                      s_ipsc->cAlphaArgs(3)));
                         }
-                    } else if (windowShadingControl.ShadingType == WinShadingType::ExtBlind) {
+                    } else if (windowShadingControl.ShadingType == DataSurfaces::WinShadingType::ExtBlind) {
                         IShadingDevice = state.dataConstruction->Construct(IShadedConst).LayerPoint(1);
                         if (s_mat->materials(state.dataConstruction->Construct(IShadedConst).LayerPoint(1))->group != Material::Group::Blind) {
                             ErrorsFound = true;
@@ -10160,7 +10164,7 @@ namespace SurfaceGeometry {
                                                      s_ipsc->cAlphaFieldNames(3),
                                                      s_ipsc->cAlphaArgs(3)));
                         }
-                    } else if (windowShadingControl.ShadingType == WinShadingType::BGShade) {
+                    } else if (windowShadingControl.ShadingType == DataSurfaces::WinShadingType::BGShade) {
                         if (NLayers != 5 && NLayers != 7) BGShadeBlindError = true;
                         if (NLayers == 5) {
                             if (s_mat->materials(state.dataConstruction->Construct(IShadedConst).LayerPoint(3))->group != Material::Group::Shade)
@@ -10184,7 +10188,7 @@ namespace SurfaceGeometry {
                                                      s_ipsc->cAlphaArgs(32)));
                             ShowContinueError(state, "between-glass shade layer with a gas layer on each side.");
                         }
-                    } else if (windowShadingControl.ShadingType == WinShadingType::BGBlind) {
+                    } else if (windowShadingControl.ShadingType == DataSurfaces::WinShadingType::BGBlind) {
                         if (NLayers != 5 && NLayers != 7) BGShadeBlindError = true;
                         if (NLayers == 5) {
                             if (s_mat->materials(state.dataConstruction->Construct(IShadedConst).LayerPoint(3))->group != Material::Group::Blind)
@@ -10211,7 +10215,7 @@ namespace SurfaceGeometry {
                     }
                 }
                 if (IShadingDevice > 0) {
-                    if ((ShTyp == WinShadingType::IntShade || ShTyp == WinShadingType::ExtShade) &&
+                    if ((ShTyp == DataSurfaces::WinShadingType::IntShade || ShTyp == DataSurfaces::WinShadingType::ExtShade) &&
                         s_mat->materials(IShadingDevice)->group != Material::Group::Shade) {
                         ShowSevereError(state,
                                         format("{}=\"{}\" has {}= InteriorShade or ExteriorShade but matching shading device is not a window shade",
@@ -10221,7 +10225,7 @@ namespace SurfaceGeometry {
                         ShowContinueError(state, format("Shading Device in error=\"{}\".", s_mat->materials(IShadingDevice)->Name));
                         ErrorsFound = true;
                     }
-                    if ((ShTyp == WinShadingType::ExtScreen) && s_mat->materials(IShadingDevice)->group != Material::Group::Screen) {
+                    if ((ShTyp == DataSurfaces::WinShadingType::ExtScreen) && s_mat->materials(IShadingDevice)->group != Material::Group::Screen) {
                         ShowSevereError(state,
                                         format("{}=\"{}\" has {}= ExteriorScreen but matching shading device is not an exterior window screen.",
                                                s_ipsc->cCurrentModuleObject,
@@ -10230,7 +10234,7 @@ namespace SurfaceGeometry {
                         ShowContinueError(state, format("Shading Device in error=\"{}\".", s_mat->materials(IShadingDevice)->Name));
                         ErrorsFound = true;
                     }
-                    if ((ShTyp == WinShadingType::IntBlind || ShTyp == WinShadingType::ExtBlind) &&
+                    if ((ShTyp == DataSurfaces::WinShadingType::IntBlind || ShTyp == DataSurfaces::WinShadingType::ExtBlind) &&
                         s_mat->materials(IShadingDevice)->group != Material::Group::Blind) {
                         ShowSevereError(state,
                                         format("{}=\"{}\" has {}= InteriorBlind or ExteriorBlind but matching shading device is not a window blind.",
@@ -10261,7 +10265,7 @@ namespace SurfaceGeometry {
                     state.dataSurfaceGeometry->SurfaceTmp(SurfNum).activeShadedConstruction = curShadedConstruction;
 
                     // check to make the window referenced is an exterior window
-                    if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond != ExternalEnvironment) {
+                    if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond != DataSurfaces::ExternalEnvironment) {
                         ErrorsFound = true;
                         ShowSevereError(
                             state,
@@ -10587,8 +10591,9 @@ namespace SurfaceGeometry {
         int MatGapFlow1;  // Material number of gas on either side of a between-glass shade/blind
         int MatGapFlow2;
 
-        constexpr std::array<std::string_view, static_cast<int>(WindowAirFlowSource::Num)> WindowAirFlowSourceNamesUC{"INDOORAIR", "OUTDOORAIR"};
-        constexpr std::array<std::string_view, static_cast<int>(WindowAirFlowDestination::Num)> WindowAirFlowDestinationNamesUC{
+        constexpr std::array<std::string_view, static_cast<int>(DataSurfaces::WindowAirFlowSource::Num)> WindowAirFlowSourceNamesUC{"INDOORAIR",
+                                                                                                                                    "OUTDOORAIR"};
+        constexpr std::array<std::string_view, static_cast<int>(DataSurfaces::WindowAirFlowDestination::Num)> WindowAirFlowDestinationNamesUC{
             "INDOORAIR", "OUTDOORAIR", "RETURNAIR"};
 
         // of the shaded construction of airflow window
@@ -10630,7 +10635,7 @@ namespace SurfaceGeometry {
                     if (state.dataConstruction->Construct(ConstrNum).TotGlassLayers != 2 &&
                         state.dataConstruction->Construct(ConstrNum).TotGlassLayers != 3)
                         WrongSurfaceType = true;
-                    if (surf.ExtBoundCond != ExternalEnvironment) WrongSurfaceType = true;
+                    if (surf.ExtBoundCond != DataSurfaces::ExternalEnvironment) WrongSurfaceType = true;
                 }
                 if (WrongSurfaceType) {
                     ShowSevereError(
@@ -10743,12 +10748,12 @@ namespace SurfaceGeometry {
                 auto const &surf = state.dataSurface->Surface(SurfNum);
                 state.dataSurface->AirflowWindows = true;
                 state.dataSurface->SurfWinAirflowSource(SurfNum) =
-                    static_cast<WindowAirFlowSource>(getEnumValue(WindowAirFlowSourceNamesUC, s_ipsc->cAlphaArgs(2)));
+                    static_cast<DataSurfaces::WindowAirFlowSource>(getEnumValue(WindowAirFlowSourceNamesUC, s_ipsc->cAlphaArgs(2)));
 
                 state.dataSurface->SurfWinAirflowDestination(SurfNum) =
-                    static_cast<WindowAirFlowDestination>(getEnumValue(WindowAirFlowDestinationNamesUC, s_ipsc->cAlphaArgs(3)));
+                    static_cast<DataSurfaces::WindowAirFlowDestination>(getEnumValue(WindowAirFlowDestinationNamesUC, s_ipsc->cAlphaArgs(3)));
 
-                if (state.dataSurface->SurfWinAirflowDestination(SurfNum) == WindowAirFlowDestination::Return) {
+                if (state.dataSurface->SurfWinAirflowDestination(SurfNum) == DataSurfaces::WindowAirFlowDestination::Return) {
                     int controlledZoneNum = DataZoneEquipment::GetControlledZoneIndex(state, surf.ZoneName);
                     if (controlledZoneNum > 0) {
                         state.dataHeatBal->Zone(surf.Zone).HasAirFlowWindowReturn = true;
@@ -10782,11 +10787,11 @@ namespace SurfaceGeometry {
                     }
                 }
                 if (Util::SameString(s_ipsc->cAlphaArgs(4), "AlwaysOnAtMaximumFlow")) {
-                    state.dataSurface->SurfWinAirflowControlType(SurfNum) = WindowAirFlowControlType::MaxFlow;
+                    state.dataSurface->SurfWinAirflowControlType(SurfNum) = DataSurfaces::WindowAirFlowControlType::MaxFlow;
                 } else if (Util::SameString(s_ipsc->cAlphaArgs(4), "AlwaysOff")) {
-                    state.dataSurface->SurfWinAirflowControlType(SurfNum) = WindowAirFlowControlType::AlwaysOff;
+                    state.dataSurface->SurfWinAirflowControlType(SurfNum) = DataSurfaces::WindowAirFlowControlType::AlwaysOff;
                 } else if (Util::SameString(s_ipsc->cAlphaArgs(4), "ScheduledOnly")) {
-                    state.dataSurface->SurfWinAirflowControlType(SurfNum) = WindowAirFlowControlType::Schedule;
+                    state.dataSurface->SurfWinAirflowControlType(SurfNum) = DataSurfaces::WindowAirFlowControlType::Schedule;
                 }
                 state.dataSurface->SurfWinMaxAirflow(SurfNum) = s_ipsc->rNumericArgs(1);
                 if (s_ipsc->cAlphaArgs(4) == "SCHEDULEDONLY" && s_ipsc->cAlphaArgs(5) == "YES") {
@@ -10818,7 +10823,7 @@ namespace SurfaceGeometry {
                     }
                 }
                 // Warning if associated window is an interior window
-                if (surf.ExtBoundCond != ExternalEnvironment && !ErrorsFound)
+                if (surf.ExtBoundCond != DataSurfaces::ExternalEnvironment && !ErrorsFound)
                     ShowWarningError(state,
                                      format("{}=\"{}\", is an Interior window; cannot be an airflow window.",
                                             s_ipsc->cCurrentModuleObject,
@@ -12980,7 +12985,7 @@ namespace SurfaceGeometry {
         Real64 Zp;
         Real64 SurfWorldAz; // Surface Azimuth (facing)
         Real64 SurfTilt;    // Surface Tilt
-        SurfaceShape ThisShape(SurfaceShape::None);
+        DataSurfaces::SurfaceShape ThisShape(DataSurfaces::SurfaceShape::None);
         bool BaseSurface; // True if a base surface or a detached shading surface
         Real64 ThisSurfAz;
         Real64 ThisSurfTilt;
@@ -13070,16 +13075,16 @@ namespace SurfaceGeometry {
             surf.Width = ThisWidth;
             surf.Height = ThisHeight; // For a horizontal surface this is actually length!
             if (surf.Sides == 3) {
-                surf.Shape = SurfaceShape::Triangle;
+                surf.Shape = DataSurfaces::SurfaceShape::Triangle;
             } else if (surf.Sides == 4) {
                 // Test for rectangularity
                 if (isRectangle(state, ThisSurf)) {
-                    surf.Shape = SurfaceShape::Rectangle;
+                    surf.Shape = DataSurfaces::SurfaceShape::Rectangle;
                 } else {
-                    surf.Shape = SurfaceShape::Quadrilateral;
+                    surf.Shape = DataSurfaces::SurfaceShape::Quadrilateral;
                 }
             } else { // Surface( ThisSurf ).Sides > 4
-                surf.Shape = SurfaceShape::Polygonal;
+                surf.Shape = DataSurfaces::SurfaceShape::Polygonal;
                 if (std::abs(ThisHeight * ThisWidth - surf.GrossArea) > 0.001) {
                     surf.Width = std::sqrt(surf.GrossArea);
                     surf.Height = surf.Width;
@@ -13107,11 +13112,11 @@ namespace SurfaceGeometry {
             if (HeatTransSurf) {
 
                 if (surf.Sides == 4) {
-                    ThisShape = SurfaceShape::RectangularDoorWindow;
+                    ThisShape = DataSurfaces::SurfaceShape::RectangularDoorWindow;
                 } else if (surf.Sides == 3 && surf.Class == SurfaceClass::Window) {
-                    ThisShape = SurfaceShape::TriangularWindow;
+                    ThisShape = DataSurfaces::SurfaceShape::TriangularWindow;
                 } else if (surf.Sides == 3 && surf.Class == SurfaceClass::Door) {
-                    ThisShape = SurfaceShape::TriangularDoor;
+                    ThisShape = DataSurfaces::SurfaceShape::TriangularDoor;
                 } else {
                     assert(false);
                 }
@@ -13122,19 +13127,19 @@ namespace SurfaceGeometry {
                     // left or right fin
                     if (ThisSurfAz < 0.0) ThisSurfAz += 360.0;
                     if (ThisSurfAz > state.dataSurface->Surface(surf.BaseSurf).Azimuth) {
-                        ThisShape = SurfaceShape::RectangularLeftFin;
+                        ThisShape = DataSurfaces::SurfaceShape::RectangularLeftFin;
                     } else {
-                        ThisShape = SurfaceShape::RectangularRightFin;
+                        ThisShape = DataSurfaces::SurfaceShape::RectangularRightFin;
                     }
                 } else {
-                    ThisShape = SurfaceShape::RectangularOverhang;
+                    ThisShape = DataSurfaces::SurfaceShape::RectangularOverhang;
                 }
             }
 
             // Setting relative coordinates for shadowing calculations for subsurfaces
             bool SError; // Bool used for return value of calls to PlaneEquation
             switch (ThisShape) {
-            case SurfaceShape::RectangularDoorWindow: { // Rectangular heat transfer subsurface
+            case DataSurfaces::SurfaceShape::RectangularDoorWindow: { // Rectangular heat transfer subsurface
                 PlaneEquation(state.dataSurface->Surface(surf.BaseSurf).Vertex, state.dataSurface->Surface(surf.BaseSurf).Sides, BasePlane, SError);
                 if (SError) {
                     ShowSevereError(state, format("{}Degenerate surface (likely two vertices equal):\"{}\".", RoutineName, surf.Name));
@@ -13184,7 +13189,7 @@ namespace SurfaceGeometry {
                 state.dataSurfaceGeometry->Zpsv(3) = ZLLC;
                 state.dataSurfaceGeometry->Zpsv(4) = ZLLC;
 
-                if (surf.Class == SurfaceClass::Window && surf.ExtBoundCond == ExternalEnvironment && surf.FrameDivider > 0) {
+                if (surf.Class == SurfaceClass::Window && surf.ExtBoundCond == DataSurfaces::ExternalEnvironment && surf.FrameDivider > 0) {
                     int FrDivNum = surf.FrameDivider;
                     // Set flag for calculating beam solar reflection from outside and/or inside window reveal
                     if ((surf.Reveal > 0.0 && state.dataSurface->FrameDivider(FrDivNum).OutsideRevealSolAbs > 0.0) ||
@@ -13269,8 +13274,8 @@ namespace SurfaceGeometry {
                     }
                 }
             } break;
-            case SurfaceShape::TriangularWindow:
-            case SurfaceShape::TriangularDoor: {
+            case DataSurfaces::SurfaceShape::TriangularWindow:
+            case DataSurfaces::SurfaceShape::TriangularDoor: {
                 PlaneEquation(state.dataSurface->Surface(surf.BaseSurf).Vertex, state.dataSurface->Surface(surf.BaseSurf).Sides, BasePlane, SError);
                 if (SError) {
                     ShowSevereError(state, format("{}Degenerate surface (likely two vertices equal):\"{}\".", RoutineName, surf.Name));
@@ -13309,7 +13314,7 @@ namespace SurfaceGeometry {
                 state.dataSurfaceGeometry->Ypsv(3) = -Xp * BaseSinAzimuth * BaseCosTilt - Yp * BaseCosAzimuth * BaseCosTilt + Zp * BaseSinTilt;
                 state.dataSurfaceGeometry->Zpsv(3) = Xp * BaseSinAzimuth * BaseSinTilt + Yp * BaseCosAzimuth * BaseSinTilt + Zp * BaseCosTilt;
             } break;
-            case SurfaceShape::RectangularOverhang: {
+            case DataSurfaces::SurfaceShape::RectangularOverhang: {
                 Xp = surf.Vertex(2).x - BaseXLLC;
                 Yp = surf.Vertex(2).y - BaseYLLC;
                 Zp = surf.Vertex(2).z - BaseZLLC;
@@ -13335,7 +13340,7 @@ namespace SurfaceGeometry {
                 state.dataSurfaceGeometry->Zpsv(2) = 0.0;
                 state.dataSurfaceGeometry->Zpsv(3) = 0.0;
             } break;
-            case SurfaceShape::RectangularLeftFin: {
+            case DataSurfaces::SurfaceShape::RectangularLeftFin: {
                 Xp = surf.Vertex(2).x - BaseXLLC;
                 Yp = surf.Vertex(2).y - BaseYLLC;
                 Zp = surf.Vertex(2).z - BaseZLLC;
@@ -13361,7 +13366,7 @@ namespace SurfaceGeometry {
                 state.dataSurfaceGeometry->Zpsv(2) = 0.0;
                 state.dataSurfaceGeometry->Zpsv(3) = 0.0;
             } break;
-            case SurfaceShape::RectangularRightFin: {
+            case DataSurfaces::SurfaceShape::RectangularRightFin: {
                 Xp = surf.Vertex(2).x - BaseXLLC;
                 Yp = surf.Vertex(2).y - BaseYLLC;
                 Zp = surf.Vertex(2).z - BaseZLLC;
@@ -13608,8 +13613,8 @@ namespace SurfaceGeometry {
 
             auto const *thisMaterialSh = s_mat->materials(ShDevNum);
             auto &thisConstructNewSh = state.dataConstruction->Construct(ConstrNewSh);
-            if (state.dataSurface->WindowShadingControl(WSCPtr).ShadingType == WinShadingType::IntShade ||
-                state.dataSurface->WindowShadingControl(WSCPtr).ShadingType == WinShadingType::IntBlind) {
+            if (state.dataSurface->WindowShadingControl(WSCPtr).ShadingType == DataSurfaces::WinShadingType::IntShade ||
+                state.dataSurface->WindowShadingControl(WSCPtr).ShadingType == DataSurfaces::WinShadingType::IntBlind) {
                 // Interior shading device
                 thisConstructNewSh.LayerPoint({1, TotLayersOld}) = state.dataConstruction->Construct(ConstrNum).LayerPoint({1, TotLayersOld});
                 thisConstructNewSh.LayerPoint(TotLayersNew) = ShDevNum;
@@ -14015,7 +14020,7 @@ namespace SurfaceGeometry {
 
             // if exterior window, okay.
 
-            if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == ExternalEnvironment) {
+            if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond == DataSurfaces::ExternalEnvironment) {
                 // There are two glazing systems (separated by a vertical or horizontal mullion) on the Window5 Data File.
                 // Fill in geometry data for the second window (corresponding to the second glazing system on the data file.
                 // The first glazing system is assumed to be at left for vertical mullion, at bottom for horizontal mullion.
@@ -14759,7 +14764,7 @@ namespace SurfaceGeometry {
             surface.Centroid = centroid;
 
             if (centroid.z < 0.0) {
-                if (surface.ExtWind || surface.ExtBoundCond == ExternalEnvironment) ++negZcount;
+                if (surface.ExtWind || surface.ExtBoundCond == DataSurfaces::ExternalEnvironment) ++negZcount;
             }
 
         } // loop through surfaces
@@ -15712,7 +15717,7 @@ namespace SurfaceGeometry {
         std::vector<SurfaceGeometry::EdgeOfSurf> uniqEdgeOfSurfs; // I'm only partially using this
         for (const auto &surface : state.dataSurface->Surface) {
 
-            if (surface.ExtBoundCond != ExternalEnvironment) {
+            if (surface.ExtBoundCond != DataSurfaces::ExternalEnvironment) {
                 continue;
             }
             if (!surface.HeatTransSurf) {
