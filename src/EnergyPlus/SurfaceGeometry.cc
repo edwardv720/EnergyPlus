@@ -1015,7 +1015,6 @@ namespace SurfaceGeometry {
 
         int MultFound;
         int MultSurfNum;
-        std::string MultString;
         bool SubSurfaceSevereDisplayed;
         bool subSurfaceError(false);
         bool errFlag;
@@ -2529,10 +2528,10 @@ namespace SurfaceGeometry {
         } // for (SurfNum)
 
         // Check for IRT surfaces in invalid places.
-        int iTmp1 = 0;
         if (std::any_of(state.dataConstruction->Construct.begin(),
                         state.dataConstruction->Construct.end(),
                         [](Construction::ConstructionProps const &e) { return e.TypeIsIRT; })) {
+            int iTmp1 = 0;
             for (int SurfNum = 1; SurfNum <= state.dataSurface->TotSurfaces; ++SurfNum) {
                 auto &surf = state.dataSurface->Surface(SurfNum);
                 if (!surf.HeatTransSurf) continue;                                   // ignore shading surfaces
@@ -8890,8 +8889,8 @@ namespace SurfaceGeometry {
 
         for (index = 0; index < nSides; ++index) {
             size_t const prevIndex = (index == 0) ? nSides - 1 : index - 1;
-            Real64 &distanceThisToNext = distances[index];
-            Real64 &distanceThisToPrev = distances[prevIndex];
+            Real64 const &distanceThisToNext = distances[index];
+            Real64 const &distanceThisToPrev = distances[prevIndex];
             if ((distanceThisToNext >= Constant::OneCentimeter) && (distanceThisToPrev >= Constant::OneCentimeter)) {
                 continue;
             }
@@ -13379,7 +13378,7 @@ namespace SurfaceGeometry {
 
     int createAirMaterialFromDistance(EnergyPlusData &state, Real64 distance, std::string_view namePrefix)
     {
-        auto &s_mat = state.dataMaterial;
+        auto const &s_mat = state.dataMaterial;
 
         int mmDistance = int(1000 * distance); // Thickness of air gap in mm (usually between storm window and rest of window)
         std::string MatNameStAir = format("{}{}MM", namePrefix, mmDistance); // Name of created air layer material
