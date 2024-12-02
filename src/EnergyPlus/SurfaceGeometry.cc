@@ -1260,11 +1260,11 @@ namespace SurfaceGeometry {
         FirstTotalSurfaces = NumSurfs + AddedSubSurfaces;
         if (NeedToAddSurfaces + NeedToAddSubSurfaces > 0) {
             state.dataSurfaceGeometry->SurfaceTmp.redimension(state.dataSurface->TotSurfaces);
+            CurNewSurf = FirstTotalSurfaces;
         }
 
         // add the "need to add" surfaces
         // Debug    write(outputfiledebug,*) ' need to add ',NeedtoAddSurfaces+NeedToAddSubSurfaces
-        if (NeedToAddSurfaces + NeedToAddSubSurfaces > 0) CurNewSurf = FirstTotalSurfaces;
         for (int SurfNum = 1; SurfNum <= FirstTotalSurfaces; ++SurfNum) {
             if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ExtBoundCond != UnenteredAdjacentZoneSurface) continue;
             // Need to add surface
@@ -3098,18 +3098,16 @@ namespace SurfaceGeometry {
                 state.dataSurface->WorldCoordSystem = true;
                 state.dataSurface->CCW = true;
 
-                bool OK = false;
                 int Found = Util::FindItem(GAlphas(1), FlCorners, 4);
                 if (Found == 0) {
                     ShowSevereError(state, format("{}: Invalid {}={}", s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaFieldNames(1), GAlphas(1)));
                     ErrorsFound = true;
                 } else {
                     state.dataSurface->Corner = Found;
-                    OK = true;
                     OutMsg += FlCorners(state.dataSurface->Corner) + ',';
                 }
 
-                OK = false;
+                bool OK = false;
                 if (Util::SameString(GAlphas(2), "CCW") || Util::SameString(GAlphas(2), "Counterclockwise")) {
                     state.dataSurface->CCW = true;
                     OutMsg += "Counterclockwise,";
@@ -7399,19 +7397,16 @@ namespace SurfaceGeometry {
 
             // Check that associated surface is a shading surface
             WrongSurfaceType = false;
-            if (SurfNum != 0) {
-                auto const &surf = state.dataSurface->Surface(SurfNum);
-                if (!(surf.Class == SurfaceClass::Shading || surf.Class == SurfaceClass::Detached_F || surf.Class == SurfaceClass::Detached_B ||
-                      surf.Class == SurfaceClass::Overhang || surf.Class == SurfaceClass::Fin))
-                    WrongSurfaceType = true;
-                if (WrongSurfaceType) {
-                    ShowSevereError(state,
-                                    format("GetShadingSurfReflectanceData: {}=\"{}\", surface is not a shading surface.",
-                                           s_ipsc->cCurrentModuleObject,
-                                           surf.Name));
-                    ErrorsFound = true;
-                    continue;
-                }
+            auto const &surf = state.dataSurface->Surface(SurfNum);
+            if (!(surf.Class == SurfaceClass::Shading || surf.Class == SurfaceClass::Detached_F || surf.Class == SurfaceClass::Detached_B ||
+                  surf.Class == SurfaceClass::Overhang || surf.Class == SurfaceClass::Fin))
+                WrongSurfaceType = true;
+            if (WrongSurfaceType) {
+                ShowSevereError(
+                    state,
+                    format("GetShadingSurfReflectanceData: {}=\"{}\", surface is not a shading surface.", s_ipsc->cCurrentModuleObject, surf.Name));
+                ErrorsFound = true;
+                continue;
             }
 
             // If associated surface is a shading surface, set reflectance values
@@ -10532,10 +10527,7 @@ namespace SurfaceGeometry {
                         ErrorsFound = true;
                     }
                 }
-            }
-
-            // Error if base window has airflow control
-            if (SurfNum > 0) {
+                // Error if base window has airflow control
                 if (state.dataSurface->SurfWinAirflowControlType(SurfNum) != DataSurfaces::WindowAirFlowControlType::Invalid) {
                     ShowSevereError(
                         state,
@@ -13298,7 +13290,6 @@ namespace SurfaceGeometry {
                 TVect = surf.Vertex(2) - surf.Vertex(1);
                 ThisHeight = VecLength(TVect);
                 surf.Width = ThisWidth;
-                surf.Height = ThisHeight;
                 // Effective height and width of a triangular window for use in calc of convective air flow
                 // in gap between glass and shading device when shading device is present
                 surf.Height = 4.0 * surf.Area / (3.0 * surf.Width);
@@ -13489,10 +13480,6 @@ namespace SurfaceGeometry {
                 state.dataSurface->ShadeV(ThisSurf).XV(n) += state.dataSurface->Surface(ThisBaseSurface).XShift;
                 state.dataSurface->ShadeV(ThisSurf).YV(n) += state.dataSurface->Surface(ThisBaseSurface).YShift;
             }
-        }
-
-        if (ErrorInSurface) {
-            ErrorsFound = true;
         }
     }
 
@@ -14958,140 +14945,126 @@ namespace SurfaceGeometry {
                             state, format("{}: Surface=\"{}\" uses Construction:AirBoundary in a non-interzone surface.", RoutineName, surf.Name));
                     }
                 } else {
-                    // Process air boundary - set surface properties and set up enclosures
-                    // Radiant exchange
-                    if (surf.IsAirBoundarySurf) {
-                        // Boundary is grouped - assign enclosure
-                        state.dataHeatBal->AnyAirBoundary = true;
-                        int thisSideEnclosureNum = 0;
-                        int otherSideEnclosureNum = 0;
-                        if (radiantSetup) {
-                            // Radiant enclosure setup
-                            constr.IsUsedCTF = false;
-                            surf.HeatTransSurf = false;
-                            surf.HeatTransferAlgorithm = DataSurfaces::HeatTransferModel::AirBoundaryNoHT;
-                            thisSideEnclosureNum = state.dataHeatBal->space(surf.spaceNum).radiantEnclosureNum;
-                            otherSideEnclosureNum =
-                                state.dataHeatBal->space(state.dataSurface->Surface(surf.ExtBoundCond).spaceNum).radiantEnclosureNum;
-                        } else {
-                            // Solar enclosure setup
-                            thisSideEnclosureNum = state.dataHeatBal->space(surf.spaceNum).solarEnclosureNum;
-                            otherSideEnclosureNum =
-                                state.dataHeatBal->space(state.dataSurface->Surface(surf.ExtBoundCond).spaceNum).solarEnclosureNum;
-                        }
-                        anyGroupedSpaces = true;
-                        if ((thisSideEnclosureNum == 0) && (otherSideEnclosureNum == 0)) {
-                            // Neither zone is assigned to an enclosure, so increment the counter and assign to both
-                            ++enclosureNum;
-                            auto &thisEnclosure = Enclosures(enclosureNum);
-                            thisSideEnclosureNum = enclosureNum;
-                            thisEnclosure.Name = format("{} Enclosure {}", RadiantOrSolar, enclosureNum);
-                            thisEnclosure.spaceNames.push_back(state.dataHeatBal->space(surf.spaceNum).Name);
-                            thisEnclosure.spaceNums.push_back(surf.spaceNum);
-                            thisEnclosure.FloorArea += state.dataHeatBal->space(surf.spaceNum).FloorArea;
-                            otherSideEnclosureNum = enclosureNum;
-                            int otherSideSpaceNum = state.dataSurface->Surface(surf.ExtBoundCond).spaceNum;
-                            if (otherSideSpaceNum != surf.spaceNum) {
-                                thisEnclosure.spaceNames.push_back(state.dataHeatBal->space(otherSideSpaceNum).Name);
-                                thisEnclosure.spaceNums.push_back(otherSideSpaceNum);
-                                thisEnclosure.FloorArea += state.dataHeatBal->space(otherSideSpaceNum).FloorArea;
-                            }
-                            if (radiantSetup) {
-                                state.dataHeatBal->space(surf.spaceNum).radiantEnclosureNum = thisSideEnclosureNum;
-                                state.dataHeatBal->space(state.dataSurface->Surface(surf.ExtBoundCond).spaceNum).radiantEnclosureNum =
-                                    otherSideEnclosureNum;
-                            } else {
-                                thisEnclosure.ExtWindowArea += state.dataHeatBal->space(surf.spaceNum).extWindowArea;
-                                thisEnclosure.TotalSurfArea += state.dataHeatBal->space(surf.spaceNum).totalSurfArea;
-                                if (otherSideSpaceNum != surf.spaceNum) {
-                                    thisEnclosure.ExtWindowArea += state.dataHeatBal->space(otherSideSpaceNum).extWindowArea;
-                                    thisEnclosure.TotalSurfArea += state.dataHeatBal->space(otherSideSpaceNum).totalSurfArea;
-                                }
-                                state.dataHeatBal->space(surf.spaceNum).solarEnclosureNum = thisSideEnclosureNum;
-                                state.dataHeatBal->space(state.dataSurface->Surface(surf.ExtBoundCond).spaceNum).solarEnclosureNum =
-                                    otherSideEnclosureNum;
-                            }
-                        } else if (thisSideEnclosureNum == 0) {
-                            // Other side is assigned, so use that one for both
-                            thisSideEnclosureNum = otherSideEnclosureNum;
-                            auto &thisEnclosure = Enclosures(thisSideEnclosureNum);
-                            thisEnclosure.spaceNames.push_back(state.dataHeatBal->space(surf.spaceNum).Name);
-                            thisEnclosure.spaceNums.push_back(surf.spaceNum);
-                            thisEnclosure.FloorArea += state.dataHeatBal->space(surf.spaceNum).FloorArea;
-                            if (radiantSetup) {
-                                state.dataHeatBal->space(surf.spaceNum).radiantEnclosureNum = thisSideEnclosureNum;
-                            } else {
-                                thisEnclosure.ExtWindowArea += state.dataHeatBal->space(surf.spaceNum).extWindowArea;
-                                thisEnclosure.TotalSurfArea += state.dataHeatBal->space(surf.spaceNum).totalSurfArea;
-                                state.dataHeatBal->space(surf.spaceNum).solarEnclosureNum = thisSideEnclosureNum;
-                            }
-                        } else if (otherSideEnclosureNum == 0) {
-                            // This side is assigned, so use that one for both
-                            otherSideEnclosureNum = thisSideEnclosureNum;
-                            auto &thisEnclosure = Enclosures(thisSideEnclosureNum);
-                            thisEnclosure.spaceNames.push_back(state.dataHeatBal->space(state.dataSurface->Surface(surf.ExtBoundCond).spaceNum).Name);
-                            thisEnclosure.spaceNums.push_back(state.dataSurface->Surface(surf.ExtBoundCond).spaceNum);
-                            thisEnclosure.FloorArea += state.dataHeatBal->space(state.dataSurface->Surface(surf.ExtBoundCond).spaceNum).FloorArea;
-                            if (radiantSetup) {
-                                state.dataHeatBal->space(state.dataSurface->Surface(surf.ExtBoundCond).spaceNum).radiantEnclosureNum =
-                                    otherSideEnclosureNum;
-                            } else {
-                                thisEnclosure.ExtWindowArea +=
-                                    state.dataHeatBal->space(state.dataSurface->Surface(surf.ExtBoundCond).spaceNum).extWindowArea;
-                                thisEnclosure.TotalSurfArea +=
-                                    state.dataHeatBal->space(state.dataSurface->Surface(surf.ExtBoundCond).spaceNum).totalSurfArea;
-                                state.dataHeatBal->space(state.dataSurface->Surface(surf.ExtBoundCond).spaceNum).solarEnclosureNum =
-                                    otherSideEnclosureNum;
-                            }
-                        } else if (thisSideEnclosureNum != otherSideEnclosureNum) {
-                            // If both sides are already assigned to an enclosure, then merge the two enclosures
-                            auto const &thisEnclosure = Enclosures(thisSideEnclosureNum);
-                            auto &otherEnclosure = Enclosures(otherSideEnclosureNum);
-                            for (const auto &zName : thisEnclosure.spaceNames) {
-                                otherEnclosure.spaceNames.push_back(zName);
-                            }
-                            for (int zNum : thisEnclosure.spaceNums) {
-                                otherEnclosure.spaceNums.push_back(zNum);
-                                if (radiantSetup) {
-                                    state.dataHeatBal->space(zNum).radiantEnclosureNum = otherSideEnclosureNum;
-                                } else {
-                                    state.dataHeatBal->space(zNum).solarEnclosureNum = otherSideEnclosureNum;
-                                }
-                            }
-                            otherEnclosure.FloorArea += thisEnclosure.FloorArea;
-                            otherEnclosure.ExtWindowArea += thisEnclosure.ExtWindowArea;
-                            otherEnclosure.TotalSurfArea += thisEnclosure.TotalSurfArea;
-                            // Move any enclosures beyond thisEnclosure down one slot - at this point all enclosures are named "Radiant
-                            // Enclosure N"
-                            for (int enclNum = thisSideEnclosureNum; enclNum < enclosureNum; ++enclNum) {
-                                std::string saveName = Enclosures(enclNum).Name;
-                                Enclosures(enclNum) = Enclosures(enclNum + 1);
-                                Enclosures(enclNum).Name = saveName;
-                                for (int sNum : Enclosures(enclNum).spaceNums) {
-                                    if (radiantSetup) {
-                                        state.dataHeatBal->space(sNum).radiantEnclosureNum = enclNum;
-                                    } else {
-                                        state.dataHeatBal->space(sNum).solarEnclosureNum = enclNum;
-                                    }
-                                }
-                            }
-                            // Clear the last rad enclosure and reduce the total number of enclosures by 1
-                            Enclosures(enclosureNum).Name.clear();
-                            Enclosures(enclosureNum).spaceNames.clear();
-                            Enclosures(enclosureNum).spaceNums.clear();
-                            Enclosures(enclosureNum).FloorArea = 0;
-                            Enclosures(enclosureNum).ExtWindowArea = 0;
-                            Enclosures(enclosureNum).TotalSurfArea = 0;
-                            enclosureNum -= 1;
-                        }
+                    // Process air boundary - set surface properties and set up enclosures Radiant exchange, Boundary is grouped - assign enclosure
+                    state.dataHeatBal->AnyAirBoundary = true;
+                    int thisSideEnclosureNum = 0;
+                    int otherSideEnclosureNum = 0;
+                    if (radiantSetup) {
+                        // Radiant enclosure setup
+                        constr.IsUsedCTF = false;
+                        surf.HeatTransSurf = false;
+                        surf.HeatTransferAlgorithm = DataSurfaces::HeatTransferModel::AirBoundaryNoHT;
+                        thisSideEnclosureNum = state.dataHeatBal->space(surf.spaceNum).radiantEnclosureNum;
+                        otherSideEnclosureNum = state.dataHeatBal->space(state.dataSurface->Surface(surf.ExtBoundCond).spaceNum).radiantEnclosureNum;
                     } else {
-                        ErrorsFound = true;
-                        ShowSevereError(state, format("{}: Surface={} uses Construction:AirBoundary with illegal option:", RoutineName, surf.Name));
-                        if (radiantSetup) {
-                            ShowContinueError(state, "Radiant Exchange Method must be either GroupedSpaces or IRTSurface.");
-                        } else {
-                            ShowContinueError(state, "Solar and Daylighting Method must be either GroupedSpaces or InteriorWindow");
+                        // Solar enclosure setup
+                        thisSideEnclosureNum = state.dataHeatBal->space(surf.spaceNum).solarEnclosureNum;
+                        otherSideEnclosureNum = state.dataHeatBal->space(state.dataSurface->Surface(surf.ExtBoundCond).spaceNum).solarEnclosureNum;
+                    }
+                    anyGroupedSpaces = true;
+                    if ((thisSideEnclosureNum == 0) && (otherSideEnclosureNum == 0)) {
+                        // Neither zone is assigned to an enclosure, so increment the counter and assign to both
+                        ++enclosureNum;
+                        auto &thisEnclosure = Enclosures(enclosureNum);
+                        thisSideEnclosureNum = enclosureNum;
+                        thisEnclosure.Name = format("{} Enclosure {}", RadiantOrSolar, enclosureNum);
+                        thisEnclosure.spaceNames.push_back(state.dataHeatBal->space(surf.spaceNum).Name);
+                        thisEnclosure.spaceNums.push_back(surf.spaceNum);
+                        thisEnclosure.FloorArea += state.dataHeatBal->space(surf.spaceNum).FloorArea;
+                        otherSideEnclosureNum = enclosureNum;
+                        int otherSideSpaceNum = state.dataSurface->Surface(surf.ExtBoundCond).spaceNum;
+                        if (otherSideSpaceNum != surf.spaceNum) {
+                            thisEnclosure.spaceNames.push_back(state.dataHeatBal->space(otherSideSpaceNum).Name);
+                            thisEnclosure.spaceNums.push_back(otherSideSpaceNum);
+                            thisEnclosure.FloorArea += state.dataHeatBal->space(otherSideSpaceNum).FloorArea;
                         }
+                        if (radiantSetup) {
+                            state.dataHeatBal->space(surf.spaceNum).radiantEnclosureNum = thisSideEnclosureNum;
+                            state.dataHeatBal->space(state.dataSurface->Surface(surf.ExtBoundCond).spaceNum).radiantEnclosureNum =
+                                otherSideEnclosureNum;
+                        } else {
+                            thisEnclosure.ExtWindowArea += state.dataHeatBal->space(surf.spaceNum).extWindowArea;
+                            thisEnclosure.TotalSurfArea += state.dataHeatBal->space(surf.spaceNum).totalSurfArea;
+                            if (otherSideSpaceNum != surf.spaceNum) {
+                                thisEnclosure.ExtWindowArea += state.dataHeatBal->space(otherSideSpaceNum).extWindowArea;
+                                thisEnclosure.TotalSurfArea += state.dataHeatBal->space(otherSideSpaceNum).totalSurfArea;
+                            }
+                            state.dataHeatBal->space(surf.spaceNum).solarEnclosureNum = thisSideEnclosureNum;
+                            state.dataHeatBal->space(state.dataSurface->Surface(surf.ExtBoundCond).spaceNum).solarEnclosureNum =
+                                otherSideEnclosureNum;
+                        }
+                    } else if (thisSideEnclosureNum == 0) {
+                        // Other side is assigned, so use that one for both
+                        thisSideEnclosureNum = otherSideEnclosureNum;
+                        auto &thisEnclosure = Enclosures(thisSideEnclosureNum);
+                        thisEnclosure.spaceNames.push_back(state.dataHeatBal->space(surf.spaceNum).Name);
+                        thisEnclosure.spaceNums.push_back(surf.spaceNum);
+                        thisEnclosure.FloorArea += state.dataHeatBal->space(surf.spaceNum).FloorArea;
+                        if (radiantSetup) {
+                            state.dataHeatBal->space(surf.spaceNum).radiantEnclosureNum = thisSideEnclosureNum;
+                        } else {
+                            thisEnclosure.ExtWindowArea += state.dataHeatBal->space(surf.spaceNum).extWindowArea;
+                            thisEnclosure.TotalSurfArea += state.dataHeatBal->space(surf.spaceNum).totalSurfArea;
+                            state.dataHeatBal->space(surf.spaceNum).solarEnclosureNum = thisSideEnclosureNum;
+                        }
+                    } else if (otherSideEnclosureNum == 0) {
+                        // This side is assigned, so use that one for both
+                        otherSideEnclosureNum = thisSideEnclosureNum;
+                        auto &thisEnclosure = Enclosures(thisSideEnclosureNum);
+                        thisEnclosure.spaceNames.push_back(state.dataHeatBal->space(state.dataSurface->Surface(surf.ExtBoundCond).spaceNum).Name);
+                        thisEnclosure.spaceNums.push_back(state.dataSurface->Surface(surf.ExtBoundCond).spaceNum);
+                        thisEnclosure.FloorArea += state.dataHeatBal->space(state.dataSurface->Surface(surf.ExtBoundCond).spaceNum).FloorArea;
+                        if (radiantSetup) {
+                            state.dataHeatBal->space(state.dataSurface->Surface(surf.ExtBoundCond).spaceNum).radiantEnclosureNum =
+                                otherSideEnclosureNum;
+                        } else {
+                            thisEnclosure.ExtWindowArea +=
+                                state.dataHeatBal->space(state.dataSurface->Surface(surf.ExtBoundCond).spaceNum).extWindowArea;
+                            thisEnclosure.TotalSurfArea +=
+                                state.dataHeatBal->space(state.dataSurface->Surface(surf.ExtBoundCond).spaceNum).totalSurfArea;
+                            state.dataHeatBal->space(state.dataSurface->Surface(surf.ExtBoundCond).spaceNum).solarEnclosureNum =
+                                otherSideEnclosureNum;
+                        }
+                    } else if (thisSideEnclosureNum != otherSideEnclosureNum) {
+                        // If both sides are already assigned to an enclosure, then merge the two enclosures
+                        auto const &thisEnclosure = Enclosures(thisSideEnclosureNum);
+                        auto &otherEnclosure = Enclosures(otherSideEnclosureNum);
+                        for (const auto &zName : thisEnclosure.spaceNames) {
+                            otherEnclosure.spaceNames.push_back(zName);
+                        }
+                        for (int zNum : thisEnclosure.spaceNums) {
+                            otherEnclosure.spaceNums.push_back(zNum);
+                            if (radiantSetup) {
+                                state.dataHeatBal->space(zNum).radiantEnclosureNum = otherSideEnclosureNum;
+                            } else {
+                                state.dataHeatBal->space(zNum).solarEnclosureNum = otherSideEnclosureNum;
+                            }
+                        }
+                        otherEnclosure.FloorArea += thisEnclosure.FloorArea;
+                        otherEnclosure.ExtWindowArea += thisEnclosure.ExtWindowArea;
+                        otherEnclosure.TotalSurfArea += thisEnclosure.TotalSurfArea;
+                        // Move any enclosures beyond thisEnclosure down one slot - at this point all enclosures are named "Radiant
+                        // Enclosure N"
+                        for (int enclNum = thisSideEnclosureNum; enclNum < enclosureNum; ++enclNum) {
+                            std::string saveName = Enclosures(enclNum).Name;
+                            Enclosures(enclNum) = Enclosures(enclNum + 1);
+                            Enclosures(enclNum).Name = saveName;
+                            for (int sNum : Enclosures(enclNum).spaceNums) {
+                                if (radiantSetup) {
+                                    state.dataHeatBal->space(sNum).radiantEnclosureNum = enclNum;
+                                } else {
+                                    state.dataHeatBal->space(sNum).solarEnclosureNum = enclNum;
+                                }
+                            }
+                        }
+                        // Clear the last rad enclosure and reduce the total number of enclosures by 1
+                        Enclosures(enclosureNum).Name.clear();
+                        Enclosures(enclosureNum).spaceNames.clear();
+                        Enclosures(enclosureNum).spaceNums.clear();
+                        Enclosures(enclosureNum).FloorArea = 0;
+                        Enclosures(enclosureNum).ExtWindowArea = 0;
+                        Enclosures(enclosureNum).TotalSurfArea = 0;
+                        enclosureNum -= 1;
                     }
                     if (solarSetup && constr.TypeIsAirBoundaryMixing) {
                         // Set up mixing air boundaries only once, during solar setup
