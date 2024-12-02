@@ -107,9 +107,6 @@ namespace SurfaceGeometry {
     // PURPOSE OF THIS MODULE:
     // This module performs the functions required of the surface geometry.
 
-    using namespace DataEnvironment;
-    using namespace DataHeatBalance;
-
     static std::string const BlankString;
 
     int constexpr UnenteredAdjacentZoneSurface = -998; // allows users to enter one zone surface ("Zone")
@@ -270,8 +267,7 @@ namespace SurfaceGeometry {
         static constexpr std::string_view RoutineName("SetUpZoneGeometry: ");
 
         // Zones must have been "gotten" before this call
-        // The RelNorth variables are used if "relative" coordinates are input as well
-        // as setting up DaylightingCoords
+        // The RelNorth variables are used if "relative" coordinates are input as well as setting up DaylightingCoords
 
         // these include building north axis and Building Rotation for Appendix G
         state.dataSurfaceGeometry->CosBldgRelNorth =
@@ -307,7 +303,7 @@ namespace SurfaceGeometry {
 
         if (!ErrorsFound && state.dataSurface->TotStormWin > 0) CreateStormWindowConstructions(state);
 
-        SetFlagForWindowConstructionWithShadeOrBlindLayer(state);
+        DataHeatBalance::SetFlagForWindowConstructionWithShadeOrBlindLayer(state);
 
         state.dataSurfaceGeometry->CosZoneRelNorth.deallocate();
         state.dataSurfaceGeometry->SinZoneRelNorth.deallocate();
@@ -619,7 +615,7 @@ namespace SurfaceGeometry {
             Real64 NominalUwithConvCoeffs = 0.0;
             if (thisSurface.Construction > 0 && thisSurface.Construction <= state.dataHeatBal->TotConstructs) {
                 bool isWithConvCoefValid = false;
-                NominalUwithConvCoeffs = ComputeNominalUwithConvCoeffs(state, SurfNum, isWithConvCoefValid);
+                NominalUwithConvCoeffs = DataHeatBalance::ComputeNominalUwithConvCoeffs(state, SurfNum, isWithConvCoefValid);
             }
 
             // populate the predefined report related to u-values with films
@@ -663,7 +659,7 @@ namespace SurfaceGeometry {
               state.dataGlobal->NumOfZones,
               state.dataSurface->TotSurfaces - state.dataSurface->FixedShadingCount - state.dataSurface->BuildingShadingCount -
                   state.dataSurface->AttachedShadingCount,
-              sum(state.dataHeatBal->Zone, &ZoneData::NumSubSurfaces));
+              sum(state.dataHeatBal->Zone, &DataHeatBalance::ZoneData::NumSubSurfaces));
 
         // Write Zone Information header to the initialization output file
         static constexpr std::string_view Format_721(
@@ -773,8 +769,8 @@ namespace SurfaceGeometry {
         SetupEnclosuresAndAirBoundaries(state, state.dataViewFactor->EnclSolInfo, SurfaceGeometry::enclosureType::SolarEnclosures, ErrorsFound);
 
         // Do the Stratosphere check
-        SetZoneOutBulbTempAt(state);
-        CheckZoneOutBulbTempAt(state);
+        DataHeatBalance::SetZoneOutBulbTempAt(state);
+        DataHeatBalance::CheckZoneOutBulbTempAt(state);
     }
 
     void AllocateSurfaceArrays(EnergyPlusData &state)
@@ -783,33 +779,13 @@ namespace SurfaceGeometry {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         Rick Strand
         //       DATE WRITTEN   February 1998
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
-        // This subroutine allocates all of the arrays at the module level which
-        // require allocation.
+        // This subroutine allocates all of the arrays at the module level which require allocation.
 
         // METHODOLOGY EMPLOYED:
         // Allocation is dependent on the user input file.
 
-        // REFERENCES:
-        // na
-
-        // USE STATEMENTS:
-        // na
-
-        // SUBROUTINE PARAMETER DEFINITIONS:
-        // na
-
-        // INTERFACE BLOCK SPECIFICATIONS
-        // na
-
-        // DERIVED TYPE DEFINITIONS
-        // na
-
-        // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-        // na
         state.dataSurface->ShadeV.allocate(state.dataSurface->TotSurfaces);
         for (auto &e : state.dataSurface->ShadeV)
             e.NVert = 0;
@@ -1021,63 +997,20 @@ namespace SurfaceGeometry {
         //  (you're on the outside looking toward the wall) as stored into
         //  Surface%Vertex(1:<number-of-sides>)
 
-        using namespace Vectors;
-        using ScheduleManager::GetScheduleMaxValue;
-        using ScheduleManager::GetScheduleMinValue;
-        using namespace DataErrorTracking;
+        static constexpr std::string_view RoutineName = "GetSurfaceData: ";
 
-        static constexpr std::string_view RoutineName("GetSurfaceData: ");
-
-        int ConstrNum;            // Construction number
-        int Found;                // For matching interzone surfaces
-        int ConstrNumFound;       // Construction number of matching interzone surface
-        bool NonMatch(false);     // Error for non-matching interzone surfaces
-        int MovedSurfs;           // Number of Moved Surfaces (when sorting into hierarchical structure)
-        bool SurfError(false);    // General Surface Error, causes fatal error at end of routine
-        int TotLay;               // Total layers in a construction
-        int TotLayFound;          // Total layers in the construction of a matching interzone surface
-        int TotDetachedFixed;     // Total Shading:Site:Detailed entries
-        int TotDetachedBldg;      // Total Shading:Building:Detailed entries
-        int TotRectDetachedFixed; // Total Shading:Site entries
-        int TotRectDetachedBldg;  // Total Shading:Building entries
-        int TotHTSurfs;           // Number of BuildingSurface:Detailed items to obtain
-        int TotDetailedWalls;     // Number of Wall:Detailed items to obtain
-        int TotDetailedRoofs;     // Number of RoofCeiling:Detailed items to obtain
-        int TotDetailedFloors;    // Number of Floor:Detailed items to obtain
-        int TotHTSubs;            // Number of FenestrationSurface:Detailed items to obtain
-        int TotShdSubs;           // Number of Shading:Zone:Detailed items to obtain
-        int TotIntMassSurfaces;   // Number of InternalMass surfaces to obtain
+        int Found;             // For matching interzone surfaces
+        bool NonMatch(false);  // Error for non-matching interzone surfaces
+        int MovedSurfs;        // Number of Moved Surfaces (when sorting into hierarchical structure)
+        bool SurfError(false); // General Surface Error, causes fatal error at end of routine
+        int TotLay;            // Total layers in a construction
+        int TotLayFound;       // Total layers in the construction of a matching interzone surface
         // Simple Surfaces (Rectangular)
-        int TotRectExtWalls;   // Number of Exterior Walls to obtain
-        int TotRectIntWalls;   // Number of Adiabatic Walls to obtain
-        int TotRectIZWalls;    // Number of Interzone Walls to obtain
-        int TotRectUGWalls;    // Number of Underground to obtain
-        int TotRectRoofs;      // Number of Roofs to obtain
-        int TotRectCeilings;   // Number of Adiabatic Ceilings to obtain
-        int TotRectIZCeilings; // Number of Interzone Ceilings to obtain
-        int TotRectGCFloors;   // Number of Floors with Ground Contact to obtain
-        int TotRectIntFloors;  // Number of Adiabatic Walls to obtain
-        int TotRectIZFloors;   // Number of Interzone Floors to obtain
-        int TotRectWindows;
-        int TotRectDoors;
-        int TotRectGlazedDoors;
-        int TotRectIZWindows;
-        int TotRectIZDoors;
-        int TotRectIZGlazedDoors;
-        int TotOverhangs;
-        int TotOverhangsProjection;
-        int TotFins;
-        int TotFinsProjection;
-        int LayNumOutside;    // Outside material numbers for a shaded construction
-        int AddedSubSurfaces; // Subsurfaces (windows) added when windows reference Window5 Data File
+        int LayNumOutside; // Outside material numbers for a shaded construction
         // entries with two glazing systems
         int NeedToAddSurfaces;    // Surfaces that will be added due to "unentered" other zone surface
         int NeedToAddSubSurfaces; // SubSurfaces that will be added due to "unentered" other zone surface
-        int CurNewSurf;
-        int FirstTotalSurfaces;
-        int NVert;
-        int Vert;
-        int n;
+        int CurNewSurf = 0;
         Real64 SurfWorldAz;
         Real64 SurfTilt;
 
@@ -1134,40 +1067,40 @@ namespace SurfaceGeometry {
             }
         }
 
-        TotDetachedFixed = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Shading:Site:Detailed");
-        TotDetachedBldg = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Shading:Building:Detailed");
-        TotRectDetachedFixed = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Shading:Site");
-        TotRectDetachedBldg = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Shading:Building");
-        TotHTSurfs = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "BuildingSurface:Detailed");
-        TotDetailedWalls = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Wall:Detailed");
-        TotDetailedRoofs = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "RoofCeiling:Detailed");
-        TotDetailedFloors = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Floor:Detailed");
-        TotHTSubs = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "FenestrationSurface:Detailed");
-        TotShdSubs = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Shading:Zone:Detailed");
-        TotOverhangs = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Shading:Overhang");
-        TotOverhangsProjection = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Shading:Overhang:Projection");
-        TotFins = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Shading:Fin");
-        TotFinsProjection = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Shading:Fin:Projection");
-        TotRectWindows = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Window");
-        TotRectDoors = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Door");
-        TotRectGlazedDoors = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "GlazedDoor");
-        TotRectIZWindows = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Window:Interzone");
-        TotRectIZDoors = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Door:Interzone");
-        TotRectIZGlazedDoors = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "GlazedDoor:Interzone");
-        TotRectExtWalls = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Wall:Exterior");
-        TotRectIntWalls = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Wall:Adiabatic");
-        TotRectIZWalls = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Wall:Interzone");
-        TotRectUGWalls = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Wall:Underground");
-        TotRectRoofs = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Roof");
-        TotRectCeilings = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Ceiling:Adiabatic");
-        TotRectIZCeilings = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Ceiling:Interzone");
-        TotRectGCFloors = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Floor:GroundContact");
-        TotRectIntFloors = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Floor:Adiabatic");
-        TotRectIZFloors = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Floor:Interzone");
+        int TotDetachedFixed = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Shading:Site:Detailed");
+        int TotDetachedBldg = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Shading:Building:Detailed");
+        int TotRectDetachedFixed = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Shading:Site");
+        int TotRectDetachedBldg = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Shading:Building");
+        int TotHTSurfs = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "BuildingSurface:Detailed");
+        int TotDetailedWalls = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Wall:Detailed");
+        int TotDetailedRoofs = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "RoofCeiling:Detailed");
+        int TotDetailedFloors = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Floor:Detailed");
+        int TotHTSubs = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "FenestrationSurface:Detailed");
+        int TotShdSubs = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Shading:Zone:Detailed");
+        int TotOverhangs = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Shading:Overhang");
+        int TotOverhangsProjection = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Shading:Overhang:Projection");
+        int TotFins = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Shading:Fin");
+        int TotFinsProjection = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Shading:Fin:Projection");
+        int TotRectWindows = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Window");
+        int TotRectDoors = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Door");
+        int TotRectGlazedDoors = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "GlazedDoor");
+        int TotRectIZWindows = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Window:Interzone");
+        int TotRectIZDoors = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Door:Interzone");
+        int TotRectIZGlazedDoors = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "GlazedDoor:Interzone");
+        int TotRectExtWalls = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Wall:Exterior");
+        int TotRectIntWalls = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Wall:Adiabatic");
+        int TotRectIZWalls = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Wall:Interzone");
+        int TotRectUGWalls = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Wall:Underground");
+        int TotRectRoofs = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Roof");
+        int TotRectCeilings = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Ceiling:Adiabatic");
+        int TotRectIZCeilings = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Ceiling:Interzone");
+        int TotRectGCFloors = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Floor:GroundContact");
+        int TotRectIntFloors = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Floor:Adiabatic");
+        int TotRectIZFloors = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "Floor:Interzone");
 
         state.dataSurface->TotOSC = 0;
 
-        TotIntMassSurfaces = GetNumIntMassSurfaces(state);
+        int TotIntMassSurfaces = GetNumIntMassSurfaces(state);
 
         state.dataSurface->TotSurfaces = (TotDetachedFixed + TotDetachedBldg + TotRectDetachedFixed + TotRectDetachedBldg) * 2 + TotHTSurfs +
                                          TotHTSubs + TotShdSubs * 2 + TotIntMassSurfaces + TotOverhangs * 2 + TotOverhangsProjection * 2 +
@@ -1181,7 +1114,7 @@ namespace SurfaceGeometry {
         // SurfaceTmp structure is allocated via derived type initialization.
 
         int NumSurfs = 0;
-        AddedSubSurfaces = 0;
+        int AddedSubSurfaces = 0;
         state.dataErrTracking->AskForSurfacesReport = true;
 
         GetDetShdSurfaceData(state, ErrorsFound, NumSurfs, TotDetachedFixed, TotDetachedBldg);
@@ -1256,7 +1189,7 @@ namespace SurfaceGeometry {
         AllocateSurfaceWindows(state, state.dataSurface->TotSurfaces);
 
         // Have to make room for added surfaces, if needed
-        FirstTotalSurfaces = NumSurfs + AddedSubSurfaces;
+        int FirstTotalSurfaces = NumSurfs + AddedSubSurfaces;
         if (NeedToAddSurfaces + NeedToAddSubSurfaces > 0) {
             state.dataSurfaceGeometry->SurfaceTmp.redimension(state.dataSurface->TotSurfaces);
             CurNewSurf = FirstTotalSurfaces;
@@ -1278,33 +1211,33 @@ namespace SurfaceGeometry {
             state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).ZoneName = state.dataHeatBal->Zone(Found).Name;
             // Reverse Construction
             state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).Construction =
-                AssignReverseConstructionNumber(state, state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Construction, SurfError);
+                DataHeatBalance::AssignReverseConstructionNumber(state, state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Construction, SurfError);
             state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).ConstructionStoredInputValue =
                 state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).Construction;
             // Reverse Vertices
-            NVert = state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Sides;
-            for (Vert = 1; Vert <= state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Sides; ++Vert) {
+            int NVert = state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Sides;
+            for (int Vert = 1; Vert <= state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Sides; ++Vert) {
                 state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).Vertex(Vert) = state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Vertex(NVert);
                 --NVert;
             }
             if (state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).Sides > 2) {
-                CreateNewellAreaVector(state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).Vertex,
-                                       state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).Sides,
-                                       state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).NewellAreaVector);
+                Vectors::CreateNewellAreaVector(state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).Vertex,
+                                                state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).Sides,
+                                                state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).NewellAreaVector);
                 state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).GrossArea =
-                    VecLength(state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).NewellAreaVector);
+                    Vectors::VecLength(state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).NewellAreaVector);
                 state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).Area = state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).GrossArea;
                 state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).NetAreaShadowCalc = state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).Area;
-                CreateNewellSurfaceNormalVector(state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).Vertex,
-                                                state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).Sides,
-                                                state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).NewellSurfaceNormalVector);
-                DetermineAzimuthAndTilt(state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).Vertex,
-                                        SurfWorldAz,
-                                        SurfTilt,
-                                        state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).lcsx,
-                                        state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).lcsy,
-                                        state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).lcsz,
-                                        state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).NewellSurfaceNormalVector);
+                Vectors::CreateNewellSurfaceNormalVector(state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).Vertex,
+                                                         state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).Sides,
+                                                         state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).NewellSurfaceNormalVector);
+                Vectors::DetermineAzimuthAndTilt(state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).Vertex,
+                                                 SurfWorldAz,
+                                                 SurfTilt,
+                                                 state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).lcsx,
+                                                 state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).lcsy,
+                                                 state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).lcsz,
+                                                 state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).NewellSurfaceNormalVector);
                 state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).Azimuth = SurfWorldAz;
                 state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).Tilt = SurfTilt;
                 state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).convOrientation =
@@ -1318,7 +1251,7 @@ namespace SurfaceGeometry {
                 // Outward normal unit vector (pointing away from room)
                 state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).OutNormVec =
                     state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).NewellSurfaceNormalVector;
-                for (n = 1; n <= 3; ++n) {
+                for (int n = 1; n <= 3; ++n) {
                     if (std::abs(state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).OutNormVec(n) - 1.0) < 1.e-06)
                         state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).OutNormVec(n) = +1.0;
                     if (std::abs(state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf).OutNormVec(n) + 1.0) < 1.e-06)
@@ -1785,8 +1718,8 @@ namespace SurfaceGeometry {
                                                              state.dataSurface->Surface(Found).ZoneName));
                                 }
                             }
-                            ConstrNum = state.dataSurface->Surface(SurfNum).Construction;
-                            ConstrNumFound = state.dataSurface->Surface(Found).Construction;
+                            int ConstrNum = state.dataSurface->Surface(SurfNum).Construction;
+                            int ConstrNumFound = state.dataSurface->Surface(Found).Construction;
                             if (ConstrNum <= 0 || ConstrNumFound <= 0) continue;
                             if (state.dataConstruction->Construct(ConstrNum).ReverseConstructionNumLayersWarning &&
                                 state.dataConstruction->Construct(ConstrNumFound).ReverseConstructionNumLayersWarning)
@@ -2927,11 +2860,11 @@ namespace SurfaceGeometry {
                                 bool &surfaceError        // True if surface azimuths or tilts differ by more than error tolerance
     )
     {
-        bool sameSurfNormal(false); // True if surface has the same surface normal within tolerance
-        Real64 constexpr warningTolerance(30.0);
-        Real64 constexpr errorTolerance(90.0);
+        bool sameSurfNormal = false; // True if surface has the same surface normal within tolerance
+        Real64 constexpr warningTolerance = 30.0;
+        Real64 constexpr errorTolerance = 90.0;
 
-        surfaceError = false;
+        surfaceError = false; // True if surface has the same surface normal within tolerance
 
         // Check if base surface and subsurface have the same normal
         Vectors::CompareTwoVectors(baseSurface.NewellSurfaceNormalVector, subSurface.NewellSurfaceNormalVector, sameSurfNormal, 0.001);
@@ -2998,16 +2931,11 @@ namespace SurfaceGeometry {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         Linda Lawrie
         //       DATE WRITTEN   May 2000
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // This subroutine reads in the "Surface Geometry" parameters, verifies them,
         // and sets "global" variables that will tell other routines how the surface
         // vertices are expected in input.
-
-        // METHODOLOGY EMPLOYED:
-        // na
 
         // REFERENCES:
         // GlobalGeometryRules Definition
@@ -3057,22 +2985,18 @@ namespace SurfaceGeometry {
         //      \key Absolute
         //      \note absolute -- same as world
 
-        // Using/Aliasing
-
         // SUBROUTINE PARAMETER DEFINITIONS:
         static Array1D_string const FlCorners(4, {"UpperLeftCorner", "LowerLeftCorner", "LowerRightCorner", "UpperRightCorner"});
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-        int NumStmt;
         Array1D_string GAlphas(5);
         Array1D<Real64> GNum(1);
-        std::string OutMsg;
 
         auto &s_ipsc = state.dataIPShortCut;
 
         s_ipsc->cCurrentModuleObject = "GlobalGeometryRules";
-        NumStmt = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, s_ipsc->cCurrentModuleObject);
-        OutMsg = " Surface Geometry,";
+        int NumStmt = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, s_ipsc->cCurrentModuleObject);
+        std::string OutMsg = " Surface Geometry,";
 
         {
             int const SELECT_CASE_var = NumStmt;
@@ -3243,14 +3167,7 @@ namespace SurfaceGeometry {
         //       DATE WRITTEN   May 2000
 
         // PURPOSE OF THIS SUBROUTINE:
-        // This subroutine gets the Detached Shading Surface Data,
-        // checks it for errors, etc.
-
-        // Using/Aliasing
-        using ScheduleManager::CheckScheduleValueMinMax;
-        using ScheduleManager::GetScheduleIndex;
-        using ScheduleManager::GetScheduleMaxValue;
-        using ScheduleManager::GetScheduleMinValue;
+        // This subroutine gets the Detached Shading Surface Data, checks it for errors, etc.
 
         // SUBROUTINE PARAMETER DEFINITIONS:
         static Array1D_string const cModuleObjects(2, {"Shading:Site:Detailed", "Shading:Building:Detailed"});
@@ -3260,7 +3177,6 @@ namespace SurfaceGeometry {
         int NumAlphas;  // Number of material alpha names being passed
         int NumNumbers; // Number of material properties being passed
         int Loop;
-        int Item;
         int ItemsToGet;
         SurfaceClass ClassItem;
         int numSides;
@@ -3275,7 +3191,7 @@ namespace SurfaceGeometry {
 
         if ((TotDetachedFixed + TotDetachedBldg) == 0) return;
 
-        for (Item = 1; Item <= 2; ++Item) {
+        for (int Item = 1; Item <= 2; ++Item) {
 
             s_ipsc->cCurrentModuleObject = cModuleObjects(Item);
             if (Item == 1) {
@@ -3325,7 +3241,8 @@ namespace SurfaceGeometry {
                 // Base transmittance of a shadowing (sub)surface
                 if (!s_ipsc->lAlphaFieldBlanks(2)) {
                     // Schedule for a shadowing (sub)surface
-                    state.dataSurfaceGeometry->SurfaceTmp(SurfNum).SchedShadowSurfIndex = GetScheduleIndex(state, s_ipsc->cAlphaArgs(2));
+                    state.dataSurfaceGeometry->SurfaceTmp(SurfNum).SchedShadowSurfIndex =
+                        ScheduleManager::GetScheduleIndex(state, s_ipsc->cAlphaArgs(2));
                     if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).SchedShadowSurfIndex == 0) {
                         ShowSevereError(state,
                                         format("{}=\"{}\", {} not found={}",
@@ -3339,7 +3256,8 @@ namespace SurfaceGeometry {
                     state.dataSurfaceGeometry->SurfaceTmp(SurfNum).SchedShadowSurfIndex = 0;
                 }
                 if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).SchedShadowSurfIndex != 0) {
-                    if (!CheckScheduleValueMinMax(state, state.dataSurfaceGeometry->SurfaceTmp(SurfNum).SchedShadowSurfIndex, ">=", 0.0, "<=", 1.0)) {
+                    if (!ScheduleManager::CheckScheduleValueMinMax(
+                            state, state.dataSurfaceGeometry->SurfaceTmp(SurfNum).SchedShadowSurfIndex, ">=", 0.0, "<=", 1.0)) {
                         ShowSevereError(state,
                                         format("{}=\"{}\", {}=\"{}\", values not in range [0,1].",
                                                s_ipsc->cCurrentModuleObject,
@@ -3348,9 +3266,9 @@ namespace SurfaceGeometry {
                                                s_ipsc->cAlphaArgs(2)));
                         ErrorsFound = true;
                     }
-                    SchedMinValue = GetScheduleMinValue(state, state.dataSurfaceGeometry->SurfaceTmp(SurfNum).SchedShadowSurfIndex);
+                    SchedMinValue = ScheduleManager::GetScheduleMinValue(state, state.dataSurfaceGeometry->SurfaceTmp(SurfNum).SchedShadowSurfIndex);
                     state.dataSurfaceGeometry->SurfaceTmp(SurfNum).SchedMinValue = SchedMinValue;
-                    SchedMaxValue = GetScheduleMaxValue(state, state.dataSurfaceGeometry->SurfaceTmp(SurfNum).SchedShadowSurfIndex);
+                    SchedMaxValue = ScheduleManager::GetScheduleMaxValue(state, state.dataSurfaceGeometry->SurfaceTmp(SurfNum).SchedShadowSurfIndex);
                     if (SchedMinValue == 1.0) {
                         // Set transparent for now, check for EMS actuators later in SolarShading::resetShadingSurfaceTransparency
                         state.dataSurfaceGeometry->SurfaceTmp(SurfNum).IsTransparent = true;
@@ -3438,13 +3356,9 @@ namespace SurfaceGeometry {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         Linda Lawrie
         //       DATE WRITTEN   January 2009
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // Gets the simple, rectangular detached surfaces.
-
-        // Using/Aliasing
 
         // SUBROUTINE PARAMETER DEFINITIONS:
         static Array1D_string const cModuleObjects(2, {"Shading:Site", "Shading:Building"});
@@ -3454,7 +3368,6 @@ namespace SurfaceGeometry {
         int NumAlphas;  // Number of material alpha names being passed
         int NumNumbers; // Number of material properties being passed
         int Loop;
-        int Item;
         int ItemsToGet;
         SurfaceClass ClassItem;
 
@@ -3465,7 +3378,7 @@ namespace SurfaceGeometry {
         }
 
         if (TotRectDetachedFixed + TotRectDetachedBldg == 0) return;
-        for (Item = 1; Item <= 2; ++Item) {
+        for (int Item = 1; Item <= 2; ++Item) {
 
             s_ipsc->cCurrentModuleObject = cModuleObjects(Item);
             if (Item == 1) {
@@ -3569,15 +3482,9 @@ namespace SurfaceGeometry {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         Linda Lawrie
         //       DATE WRITTEN   May 2000
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
-        // This subroutine gets the HeatTransfer Surface Data,
-        // checks it for errors, etc.
-
-        // METHODOLOGY EMPLOYED:
-        // na
+        // This subroutine gets the HeatTransfer Surface Data, checks it for errors, etc.
 
         // REFERENCES:
         // Heat Transfer Surface Definition
@@ -3690,7 +3597,6 @@ namespace SurfaceGeometry {
         int ZoneNum;         // DO loop counter (zones)
         int Found;           // For matching interzone surfaces
         int Loop;
-        int Item;
         int ItemsToGet;
         int ClassItem;
         int ArgPointer;
@@ -3703,7 +3609,7 @@ namespace SurfaceGeometry {
         GetFoundationData(state, ErrorsFound);
 
         NeedToAddSurfaces = 0;
-        for (Item = 1; Item <= 4; ++Item) {
+        for (int Item = 1; Item <= 4; ++Item) {
 
             s_ipsc->cCurrentModuleObject = cModuleObjects(Item);
             if (Item == 1) {
@@ -4294,13 +4200,9 @@ namespace SurfaceGeometry {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         Linda Lawrie
         //       DATE WRITTEN   December 2008
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // Get simple (rectangular, LLC corner specified) walls
-
-        // Using/Aliasing
 
         // SUBROUTINE PARAMETER DEFINITIONS:
         static Array1D_string const cModuleObjects(10,
@@ -4315,9 +4217,7 @@ namespace SurfaceGeometry {
                                                     "Floor:Adiabatic",
                                                     "Floor:Interzone"});
 
-        int Item;
         int ItemsToGet;
-        int Loop;
         int NumAlphas;
         int NumNumbers;
         int IOStat; // IO Status when calling get input subroutine
@@ -4330,7 +4230,7 @@ namespace SurfaceGeometry {
 
         auto &s_ipsc = state.dataIPShortCut;
 
-        for (Item = 1; Item <= 10; ++Item) {
+        for (int Item = 1; Item <= 10; ++Item) {
 
             s_ipsc->cCurrentModuleObject = cModuleObjects(Item);
             if (Item == 1) {
@@ -4395,7 +4295,7 @@ namespace SurfaceGeometry {
                 ClassItem = 2;
             }
 
-            for (Loop = 1; Loop <= ItemsToGet; ++Loop) {
+            for (int Loop = 1; Loop <= ItemsToGet; ++Loop) {
                 state.dataInputProcessing->inputProcessor->getObjectItem(state,
                                                                          s_ipsc->cCurrentModuleObject,
                                                                          Loop,
@@ -4664,49 +4564,19 @@ namespace SurfaceGeometry {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         Linda Lawrie
         //       DATE WRITTEN   December 2008
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // This routine creates world/3d coordinates for rectangular surfaces using azimuth, tilt, LLC (X,Y,Z), length & height.
 
-        // METHODOLOGY EMPLOYED:
-        // na
-
-        // REFERENCES:
-        // na
-
-        // Using/Aliasing
-        using namespace Vectors;
-
-        // Locals
-        // SUBROUTINE ARGUMENT DEFINITIONS:
-
-        // SUBROUTINE PARAMETER DEFINITIONS:
-        // na
-
-        // INTERFACE BLOCK SPECIFICATIONS:
-        // na
-
-        // DERIVED TYPE DEFINITIONS:
-        // na
-
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-        Real64 SurfAzimuth; // Surface Azimuth/Facing (same as Base Surface)
-        Real64 SurfTilt;    // Tilt (same as Base Surface)
         Real64 XLLC;
         Real64 YLLC;
         Real64 ZLLC;
-        Real64 CosSurfAzimuth;
-        Real64 SinSurfAzimuth;
-        Real64 CosSurfTilt;
-        Real64 SinSurfTilt;
         Array1D<Real64> XX(4);
         Array1D<Real64> YY(4);
         Real64 Xb;
         Real64 Yb;
         Real64 Perimeter;
-        int n;
         int Vrt;
 
         if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Zone == 0 &&
@@ -4717,12 +4587,12 @@ namespace SurfaceGeometry {
         state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Height = Height;
         state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Width = Length;
 
-        SurfAzimuth = state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Azimuth;
-        SurfTilt = state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Tilt;
-        CosSurfAzimuth = std::cos(SurfAzimuth * Constant::DegToRadians);
-        SinSurfAzimuth = std::sin(SurfAzimuth * Constant::DegToRadians);
-        CosSurfTilt = std::cos(SurfTilt * Constant::DegToRadians);
-        SinSurfTilt = std::sin(SurfTilt * Constant::DegToRadians);
+        Real64 SurfAzimuth = state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Azimuth;
+        Real64 SurfTilt = state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Tilt;
+        Real64 CosSurfAzimuth = std::cos(SurfAzimuth * Constant::DegToRadians);
+        Real64 SinSurfAzimuth = std::sin(SurfAzimuth * Constant::DegToRadians);
+        Real64 CosSurfTilt = std::cos(SurfTilt * Constant::DegToRadians);
+        Real64 SinSurfTilt = std::sin(SurfTilt * Constant::DegToRadians);
         if (!SurfWorldCoordSystem) {
             if (state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Zone > 0) {
                 Xb = XCoord * state.dataSurfaceGeometry->CosZoneRelNorth(state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Zone) -
@@ -4770,29 +4640,30 @@ namespace SurfaceGeometry {
         YY(3) = 0.0;
         YY(2) = 0.0;
 
-        for (n = 1; n <= state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Sides; ++n) {
+        for (int n = 1; n <= state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Sides; ++n) {
             Vrt = n;
             state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Vertex(Vrt).x = XLLC - XX(n) * CosSurfAzimuth - YY(n) * CosSurfTilt * SinSurfAzimuth;
             state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Vertex(Vrt).y = YLLC + XX(n) * SinSurfAzimuth - YY(n) * CosSurfTilt * CosSurfAzimuth;
             state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Vertex(Vrt).z = ZLLC + YY(n) * SinSurfTilt;
         }
 
-        CreateNewellAreaVector(state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Vertex,
-                               state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Sides,
-                               state.dataSurfaceGeometry->SurfaceTmp(SurfNum).NewellAreaVector);
-        state.dataSurfaceGeometry->SurfaceTmp(SurfNum).GrossArea = VecLength(state.dataSurfaceGeometry->SurfaceTmp(SurfNum).NewellAreaVector);
+        Vectors::CreateNewellAreaVector(state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Vertex,
+                                        state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Sides,
+                                        state.dataSurfaceGeometry->SurfaceTmp(SurfNum).NewellAreaVector);
+        state.dataSurfaceGeometry->SurfaceTmp(SurfNum).GrossArea =
+            Vectors::VecLength(state.dataSurfaceGeometry->SurfaceTmp(SurfNum).NewellAreaVector);
         state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Area = state.dataSurfaceGeometry->SurfaceTmp(SurfNum).GrossArea;
         state.dataSurfaceGeometry->SurfaceTmp(SurfNum).NetAreaShadowCalc = state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Area;
-        CreateNewellSurfaceNormalVector(state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Vertex,
-                                        state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Sides,
-                                        state.dataSurfaceGeometry->SurfaceTmp(SurfNum).NewellSurfaceNormalVector);
-        DetermineAzimuthAndTilt(state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Vertex,
-                                SurfAzimuth,
-                                SurfTilt,
-                                state.dataSurfaceGeometry->SurfaceTmp(SurfNum).lcsx,
-                                state.dataSurfaceGeometry->SurfaceTmp(SurfNum).lcsy,
-                                state.dataSurfaceGeometry->SurfaceTmp(SurfNum).lcsz,
-                                state.dataSurfaceGeometry->SurfaceTmp(SurfNum).NewellSurfaceNormalVector);
+        Vectors::CreateNewellSurfaceNormalVector(state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Vertex,
+                                                 state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Sides,
+                                                 state.dataSurfaceGeometry->SurfaceTmp(SurfNum).NewellSurfaceNormalVector);
+        Vectors::DetermineAzimuthAndTilt(state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Vertex,
+                                         SurfAzimuth,
+                                         SurfTilt,
+                                         state.dataSurfaceGeometry->SurfaceTmp(SurfNum).lcsx,
+                                         state.dataSurfaceGeometry->SurfaceTmp(SurfNum).lcsy,
+                                         state.dataSurfaceGeometry->SurfaceTmp(SurfNum).lcsz,
+                                         state.dataSurfaceGeometry->SurfaceTmp(SurfNum).NewellSurfaceNormalVector);
         state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Azimuth = SurfAzimuth;
         state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Tilt = SurfTilt;
         state.dataSurfaceGeometry->SurfaceTmp(SurfNum).convOrientation =
@@ -4805,7 +4676,7 @@ namespace SurfaceGeometry {
         state.dataSurfaceGeometry->SurfaceTmp(SurfNum).ViewFactorGround = 0.5 * (1.0 - state.dataSurfaceGeometry->SurfaceTmp(SurfNum).CosTilt);
         // Outward normal unit vector (pointing away from room)
         state.dataSurfaceGeometry->SurfaceTmp(SurfNum).OutNormVec = state.dataSurfaceGeometry->SurfaceTmp(SurfNum).NewellSurfaceNormalVector;
-        for (n = 1; n <= 3; ++n) {
+        for (int n = 1; n <= 3; ++n) {
             if (std::abs(state.dataSurfaceGeometry->SurfaceTmp(SurfNum).OutNormVec(n) - 1.0) < 1.e-06)
                 state.dataSurfaceGeometry->SurfaceTmp(SurfNum).OutNormVec(n) = +1.0;
             if (std::abs(state.dataSurfaceGeometry->SurfaceTmp(SurfNum).OutNormVec(n) + 1.0) < 1.e-06)
@@ -4849,14 +4720,9 @@ namespace SurfaceGeometry {
         //       AUTHOR         Linda Lawrie
         //       DATE WRITTEN   May 2000
         //       MODIFIED       August 2012 - line up subsurfaces with base surface types
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
-        // This subroutine gets the HeatTransfer Sub Surface Data,
-        // checks it for errors, etc.
-
-        // METHODOLOGY EMPLOYED:
-        // na
+        // This subroutine gets the HeatTransfer Sub Surface Data, checks it for errors, etc.
 
         // REFERENCES:
         // Heat Transfer Subsurface Definition
@@ -4925,12 +4791,6 @@ namespace SurfaceGeometry {
         //        \note are "relative" to the Zone Origin.  If world, then building and zone origins are used
         //        \note for some internal calculations, but all coordinates are given in an "absolute" system.
         //  N4-15 as indicated by the N3 value
-
-        // Using/Aliasing
-
-        // Locals
-        // SUBROUTINE ARGUMENT DEFINITIONS:
-        //  data file entry with two glazing systems
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         int IOStat;          // IO Status when calling get input subroutine
@@ -5327,23 +5187,14 @@ namespace SurfaceGeometry {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         Linda Lawrie
         //       DATE WRITTEN   December 2008
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // Get simple (rectangular, relative origin to base surface) windows, doors, glazed doors.
-
-        // Using/Aliasing
-
-        // Locals
-        // SUBROUTINE ARGUMENT DEFINITIONS:
-        //  data file entry with two glazing systems
 
         // SUBROUTINE PARAMETER DEFINITIONS:
         static Array1D_string const cModuleObjects(6, {"Window", "Door", "GlazedDoor", "Window:Interzone", "Door:Interzone", "GlazedDoor:Interzone"});
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-        int Item;
         int ItemsToGet;
         int Loop;
         int NumAlphas;
@@ -5357,7 +5208,7 @@ namespace SurfaceGeometry {
         int IZFound;
 
         auto &s_ipsc = state.dataIPShortCut;
-        for (Item = 1; Item <= 6; ++Item) {
+        for (int Item = 1; Item <= 6; ++Item) {
 
             s_ipsc->cCurrentModuleObject = cModuleObjects(Item);
             if (Item == 1) {
@@ -5698,13 +5549,9 @@ namespace SurfaceGeometry {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         Linda Lawrie
         //       DATE WRITTEN   December 2008
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // This routine performs checks on WindowShadingControl settings and Frame/Divider Settings.
-
-        // Using/Aliasing
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         int ConstrNumSh;    // Construction number with Shade
@@ -6037,20 +5884,9 @@ namespace SurfaceGeometry {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         Linda Lawrie
         //       DATE WRITTEN   December 2008
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // This routine performs miscellaneous checks on subsurfaces: Windows, GlassDoors, Doors, Tubular Devices.
-
-        // Using/Aliasing
-
-        using namespace DataErrorTracking;
-
-        // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-        int Lay;       // Layer number
-        int LayerPtr;  // Layer pointer
-        int ConstrNum; // Construction number
 
         auto &s_mat = state.dataMaterial;
         // Warning if window has multiplier > 1 and SolarDistribution = FullExterior or FullInteriorExterior
@@ -6072,11 +5908,11 @@ namespace SurfaceGeometry {
 
         //  Require that a construction referenced by a surface that is a window
         //  NOT have a shading device layer; use WindowShadingControl to specify a shading device.
-        ConstrNum = state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Construction;
+        int ConstrNum = state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Construction;
         if (ConstrNum > 0) {
             int NumShades = 0;
-            for (Lay = 1; Lay <= state.dataConstruction->Construct(ConstrNum).TotLayers; ++Lay) {
-                LayerPtr = state.dataConstruction->Construct(ConstrNum).LayerPoint(Lay);
+            for (int Lay = 1; Lay <= state.dataConstruction->Construct(ConstrNum).TotLayers; ++Lay) {
+                int LayerPtr = state.dataConstruction->Construct(ConstrNum).LayerPoint(Lay);
                 if (LayerPtr == 0) continue; // Error is caught already, will terminate later
                 if (s_mat->materials(LayerPtr)->group == Material::Group::Shade || s_mat->materials(LayerPtr)->group == Material::Group::Blind ||
                     s_mat->materials(LayerPtr)->group == Material::Group::Screen)
@@ -6097,8 +5933,8 @@ namespace SurfaceGeometry {
              state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Class == SurfaceClass::GlassDoor)) {
             ConstrNum = state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Construction;
             if (ConstrNum > 0) {
-                for (Lay = 1; Lay <= state.dataConstruction->Construct(ConstrNum).TotLayers; ++Lay) {
-                    LayerPtr = state.dataConstruction->Construct(ConstrNum).LayerPoint(Lay);
+                for (int Lay = 1; Lay <= state.dataConstruction->Construct(ConstrNum).TotLayers; ++Lay) {
+                    int LayerPtr = state.dataConstruction->Construct(ConstrNum).LayerPoint(Lay);
                     auto const *mat = s_mat->materials(LayerPtr);
                     if (mat->group != Material::Group::Glass) continue;
 
@@ -6183,17 +6019,9 @@ namespace SurfaceGeometry {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         Linda Lawrie
         //       DATE WRITTEN   December 2008
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // This routine creates world/3d coordinates for rectangular surfaces using relative X and Z, length & height.
-
-        // METHODOLOGY EMPLOYED:
-        // na
-
-        // REFERENCES:
-        // na
 
         // Using/Aliasing
         using namespace Vectors;
