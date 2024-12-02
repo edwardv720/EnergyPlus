@@ -46,7 +46,8 @@ jobs:
           --force
           --std=c++17
           --inline-suppr
-          --suppress=cppcheckError
+          --suppress=missingInclude
+          --suppress=missingIncludeSystem
           --suppress=unusedFunction:src/EnergyPlus/api/autosizing.cc
           --suppress=unusedFunction:src/EnergyPlus/api/datatransfer.cc
           --suppress=unusedFunction:src/EnergyPlus/api/func.cc
