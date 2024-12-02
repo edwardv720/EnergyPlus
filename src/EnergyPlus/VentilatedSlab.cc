@@ -4338,14 +4338,12 @@ namespace VentilatedSlab {
             }
 
         } else {
-            if ((ventSlab.SysConfg == VentilatedSlabConfig::SlabOnly) || (ventSlab.SysConfg == VentilatedSlabConfig::SeriesSlabs)) {
-                state.dataLoopNodes->Node(FanOutNode) = state.dataLoopNodes->Node(AirOutletNode);
-                state.dataHeatBalFanSys->QRadSysSource = 0.0;
-
-            } else if (ventSlab.SysConfg == VentilatedSlabConfig::SlabAndZone) {
+            state.dataLoopNodes->Node(FanOutNode) = state.dataLoopNodes->Node(AirOutletNode);
+            if (ventSlab.SysConfg == VentilatedSlabConfig::SlabAndZone) {
                 state.dataLoopNodes->Node(ZoneInletNode) = state.dataLoopNodes->Node(AirInletNode);
-                state.dataLoopNodes->Node(FanOutNode) = state.dataLoopNodes->Node(AirOutletNode); // Fan Resolve
-                state.dataHeatBalFanSys->QRadSysSource = 0.0;
+            }
+            for (int const surfNum : ventSlab.SurfacePtr) {
+                state.dataHeatBalFanSys->QRadSysSource(surfNum) = 0.0;
             }
         }
 
