@@ -9381,17 +9381,12 @@ namespace SurfaceGeometry {
         //                        Shading Type = BetweenGlassShade or BetweenGlassBlind
         //                      Dec 2003 (FW): improve BetweenGlassBlind error messages
         //                      Feb 2009 (BG): improve error checking for OnIfScheduleAllows
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // Reads in the window shading control information
         // from the input data file, interprets it and puts it in the derived type
 
-        // Using/Aliasing
-        using ScheduleManager::GetScheduleIndex;
-
         // SUBROUTINE PARAMETER DEFINITIONS:
-
         int constexpr NumValidShadingTypes(9);
         static Array1D_string const cValidShadingTypes(NumValidShadingTypes,
                                                        {
@@ -9513,12 +9508,12 @@ namespace SurfaceGeometry {
             windowShadingControl.getInputShadedConstruction =
                 Util::FindItemInList(s_ipsc->cAlphaArgs(4), state.dataConstruction->Construct, state.dataHeatBal->TotConstructs);
             windowShadingControl.ShadingDevice = Material::GetMaterialNum(state, s_ipsc->cAlphaArgs(9));
-            windowShadingControl.Schedule = GetScheduleIndex(state, s_ipsc->cAlphaArgs(6));
+            windowShadingControl.Schedule = ScheduleManager::GetScheduleIndex(state, s_ipsc->cAlphaArgs(6));
             windowShadingControl.SetPoint = s_ipsc->rNumericArgs(2);
             windowShadingControl.SetPoint2 = s_ipsc->rNumericArgs(3);
             windowShadingControl.ShadingControlIsScheduled = getYesNoValue(s_ipsc->cAlphaArgs(7)) == BooleanSwitch::Yes;
             windowShadingControl.GlareControlIsActive = getYesNoValue(s_ipsc->cAlphaArgs(8)) == BooleanSwitch::Yes;
-            windowShadingControl.SlatAngleSchedule = GetScheduleIndex(state, s_ipsc->cAlphaArgs(11));
+            windowShadingControl.SlatAngleSchedule = ScheduleManager::GetScheduleIndex(state, s_ipsc->cAlphaArgs(11));
 
             // store the string for now and associate it after daylighting control objects are read
             windowShadingControl.DaylightingControlName = s_ipsc->cAlphaArgs(12);
@@ -10054,22 +10049,14 @@ namespace SurfaceGeometry {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         Fred Winkelmann
         //       DATE WRITTEN   December 2003
-        //       MODIFIED       na
-
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
-        // Reads in the storm window data from the input file,
-        // interprets it and puts it in the derived type
-
-        // Using/Aliasing
+        // Reads in the storm window data from the input file, interprets it and puts it in the derived type
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-
         int IOStat;           // IO Status when calling get input subroutine
         int StormWinNumAlpha; // Number of alpha names being passed
         int StormWinNumProp;  // Number of properties being passed
-        int StormWinNum;      // Index for storm window number
         int loop;             // Do loop counter
 
         auto &s_ipsc = state.dataIPShortCut;
@@ -10082,7 +10069,7 @@ namespace SurfaceGeometry {
 
         state.dataSurface->StormWindow.allocate(state.dataSurface->TotStormWin);
 
-        StormWinNum = 0;
+        int StormWinNum = 0;
         for (loop = 1; loop <= state.dataSurface->TotStormWin; ++loop) {
 
             state.dataInputProcessing->inputProcessor->getObjectItem(state,
@@ -10253,14 +10240,10 @@ namespace SurfaceGeometry {
         //       DATE WRITTEN   Feb 2003
         //       MODIFIED       June 2003, FCW: add destination = return air;
         //                        more error messages
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // Reads in the window airflow control information from the input data file,
         // interprets it and puts it in the SurfaceWindow derived type
-
-        // Using/Aliasing
-        using ScheduleManager::GetScheduleIndex;
 
         static constexpr std::string_view routineName = "GetWindowGapAirflowControlData";
 
@@ -10494,7 +10477,7 @@ namespace SurfaceGeometry {
                                                  s_ipsc->cAlphaFieldNames(6)));
                     } else {
                         state.dataSurface->SurfWinAirflowHasSchedule(SurfNum) = true;
-                        state.dataSurface->SurfWinAirflowSchedulePtr(SurfNum) = GetScheduleIndex(state, s_ipsc->cAlphaArgs(6));
+                        state.dataSurface->SurfWinAirflowSchedulePtr(SurfNum) = ScheduleManager::GetScheduleIndex(state, s_ipsc->cAlphaArgs(6));
                         if (state.dataSurface->SurfWinAirflowSchedulePtr(SurfNum) == 0) {
                             ErrorsFound = true;
                             ShowSevereError(state,
@@ -11170,13 +11153,9 @@ namespace SurfaceGeometry {
         //       AUTHOR         Linda Lawrie
         //       DATE WRITTEN   May 2000
         //       MODIFIED       Jul 2011, M.J. Witte and C.O. Pedersen, add new fields to OSC for last T, max and min
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // This subroutine gets the OtherSideCoefficient data.
-
-        // METHODOLOGY EMPLOYED:
-        // na
 
         // REFERENCES:
         // Other Side Coefficient Definition
@@ -11239,19 +11218,11 @@ namespace SurfaceGeometry {
         //      \units C
         //      \default 200
 
-        // Using/Aliasing
-
-        using ScheduleManager::GetScheduleIndex;
-
-        // Locals
-        // SUBROUTINE ARGUMENT DEFINITIONS:
-
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         int NumAlphas;
         int NumProps;
         int Loop;
         int IOStat;
-        int OSCNum;
         std::string cOSCLimitsString;
 
         auto &s_ipsc = state.dataIPShortCut;
@@ -11260,7 +11231,7 @@ namespace SurfaceGeometry {
         state.dataSurface->TotOSC = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, s_ipsc->cCurrentModuleObject);
         state.dataSurface->OSC.allocate(state.dataSurface->TotOSC);
 
-        OSCNum = 0;
+        int OSCNum = 0;
         for (Loop = 1; Loop <= state.dataSurface->TotOSC; ++Loop) {
             state.dataInputProcessing->inputProcessor->getObjectItem(state,
                                                                      s_ipsc->cCurrentModuleObject,
@@ -11299,7 +11270,7 @@ namespace SurfaceGeometry {
                 state.dataSurface->OSC(OSCNum).ConstTempScheduleName = s_ipsc->cAlphaArgs(2);
                 if (!state.dataSurface->OSC(OSCNum).ConstTempScheduleName.empty()) {
                     state.dataSurface->OSC(OSCNum).ConstTempScheduleIndex =
-                        GetScheduleIndex(state, state.dataSurface->OSC(OSCNum).ConstTempScheduleName);
+                        ScheduleManager::GetScheduleIndex(state, state.dataSurface->OSC(OSCNum).ConstTempScheduleName);
                     if (state.dataSurface->OSC(OSCNum).ConstTempScheduleIndex == 0) {
                         ShowSevereError(state,
                                         format("{}=\"{}\", invalid {}=\"{}",
@@ -11430,14 +11401,9 @@ namespace SurfaceGeometry {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         Brent Griffith
         //       DATE WRITTEN   November 2004
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // This subroutine gets the OtherSideConditionsModel data.
-
-        // METHODOLOGY EMPLOYED:
-        // na
 
         // REFERENCES:
         // derived from GetOSCData subroutine by Linda Lawrie
@@ -11454,14 +11420,10 @@ namespace SurfaceGeometry {
         //      \key Vented PV Cavity
         //      \key Hybrid PV Transpired Collector
 
-        // Using/Aliasing
-
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         int NumAlphas;
         int NumProps;
-        int Loop;
         int IOStat;
-        int OSCMNum;
 
         auto &s_ipsc = state.dataIPShortCut;
         s_ipsc->cCurrentModuleObject = "SurfaceProperty:OtherSideConditionsModel";
@@ -11469,8 +11431,8 @@ namespace SurfaceGeometry {
         state.dataSurface->OSCM.allocate(state.dataSurface->TotOSCM);
         // OSCM is already initialized in derived type defn.
 
-        OSCMNum = 0;
-        for (Loop = 1; Loop <= state.dataSurface->TotOSCM; ++Loop) {
+        int OSCMNum = 0;
+        for (int Loop = 1; Loop <= state.dataSurface->TotOSCM; ++Loop) {
             state.dataInputProcessing->inputProcessor->getObjectItem(
                 state, s_ipsc->cCurrentModuleObject, Loop, s_ipsc->cAlphaArgs, NumAlphas, s_ipsc->rNumericArgs, NumProps, IOStat);
             bool ErrorInName = false;
@@ -11548,7 +11510,7 @@ namespace SurfaceGeometry {
             }
         }
 
-        for (Loop = 1; Loop <= state.dataSurface->TotOSCM; ++Loop) {
+        for (int Loop = 1; Loop <= state.dataSurface->TotOSCM; ++Loop) {
             if (Loop == 1) {
                 static constexpr std::string_view OSCMFormat1("! <Other Side Conditions Model>,Name,Class\n");
                 print(state.files.eio, OSCMFormat1);
@@ -11563,15 +11525,9 @@ namespace SurfaceGeometry {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         Linda Lawrie
         //       DATE WRITTEN   May 2000
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
-        // This subroutine gets the movable insulation data that can be associated with
-        // a surface.
-
-        // METHODOLOGY EMPLOYED:
-        // na
+        // This subroutine gets the movable insulation data that can be associated with a surface.
 
         // REFERENCES:
         // Movable Insulation Definition
@@ -11594,16 +11550,10 @@ namespace SurfaceGeometry {
         //        \type object-list
         //        \object-list ScheduleNames
 
-        // Using/Aliasing
-
-        using ScheduleManager::GetScheduleIndex;
-
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         int NAlphas;
         int NNums;
         int IOStat;
-        int Loop;
-        int NMatInsul;
 
         enum class InsulationType
         {
@@ -11618,8 +11568,8 @@ namespace SurfaceGeometry {
         auto &s_mat = state.dataMaterial;
 
         s_ipsc->cCurrentModuleObject = "SurfaceControl:MovableInsulation";
-        NMatInsul = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, s_ipsc->cCurrentModuleObject);
-        for (Loop = 1; Loop <= NMatInsul; ++Loop) {
+        int NMatInsul = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, s_ipsc->cCurrentModuleObject);
+        for (int Loop = 1; Loop <= NMatInsul; ++Loop) {
             state.dataInputProcessing->inputProcessor->getObjectItem(state,
                                                                      s_ipsc->cCurrentModuleObject,
                                                                      Loop,
@@ -11635,7 +11585,7 @@ namespace SurfaceGeometry {
             int SurfNum = Util::FindItemInList(s_ipsc->cAlphaArgs(2), state.dataSurface->Surface, state.dataSurface->TotSurfaces);
             int MaterNum = Material::GetMaterialNum(state, s_ipsc->cAlphaArgs(3));
             auto *thisMaterial = s_mat->materials(MaterNum);
-            int SchNum = GetScheduleIndex(state, s_ipsc->cAlphaArgs(4));
+            int SchNum = ScheduleManager::GetScheduleIndex(state, s_ipsc->cAlphaArgs(4));
             InsulationType insulationType = static_cast<InsulationType>(getEnumValue(insulationTypeNamesUC, s_ipsc->cAlphaArgs(1)));
             if (insulationType == InsulationType::Invalid) {
                 ShowSevereError(
@@ -12167,8 +12117,6 @@ namespace SurfaceGeometry {
     {
         // J. Glazer - March 2017
 
-        using DataVectorTypes::Vector;
-
         struct EdgeByPts
         {
             int start;
@@ -12238,7 +12186,6 @@ namespace SurfaceGeometry {
     {
         // J. Glazer - March 2017
 
-        using DataVectorTypes::Vector;
         std::vector<Vector> uniqVertices;
         uniqVertices.reserve(zonePoly.NumSurfaceFaces * 6);
 
@@ -12270,8 +12217,6 @@ namespace SurfaceGeometry {
                                                                            std::vector<Vector> const &uniqVertices)
     {
         // J. Glazer - March 2017
-
-        using DataVectorTypes::Vector;
 
         DataVectorTypes::Polyhedron updZonePoly = zonePoly; // set the return value to the original polyhedron describing the zone
 
@@ -12321,11 +12266,7 @@ namespace SurfaceGeometry {
         // so if you could all the unique vertices of the floor and ceiling, ignoring the z-coordinate, they
         // should always be even (they would be two but you might define multiple surfaces that meet in a corner)
 
-        using DataVectorTypes::Vector;
-        using DataVectorTypes::Vector2dCount;
-        using DataVectorTypes::Vector_2d;
-
-        std::vector<Vector2dCount> floorCeilingXY;
+        std::vector<DataVectorTypes::Vector2dCount> floorCeilingXY;
         floorCeilingXY.reserve(zonePoly.NumSurfaceFaces * 6);
 
         // make list of x and y coordinates for all faces that are on the floor or ceiling
@@ -12335,13 +12276,13 @@ namespace SurfaceGeometry {
                 state.dataSurface->Surface(curSurfNum).Class == SurfaceClass::Roof) {
                 for (int jVertex = 1; jVertex <= zonePoly.SurfaceFace(iFace).NSides; ++jVertex) {
                     Vector curVertex = zonePoly.SurfaceFace(iFace).FacePoints(jVertex);
-                    Vector2dCount curXYc;
+                    DataVectorTypes::Vector2dCount curXYc;
                     curXYc.x = curVertex.x;
                     curXYc.y = curVertex.y;
                     curXYc.count = 1;
                     bool found = false;
-                    for (Vector2dCount &curFloorCeiling : floorCeilingXY) { // can't use just "auto" because updating floorCeilingXY
-                        if (isAlmostEqual2dPt(curXYc, curFloorCeiling)) {   // count ignored in comparison
+                    for (DataVectorTypes::Vector2dCount &curFloorCeiling : floorCeilingXY) { // can't use just "auto" because updating floorCeilingXY
+                        if (isAlmostEqual2dPt(curXYc, curFloorCeiling)) {                    // count ignored in comparison
                             ++curFloorCeiling.count;
                             found = true;
                             break;
@@ -12443,7 +12384,6 @@ namespace SurfaceGeometry {
 
         // approach: if opposite surfaces have opposite azimuth and same area, then check the distance between the
         // vertices( one counting backwards ) and if it is the same distance than assume that it is the same.
-        using DataVectorTypes::Vector;
         bool foundOppEqual = false;
         for (int iFace = 1; iFace <= zonePoly.NumSurfaceFaces; ++iFace) {
             int curSurfNum = zonePoly.SurfaceFace(iFace).SurfNum;
@@ -12652,8 +12592,6 @@ namespace SurfaceGeometry {
         // Detached Shading, Base Surfaces, Attached Shading surfaces are represented in the
         // same manner as original.  Subsurfaces (windows, doors) are a "relative coordinate".
 
-        using namespace Vectors;
-
         static constexpr std::string_view RoutineName("ProcessSurfaceVertices: ");
 
         Real64 X1;           // Intermediate Result
@@ -12686,7 +12624,7 @@ namespace SurfaceGeometry {
         Real64 OutOfLine;
 
         // Object Data
-        PlaneEq BasePlane;
+        Vectors::PlaneEq BasePlane;
         Vector TVect;
         Vector CoordinateTransVector;
 
@@ -12723,7 +12661,7 @@ namespace SurfaceGeometry {
         if (!surf.MirroredSurf) {
             bool IsCoPlanar;
             int LastVertexInError;
-            CalcCoPlanarNess(surf.Vertex, surf.Sides, IsCoPlanar, OutOfLine, LastVertexInError);
+            Vectors::CalcCoPlanarNess(surf.Vertex, surf.Sides, IsCoPlanar, OutOfLine, LastVertexInError);
             if (!IsCoPlanar) {
                 if (OutOfLine > 0.01) {
                     ShowSevereError(state,
@@ -12753,9 +12691,9 @@ namespace SurfaceGeometry {
                 state.dataSurfaceGeometry->Zpsv(n) = surf.Vertex(n).z;
             }
             TVect = surf.Vertex(3) - surf.Vertex(2);
-            ThisWidth = VecLength(TVect);
+            ThisWidth = Vectors::VecLength(TVect);
             TVect = surf.Vertex(2) - surf.Vertex(1);
-            ThisHeight = VecLength(TVect);
+            ThisHeight = Vectors::VecLength(TVect);
             surf.Width = ThisWidth;
             surf.Height = ThisHeight; // For a horizontal surface this is actually length!
             if (surf.Sides == 3) {
@@ -12824,12 +12762,13 @@ namespace SurfaceGeometry {
             bool SError; // Bool used for return value of calls to PlaneEquation
             switch (ThisShape) {
             case DataSurfaces::SurfaceShape::RectangularDoorWindow: { // Rectangular heat transfer subsurface
-                PlaneEquation(state.dataSurface->Surface(surf.BaseSurf).Vertex, state.dataSurface->Surface(surf.BaseSurf).Sides, BasePlane, SError);
+                Vectors::PlaneEquation(
+                    state.dataSurface->Surface(surf.BaseSurf).Vertex, state.dataSurface->Surface(surf.BaseSurf).Sides, BasePlane, SError);
                 if (SError) {
                     ShowSevereError(state, format("{}Degenerate surface (likely two vertices equal):\"{}\".", RoutineName, surf.Name));
                     ErrorInSurface = true;
                 }
-                ThisReveal = -Pt2Plane(surf.Vertex(2), BasePlane);
+                ThisReveal = -Vectors::Pt2Plane(surf.Vertex(2), BasePlane);
                 if (std::abs(ThisReveal) < 0.0002) ThisReveal = 0.0;
                 surf.Reveal = ThisReveal;
                 Xp = surf.Vertex(2).x - BaseXLLC;
@@ -12839,9 +12778,9 @@ namespace SurfaceGeometry {
                 YLLC = -Xp * BaseSinAzimuth * BaseCosTilt - Yp * BaseCosAzimuth * BaseCosTilt + Zp * BaseSinTilt;
                 ZLLC = Xp * BaseSinAzimuth * BaseSinTilt + Yp * BaseCosAzimuth * BaseSinTilt + Zp * BaseCosTilt;
                 TVect = surf.Vertex(3) - surf.Vertex(2);
-                ThisWidth = VecLength(TVect);
+                ThisWidth = Vectors::VecLength(TVect);
                 TVect = surf.Vertex(2) - surf.Vertex(1);
-                ThisHeight = VecLength(TVect);
+                ThisHeight = Vectors::VecLength(TVect);
                 surf.Width = ThisWidth;
                 surf.Height = ThisHeight;
 
@@ -12960,12 +12899,13 @@ namespace SurfaceGeometry {
             } break;
             case DataSurfaces::SurfaceShape::TriangularWindow:
             case DataSurfaces::SurfaceShape::TriangularDoor: {
-                PlaneEquation(state.dataSurface->Surface(surf.BaseSurf).Vertex, state.dataSurface->Surface(surf.BaseSurf).Sides, BasePlane, SError);
+                Vectors::PlaneEquation(
+                    state.dataSurface->Surface(surf.BaseSurf).Vertex, state.dataSurface->Surface(surf.BaseSurf).Sides, BasePlane, SError);
                 if (SError) {
                     ShowSevereError(state, format("{}Degenerate surface (likely two vertices equal):\"{}\".", RoutineName, surf.Name));
                     ErrorInSurface = true;
                 }
-                ThisReveal = -Pt2Plane(surf.Vertex(2), BasePlane);
+                ThisReveal = -Vectors::Pt2Plane(surf.Vertex(2), BasePlane);
                 if (std::abs(ThisReveal) < 0.0002) ThisReveal = 0.0;
                 surf.Reveal = ThisReveal;
                 Xp = surf.Vertex(2).x - BaseXLLC;
@@ -12975,9 +12915,9 @@ namespace SurfaceGeometry {
                 state.dataSurfaceGeometry->Ypsv(2) = -Xp * BaseSinAzimuth * BaseCosTilt - Yp * BaseCosAzimuth * BaseCosTilt + Zp * BaseSinTilt;
                 state.dataSurfaceGeometry->Zpsv(2) = Xp * BaseSinAzimuth * BaseSinTilt + Yp * BaseCosAzimuth * BaseSinTilt + Zp * BaseCosTilt;
                 TVect = surf.Vertex(3) - surf.Vertex(2);
-                ThisWidth = VecLength(TVect);
+                ThisWidth = Vectors::VecLength(TVect);
                 TVect = surf.Vertex(2) - surf.Vertex(1);
-                ThisHeight = VecLength(TVect);
+                ThisHeight = Vectors::VecLength(TVect);
                 surf.Width = ThisWidth;
                 // Effective height and width of a triangular window for use in calc of convective air flow
                 // in gap between glass and shading device when shading device is present
@@ -13006,9 +12946,9 @@ namespace SurfaceGeometry {
                 YLLC = -Xp * BaseSinAzimuth * BaseCosTilt - Yp * BaseCosAzimuth * BaseCosTilt + Zp * BaseSinTilt;
                 ZLLC = Xp * BaseSinAzimuth * BaseSinTilt + Yp * BaseCosAzimuth * BaseSinTilt + Zp * BaseCosTilt;
                 TVect = surf.Vertex(3) - surf.Vertex(2);
-                ThisWidth = VecLength(TVect);
+                ThisWidth = Vectors::VecLength(TVect);
                 TVect = surf.Vertex(2) - surf.Vertex(1);
-                ThisHeight = VecLength(TVect);
+                ThisHeight = Vectors::VecLength(TVect);
                 surf.Width = ThisWidth;
                 surf.Height = ThisHeight;
                 state.dataSurfaceGeometry->Xpsv(1) = XLLC;
@@ -13032,9 +12972,9 @@ namespace SurfaceGeometry {
                 YLLC = -Xp * BaseSinAzimuth * BaseCosTilt - Yp * BaseCosAzimuth * BaseCosTilt + Zp * BaseSinTilt;
                 ZLLC = Xp * BaseSinAzimuth * BaseSinTilt + Yp * BaseCosAzimuth * BaseSinTilt + Zp * BaseCosTilt;
                 TVect = surf.Vertex(3) - surf.Vertex(2);
-                ThisWidth = VecLength(TVect);
+                ThisWidth = Vectors::VecLength(TVect);
                 TVect = surf.Vertex(2) - surf.Vertex(1);
-                ThisHeight = VecLength(TVect);
+                ThisHeight = Vectors::VecLength(TVect);
                 surf.Width = ThisWidth;
                 surf.Height = ThisHeight;
                 state.dataSurfaceGeometry->Xpsv(1) = XLLC;
@@ -13058,9 +12998,9 @@ namespace SurfaceGeometry {
                 YLLC = -Xp * BaseSinAzimuth * BaseCosTilt - Yp * BaseCosAzimuth * BaseCosTilt + Zp * BaseSinTilt;
                 ZLLC = Xp * BaseSinAzimuth * BaseSinTilt + Yp * BaseCosAzimuth * BaseSinTilt + Zp * BaseCosTilt;
                 TVect = surf.Vertex(3) - surf.Vertex(2);
-                ThisWidth = VecLength(TVect);
+                ThisWidth = Vectors::VecLength(TVect);
                 TVect = surf.Vertex(2) - surf.Vertex(1);
-                ThisHeight = VecLength(TVect);
+                ThisHeight = Vectors::VecLength(TVect);
                 surf.Width = ThisWidth;
                 surf.Height = ThisHeight;
                 state.dataSurfaceGeometry->Xpsv(1) = XLLC;
@@ -13188,14 +13128,8 @@ namespace SurfaceGeometry {
         // through points 2 and 3 and the Y-axis goes through point 1
         // of a plane figure in 3-d space.
 
-        // METHODOLOGY EMPLOYED:
-        // na
-
         // REFERENCES:
         // 'NECAP' - NASA'S Energy-Cost Analysis Program
-
-        // Using/Aliasing
-        using namespace Vectors;
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         Real64 Gamma; // Intermediate Result
@@ -13240,25 +13174,20 @@ namespace SurfaceGeometry {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         Fred Winkelmann
         //       DATE WRITTEN   Nov 2001
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // Creates a shaded window construction for windows whose WindowShadingControl
         // has a shading device specified instead of a shaded construction
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-        int ConstrNum;            // Number of unshaded construction
         int ConstrNewSh;          // Number of shaded construction that is created
-        std::string ShDevName;    // Shading device material name
-        std::string ConstrName;   // Unshaded construction name
         std::string ConstrNameSh; // Shaded construction name
 
         auto &s_mat = state.dataMaterial;
 
-        ShDevName = s_mat->materials(ShDevNum)->Name;
-        ConstrNum = state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Construction;
-        ConstrName = state.dataConstruction->Construct(ConstrNum).Name;
+        std::string ShDevName = s_mat->materials(ShDevNum)->Name;
+        int ConstrNum = state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Construction;
+        std::string ConstrName = state.dataConstruction->Construct(ConstrNum).Name;
         if (ANY_INTERIOR_SHADE_BLIND(state.dataSurface->WindowShadingControl(WSCPtr).ShadingType)) {
             ConstrNameSh = ConstrName + ':' + ShDevName + ":INT";
         } else {
@@ -13591,7 +13520,6 @@ namespace SurfaceGeometry {
         //                       GrossArea and Perimeter of original window were not being recalculated.
         //                      October 2007, LKL: Net area for shading calculations was not being
         //                       recalculated.
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // If a window from the Window5DataFile has one glazing system, modify the
@@ -13603,18 +13531,11 @@ namespace SurfaceGeometry {
         // on the Data File and the width and orientation of the mullion that separates
         // the glazing systems.
 
-        // Using/Aliasing
-
-        using namespace Vectors;
-
-        // Locals
         // SUBROUTINE ARGUMENT DEFINITIONS:
         // If there is a second glazing system on the Data File, SurfNum+1
         // has the construction of the second glazing system.
 
         // 2-glazing system Window5 data file entry
-
-        // DERIVED TYPE DEFINITIONS:
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         Real64 H; // Height and width of original window (m)
@@ -13648,9 +13569,9 @@ namespace SurfaceGeometry {
 
         // Height and width of original window
         TVect = state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Vertex(3) - state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Vertex(2);
-        W = VecLength(TVect); // SQRT((X(3)-X(2))**2 + (Y(3)-Y(2))**2 + (Z(3)-Z(2))**2)
+        W = Vectors::VecLength(TVect); // SQRT((X(3)-X(2))**2 + (Y(3)-Y(2))**2 + (Z(3)-Z(2))**2)
         TVect = state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Vertex(2) - state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Vertex(1);
-        H = VecLength(TVect); // SQRT((X(1)-X(2))**2 + (Y(1)-Y(2))**2 + (Z(1)-Z(2))**2)
+        H = Vectors::VecLength(TVect); // SQRT((X(1)-X(2))**2 + (Y(1)-Y(2))**2 + (Z(1)-Z(2))**2)
 
         // Save coordinates of original window in case Window 5 data overwrites.
         OriginalCoord.Vertex({1, state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Sides}) =
@@ -13765,19 +13686,12 @@ namespace SurfaceGeometry {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         Linda Lawrie
         //       DATE WRITTEN   Nov 2008
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // This routine is called from ModifyWindow to add a window.  Allows it to be
         // called in more than one place in the calling routine so as to be able to have
         // specific warnings or errors issued.
 
-        // Using/Aliasing
-
-        using namespace Vectors;
-
-        // Locals
         // SUBROUTINE ARGUMENT DEFINITIONS:
         // If there is a second glazing system on the Data File, SurfNum+1
         // has the construction of the second glazing system.
@@ -13826,9 +13740,9 @@ namespace SurfaceGeometry {
 
         // Height and width of original window
         TVect = state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Vertex(3) - state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Vertex(2);
-        W = VecLength(TVect); // SQRT((X(3)-X(2))**2 + (Y(3)-Y(2))**2 + (Z(3)-Z(2))**2)
+        W = Vectors::VecLength(TVect); // SQRT((X(3)-X(2))**2 + (Y(3)-Y(2))**2 + (Z(3)-Z(2))**2)
         TVect = state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Vertex(2) - state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Vertex(1);
-        H = VecLength(TVect); // SQRT((X(1)-X(2))**2 + (Y(1)-Y(2))**2 + (Z(1)-Z(2))**2)
+        H = Vectors::VecLength(TVect); // SQRT((X(1)-X(2))**2 + (Y(1)-Y(2))**2 + (Z(1)-Z(2))**2)
 
         // Save coordinates of original window in case Window 5 data overwrites.
         OriginalCoord.Vertex({1, state.dataSurfaceGeometry->SurfaceTmp(SurfNum).Sides}) =
@@ -14211,8 +14125,6 @@ namespace SurfaceGeometry {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         Brent T Griffith
         //       DATE WRITTEN   April 2003
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // Alter input for surface geometry
@@ -14318,8 +14230,6 @@ namespace SurfaceGeometry {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         B. Griffith
         //       DATE WRITTEN   Feb. 2004
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // compute centroid of all the surfaces in the main
@@ -14332,8 +14242,6 @@ namespace SurfaceGeometry {
         // of two triangles.
         // (Algorithm would need to be changed for higher order
         // polygons with more than four sides).
-
-        using namespace Vectors;
 
         auto &Triangle1 = state.dataSurfaceGeometry->Triangle1;
         auto &Triangle2 = state.dataSurfaceGeometry->Triangle2;
@@ -14373,8 +14281,8 @@ namespace SurfaceGeometry {
                 }
 
                 // get area fraction of triangles.
-                Real64 Tri1Area(AreaPolygon(3, Triangle1) / TotalArea);
-                Real64 Tri2Area(AreaPolygon(3, Triangle2) / TotalArea);
+                Real64 Tri1Area(Vectors::AreaPolygon(3, Triangle1) / TotalArea);
+                Real64 Tri2Area(Vectors::AreaPolygon(3, Triangle2) / TotalArea);
 
                 // check if sum of fractions are slightly greater than 1.0 which is a symptom of the triangles for a non-convex
                 // quadrilateral using the wrong two triangles
@@ -14390,8 +14298,8 @@ namespace SurfaceGeometry {
                     Triangle2(3) = vertex(4);
 
                     // get area fraction of triangles.
-                    Real64 AreaTriangle1 = AreaPolygon(3, Triangle1);
-                    Real64 AreaTriangle2 = AreaPolygon(3, Triangle2);
+                    Real64 AreaTriangle1 = Vectors::AreaPolygon(3, Triangle1);
+                    Real64 AreaTriangle2 = Vectors::AreaPolygon(3, Triangle2);
                     TotalArea = AreaTriangle1 + AreaTriangle2;
                     Tri1Area = AreaTriangle1 / TotalArea;
                     Tri2Area = AreaTriangle2 / TotalArea;
@@ -14468,8 +14376,6 @@ namespace SurfaceGeometry {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         B. Griffith
         //       DATE WRITTEN   Dec. 2008
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // determine if Shading surfaces need full solar calcs because they
@@ -14482,20 +14388,10 @@ namespace SurfaceGeometry {
         // setup flags for shading surfaces so that the solar renewables can reuse incident solar calcs
         // new solar component models that use shading surfaces will have to extend the code here.
 
-        // Using/Aliasing
-
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         Array1D_string TmpCandidateSurfaceNames;
         Array1D_string TmpCandidateICSSurfaceNames;
         Array1D_string TmpCandidateICSBCTypeNames;
-        int NumCandidateNames;
-        int NumOfCollectors;
-        int NumOfICSUnits;
-        int NumOfFlatPlateUnits;
-        int NumPVTs;
-        int NumPVs;
-        int SurfNum;
-        int CollectorNum;
         int NumAlphas;  // Number of alpha names being passed
         int NumNumbers; // Number of numeric parameters being passed
         int IOStatus;
@@ -14503,16 +14399,16 @@ namespace SurfaceGeometry {
         auto &s_ipsc = state.dataIPShortCut;
         // First collect names of surfaces referenced by active solar components
         s_ipsc->cCurrentModuleObject = "SolarCollector:FlatPlate:Water";
-        NumOfFlatPlateUnits = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, s_ipsc->cCurrentModuleObject);
+        int NumOfFlatPlateUnits = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, s_ipsc->cCurrentModuleObject);
         s_ipsc->cCurrentModuleObject = "SolarCollector:FlatPlate:PhotovoltaicThermal";
-        NumPVTs = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, s_ipsc->cCurrentModuleObject);
+        int NumPVTs = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, s_ipsc->cCurrentModuleObject);
         s_ipsc->cCurrentModuleObject = "Generator:Photovoltaic";
-        NumPVs = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, s_ipsc->cCurrentModuleObject);
+        int NumPVs = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, s_ipsc->cCurrentModuleObject);
         s_ipsc->cCurrentModuleObject = "SolarCollector:IntegralCollectorStorage";
-        NumOfICSUnits = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, s_ipsc->cCurrentModuleObject);
+        int NumOfICSUnits = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, s_ipsc->cCurrentModuleObject);
 
-        NumCandidateNames = NumOfFlatPlateUnits + NumPVTs + NumPVs + NumOfICSUnits;
-        NumOfCollectors = NumOfFlatPlateUnits + NumOfICSUnits;
+        int NumCandidateNames = NumOfFlatPlateUnits + NumPVTs + NumPVs + NumOfICSUnits;
+        int NumOfCollectors = NumOfFlatPlateUnits + NumOfICSUnits;
 
         TmpCandidateSurfaceNames.allocate(NumCandidateNames);
         TmpCandidateICSSurfaceNames.allocate(NumOfCollectors);
@@ -14520,7 +14416,7 @@ namespace SurfaceGeometry {
 
         if (NumOfCollectors > 0) {
             s_ipsc->cCurrentModuleObject = "SolarCollector:FlatPlate:Water";
-            for (CollectorNum = 1; CollectorNum <= NumOfFlatPlateUnits; ++CollectorNum) {
+            for (int CollectorNum = 1; CollectorNum <= NumOfFlatPlateUnits; ++CollectorNum) {
 
                 state.dataInputProcessing->inputProcessor->getObjectItem(
                     state, s_ipsc->cCurrentModuleObject, CollectorNum, s_ipsc->cAlphaArgs, NumAlphas, s_ipsc->rNumericArgs, NumNumbers, IOStatus);
@@ -14552,7 +14448,7 @@ namespace SurfaceGeometry {
 
         if (NumOfICSUnits > 0) {
             s_ipsc->cCurrentModuleObject = "SolarCollector:IntegralCollectorStorage";
-            for (CollectorNum = 1; CollectorNum <= NumOfICSUnits; ++CollectorNum) {
+            for (int CollectorNum = 1; CollectorNum <= NumOfICSUnits; ++CollectorNum) {
                 state.dataInputProcessing->inputProcessor->getObjectItem(
                     state, s_ipsc->cCurrentModuleObject, CollectorNum, s_ipsc->cAlphaArgs, NumAlphas, s_ipsc->rNumericArgs, NumNumbers, IOStatus);
                 TmpCandidateSurfaceNames(NumOfFlatPlateUnits + NumPVTs + NumPVs + CollectorNum) = s_ipsc->cAlphaArgs(3);
@@ -14562,7 +14458,7 @@ namespace SurfaceGeometry {
         }
 
         // loop through all the surfaces
-        for (SurfNum = 1; SurfNum <= state.dataSurface->TotSurfaces; ++SurfNum) {
+        for (int SurfNum = 1; SurfNum <= state.dataSurface->TotSurfaces; ++SurfNum) {
             auto &surf = state.dataSurface->Surface(SurfNum);
             int Found = Util::FindItemInList(surf.Name, TmpCandidateSurfaceNames, NumCandidateNames);
             if (Found > 0) {
@@ -14575,7 +14471,7 @@ namespace SurfaceGeometry {
                 // check if this surface is used for ICS collector mounting and has OthersideCondictionsModel as its
                 // boundary condition
                 if (NumOfICSUnits > 0) {
-                    for (CollectorNum = 1; CollectorNum <= NumOfCollectors; ++CollectorNum) {
+                    for (int CollectorNum = 1; CollectorNum <= NumOfCollectors; ++CollectorNum) {
                         if (Util::SameString(surf.Name, TmpCandidateICSSurfaceNames(CollectorNum)) &&
                             Util::SameString(TmpCandidateICSBCTypeNames(CollectorNum), "OTHERSIDECONDITIONSMODEL")) {
                             state.dataSurface->SurfIsICS(SurfNum) = true;
@@ -14938,7 +14834,6 @@ namespace SurfaceGeometry {
         //       AUTHOR         Tyler Hoyt
         //       DATE WRITTEN   December 2010
         //       MODIFIED       CR8752 - incorrect note of non-convex polygons
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE: This subroutine verifies the convexity of a
         // surface that is exposed to the sun in the case that full shading calculations
@@ -14957,11 +14852,7 @@ namespace SurfaceGeometry {
         // REFERENCES:
         // http://mathworld.wolfram.com/ConvexPolygon.html
 
-        // Using/Aliasing
-
-        using namespace DataErrorTracking;
-
-        constexpr Real64 TurnThreshold(0.000001); // Sensitivity of convexity test, in radians
+        constexpr Real64 TurnThreshold = 0.000001; // Sensitivity of convexity test, in radians
 
         Real64 LastTheta = 0.0;                 // Angle between edge vectors
         bool SignFlag;                          // Direction of edge turn : true is right, false is left
@@ -15186,8 +15077,6 @@ namespace SurfaceGeometry {
 
         // PURPOSE: Check if a 4-sided surface is a rectangle
 
-        using namespace Vectors;
-
         Real64 Diagonal1;                                                // Length of diagonal of 4-sided figure from vertex 1 to vertex 3 (m)
         Real64 Diagonal2;                                                // Length of diagonal of 4-sided figure from vertex 2 to vertex 4 (m)
         Real64 DotProd;                                                  // Dot product of two adjacent sides - to test for right angle
@@ -15196,12 +15085,12 @@ namespace SurfaceGeometry {
         Vector Vect21;                                                   // normalized vector from vertex 2 to vertex 1
 
         auto &surf = state.dataSurface->Surface(ThisSurf);
-        Diagonal1 = VecLength(surf.Vertex(1) - surf.Vertex(3));
-        Diagonal2 = VecLength(surf.Vertex(2) - surf.Vertex(4));
+        Diagonal1 = Vectors::VecLength(surf.Vertex(1) - surf.Vertex(3));
+        Diagonal2 = Vectors::VecLength(surf.Vertex(2) - surf.Vertex(4));
         // Test for rectangularity
         if (std::abs(Diagonal1 - Diagonal2) < 0.020) { // This tolerance based on coincident vertex tolerance of 0.01
-            Vect32 = VecNormalize(surf.Vertex(3) - surf.Vertex(2));
-            Vect21 = VecNormalize(surf.Vertex(2) - surf.Vertex(1));
+            Vect32 = Vectors::VecNormalize(surf.Vertex(3) - surf.Vertex(2));
+            Vect21 = Vectors::VecNormalize(surf.Vertex(2) - surf.Vertex(1));
             DotProd = dot(Vect32, Vect21);
             if (std::abs(DotProd) <= cos89deg) {
                 return true;
@@ -15221,8 +15110,6 @@ namespace SurfaceGeometry {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         R. Zhang, LBNL
         //       DATE WRITTEN   September 2016
-        //       MODIFIED       na
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // Processing of 4-sided but non-rectangular Window, Door or GlassDoor.
@@ -15231,14 +15118,7 @@ namespace SurfaceGeometry {
         // METHODOLOGY EMPLOYED:
         // Transform the surface into an equivalent rectangular surface with the same area and aspect ratio.
 
-        Real64 BaseCosAzimuth;
-        Real64 BaseCosTilt;
-        Real64 BaseSinAzimuth;
-        Real64 BaseSinTilt;
-        Real64 SurfWorldAz;
-        Real64 SurfTilt;
         Real64 AspectRatio;  // Aspect ratio
-        Real64 NumSurfSides; // Number of surface sides
         Real64 WidthEff;     // Effective width of the surface
         Real64 WidthMax;     // X difference between the vertex on the most left and the one on the most right
         Real64 HeightEff;    // Effective height of the surface
@@ -15265,13 +15145,13 @@ namespace SurfaceGeometry {
             return;
         }
 
-        SurfWorldAz = surf.Azimuth;
-        SurfTilt = surf.Tilt;
-        BaseCosAzimuth = std::cos(SurfWorldAz * Constant::DegToRadians);
-        BaseSinAzimuth = std::sin(SurfWorldAz * Constant::DegToRadians);
-        BaseCosTilt = std::cos(SurfTilt * Constant::DegToRadians);
-        BaseSinTilt = std::sin(SurfTilt * Constant::DegToRadians);
-        NumSurfSides = surf.Sides;
+        Real64 SurfWorldAz = surf.Azimuth;
+        Real64 SurfTilt = surf.Tilt;
+        Real64 BaseCosAzimuth = std::cos(SurfWorldAz * Constant::DegToRadians);
+        Real64 BaseSinAzimuth = std::sin(SurfWorldAz * Constant::DegToRadians);
+        Real64 BaseCosTilt = std::cos(SurfTilt * Constant::DegToRadians);
+        Real64 BaseSinTilt = std::sin(SurfTilt * Constant::DegToRadians);
+        int NumSurfSides = surf.Sides;
 
         // Calculate WidthMax and HeightMax
         WidthMax = 0.0;
