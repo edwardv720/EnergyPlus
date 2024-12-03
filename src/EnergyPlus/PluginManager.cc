@@ -615,7 +615,12 @@ PluginManager::PluginManager(EnergyPlusData &state) : eplusRunningViaPythonAPI(s
 
     // IMPORTANT - CALL setup() HERE ONCE ALL INSTANCES ARE CONSTRUCTED TO AVOID DESTRUCTOR/MEMORY ISSUES DURING VECTOR RESIZING
     for (auto &plugin : state.dataPluginManager->plugins) {
-        plugin.setup(state);
+        try {
+            plugin.setup(state);
+        } catch (const FatalError &e) {
+            PyGILState_Release(gil);
+            throw e;
+        }
     }
 
     std::string const sGlobals = "PythonPlugin:Variables";
