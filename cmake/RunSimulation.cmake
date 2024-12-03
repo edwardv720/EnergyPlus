@@ -104,7 +104,7 @@ if(BUILD_FORTRAN)
     execute_process(COMMAND "${EXPANDOBJECTS_EXE}" WORKING_DIRECTORY "${OUTPUT_DIR_PATH}" COMMAND_ERROR_IS_FATAL ANY)
 
     if("${SLAB_RESULT}" GREATER -1)
-      if(NOT EXISTS "${OUTPUT_DIR_PATH}/GHTin.idf")
+      if(NOT EXISTS "${OUTPUT_DIR_PATH}/GHTIn.idf")
         message(AUTHOR_WARNING "Did not find ${OUTPUT_DIR_PATH}/GHTIn.idf, are you sure the GroundHeatTransfer:Control has Run Slab Preprocessor =  Yes?")
         string(REGEX MATCH "GroundHeatTransfer:Control.*Run Slab Preprocessor" GROUND_HT_CONTROL "${IDF_CONTENT}")
         if (GROUND_HT_CONTROL)
