@@ -461,6 +461,22 @@ void initPython(EnergyPlusData &state, fs::path const &pathToPythonPackages)
     // Py_Initialize();
     Py_InitializeFromConfig(&config);
 }
+
+// GilGrabber is an RAII helper that will ensure we release the GIL (including if we end up throwing)
+struct GilGrabber
+{
+    GilGrabber()
+    {
+        gil = PyGILState_Ensure();
+    }
+    ~GilGrabber()
+    {
+        PyGILState_Release(gil);
+    }
+
+    PyGILState_STATE gil;
+};
+
 #endif // LINK_WITH_PYTHON
 
 PluginManager::PluginManager(EnergyPlusData &state) : eplusRunningViaPythonAPI(state.dataPluginManager->eplusRunningViaPythonAPI)
@@ -484,22 +500,7 @@ PluginManager::PluginManager(EnergyPlusData &state) : eplusRunningViaPythonAPI(s
 
     initPython(state, pathToPythonPackages);
 
-    // GilGrabber is an RAII helper that will ensure we release the GIL (including if we end up throwing)
-    struct GilGrabber
-    {
-        GilGrabber()
-        {
-            gil = PyGILState_Ensure();
-        }
-        ~GilGrabber()
-        {
-            PyGILState_Release(gil);
-        }
-
-        PyGILState_STATE gil;
-    };
-
-    // Take control of the global interpreter lock
+    // Take control of the global interpreter lock, which will be released via RAII
     GilGrabber gil_grabber;
 
     // call this once to allow us to add to, and report, sys.path later as needed
@@ -1118,8 +1119,8 @@ bool PluginInstance::run(EnergyPlusData &state, EMSManager::EMSCallFrom iCalledF
         return false;
     }
 
-    // Get control of the global interpreter lock
-    PyGILState_STATE gil = PyGILState_Ensure();
+    // Take control of the global interpreter lock, which will be released via RAII
+    GilGrabber gil_grabber;
 
     // then call the main function
     // static const PyObject oneArgObjFormat = Py_BuildValue)("O");
@@ -1134,7 +1135,6 @@ bool PluginInstance::run(EnergyPlusData &state, EMSManager::EMSCallFrom iCalledF
         } else {
             ShowContinueError(state, "This could happen for any number of reasons, check the plugin code.");
         }
-        PyGILState_Release(gil);
         ShowFatalError(state, format("Program terminates after call to {}() on {} failed!", functionNameAsString, this->stringIdentifier));
     }
     if (PyLong_Check(pFunctionResponse)) { // NOLINT(hicpp-signed-bitwise)
@@ -1142,12 +1142,10 @@ bool PluginInstance::run(EnergyPlusData &state, EMSManager::EMSCallFrom iCalledF
         if (exitCode == 0) {
             // success
         } else if (exitCode == 1) {
-            PyGILState_Release(gil);
             ShowFatalError(state, format("Python Plugin \"{}\" returned 1 to indicate EnergyPlus should abort", this->stringIdentifier));
         }
     } else {
         std::string const functionNameAsString(functionName); // only convert to string if an error occurs
-        PyGILState_Release(gil);
         ShowFatalError(
             state,
             format("Invalid return from {}() on class \"{}, make sure it returns an integer exit code, either zero (success) or one (failure)",
@@ -1156,10 +1154,8 @@ bool PluginInstance::run(EnergyPlusData &state, EMSManager::EMSCallFrom iCalledF
     }
     Py_DECREF(pFunctionResponse); // PyObject_CallFunction returns new reference, decrement
     if (state.dataPluginManager->apiErrorFlag) {
-        PyGILState_Release(gil);
         ShowFatalError(state, "API problems encountered while running plugin cause program termination.");
     }
-    PyGILState_Release(gil);
     return true;
 }
 #else
