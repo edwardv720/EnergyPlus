@@ -484,8 +484,23 @@ PluginManager::PluginManager(EnergyPlusData &state) : eplusRunningViaPythonAPI(s
 
     initPython(state, pathToPythonPackages);
 
-    // Take control of the global interpreter lock while we are here, make sure to release it...
-    PyGILState_STATE gil = PyGILState_Ensure();
+    // GilGrabber is an RAII helper that will ensure we release the GIL (including if we end up throwing)
+    struct GilGrabber
+    {
+        GilGrabber()
+        {
+            gil = PyGILState_Ensure();
+        }
+        ~GilGrabber()
+        {
+            PyGILState_Release(gil);
+        }
+
+        PyGILState_STATE gil;
+    };
+
+    // Take control of the global interpreter lock
+    GilGrabber gil_grabber;
 
     // call this once to allow us to add to, and report, sys.path later as needed
     PyRun_SimpleString("import sys"); // allows us to report sys.path later
@@ -615,12 +630,7 @@ PluginManager::PluginManager(EnergyPlusData &state) : eplusRunningViaPythonAPI(s
 
     // IMPORTANT - CALL setup() HERE ONCE ALL INSTANCES ARE CONSTRUCTED TO AVOID DESTRUCTOR/MEMORY ISSUES DURING VECTOR RESIZING
     for (auto &plugin : state.dataPluginManager->plugins) {
-        try {
-            plugin.setup(state);
-        } catch (const FatalError &e) {
-            PyGILState_Release(gil);
-            throw e;
-        }
+        plugin.setup(state);
     }
 
     std::string const sGlobals = "PythonPlugin:Variables";
@@ -684,8 +694,8 @@ PluginManager::PluginManager(EnergyPlusData &state) : eplusRunningViaPythonAPI(s
         }
     }
 
-    // Release the global interpreter lock
-    PyGILState_Release(gil);
+    // Release the global interpreter lock is done via RAII
+
     // setting up output variables deferred until later in the simulation setup process
 #else
     // need to alert only if a plugin instance is found
