@@ -24377,11 +24377,10 @@ TEST_F(EnergyPlusFixture, VRF_MultispeedFan_Test)
     InitVRF(*state, VRFTUNum, ZoneNum, FirstHVACIteration, OnOffAirFlowRatio, QZnReq);
     EXPECT_EQ(QZnReq, -3000.0);
     SimVRF(*state, VRFTUNum, FirstHVACIteration, OnOffAirFlowRatio, SysOutputProvided, LatOutputProvided, QZnReq);
-    EXPECT_NEAR(
-        state->dataLoopNodes->Node(state->dataHVACVarRefFlow->VRFTU[0].VRFTUOutletNodeNum).MassFlowRate, 0.300008959, 0.0001); // was 0.29937661
+    EXPECT_NEAR(state->dataLoopNodes->Node(state->dataHVACVarRefFlow->VRFTU[0].VRFTUOutletNodeNum).MassFlowRate, 0.29937661, 0.0001);
     EXPECT_LT(abs(QZnReq - SysOutputProvided), 1.0);
     EXPECT_EQ(state->dataHVACVarRefFlow->VRFTU[0].SpeedNum, 2);
-    EXPECT_NEAR(state->dataHVACVarRefFlow->VRFTU[0].SpeedRatio, 0.7288976, 0.00001); // was 0.7252535
+    EXPECT_NEAR(state->dataHVACVarRefFlow->VRFTU[0].SpeedRatio, 0.7252535, 0.00001);
     EXPECT_NEAR(state->dataHVACVarRefFlow->VRFTU[0].CycRatio, 1.0, 0.00001);
 
     // test low speed fan operation with cooling
@@ -24392,11 +24391,11 @@ TEST_F(EnergyPlusFixture, VRF_MultispeedFan_Test)
     InitVRF(*state, VRFTUNum, ZoneNum, FirstHVACIteration, OnOffAirFlowRatio, QZnReq);
     EXPECT_EQ(QZnReq, -1500.0);
     SimVRF(*state, VRFTUNum, FirstHVACIteration, OnOffAirFlowRatio, SysOutputProvided, LatOutputProvided, QZnReq);
-    EXPECT_NEAR(state->dataLoopNodes->Node(state->dataHVACVarRefFlow->VRFTU[0].VRFTUOutletNodeNum).MassFlowRate, 0.1376580, 0.0001); // was 0.1735261
+    EXPECT_NEAR(state->dataLoopNodes->Node(state->dataHVACVarRefFlow->VRFTU[0].VRFTUOutletNodeNum).MassFlowRate, 0.1735261, 0.0001);
     EXPECT_LT(abs(QZnReq - SysOutputProvided), 1.0);
     EXPECT_EQ(state->dataHVACVarRefFlow->VRFTU[0].SpeedNum, 1);
     EXPECT_NEAR(state->dataHVACVarRefFlow->VRFTU[0].SpeedRatio, 0.0, 0.00001);
-    EXPECT_NEAR(state->dataHVACVarRefFlow->VRFTU[0].CycRatio, 0.793298411, 0.00001); // was 0.626862007
+    EXPECT_NEAR(state->dataHVACVarRefFlow->VRFTU[0].CycRatio, 0.626862007, 0.00001);
 
     // set to heating mode
     state->dataHVACVarRefFlow->CoolingLoad(VRFCond) = false;
@@ -24417,7 +24416,7 @@ TEST_F(EnergyPlusFixture, VRF_MultispeedFan_Test)
     EXPECT_NEAR(state->dataLoopNodes->Node(state->dataHVACVarRefFlow->VRFTU[0].VRFTUOutletNodeNum).MassFlowRate, 0.346284919, 0.0001);
     EXPECT_LT(abs(QZnReq - SysOutputProvided), 1.0);
     EXPECT_EQ(state->dataHVACVarRefFlow->VRFTU[0].SpeedNum, 2);
-    EXPECT_NEAR(state->dataHVACVarRefFlow->VRFTU[0].SpeedRatio, 0.995546681, 0.00001); // was 0.995577651
+    EXPECT_NEAR(state->dataHVACVarRefFlow->VRFTU[0].SpeedRatio, 0.995577651, 0.00001);
     EXPECT_NEAR(state->dataHVACVarRefFlow->VRFTU[0].CycRatio, 1.0, 0.00001);
 
     // test low speed fan operation with heating
@@ -24432,7 +24431,7 @@ TEST_F(EnergyPlusFixture, VRF_MultispeedFan_Test)
     EXPECT_LT(abs(QZnReq - SysOutputProvided), 1.0);
     EXPECT_EQ(state->dataHVACVarRefFlow->VRFTU[0].SpeedNum, 1);
     EXPECT_NEAR(state->dataHVACVarRefFlow->VRFTU[0].SpeedRatio, 0.0, 0.00001);
-    EXPECT_NEAR(state->dataHVACVarRefFlow->VRFTU[0].CycRatio, 0.713204045, 0.00001); // was 0.713222413
+    EXPECT_NEAR(state->dataHVACVarRefFlow->VRFTU[0].CycRatio, 0.713222413, 0.00001);
 }
 
 TEST_F(EnergyPlusFixture, VRF_MultispeedFan_Test_HardSized)
@@ -25692,10 +25691,11 @@ TEST_F(EnergyPlusFixture, VRF_MultispeedFan_Test_HardSized)
     InitVRF(*state, VRFTUNum, ZoneNum, FirstHVACIteration, OnOffAirFlowRatio, QZnReq);
     EXPECT_EQ(QZnReq, -3000.0);
     SimVRF(*state, VRFTUNum, FirstHVACIteration, OnOffAirFlowRatio, SysOutputProvided, LatOutputProvided, QZnReq);
-    EXPECT_NEAR(state->dataLoopNodes->Node(state->dataHVACVarRefFlow->VRFTU[0].VRFTUOutletNodeNum).MassFlowRate, 0.299903, 0.0001); // was 0.29937661
+    EXPECT_NEAR(
+        state->dataLoopNodes->Node(state->dataHVACVarRefFlow->VRFTU[0].VRFTUOutletNodeNum).MassFlowRate, 0.29929035, 0.0001); // was 0.29937661
     EXPECT_LT(abs(QZnReq - SysOutputProvided), 1.0);
     EXPECT_EQ(state->dataHVACVarRefFlow->VRFTU[0].SpeedNum, 2);
-    EXPECT_NEAR(state->dataHVACVarRefFlow->VRFTU[0].SpeedRatio, 0.728287, 0.00001); // was 0.7252535
+    EXPECT_NEAR(state->dataHVACVarRefFlow->VRFTU[0].SpeedRatio, 0.72475641, 0.00001); // was 0.7252535
     EXPECT_NEAR(state->dataHVACVarRefFlow->VRFTU[0].CycRatio, 1.0, 0.00001);
 
     // test low speed fan operation with cooling
@@ -25706,11 +25706,11 @@ TEST_F(EnergyPlusFixture, VRF_MultispeedFan_Test_HardSized)
     InitVRF(*state, VRFTUNum, ZoneNum, FirstHVACIteration, OnOffAirFlowRatio, QZnReq);
     EXPECT_EQ(QZnReq, -1500.0);
     SimVRF(*state, VRFTUNum, FirstHVACIteration, OnOffAirFlowRatio, SysOutputProvided, LatOutputProvided, QZnReq);
-    EXPECT_NEAR(state->dataLoopNodes->Node(state->dataHVACVarRefFlow->VRFTU[0].VRFTUOutletNodeNum).MassFlowRate, 0.1375835, 0.0001); // was 0.1735261
+    EXPECT_NEAR(state->dataLoopNodes->Node(state->dataHVACVarRefFlow->VRFTU[0].VRFTUOutletNodeNum).MassFlowRate, 0.1735261, 0.0001);
     EXPECT_LT(abs(QZnReq - SysOutputProvided), 1.0);
     EXPECT_EQ(state->dataHVACVarRefFlow->VRFTU[0].SpeedNum, 1);
     EXPECT_NEAR(state->dataHVACVarRefFlow->VRFTU[0].SpeedRatio, 0.0, 0.00001);
-    EXPECT_NEAR(state->dataHVACVarRefFlow->VRFTU[0].CycRatio, 0.7928689, 0.00001); // was 0.626862007
+    EXPECT_NEAR(state->dataHVACVarRefFlow->VRFTU[0].CycRatio, 0.626128377, 0.00001); // was 0.626862007
 
     // set to heating mode
     state->dataHVACVarRefFlow->CoolingLoad(VRFCond) = false;
@@ -25732,7 +25732,7 @@ TEST_F(EnergyPlusFixture, VRF_MultispeedFan_Test_HardSized)
         state->dataLoopNodes->Node(state->dataHVACVarRefFlow->VRFTU[0].VRFTUOutletNodeNum).MassFlowRate, 0.3465238, 0.0001); // was 0.346284919
     EXPECT_LT(abs(QZnReq - SysOutputProvided), 1.0);
     EXPECT_EQ(state->dataHVACVarRefFlow->VRFTU[0].SpeedNum, 2);
-    EXPECT_NEAR(state->dataHVACVarRefFlow->VRFTU[0].SpeedRatio, 0.9969546, 0.00001); // was 0.995577651
+    EXPECT_NEAR(state->dataHVACVarRefFlow->VRFTU[0].SpeedRatio, 0.996999648, 0.00001); // was 0.995577651
     EXPECT_NEAR(state->dataHVACVarRefFlow->VRFTU[0].CycRatio, 1.0, 0.00001);
 
     // test low speed fan operation with heating
@@ -25747,7 +25747,7 @@ TEST_F(EnergyPlusFixture, VRF_MultispeedFan_Test_HardSized)
     EXPECT_LT(abs(QZnReq - SysOutputProvided), 1.0);
     EXPECT_EQ(state->dataHVACVarRefFlow->VRFTU[0].SpeedNum, 1);
     EXPECT_NEAR(state->dataHVACVarRefFlow->VRFTU[0].SpeedRatio, 0.0, 0.00001);
-    EXPECT_NEAR(state->dataHVACVarRefFlow->VRFTU[0].CycRatio, 0.7139121, 0.00001); // was 0.713222413
+    EXPECT_NEAR(state->dataHVACVarRefFlow->VRFTU[0].CycRatio, 0.713941198, 0.00001); // was 0.713222413
 }
 
 TEST_F(EnergyPlusFixture, VRFTest_TU_HeatRecoveryCheck)
