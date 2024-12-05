@@ -99,7 +99,7 @@ std::shared_ptr<XingGroundTempsModel> XingGroundTempsModel::XingGTMFactory(Energ
             thisModel->objectType = objType;
             thisModel->groundThermalDiffisivity = state.dataIPShortCut->rNumericArgs(1) /
                                                   (state.dataIPShortCut->rNumericArgs(2) * state.dataIPShortCut->rNumericArgs(3)) *
-                                                  Constant::SecsInDay;
+                                                  Constant::rSecsInDay;
             thisModel->aveGroundTemp = state.dataIPShortCut->rNumericArgs(4);
             thisModel->surfTempAmplitude_1 = state.dataIPShortCut->rNumericArgs(5);
             thisModel->surfTempAmplitude_2 = state.dataIPShortCut->rNumericArgs(6);
@@ -198,7 +198,7 @@ Real64 XingGroundTempsModel::getGroundTempAtTimeInSeconds(EnergyPlusData &state,
 
     depth = _depth;
 
-    simTimeInDays = seconds / Constant::SecsInDay;
+    simTimeInDays = seconds / Constant::rSecsInDay;
 
     if (simTimeInDays > state.dataWeather->NumDaysInYear) {
         simTimeInDays = remainder(simTimeInDays, state.dataWeather->NumDaysInYear);

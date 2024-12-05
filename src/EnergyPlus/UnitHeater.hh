@@ -86,15 +86,14 @@ namespace UnitHeater {
         // Members
         // Input data
         std::string Name;      // name of unit
-        std::string SchedName; // availability schedule
-        int SchedPtr;          // index to schedule
+        Sched::Schedule *availSched = nullptr;// availability schedule
         int AirInNode;         // inlet air node number
         int AirOutNode;        // outlet air node number
         HVAC::FanType fanType; // Fan type number (see DataHVACGlobals)
         std::string FanName;   // name of fan
         int Fan_Index;
-        int FanSchedPtr;      // index to fan operating mode schedule
-        int FanAvailSchedPtr; // index to fan availability schedule
+        Sched::Schedule *fanOpModeSched = nullptr;      // fan operating mode schedule
+        Sched::Schedule *fanAvailSched = nullptr; // fan availability schedule
         int ControlCompTypeNum;
         int CompErrIndex;
         Real64 MaxAirVolFlow;                   // m3/s
@@ -137,7 +136,7 @@ namespace UnitHeater {
 
         // Default Constructor
         UnitHeaterData()
-            : SchedPtr(0), AirInNode(0), AirOutNode(0), fanType(HVAC::FanType::Invalid), Fan_Index(0), FanSchedPtr(0), FanAvailSchedPtr(0),
+            : AirInNode(0), AirOutNode(0), fanType(HVAC::FanType::Invalid), Fan_Index(0), 
               ControlCompTypeNum(0), CompErrIndex(0), MaxAirVolFlow(0.0), MaxAirMassFlow(0.0), FanOutletNode(0), HCoil_Index(0),
               HeatingCoilType(DataPlant::PlantEquipmentType::Invalid), HCoil_FluidIndex(0), MaxVolHotWaterFlow(0.0), MaxVolHotSteamFlow(0.0),
               MaxHotWaterFlow(0.0), MaxHotSteamFlow(0.0), MinVolHotWaterFlow(0.0), MinVolHotSteamFlow(0.0), MinHotWaterFlow(0.0),
@@ -233,6 +232,10 @@ struct UnitHeatersData : BaseGlobalStruct
     Array1D_bool MyZoneEqFlag; // used to set up zone equipment availability managers
 
     int RefrigIndex = 0;
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

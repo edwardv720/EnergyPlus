@@ -52,6 +52,7 @@
 #include <EnergyPlus/Plant/PlantLocation.hh>
 #include <EnergyPlus/PlantComponent.hh>
 #include <EnergyPlus/PlantLoopHeatPumpEIR.hh>
+#include <EnergyPlus/ScheduleManager.hh>
 #include <ObjexxFCL/Array1D.hh>
 
 namespace EnergyPlus::DataPlant {
@@ -261,8 +262,7 @@ struct OperationData
     std::string Name;               // The name of each item in the list
     std::string TypeOf;             // The 'keyWord' identifying each item in the list
     DataPlant::OpScheme Type;       // Op scheme type (from keyword)
-    std::string Sched;              // The name of the schedule associated with the list
-    int SchedPtr;                   // ALLOCATABLE to the schedule (for valid schedules)
+    Sched::Schedule *sched = nullptr;              // schedule associated with the list
     bool Available;                 // TRUE = designated component or operation scheme available
     int NumEquipLists;              // number of equipment lists
     int CurListPtr;                 // points to the current equipment list
@@ -280,7 +280,7 @@ struct OperationData
 
     // Default Constructor
     OperationData()
-        : Type(DataPlant::OpScheme::Invalid), SchedPtr(0), Available(false), NumEquipLists(0), CurListPtr(0), EquipListNumForLastStage(0),
+        : Type(DataPlant::OpScheme::Invalid), Available(false), NumEquipLists(0), CurListPtr(0), EquipListNumForLastStage(0),
           ReferenceNodeNumber(0), ErlSimProgramMngr(0), ErlInitProgramMngr(0), initPluginLocation(-1), simPluginLocation(-1),
           EMSIntVarLoopDemandRate(0.0), MyEnvrnFlag(true)
     {

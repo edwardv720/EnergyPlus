@@ -129,7 +129,10 @@ void CoilCoolingDX::getInput(EnergyPlusData &state)
 
 void CoilCoolingDX::instantiateFromInputSpec(EnergyPlusData &state, const CoilCoolingDXInputSpecification &input_data)
 {
-    static constexpr std::string_view routineName("CoilCoolingDX::instantiateFromInputSpec: ");
+    static constexpr std::string_view routineName = "CoilCoolingDX::instantiateFromInputSpec";
+
+    ErrorObjectHeader eoh{routineName, "CoilCoolingDX", input_data.name};
+    
     this->original_input_specs = input_data;
     bool errorsFound = false;
     this->name = input_data.name;
@@ -207,14 +210,9 @@ void CoilCoolingDX::instantiateFromInputSpec(EnergyPlusData &state, const CoilCo
     }
 
     if (input_data.availability_schedule_name.empty()) {
-        this->availScheduleIndex = ScheduleManager::ScheduleAlwaysOn;
-    } else {
-        this->availScheduleIndex = ScheduleManager::GetScheduleIndex(state, input_data.availability_schedule_name);
-    }
-
-    if (this->availScheduleIndex == 0) {
-        ShowSevereError(state, std::string{routineName} + state.dataCoilCooingDX->coilCoolingDXObjectName + "=\"" + this->name + "\", invalid");
-        ShowContinueError(state, "...Availability Schedule Name=\"" + input_data.availability_schedule_name + "\".");
+        this->availSched = Sched::GetScheduleAlwaysOn(state);
+    } else if ((this->availSched = Sched::GetSchedule(state, input_data.availability_schedule_name)) == nullptr) {
+        ShowSevereItemNotFound(state, eoh, "Availability Schedule Name", input_data.availability_schedule_name);
         errorsFound = true;
     }
 
@@ -697,7 +695,7 @@ void CoilCoolingDX::simulate(EnergyPlusData &state,
     CoilCoolingDX::passThroughNodeData(evapInletNode, evapOutletNode);
 
     // calculate energy conversion factor
-    Real64 reportingConstant = state.dataHVACGlobal->TimeStepSys * Constant::SecInHour;
+    Real64 reportingConstant = state.dataHVACGlobal->TimeStepSys * Constant::rSecsInHour;
 
     // update condensate collection tank
     if (this->condensateTankIndex > 0) {

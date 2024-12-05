@@ -1018,7 +1018,7 @@ void GLHEVert::setupTimeVectors()
     // Determine how many g-function pairs to generate based on user defined maximum simulation time
     while (true) {
         Real64 maxPossibleSimTime = exp(tempLNTTS.back()) * t_s;
-        if (maxPossibleSimTime < this->myRespFactors->maxSimYears * numDaysInYear * Constant::HoursInDay * Constant::SecInHour) {
+        if (maxPossibleSimTime < this->myRespFactors->maxSimYears * numDaysInYear * Constant::rHoursInDay * Constant::rSecsInHour) {
             tempLNTTS.push_back(tempLNTTS.back() + lnttsStepSize);
         } else {
             break;
@@ -1934,7 +1934,7 @@ void GLHEVert::getAnnualTimeConstant()
 
     constexpr Real64 hrInYear = 8760;
 
-    this->timeSS = (pow_2(this->bhLength) / (9.0 * this->soil.diffusivity)) / Constant::SecInHour / hrInYear;
+    this->timeSS = (pow_2(this->bhLength) / (9.0 * this->soil.diffusivity)) / Constant::rSecsInHour / hrInYear; // Excuse me?
     this->timeSSFactor = this->timeSS * 8760.0;
 }
 
@@ -2031,7 +2031,7 @@ void GLHEBase::calcGroundHeatExchanger(EnergyPlusData &state)
     state.dataGroundHeatExchanger->currentSimTime = (state.dataGlobal->DayOfSim - 1) * 24 + state.dataGlobal->HourOfDay - 1 +
                                                     (state.dataGlobal->TimeStep - 1) * state.dataGlobal->TimeStepZone +
                                                     state.dataHVACGlobal->SysTimeElapsed; //+ TimeStepsys
-    state.dataGroundHeatExchanger->locHourOfDay = static_cast<int>(mod(state.dataGroundHeatExchanger->currentSimTime, Constant::HoursInDay) + 1);
+    state.dataGroundHeatExchanger->locHourOfDay = static_cast<int>(mod(state.dataGroundHeatExchanger->currentSimTime, Constant::iHoursInDay) + 1);
     state.dataGroundHeatExchanger->locDayOfSim = static_cast<int>(state.dataGroundHeatExchanger->currentSimTime / 24 + 1);
 
     if (state.dataGlobal->DayOfSim > 1) {
@@ -2347,11 +2347,11 @@ void GLHEBase::calcAggregateLoad(EnergyPlusData &state)
     }
 
     // CHECK IF A MONTH PASSES...
-    if (mod(((state.dataGroundHeatExchanger->locDayOfSim - 1) * Constant::HoursInDay + (state.dataGroundHeatExchanger->locHourOfDay)), hrsPerMonth) ==
+    if (mod(((state.dataGroundHeatExchanger->locDayOfSim - 1) * Constant::iHoursInDay + (state.dataGroundHeatExchanger->locHourOfDay)), hrsPerMonth) ==
             0 &&
         this->prevHour != state.dataGroundHeatExchanger->locHourOfDay) {
         Real64 MonthNum = static_cast<int>(
-            (state.dataGroundHeatExchanger->locDayOfSim * Constant::HoursInDay + state.dataGroundHeatExchanger->locHourOfDay) / hrsPerMonth);
+            (state.dataGroundHeatExchanger->locDayOfSim * Constant::iHoursInDay + state.dataGroundHeatExchanger->locHourOfDay) / hrsPerMonth);
         Real64 SumQnMonth = 0.0;
         for (int J = 1; J <= int(hrsPerMonth); ++J) {
             SumQnMonth += this->QnHr(J);
@@ -2913,7 +2913,7 @@ void GLHEVert::initGLHESimVars(EnergyPlusData &state)
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
     Real64 currTime = ((state.dataGlobal->DayOfSim - 1) * 24 + (state.dataGlobal->HourOfDay - 1) +
                        (state.dataGlobal->TimeStep - 1) * state.dataGlobal->TimeStepZone + state.dataHVACGlobal->SysTimeElapsed) *
-                      Constant::SecInHour;
+                      Constant::rSecsInHour;
 
     if (this->myEnvrnFlag && state.dataGlobal->BeginEnvrnFlag) {
         this->initEnvironment(state, currTime);
@@ -2999,9 +2999,9 @@ void GLHESlinky::initGLHESimVars(EnergyPlusData &state)
     //       DATE WRITTEN:    August, 2000
     //       MODIFIED         Arun Murugappan
 
-    Real64 CurTime = ((state.dataGlobal->DayOfSim - 1) * 24 + (state.dataGlobal->HourOfDay - 1) +
+    Real64 CurTime = ((state.dataGlobal->DayOfSim - 1) * Constant::rHoursInDay + (state.dataGlobal->HourOfDay - 1) +
                       (state.dataGlobal->TimeStep - 1) * state.dataGlobal->TimeStepZone + state.dataHVACGlobal->SysTimeElapsed) *
-                     Constant::SecInHour;
+                     Constant::rSecsInHour;
 
     // Init more variables
     if (this->myEnvrnFlag && state.dataGlobal->BeginEnvrnFlag) {

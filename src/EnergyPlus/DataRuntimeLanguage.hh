@@ -62,6 +62,7 @@
 #include <EnergyPlus/DataGlobals.hh>
 #include <EnergyPlus/EMSManager.hh>
 #include <EnergyPlus/EnergyPlus.hh>
+#include <EnergyPlus/ScheduleManager.hh>
 
 namespace EnergyPlus {
 
@@ -249,11 +250,11 @@ namespace DataRuntimeLanguage {
         OutputProcessor::VariableType VariableType;
         int Index;       // ref index in output processor, points to variable
         int VariableNum; // ref to global variable in runtime language
-        int SchedNum;    // ref index ptr to schedule service (filled if Schedule Value)
+        Sched::Schedule *sched = nullptr;    // ref index ptr to schedule service (filled if Schedule Value)
         //  INTEGER                                 :: VarType       = 0
 
         // Default Constructor
-        OutputVarSensorType() : CheckedOkay(false), VariableType(OutputProcessor::VariableType::Invalid), Index(0), VariableNum(0), SchedNum(0)
+        OutputVarSensorType() : CheckedOkay(false), VariableType(OutputProcessor::VariableType::Invalid), Index(0), VariableNum(0)
         {
         }
     };
@@ -808,6 +809,10 @@ struct RuntimeLanguageData : BaseGlobalStruct
     // EMS Actuator fast duplicate check lookup support
     std::unordered_set<std::tuple<std::string, std::string, std::string>, DataRuntimeLanguage::EMSActuatorKey_hash>
         EMSActuator_lookup; // Fast duplicate lookup structure
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

@@ -586,10 +586,10 @@ namespace HeatBalFiniteDiffManager {
 
         //  set a Delt that fits the zone time step and keeps it below 200s.
 
-        s_hbfd->fracTimeStepZone_Hour = 1.0 / double(state.dataGlobal->NumOfTimeStepInHour);
+        s_hbfd->fracTimeStepZone_Hour = 1.0 / double(state.dataGlobal->TimeStepsInHour);
 
         for (int index = 1; index <= 20; ++index) {
-            Delt = (s_hbfd->fracTimeStepZone_Hour * Constant::SecInHour) / index; // TimeStepZone = Zone time step in fractional hours
+            Delt = (s_hbfd->fracTimeStepZone_Hour * Constant::rSecsInHour) / index; // TimeStepZone = Zone time step in fractional hours
             if (Delt <= 200) break;
         }
 
@@ -1364,7 +1364,7 @@ namespace HeatBalFiniteDiffManager {
                       ThisNum,
                       construct.TotLayers,
                       int(constructFD.TotNodes + 1),
-                      constructFD.DeltaTime / Constant::SecInHour);
+                      constructFD.DeltaTime / Constant::rSecsInHour);
 
                 for (int Layer = 1; Layer <= construct.TotLayers; ++Layer) {
                     static constexpr std::string_view Format_701(" Material CondFD Summary,{},{:.4R},{},{:.8R},{:.8R},{:.8R}\n");

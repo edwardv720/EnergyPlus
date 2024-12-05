@@ -140,8 +140,7 @@ namespace LowTempRadiantSystem {
     {
         // Members
         std::string Name;                     // name of hydronic radiant system
-        std::string SchedName;                // availability schedule
-        int SchedPtr = 0;                     // index to schedule
+        Sched::Schedule *availSched = nullptr;                     // index to schedule
         std::string ZoneName;                 // Name of zone the system is serving
         int ZonePtr = 0;                      // Point to this zone in the Zone derived type
         std::string SurfListName;             // Name of surface/surface list that is the radiant system
@@ -188,7 +187,7 @@ namespace LowTempRadiantSystem {
         virtual void calculateLowTemperatureRadiantSystem(EnergyPlusData &state, Real64 &LoadMet) = 0;
 
         Real64 setOffTemperatureLowTemperatureRadiantSystem(EnergyPlusData &state,
-                                                            int const scheduleIndex,
+                                                            Sched::Schedule const *sched,
                                                             Real64 const throttlingRange,
                                                             LowTempRadiantSetpointTypes SetpointControlType);
 
@@ -223,8 +222,7 @@ namespace LowTempRadiantSystem {
         CircuitCalc NumCircCalcMethod =
             CircuitCalc::Invalid;             // Calculation method for number of circuits per surface; 1=1 per surface, 2=use cicuit length
         Real64 CircLength = 0.0;              // Circuit length {m}
-        std::string schedNameChangeoverDelay; // changeover delay schedule
-        int schedPtrChangeoverDelay = 0;      // Pointer to the schedule for the changeover delay in hours
+        Sched::Schedule *changeoverDelaySched = nullptr;      // schedule for the changeover delay in hours
         int lastOperatingMode = NotOperating; // Last mode of operation (heating or cooling)
         int lastDayOfSim = 1;                 // Last day of simulation radiant system operated in lastOperatingMode
         int lastHourOfDay = 1;                // Last hour of the day radiant system operated in lastOperatingMode
@@ -330,14 +328,12 @@ namespace LowTempRadiantSystem {
             0.0; // -  Low Temp Radiant system scaled maximum heating capacity {W} or scalable variable of zone HVAC equipment,
         // {-}, or {W/m2}
         Real64 HotThrottlRange = 0.0;  // Throttling range for heating [C]
-        std::string HotSetptSched;     // Schedule name for the zone setpoint temperature
-        int HotSetptSchedPtr = 0;      // Schedule index for the zone setpoint temperature
+        Sched::Schedule *heatSetptSched = nullptr;      // Schedule index for the zone setpoint temperature
         Real64 ColdThrottlRange = 0.0; // Throttling range for cooling [C]
         Array1D_string FieldNames;
         CondContrlType CondCtrlType = CondContrlType::CondCtrlSimpleOff; // Condensation control type (initialize to simple off)
         Real64 CondDewPtDeltaT = 1.0;                                    // Diff between surface temperature and dew point for cond. shut-off
-        std::string ColdSetptSched;                                      // Schedule name for the zone setpoint temperature
-        int ColdSetptSchedPtr = 0;                                       // Schedule index for the zone setpoint temperature
+        Sched::Schedule *coolSetptSched = nullptr;                                       // Schedule index for the zone setpoint temperature
         std::string DesignCoolingCapMethodInput;
         int DesignCoolingCapMethod = 0; // - Method for Low Temp Radiant system cooling capacity scaledsizing calculation (CoolingDesignCapacity,
                                         // CapacityPerFloorArea, FracOfAutosizedCoolingCapacity)
@@ -359,36 +355,23 @@ namespace LowTempRadiantSystem {
         Real64 WaterMassFlowRate = 0.0;    // current flow rate through system (calculated)
         Real64 HotWaterMassFlowRate = 0.0; // current hot water flow rate through heating side of system (calculated)
         Real64 ChWaterMassFlowRate = 0.0;  // current chilled water flow rate through cooling side of system (calculated)
-        std::string VolFlowSched;          // schedule of maximum flow at the current time
         std::string designObjectName;      // Design Object
         int DesignObjectPtr = 0;
-        int VolFlowSchedPtr = 0;         // index to the volumetric flow schedule
+        Sched::Schedule *volFlowSched = nullptr;         // index to the volumetric flow schedule
         Real64 NomPumpHead = 0.0;        // nominal head of the constant flow pump
         Real64 NomPowerUse = 0.0;        // nominal power use of the constant flow pump
         Real64 PumpEffic = 0.0;          // overall efficiency of the pump (calculated)
-        std::string HotWaterHiTempSched; // Schedule name for the highest water temperature
-        int HotWaterHiTempSchedPtr = 0;  // Schedule index for the highest water temperature
-        std::string HotWaterLoTempSched; // Schedule name for the lowest water temperature
-        int HotWaterLoTempSchedPtr = 0;  // Schedule index for the lowest water temperature
-        std::string HotCtrlHiTempSched;  // Schedule name for the highest control temperature
+        Sched::Schedule *hotWaterHiTempSched = nullptr;  // Schedule for the highest water temperature
+        Sched::Schedule *hotWaterLoTempSched = nullptr;  // Schedule for the lowest water temperature
+        Sched::Schedule *hotCtrlHiTempSched = nullptr; // Schedule for the highest control temperature
         // (where the lowest water temperature is requested)
-        int HotCtrlHiTempSchedPtr = 0; // Schedule index for the highest control temperature
-        // (where the lowest water temperature is requested)
-        std::string HotCtrlLoTempSched; // Schedule name for the lowest control temperature
+        Sched::Schedule *hotCtrlLoTempSched = nullptr; // Schedule for the lowest control temperature
         // (where the highest water temperature is requested)
-        int HotCtrlLoTempSchedPtr = 0; // Schedule index for the lowest control temperature
-        // (where the highest water temperature is requested)
-        std::string ColdWaterHiTempSched; // Schedule name for the highest water temperature
-        int ColdWaterHiTempSchedPtr = 0;  // Schedule index for the highest water temperature
-        std::string ColdWaterLoTempSched; // Schedule name for the lowest water temperature
-        int ColdWaterLoTempSchedPtr = 0;  // Schedule index for the lowest water temperature
-        std::string ColdCtrlHiTempSched;  // Schedule name for the highest control temperature
+        Sched::Schedule *coldWaterHiTempSched = nullptr;  // Schedule for the highest water temperature
+        Sched::Schedule *coldWaterLoTempSched = nullptr;  // Schedule for the lowest water temperature
+        Sched::Schedule *coldCtrlHiTempSched = nullptr; // Schedule for the highest control temperature
         // (where the lowest water temperature is requested)
-        int ColdCtrlHiTempSchedPtr = 0; // Schedule index for the highest control temperature
-        // (where the lowest water temperature is requested)
-        std::string ColdCtrlLoTempSched; // Schedule name for the lowest control temperature
-        // (where the highest water temperature is requested)
-        int ColdCtrlLoTempSchedPtr = 0; // Schedule index for the lowest control temperature
+        Sched::Schedule *coldCtrlLoTempSched = nullptr; // Schedule for the lowest control temperature
         // (where the highest water temperature is requested)
         Real64 WaterInjectionRate = 0.0;    // water injection mass flow rate from main loop
         Real64 WaterRecircRate = 0.0;       // water recirculation rate (outlet from radiant system recirculated)
@@ -456,8 +439,7 @@ namespace LowTempRadiantSystem {
         // Input data
         Real64 MaxElecPower = 0.0; // Maximum electric power that can be supplied to surface, Watts
         Real64 ThrottlRange = 0.0; // Throttling range for heating [C]
-        std::string SetptSched;    // Schedule name for the zone setpoint temperature
-        int SetptSchedPtr = 0;     // Schedule index for the zone setpoint temperature
+        Sched::Schedule *setptSched = nullptr;     // Schedule for the zone setpoint temperature
         // Other parameters
         // Report data
         Real64 ElecPower = 0.0;   // heating sent to panel in Watts
@@ -599,6 +581,10 @@ struct LowTempRadiantSystemData : BaseGlobalStruct
     Array1D<LowTempRadiantSystem::HydronicRadiantSysNumericFieldData> HydronicRadiantSysNumericFields;
     Array1D<LowTempRadiantSystem::ConstantFlowRadDesignData> CflowRadiantSysDesign;
     Array1D<LowTempRadiantSystem::VarFlowRadDesignData> HydronicRadiantSysDesign;
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

@@ -90,7 +90,6 @@ namespace SolarReflectionManager {
     // Using/Aliasing
     using namespace DataHeatBalance;
     using namespace DataSurfaces;
-    using namespace ScheduleManager;
     using namespace DataEnvironment;
 
     using namespace DataVectorTypes;

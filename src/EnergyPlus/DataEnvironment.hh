@@ -54,6 +54,7 @@
 // EnergyPlus Headers
 #include <EnergyPlus/Data/BaseData.hh>
 #include <EnergyPlus/EnergyPlus.hh>
+#include <EnergyPlus/ScheduleManager.hh>
 
 namespace EnergyPlus {
 
@@ -205,11 +206,15 @@ struct EnvironmentData : BaseGlobalStruct
     std::string EnvironmentStartEnd;   // Start/End dates for Environment
     bool CurrentYearIsLeapYear =
         false; // true when current year is leap year (convoluted logic dealing with whether weather file allows leap years, runperiod inputs.
-    int varyingLocationSchedIndexLat = 0;
-    int varyingLocationSchedIndexLong = 0;
-    int varyingOrientationSchedIndex = 0;
+    Sched::Schedule *varyingLocationLatSched = nullptr;
+    Sched::Schedule *varyingLocationLongSched = nullptr;
+    Sched::Schedule *varyingOrientationSched = nullptr;
     bool forceBeginEnvResetSuppress = false; // for PerformancePrecisionTradeoffs
     bool oneTimeCompRptHeaderFlag = true;
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

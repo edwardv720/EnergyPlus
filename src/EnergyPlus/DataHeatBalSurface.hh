@@ -245,6 +245,10 @@ struct HeatBalSurfData : BaseGlobalStruct
     std::vector<int> SurfMovInsulIndexList;
     std::vector<int> SurfMovSlatsIndexList;
 
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
+
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {
     }

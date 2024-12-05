@@ -93,8 +93,7 @@ namespace Humidifiers {
         std::string Name;                    // unique name of component
         HumidType HumType;                   // Pointer to Humidifier in list of humidifiers
         int EquipIndex;                      // Pointer to Humidifier in list of humidifiers
-        std::string Sched;                   // name of availability schedule
-        int SchedPtr;                        // index of availability schedule
+        Sched::Schedule *availSched = nullptr;                        // availability schedule
         Real64 NomCapVol;                    // nominal capacity [m3/s of water]
         Real64 NomCap;                       // nominal capacity [kg/s of water]
         Real64 NomPower;                     // power consumption at full output [watts]
@@ -140,7 +139,7 @@ namespace Humidifiers {
 
         // Default Constructor
         HumidifierData()
-            : HumType(HumidType::Invalid), EquipIndex(0), SchedPtr(0), NomCapVol(0.0), NomCap(0.0), NomPower(0.0), ThermalEffRated(1.0),
+            : HumType(HumidType::Invalid), EquipIndex(0), NomCapVol(0.0), NomCap(0.0), NomPower(0.0), ThermalEffRated(1.0),
               CurMakeupWaterTemp(0.0), EfficiencyCurvePtr(0), InletWaterTempOption(InletWaterTemp::Invalid), FanPower(0.0), StandbyPower(0.0),
               AirInNode(0), AirOutNode(0), AirInTemp(0.0), AirInHumRat(0.0), AirInEnthalpy(0.0), AirInMassFlowRate(0.0), AirOutTemp(0.0),
               AirOutHumRat(0.0), AirOutEnthalpy(0.0), AirOutMassFlowRate(0.0), HumRatSet(0.0), WaterAdd(0.0), ElecUseEnergy(0.0), ElecUseRate(0.0),
@@ -196,6 +195,10 @@ struct HumidifiersData : BaseGlobalStruct
     // Object Data
     Array1D<Humidifiers::HumidifierData> Humidifier;
     std::unordered_map<std::string, std::string> HumidifierUniqueNames;
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

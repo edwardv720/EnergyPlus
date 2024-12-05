@@ -243,11 +243,10 @@ namespace Weather {
         int DSTIndicator = 0;                                            // Daylight Saving Time Period Indicator (1=yes, 0=no) for this DesignDay
         DesDaySolarModel solarModel = DesDaySolarModel::ASHRAE_ClearSky; // Solar Model for creating solar values for design day.
         DesDayDryBulbRangeType dryBulbRangeType = DesDayDryBulbRangeType::Default; // Drybulb Range Type (see Parameters)
-        int TempRangeSchPtr = 0; // Schedule pointer to a day schedule for dry-bulb temperature range multipliers
-        int HumIndSchPtr = 0;    // Schedule pointer to a day schedule that specifies
-        //    relative humidity (%) or wet-bulb range multipliers per HumIndType
-        int BeamSolarSchPtr = 0;          // Schedule pointer to a day schedule for beam solar
-        int DiffuseSolarSchPtr = 0;       // Schedule pointer to a day schedule for diffuse solar
+        Sched::DaySchedule *tempRangeSched = nullptr; // day schedule for dry-bulb temperature range multipliers
+        Sched::DaySchedule *humIndSched = nullptr;    // day schedule that specifies relative humidity (%) or wet-bulb range multipliers per HumIndType
+        Sched::DaySchedule *beamSolarSched = nullptr;          // day schedule for beam solar
+        Sched::DaySchedule *diffuseSolarSched = nullptr;       // day schedule for diffuse solar
         Real64 TauB = 0.0;                // beam pseudo optical depth for ASHRAE tau model
         Real64 TauD = 0.0;                // diffuse pseudo optical depth for ASHRAE tau model
         Real64 DailyWBRange = 0.0;        // daily range of wetbulb (deltaC)
@@ -289,7 +288,7 @@ namespace Weather {
         int endJulianDate = 2458119; // Calculated end date (Julian or ordinal) for a weather file run period
         int endYear = 2017;          // entered in "consecutive"/real runperiod object
         int dayOfWeek = 1;           // Day of Week that the RunPeriod will start on (User Input)
-        ScheduleManager::DayType startWeekDay = ScheduleManager::DayType::Sunday; // Day of the week that the RunPeriod will start on (User Input)
+        Sched::DayType startWeekDay = Sched::DayType::Sunday; // Day of the week that the RunPeriod will start on (User Input)
         bool useDST = false;                                                      // True if DaylightSavingTime is used for this RunPeriod
         bool useHolidays = false;                                                 // True if Holidays are used for this RunPeriod (from WeatherFile)
         bool applyWeekendRule = false;                                            // True if "Weekend Rule" is to be applied to RunPeriod
@@ -419,10 +418,9 @@ namespace Weather {
     {
         // Members
         std::string Name = "";         // Reference Name
-        std::string ScheduleName = ""; // Schedule Name or Algorithm Name
         bool IsSchedule = true;        // Default is using Schedule
         SkyTempModel skyTempModel = SkyTempModel::ClarkAllen;
-        int SchedulePtr = 0; // pointer to schedule when used
+        Sched::Schedule *sched = nullptr; // schedule when used
         bool UsedForEnvrn = false;
         bool UseWeatherFileHorizontalIR = true; // If false, horizontal IR and sky temperature are calculated with WP models
     };
@@ -432,8 +430,8 @@ namespace Weather {
         std::string Name = "";
         Real64 distanceFromLeadingEdge = 0.0;
         int OSCMIndex = 0;
-        int WaterTempScheduleIndex = 0;
-        int VelocityScheduleIndex = 0;
+        Sched::Schedule *waterTempSched = nullptr;
+        Sched::Schedule *velocitySched = nullptr;
     };
 
     // Functions
@@ -683,7 +681,7 @@ namespace Weather {
 
     GregorianDate computeGregorianDate(int jdate);
 
-    ScheduleManager::DayType calculateDayOfWeek(EnergyPlusData &state, int year, int month, int day);
+    Sched::DayType calculateDayOfWeek(EnergyPlusData &state, int year, int month, int day);
 
     int calculateDayOfYear(int Month, int Day, bool leapYear = false);
 
@@ -803,10 +801,9 @@ struct WeatherManagerData : BaseGlobalStruct
     Real64 SnowGndRefModifierForDayltg = 1.0; // Modifier to ground reflectance during snow for daylighting
     Weather::WaterMainsTempCalcMethod WaterMainsTempsMethod =
         Weather::WaterMainsTempCalcMethod::FixedDefault; // Water mains temperature calculation method
-    int WaterMainsTempsSchedule = 0;                     // Water mains temperature schedule
+    Sched::Schedule *waterMainsTempSched = nullptr;                     // Water mains temperature schedule
     Real64 WaterMainsTempsAnnualAvgAirTemp = 0.0;        // Annual average outdoor air temperature (C)
     Real64 WaterMainsTempsMaxDiffAirTemp = 0.0;          // Maximum difference in monthly average outdoor air temperatures (deltaC)
-    std::string WaterMainsTempsScheduleName = "";        // water mains tempeature schedule name
     bool wthFCGroundTemps = false;
 
     int TotRunPers = 0;           // Total number of Run Periods (Weather data) to Setup
@@ -930,6 +927,10 @@ struct WeatherManagerData : BaseGlobalStruct
 
     // ProcessEPWHeader static vars
     std::string EPWHeaderTitle = "";
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

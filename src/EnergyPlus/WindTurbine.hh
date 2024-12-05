@@ -86,10 +86,9 @@ namespace WindTurbine {
     {
         // Members
         std::string Name;                               // The component name
-        std::string Schedule;                           // Available schedule
         RotorType rotorType = RotorType::Invalid;       // Rotor type (HAWT or VAWT)
         ControlType controlType = ControlType::Invalid; // Control type
-        int SchedPtr = 0;                               // Schedule
+        Sched::Schedule *availSched = nullptr;
         int NumOfBlade = 0;                             // Blade number
         Real64 RatedRotorSpeed = 0.0;                   // Rated rotor speed in m/s
         Real64 RotorDiameter = 0.0;                     // Diameter of rotor in m
@@ -165,6 +164,10 @@ struct WindTurbineData : BaseGlobalStruct
     bool GetInputFlag = true;
     bool MyOneTimeFlag = true;
     EPVector<WindTurbine::WindTurbineParams> WindTurbineSys;
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

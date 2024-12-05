@@ -59,6 +59,7 @@
 #include <EnergyPlus/Plant/Enums.hh>
 #include <EnergyPlus/Plant/PlantLocation.hh>
 #include <EnergyPlus/PlantComponent.hh>
+#include <EnergyPlus/ScheduleManager.hh>
 
 namespace EnergyPlus {
 
@@ -177,9 +178,8 @@ namespace IceThermalStorage {
 
     struct DetailedIceStorageData : PlantComponent
     {
-        std::string Name;         // User identifier
-        std::string ScheduleName; // User identifier
-        int ScheduleIndex;        // Plant inlet node number for ice storage unit
+        std::string Name;         // User identifier // What kind of a comment is this?
+        Sched::Schedule *availSched; // schedule (availability?)
         Real64 NomCapacity;       // Design storage capacity of Ice Thermal Storage system [W-hr]
         // (User input for this parameter in GJ--need to convert to W-hr)
         int PlantInNodeNum;  // Plant inlet node number for ice storage unit
@@ -231,7 +231,7 @@ namespace IceThermalStorage {
 
         // Default Constructor
         DetailedIceStorageData()
-            : ScheduleIndex(0), NomCapacity(0.0), PlantInNodeNum(0), PlantOutNodeNum(0), plantLoc{}, DesignMassFlowRate(0.0), MapNum(0),
+            : NomCapacity(0.0), PlantInNodeNum(0), PlantOutNodeNum(0), plantLoc{}, DesignMassFlowRate(0.0), MapNum(0),
               DischargeCurveNum(0), ChargeCurveNum(0), CurveFitTimeStep(1.0), DischargeParaElecLoad(0.0), ChargeParaElecLoad(0.0), TankLossCoeff(0.0),
               FreezingTemp(0.0), CompLoad(0.0), IceFracChange(0.0), IceFracRemaining(1.0), IceFracOnCoil(1.0), DischargingRate(0.0),
               DischargingEnergy(0.0), ChargingRate(0.0), ChargingEnergy(0.0), MassFlowRate(0.0), BypassMassFlowRate(0.0), TankMassFlowRate(0.0),
@@ -292,6 +292,10 @@ struct IceThermalStorageData : BaseGlobalStruct
     int TotalNumIceStorage = 0;
     EPVector<IceThermalStorage::SimpleIceStorageData> SimpleIceStorage;
     EPVector<IceThermalStorage::DetailedIceStorageData> DetailedIceStorage;
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

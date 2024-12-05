@@ -111,9 +111,9 @@ namespace Furnaces {
         std::string Name;                                          // Name of the Furnace
         HVAC::UnitarySysType type = HVAC::UnitarySysType::Invalid; // Numeric Equivalent for Furnace Type
         int FurnaceIndex;                                          // Index to furnace
-        int SchedPtr;                                              // Index to furnace operating schedule
-        int FanSchedPtr;                                           // Index to fan operating mode schedule
-        int FanAvailSchedPtr;                                      // Index to fan availability schedule
+        Sched::Schedule *sched = nullptr;                          // furnace operating schedule
+        Sched::Schedule *fanOpModeSched = nullptr;                 // fan operating mode schedule
+        Sched::Schedule *fanAvailSched = nullptr;                  // fan availability schedule
         int ControlZoneNum;                                        // Index to controlled zone
         int ZoneSequenceCoolingNum;                                // Index to cooling sequence/priority for this zone
         int ZoneSequenceHeatingNum;                                // Index to heating sequence/priority for this zone
@@ -255,7 +255,7 @@ namespace Furnaces {
         int ErrCountVar2 = 0; // Counter used to minimize the occurrence of output warnings
 
         FurnaceEquipConditions()
-            : FurnaceIndex(0), SchedPtr(0), FanSchedPtr(0), FanAvailSchedPtr(0), ControlZoneNum(0), ZoneSequenceCoolingNum(0),
+            : FurnaceIndex(0), ControlZoneNum(0), ZoneSequenceCoolingNum(0),
               ZoneSequenceHeatingNum(0), CoolingCoilType_Num(0), CoolingCoilIndex(0), ActualDXCoilIndexForHXAssisted(0), CoolingCoilUpstream(true),
               HeatingCoilType_Num(0), HeatingCoilIndex(0), ReheatingCoilType_Num(0), ReheatingCoilIndex(0), CoilControlNode(0), HWCoilAirInletNode(0),
               HWCoilAirOutletNode(0), SuppCoilAirInletNode(0), SuppCoilAirOutletNode(0), SuppHeatCoilType_Num(0), SuppHeatCoilIndex(0),
@@ -576,6 +576,10 @@ struct FurnacesData : BaseGlobalStruct
     Real64 HeatPartLoadRatio;   // Part load ratio (greater of sensible or latent part load ratio for cooling)
     int SpeedNum = 1;           // Speed number
     Real64 SupHeaterLoad = 0.0; // supplement heater load
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

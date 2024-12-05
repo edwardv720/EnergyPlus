@@ -136,8 +136,8 @@ namespace AirflowNetwork {
         std::string ComfortHighTempCurveName; // Thermal Comfort High Temperature Curve Name
         int ComfortLowTempCurveNum;           // Thermal Comfort Low Temperature Curve number
         int ComfortHighTempCurveNum;          // Thermal Comfort high Temperature Curve number
-        int OpeningProbSchNum;                // Opening probability schedule pointer
-        int ClosingProbSchNum;                // Closing probability schedule pointer
+        Sched::Schedule *openingProbSched = nullptr;                // Opening probability schedule pointer
+        Sched::Schedule *closingProbSched = nullptr;                // Closing probability schedule pointer
         Real64 ComfortBouPoint;               // Thermal Comfort Temperature Boundary Point
         bool OccupancyCheck;                  // Occupancy check
         std::string OpeningProbSchName;       // Opening probability schedule name
@@ -147,8 +147,8 @@ namespace AirflowNetwork {
 
         // Default Constructor
         OccupantVentilationControlProp()
-            : MinOpeningTime(0.0), MinClosingTime(0.0), ComfortLowTempCurveNum(0), ComfortHighTempCurveNum(0), OpeningProbSchNum(0),
-              ClosingProbSchNum(0), ComfortBouPoint(10.0), OccupancyCheck(false), MaxPPD(10.0), MinTimeControlOnly(false)
+            : MinOpeningTime(0.0), MinClosingTime(0.0), ComfortLowTempCurveNum(0), ComfortHighTempCurveNum(0), 
+              ComfortBouPoint(10.0), OccupancyCheck(false), MaxPPD(10.0), MinTimeControlOnly(false)
         {
         }
 
@@ -538,6 +538,10 @@ namespace AirflowNetwork {
         Array1D<AirflowNetwork::OutdoorAirFan> DisSysCompOutdoorAirData;
         Array1D<AirflowNetwork::ReliefFlow> DisSysCompReliefAirData;
         Array1D<AirflowNetwork::AirflowNetworkLinkageViewFactorProp> AirflowNetworkLinkageViewFactorData;
+
+        void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+        {
+        }
 
         void init_state([[maybe_unused]] EnergyPlusData &state) override
         {

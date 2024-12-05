@@ -62,7 +62,6 @@ using namespace EnergyPlus;
 
 TEST_F(EnergyPlusFixture, FluidProperties_GetDensityGlycol)
 {
-
     std::string const idf_objects = delimited_string({"FluidProperties:GlycolConcentration,",
                                                       "  GLHXFluid,       !- Name",
                                                       "  PropyleneGlycol, !- Glycol Type",
@@ -72,7 +71,8 @@ TEST_F(EnergyPlusFixture, FluidProperties_GetDensityGlycol)
 
     ASSERT_TRUE(process_idf(idf_objects));
     EXPECT_FALSE(has_err_output());
-
+    state->init_state(*state);
+    
     int FluidIndex = 0;
 
     EXPECT_NEAR(1037.89, FluidProperties::GetDensityGlycol(*state, "GLHXFLUID", -35.0, FluidIndex, "UnitTest"), 0.01);
@@ -90,7 +90,6 @@ TEST_F(EnergyPlusFixture, FluidProperties_GetDensityGlycol)
 
 TEST_F(EnergyPlusFixture, FluidProperties_GetSpecificHeatGlycol)
 {
-
     std::string const idf_objects = delimited_string({"FluidProperties:GlycolConcentration,",
                                                       "  GLHXFluid,       !- Name",
                                                       "  PropyleneGlycol, !- Glycol Type",
@@ -100,7 +99,8 @@ TEST_F(EnergyPlusFixture, FluidProperties_GetSpecificHeatGlycol)
 
     ASSERT_TRUE(process_idf(idf_objects));
     EXPECT_FALSE(has_err_output());
-
+    state->init_state(*state);
+    
     int FluidIndex = 0;
 
     EXPECT_NEAR(3779, FluidProperties::GetSpecificHeatGlycol(*state, "GLHXFLUID", -35.0, FluidIndex, "UnitTest"), 0.01);

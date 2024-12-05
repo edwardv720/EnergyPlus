@@ -166,15 +166,15 @@ namespace SetPointManager {
 
     struct SPMScheduled : SPMBase // Derived type for Scheduled Setpoint Manager data
     {
-        int schedNum = 0;
+        Sched::Schedule *sched = nullptr;
 
         void calculate(EnergyPlusData &state) override;
     };
 
     struct SPMScheduledDual : SPMBase // Derived type for Scheduled Dual Setpoint Manager
     {
-        int schedNumHi = 0;
-        int schedNumLo = 0;
+        Sched::Schedule *hiSched = nullptr;
+        Sched::Schedule *loSched = nullptr;
         Real64 setPtHi = 0.0;
         Real64 setPtLo = 0.0;
 
@@ -184,11 +184,12 @@ namespace SetPointManager {
     struct SPMOutsideAir : SPMBase // Derived type for Outside Air Setpoint Manager Data
     {
         // Members
+        Sched::Schedule *sched = nullptr;
+            
         Real64 lowSetPt1 = 0.0;            // 1st setpoint at outside low
         Real64 low1 = 0.0;                 // 1st Outside low
         Real64 highSetPt1 = 0.0;           // 1st setpoint at outside high
         Real64 high1 = 0.0;                // 1st Outside high
-        int schedNum = 0;                  // Schedule index
         int invalidSchedValErrorIndex = 0; // index for recurring error when schedule is not 1 or 2
         int setPtErrorCount = 0;           // countfor recurring error when schedule is not 1 or 2
         Real64 lowSetPt2 = 0.0;            // 2nd setpoint at outside low (optional)
@@ -288,7 +289,7 @@ namespace SetPointManager {
     struct SPMReturnAirBypassFlow : SPMBase
     {
         // Members
-        int schedNum = 0;     // index of the above schedule
+        Sched::Schedule *sched = nullptr;
         Real64 FlowSetPt = 0; // mass flow rate setpoint (kg/s)
         int rabMixInNodeNum = 0;
         int supMixInNodeNum = 0;
@@ -343,7 +344,7 @@ namespace SetPointManager {
     struct SPMCondenserEnteringTemp : SPMBase // derived type for SetpointManager:CondenserEnteringReset data
     {
         // Members
-        int condenserEnteringTempSchedNum = 0;     // default condenser entering water temperature schedule Index
+        Sched::Schedule *condenserEnteringTempSched = nullptr;     // default condenser entering water temperature schedule Index
         Real64 towerDesignInletAirWetBulbTemp = 0; // cooling tower design inlet air wetbulb temperature
         int minTowerDesignWetBulbCurveNum = 0;     // minimum design wetbulb temperature curve name
         int minOAWetBulbCurveNum = 0;              // minimum outside air wetbulb temperature curve name
@@ -422,7 +423,7 @@ namespace SetPointManager {
         // Members
         int returnNodeNum = 0;                 // node ID for the plant supply-side return node
         int supplyNodeNum = 0;                 // node ID for the plant supply-side supply node
-        int returnTempSchedNum = 0;            // the index in Schedules array for the scheduled return temperature; zero if not used
+        Sched::Schedule *returnTempSched = nullptr;            // scheduled return temperature
         Real64 returnTempConstantTarget = 0.0; // the constant value used as the return temperature target; used if schedule index is zero
         Real64 currentSupplySetPt = 0.0;       // the current supply setpoint temperature
         int plantLoopNum = 0;                  // the index for the plant loop for this manager, zero if not initialized
@@ -437,8 +438,8 @@ namespace SetPointManager {
     struct SPMTESScheduled : SPMBase // Derived type for Scheduled TES Setpoint Manager data
     {
         // Members
-        int schedNum = 0;
-        int schedNumCharge = 0;
+        Sched::Schedule *sched = nullptr; // Default is AlwaysOff
+        Sched::Schedule *chargeSched = nullptr; // Default is AlwaysOff
         int ctrlNodeNum = 0;
         Real64 nonChargeCHWTemp = 0.0;
         Real64 chargeCHWTemp = 0.0;
@@ -492,8 +493,8 @@ namespace SetPointManager {
     HVAC::CtrlVarType GetHumidityRatioVariableType(EnergyPlusData &state, int CtrlNodeNum);
 
     void SetUpNewScheduledTESSetPtMgr(EnergyPlusData &state,
-                                      int SchedPtr,
-                                      int SchedPtrCharge,
+                                      Sched::Schedule *onPeakSched,
+                                      Sched::Schedule *chargeSched,
                                       Real64 NonChargeCHWTemp,
                                       Real64 ChargeCHWTemp,
                                       DataPlant::CtrlType CompOpType,
@@ -540,6 +541,10 @@ struct SetPointManagerData : BaseGlobalStruct
     Real64 CET_MinActualWetBulbTemp = 0.0;
     Real64 CET_OptCondenserEnteringTemp = 0.0;
     Real64 CET_CurMinLift = 0.0;
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

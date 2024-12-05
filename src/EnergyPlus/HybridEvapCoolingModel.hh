@@ -231,11 +231,10 @@ namespace HybridEvapCoolingModel {
 
         // Default Constructor
         std::string Name;     // user identifier
-        std::string Schedule; // Availability Schedule Name
         bool Initialized;     // initialization flag ensures the system object is initialized only once.
         int ZoneNum;  // stores the current zone associated with the system, this is currently not used but is expected to be used in the next set of
                       // functionality additions.
-        int SchedPtr; // Pointer to the correct schedule
+        Sched::Schedule *availSched = nullptr; // Pointer to the correct schedule
         int ZoneNodeNum;                  // index of zone air node in node structure
         std::string AvailManagerListName; // Name of an availability manager list object
         Avail::Status availStatus = Avail::Status::NoAction;
@@ -296,10 +295,10 @@ namespace HybridEvapCoolingModel {
         Real64 RequestedDeHumdificationEnergy;
         Real64 RequestedLoadToHeatingSetpoint;
         Real64 RequestedLoadToCoolingSetpoint;
-        int TsaMin_schedule_pointer;
-        int TsaMax_schedule_pointer;
-        int RHsaMin_schedule_pointer;
-        int RHsaMax_schedule_pointer;
+        Sched::Schedule *TsaMinSched = nullptr;
+        Sched::Schedule *TsaMaxSched = nullptr;
+        Sched::Schedule *RHsaMinSched = nullptr;
+        Sched::Schedule *RHsaMaxSched = nullptr;
         int PrimaryMode;
         Real64 PrimaryModeRuntimeFraction;
         Real64 averageOSAF;

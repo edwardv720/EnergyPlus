@@ -4157,7 +4157,7 @@ namespace StandardRatings {
 
         Real64 cop_low = q_low / p_low;
         Real64 cop_int = q_int / p_int;
-        Real64 cop_full = q_full / p_full;
+        Real64 cop_full = q_full / p_full; // About half of the variables in this function are unused
         // Low Speed
         Real64 cop_int_bin = cop_low + (cop_int - cop_low) / (q_int - q_low) * (bl - q_low); // Equation 11.101 (AHRI-2023)
         q = bl * n;                                                                          // 11.92 --> n is missing in the print ?

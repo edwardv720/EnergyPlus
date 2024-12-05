@@ -79,8 +79,7 @@ namespace HVACSingleDuctInduc {
         std::string Name;           // name of unit
         std::string UnitType;       // type of unit
         SingleDuct_CV UnitType_Num; // index to type of unit
-        std::string Sched;          // availability schedule
-        int SchedPtr;               // index to schedule
+        Sched::Schedule *availSched = nullptr; // index to schedule
         Real64 MaxTotAirVolFlow;    // m3/s (autosizable)
         Real64 MaxTotAirMassFlow;   // kg/s
         Real64 InducRatio;          // ratio of induced air flow to primary air flow
@@ -127,7 +126,7 @@ namespace HVACSingleDuctInduc {
 
         // Default Constructor
         IndUnitData()
-            : UnitType_Num(SingleDuct_CV::Invalid), SchedPtr(0), MaxTotAirVolFlow(0.0), MaxTotAirMassFlow(0.0), InducRatio(2.5), PriAirInNode(0),
+            : UnitType_Num(SingleDuct_CV::Invalid), MaxTotAirVolFlow(0.0), MaxTotAirMassFlow(0.0), InducRatio(2.5), PriAirInNode(0),
               SecAirInNode(0), OutAirNode(0), HWControlNode(0), CWControlNode(0), HCoil_Num(0),
               HeatingCoilType(DataPlant::PlantEquipmentType::Invalid), MaxVolHotWaterFlow(0.0), MaxHotWaterFlow(0.0), MinVolHotWaterFlow(0.0),
               MinHotWaterFlow(0.0), HotControlOffset(0.0), HWPlantLoc{}, HWCoilFailNum1(0), HWCoilFailNum2(0), CCoil_Num(0),
@@ -192,6 +191,10 @@ struct HVACSingleDuctInducData : BaseGlobalStruct
     Array1D_bool MyAirDistInitFlag;
     Array1D<HVACSingleDuctInduc::IndUnitData> IndUnit;
     bool ZoneEquipmentListChecked = false;
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

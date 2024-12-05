@@ -107,8 +107,8 @@ namespace PipeHeatTransfer {
         std::string Name;
         std::string Construction;           // construction object name
         std::string Environment;            // keyword:  'Schedule', 'OutdoorAir', 'Zone'
-        std::string EnvrSchedule;           // temperature schedule for environmental temp
-        std::string EnvrVelSchedule;        // temperature schedule for environmental temp
+        Sched::Schedule *envrSched = nullptr;           // temperature schedule for environmental temp
+        Sched::Schedule *envrVelSched = nullptr;        // temperature schedule for environmental temp
         std::string EnvrAirNode;            // outside air node providing environmental temp
         Real64 Length;                      // total pipe length [m]
         Real64 PipeID;                      // pipe inside diameter [m]
@@ -120,8 +120,6 @@ namespace PipeHeatTransfer {
         // derived data
         int ConstructionNum; // construction ref number
         EnvrnPtr EnvironmentPtr;
-        int EnvrSchedPtr;              // pointer to schedule used to set environmental temp
-        int EnvrVelSchedPtr;           // pointer to schedule used to set environmental temp
         int EnvrZonePtr;               // pointer to zone number used to set environmental temp
         int EnvrAirNodeNum;            // pointer to outside air node used to set environmental temp
         int NumSections;               // total number of nodes along pipe length
@@ -200,7 +198,7 @@ namespace PipeHeatTransfer {
         // Default Constructor
         PipeHTData()
             : Length(0.0), PipeID(0.0), InletNodeNum(0), OutletNodeNum(0), Type(DataPlant::PlantEquipmentType::Invalid), ConstructionNum(0),
-              EnvironmentPtr(EnvrnPtr::None), EnvrSchedPtr(0), EnvrVelSchedPtr(0), EnvrZonePtr(0), EnvrAirNodeNum(0), NumSections(0),
+              EnvironmentPtr(EnvrnPtr::None), EnvrZonePtr(0), EnvrAirNodeNum(0), NumSections(0),
               FluidSpecHeat(0.0), FluidDensity(0.0), MaxFlowRate(0.0), InsideArea(0.0), OutsideArea(0.0), SectionArea(0.0), PipeHeatCapacity(0.0),
               PipeOD(0.0), PipeCp(0.0), PipeDensity(0.0), PipeConductivity(0.0), InsulationOD(0.0), InsulationCp(0.0), InsulationDensity(0.0),
               InsulationConductivity(0.0), InsulationThickness(0.0), InsulationResistance(0.0), CurrentSimTime(0.0), PreviousSimTime(0.0),
@@ -286,10 +284,14 @@ struct PipeHeatTransferData : BaseGlobalStruct
     Array1D<PipeHeatTransfer::PipeHTData> PipeHT;
     std::unordered_map<std::string, std::string> PipeHTUniqueNames;
 
-    void init_state([[maybe_unused]] EnergyPlusData &state) override
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
     {
     }
 
+    void init_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
+        
     void clear_state() override
     {
         this->nsvNumOfPipeHT = 0;

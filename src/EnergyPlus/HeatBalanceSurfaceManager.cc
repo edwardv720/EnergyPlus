@@ -224,13 +224,13 @@ void UpdateVariableAbsorptances(EnergyPlusData &state)
         auto const *thisMaterial = s_mat->materials(thisConstruct.LayerPoint(1));
         assert(thisMaterial != nullptr);
         if (thisMaterial->absorpVarCtrlSignal == Material::VariableAbsCtrlSignal::Scheduled) {
-            if (thisMaterial->absorpThermalVarSchedIdx > 0) {
+            if (thisMaterial->absorpThermalVarSched != nullptr) {
                 state.dataHeatBalSurf->SurfAbsThermalExt(surfNum) =
-                    max(min(ScheduleManager::GetCurrentScheduleValue(state, thisMaterial->absorpThermalVarSchedIdx), 0.9999), 0.0001);
+                    max(min(thisMaterial->absorpThermalVarSched->getCurrentVal(), 0.9999), 0.0001);
             }
-            if (thisMaterial->absorpSolarVarSchedIdx > 0) {
+            if (thisMaterial->absorpSolarVarSched != nullptr) {
                 state.dataHeatBalSurf->SurfAbsSolarExt(surfNum) =
-                    max(min(ScheduleManager::GetCurrentScheduleValue(state, thisMaterial->absorpThermalVarSchedIdx), 0.9999), 0.0001);
+                   max(min(thisMaterial->absorpThermalVarSched->getCurrentVal(), 0.9999), 0.0001);
             }
         } else {
             Real64 triggerValue;
@@ -2338,7 +2338,7 @@ void EvalOutsideMovableInsulation(EnergyPlusData &state)
     // This subroutine determines whether or not outside movable insulation on opaque surfaces is present at the current time.
     auto &s_mat = state.dataMaterial;
     for (int SurfNum : state.dataHeatBalSurf->SurfMovInsulIndexList) {
-        Real64 MovInsulSchedVal = ScheduleManager::GetCurrentScheduleValue(state, state.dataSurface->SurfSchedMovInsulExt(SurfNum));
+        Real64 MovInsulSchedVal = state.dataSurface->SurfMovInsulExtScheds(SurfNum)->getCurrentVal();
         if (MovInsulSchedVal <= 0) { // Movable insulation not present at current time
             state.dataHeatBalSurf->SurfMovInsulExtPresent(SurfNum) = false;
             int ConstrNum = state.dataSurface->SurfActiveConstruction(SurfNum);
@@ -2369,7 +2369,7 @@ void EvalInsideMovableInsulation(EnergyPlusData &state)
     auto &s_mat = state.dataMaterial;
     // This subroutine determines whether or not inside movable insulation is present at the current time.
     for (int SurfNum : state.dataHeatBalSurf->SurfMovInsulIndexList) {
-        Real64 MovInsulSchedVal = ScheduleManager::GetCurrentScheduleValue(state, state.dataSurface->SurfSchedMovInsulInt(SurfNum));
+        Real64 MovInsulSchedVal = state.dataSurface->SurfMovInsulIntScheds(SurfNum)->getCurrentVal();
         if (MovInsulSchedVal <= 0.0) { // Movable insulation not present at current time
             state.dataHeatBalSurf->SurfMovInsulIntPresent(SurfNum) = false;
             int ConstrNum = state.dataSurface->SurfActiveConstruction(SurfNum);
@@ -3197,7 +3197,7 @@ void InitSolarHeatGains(EnergyPlusData &state)
                             for (int Lay = 1; Lay <= TotSolidLay; ++Lay) {
                                 if (SurfSolAbs != 0) {
                                     state.dataSurface->SurfWinA(SurfNum, Lay) =
-                                        ScheduleManager::GetCurrentScheduleValue(state, state.dataSurface->FenLayAbsSSG(SurfSolAbs).SchedPtrs(Lay));
+                                        state.dataSurface->FenLayAbsSSG(SurfSolAbs).scheds(Lay)->getCurrentVal();
                                     // ABWin(Lay) = SurfWinA(SurfNum,Lay)
                                     state.dataHeatBal->SurfWinQRadSWwinAbs(SurfNum, Lay) = state.dataSurface->SurfWinA(SurfNum, Lay);
                                 } else {
@@ -5644,7 +5644,7 @@ void ReportThermalResilience(EnergyPlusData &state)
             int ZoneNum = state.dataHeatBal->People(iPeople).ZonePtr;
             state.dataHeatBal->Resilience(ZoneNum).ZoneNumOcc =
                 state.dataHeatBal->People(iPeople).NumberOfPeople *
-                ScheduleManager::GetCurrentScheduleValue(state, state.dataHeatBal->People(iPeople).NumberOfPeoplePtr);
+                state.dataHeatBal->People(iPeople).numberOfPeopleSched->getCurrentVal();
             state.dataHeatBal->Resilience(ZoneNum).ZonePierceSETLastStep = state.dataHeatBal->Resilience(ZoneNum).ZonePierceSET;
             if (state.dataHeatBal->People(iPeople).Pierce) {
                 state.dataHeatBal->Resilience(ZoneNum).ZonePierceSET = state.dataThermalComforts->ThermalComfortData(iPeople).PierceSET;
@@ -5894,8 +5894,9 @@ void ReportThermalResilience(EnergyPlusData &state)
             }
 
             Real64 Temperature = state.dataZoneTempPredictorCorrector->zoneHeatBalance(ZoneNum).ZTAV;
-            Real64 CoolingSetpoint = state.dataHeatBalFanSys->ZoneThermostatSetPointHi(ZoneNum);
-            Real64 HeatingSetpoint = state.dataHeatBalFanSys->ZoneThermostatSetPointLo(ZoneNum);
+            auto const &zoneTstatSetpt = state.dataHeatBalFanSys->zoneTstatSetpts(ZoneNum);
+            Real64 CoolingSetpoint = zoneTstatSetpt.setptHi;
+            Real64 HeatingSetpoint = zoneTstatSetpt.setptLo;
 
             if ((CoolingSetpoint > 0) && (Temperature > CoolingSetpoint)) {
                 state.dataHeatBal->Resilience(ZoneNum).ZoneUnmetDegreeHourBins[0] += (Temperature - CoolingSetpoint) * state.dataGlobal->TimeStepZone;
@@ -6164,7 +6165,7 @@ void ReportCO2Resilience(EnergyPlusData &state)
             int ZoneNum = state.dataHeatBal->People(iPeople).ZonePtr;
             state.dataHeatBal->Resilience(ZoneNum).ZoneNumOcc =
                 state.dataHeatBal->People(iPeople).NumberOfPeople *
-                ScheduleManager::GetCurrentScheduleValue(state, state.dataHeatBal->People(iPeople).NumberOfPeoplePtr);
+                state.dataHeatBal->People(iPeople).numberOfPeopleSched->getCurrentVal();
         }
 
         Array1D_bool reportPeriodFlags;
@@ -6255,7 +6256,7 @@ void ReportVisualResilience(EnergyPlusData &state)
             int ZoneNum = state.dataHeatBal->People(iPeople).ZonePtr;
             state.dataHeatBal->Resilience(ZoneNum).ZoneNumOcc =
                 state.dataHeatBal->People(iPeople).NumberOfPeople *
-                ScheduleManager::GetCurrentScheduleValue(state, state.dataHeatBal->People(iPeople).NumberOfPeoplePtr);
+                state.dataHeatBal->People(iPeople).numberOfPeopleSched->getCurrentVal();
         }
         // Accumulate across daylighting controls first
         for (int ZoneNum = 1; ZoneNum <= state.dataGlobal->NumOfZones; ++ZoneNum) {
@@ -6570,7 +6571,7 @@ void ReportSurfaceHeatBalance(EnergyPlusData &state)
     }
 
     if (state.dataGlobal->ZoneSizingCalc && state.dataGlobal->CompLoadReportIsReq) {
-        int TimeStepInDay = (state.dataGlobal->HourOfDay - 1) * state.dataGlobal->NumOfTimeStepInHour + state.dataGlobal->TimeStep;
+        int TimeStepInDay = (state.dataGlobal->HourOfDay - 1) * state.dataGlobal->TimeStepsInHour + state.dataGlobal->TimeStep;
         for (int zoneNum = 1; zoneNum <= state.dataGlobal->NumOfZones; ++zoneNum) {
             for (int spaceNum : state.dataHeatBal->Zone(zoneNum).spaceIndexes) {
                 auto const &thisSpace = state.dataHeatBal->space(spaceNum);
@@ -6731,8 +6732,6 @@ void CalcHeatBalanceOutsideSurf(EnergyPlusData &state,
     //    using namespace DataHeatBalSurface;
     //    using namespace DataSurfaces;
     //    using HeatBalanceIntRadExchange::CalcInteriorRadExchange;
-    //    using ScheduleManager::GetCurrentScheduleValue;
-    //    using ScheduleManager::GetScheduleIndex;
     //    using namespace Psychrometrics;
     //    using EcoRoofManager::CalcEcoRoof;
     //
@@ -6794,8 +6793,7 @@ void CalcHeatBalanceOutsideSurf(EnergyPlusData &state,
 
     // Calculate heat extract due to additional heat flux source term as the surface boundary condition
     for (int surfNum : state.dataSurface->allOutsideSourceSurfaceList) {
-        state.dataHeatBalSurf->SurfQAdditionalHeatSourceOutside(surfNum) =
-            EnergyPlus::ScheduleManager::GetCurrentScheduleValue(state, Surface(surfNum).OutsideHeatSourceTermSchedule);
+        state.dataHeatBalSurf->SurfQAdditionalHeatSourceOutside(surfNum) = Surface(surfNum).outsideHeatSourceTermSched->getCurrentVal();
     }
     for (int zoneNum = 1; zoneNum <= state.dataGlobal->NumOfZones; ++zoneNum) { // Loop through all surfaces...
         for (int spaceNum : state.dataHeatBal->Zone(zoneNum).spaceIndexes) {
@@ -6960,9 +6958,8 @@ void CalcHeatBalanceOutsideSurf(EnergyPlusData &state,
                         state.dataSurface->OSC(OPtr).TOutsideSurfPast = state.dataHeatBalSurf->SurfOutsideTempHist(1)(SurfNum);
                     }
 
-                    if (state.dataSurface->OSC(OPtr).ConstTempScheduleIndex != 0) { // Determine outside temperature from schedule
-                        state.dataSurface->OSC(OPtr).ConstTemp =
-                            ScheduleManager::GetCurrentScheduleValue(state, state.dataSurface->OSC(OPtr).ConstTempScheduleIndex);
+                    if (state.dataSurface->OSC(OPtr).constTempSched != nullptr) { // Determine outside temperature from schedule
+                        state.dataSurface->OSC(OPtr).ConstTemp = state.dataSurface->OSC(OPtr).constTempSched->getCurrentVal();
                     }
 
                     //  Allow for modification of TemperatureCoefficient with unitary sine wave.
@@ -7031,9 +7028,8 @@ void CalcHeatBalanceOutsideSurf(EnergyPlusData &state,
                         state.dataSurface->OSC(OPtr).TOutsideSurfPast = state.dataHeatBalSurf->SurfOutsideTempHist(1)(SurfNum);
                     }
 
-                    if (state.dataSurface->OSC(OPtr).ConstTempScheduleIndex != 0) { // Determine outside temperature from schedule
-                        state.dataSurface->OSC(OPtr).ConstTemp =
-                            ScheduleManager::GetCurrentScheduleValue(state, state.dataSurface->OSC(OPtr).ConstTempScheduleIndex);
+                    if (state.dataSurface->OSC(OPtr).constTempSched != nullptr) { // Determine outside temperature from schedule
+                        state.dataSurface->OSC(OPtr).ConstTemp = state.dataSurface->OSC(OPtr).constTempSched->getCurrentVal();
                     }
 
                     state.dataHeatBalSurf->SurfHConvExt(SurfNum) = state.dataSurface->OSC(OPtr).SurfFilmCoef;
@@ -7335,9 +7331,7 @@ void CalcHeatBalanceOutsideSurf(EnergyPlusData &state,
                             // View factor of a surrounding surface
                             Real64 SrdSurfViewFac = state.dataSurface->SurroundingSurfsProperty(SrdSurfsNum).SurroundingSurfs(SrdSurfNum).ViewFactor;
                             // Absolute temperature of a surrounding surface
-                            Real64 SrdSurfTempAbs =
-                                ScheduleManager::GetCurrentScheduleValue(
-                                    state, state.dataSurface->SurroundingSurfsProperty(SrdSurfsNum).SurroundingSurfs(SrdSurfNum).TempSchNum) +
+                            Real64 SrdSurfTempAbs = state.dataSurface->SurroundingSurfsProperty(SrdSurfsNum).SurroundingSurfs(SrdSurfNum).tempSched->getCurrentVal() +
                                 Constant::Kelvin;
                             state.dataHeatBalSurf->SurfQRadLWOutSrdSurfs(SurfNum) +=
                                 Constant::StefanBoltzmann * AbsThermSurf * SrdSurfViewFac * (pow_4(SrdSurfTempAbs) - pow_4(TSurf));
@@ -7619,7 +7613,7 @@ void CalcHeatBalanceInsideSurf2(EnergyPlusData &state,
     // Calculate heat extract due to additional heat flux source term as the surface boundary condition
     for (int surfNum : state.dataSurface->allInsideSourceSurfaceList) {
         state.dataHeatBalSurf->SurfQAdditionalHeatSourceInside(surfNum) =
-            EnergyPlus::ScheduleManager::GetCurrentScheduleValue(state, state.dataSurface->Surface(surfNum).InsideHeatSourceTermSchedule);
+            state.dataSurface->Surface(surfNum).insideHeatSourceTermSched->getCurrentVal();
     }
 
     // Calculate Kiva instances
@@ -8462,7 +8456,7 @@ void CalcHeatBalanceInsideSurf2CTFOnly(EnergyPlusData &state,
             // Calculate heat extract due to additional heat flux source term as the surface boundary condition
             for (int surfNum : state.dataSurface->allInsideSourceSurfaceList) {
                 state.dataHeatBalSurf->SurfQAdditionalHeatSourceInside(surfNum) =
-                    EnergyPlus::ScheduleManager::GetCurrentScheduleValue(state, state.dataSurface->Surface(surfNum).InsideHeatSourceTermSchedule);
+                    state.dataSurface->Surface(surfNum).insideHeatSourceTermSched->getCurrentVal();
             }
 
             // Set up coefficient arrays prior to calculations and precalc terms that do no change during iteration - non-window surfaces
@@ -9200,11 +9194,11 @@ void CalcOutsideSurfTemp(EnergyPlusData &state,
 
     if (surface.SurfHasSurroundingSurfProperty) {
         int SrdSurfsNum = surface.SurfSurroundingSurfacesNum;
-        if (state.dataSurface->SurroundingSurfsProperty(SrdSurfsNum).SkyTempSchNum != 0) {
-            TSky = ScheduleManager::GetCurrentScheduleValue(state, state.dataSurface->SurroundingSurfsProperty(SrdSurfsNum).SkyTempSchNum);
+        if (state.dataSurface->SurroundingSurfsProperty(SrdSurfsNum).skyTempSched != nullptr) {
+            TSky = state.dataSurface->SurroundingSurfsProperty(SrdSurfsNum).skyTempSched->getCurrentVal();
         }
-        if (state.dataSurface->SurroundingSurfsProperty(SrdSurfsNum).GroundTempSchNum != 0) {
-            TGround = ScheduleManager::GetCurrentScheduleValue(state, state.dataSurface->SurroundingSurfsProperty(SrdSurfsNum).GroundTempSchNum);
+        if (state.dataSurface->SurroundingSurfsProperty(SrdSurfsNum).groundTempSched != nullptr) {
+            TGround = state.dataSurface->SurroundingSurfsProperty(SrdSurfsNum).groundTempSched->getCurrentVal();
         }
         TSrdSurfs = state.dataSurface->Surface(SurfNum).SrdSurfTemp;
     }
@@ -9500,7 +9494,7 @@ void CalcExteriorVentedCavity(EnergyPlusData &state, int const SurfNum) // index
     state.dataHeatBal->ExtVentedCavity(CavNum).HcPlen = HcPlen;
     state.dataHeatBal->ExtVentedCavity(CavNum).PassiveACH =
         (MdotVent / RhoAir) *
-        (1.0 / (state.dataHeatBal->ExtVentedCavity(CavNum).ProjArea * state.dataHeatBal->ExtVentedCavity(CavNum).PlenGapThick)) * Constant::SecInHour;
+        (1.0 / (state.dataHeatBal->ExtVentedCavity(CavNum).ProjArea * state.dataHeatBal->ExtVentedCavity(CavNum).PlenGapThick)) * Constant::rSecsInHour;
     state.dataHeatBal->ExtVentedCavity(CavNum).PassiveMdotVent = MdotVent;
     state.dataHeatBal->ExtVentedCavity(CavNum).PassiveMdotWind = VdotWind * RhoAir;
     state.dataHeatBal->ExtVentedCavity(CavNum).PassiveMdotTherm = VdotThermal * RhoAir;
@@ -9531,7 +9525,7 @@ void GatherComponentLoadsSurfAbsFact(EnergyPlusData &state)
     //   Save sequence of values for report during sizing.
 
     if (state.dataGlobal->CompLoadReportIsReq && !state.dataGlobal->isPulseZoneSizing) {
-        int TimeStepInDay = (state.dataGlobal->HourOfDay - 1) * state.dataGlobal->NumOfTimeStepInHour + state.dataGlobal->TimeStep;
+        int TimeStepInDay = (state.dataGlobal->HourOfDay - 1) * state.dataGlobal->TimeStepsInHour + state.dataGlobal->TimeStep;
         for (int enclosureNum = 1; enclosureNum <= state.dataViewFactor->NumOfRadiantEnclosures; ++enclosureNum) {
             state.dataOutRptTab->TMULTseq(state.dataSize->CurOverallSimDay, TimeStepInDay, enclosureNum) =
                 state.dataViewFactor->EnclRadInfo(enclosureNum).radThermAbsMult;
@@ -9547,15 +9541,13 @@ void GatherComponentLoadsSurfAbsFact(EnergyPlusData &state)
 
 Real64 GetSurfIncidentSolarMultiplier(EnergyPlusData &state, int SurfNum)
 {
-    if (state.dataSurface->Surface(SurfNum).hasIncSolMultiplier) {
-        if (state.dataSurface->SurfIncSolMultiplier(SurfNum).SchedPtr > 0) {
-            return ScheduleManager::GetCurrentScheduleValue(state, state.dataSurface->SurfIncSolMultiplier(SurfNum).SchedPtr) *
-                   state.dataSurface->SurfIncSolMultiplier(SurfNum).Scaler;
-        } else {
-            return state.dataSurface->SurfIncSolMultiplier(SurfNum).Scaler;
-        }
-    } else {
+    if (!state.dataSurface->Surface(SurfNum).hasIncSolMultiplier) {
         return 1.0;
+    } else if (state.dataSurface->SurfIncSolMultiplier(SurfNum).sched != nullptr) {
+        return state.dataSurface->SurfIncSolMultiplier(SurfNum).sched->getCurrentVal() *
+                state.dataSurface->SurfIncSolMultiplier(SurfNum).Scaler;
+    } else {
+        return state.dataSurface->SurfIncSolMultiplier(SurfNum).Scaler;
     }
 }
 
@@ -9684,8 +9676,8 @@ void GetGroundSurfacesTemperatureAverage(EnergyPlusData &state)
         for (int gSurfNum = 1; gSurfNum <= GndSurfsProperty.NumGndSurfs; gSurfNum++) {
             GndSurfViewFactor = GndSurfsProperty.GndSurfs(gSurfNum).ViewFactor;
             if (GndSurfViewFactor == 0.0) continue;
-            if (GndSurfsProperty.GndSurfs(gSurfNum).TempSchPtr == 0) continue;
-            GndSurfaceTemp = ScheduleManager::GetCurrentScheduleValue(state, GndSurfsProperty.GndSurfs(gSurfNum).TempSchPtr);
+            if (GndSurfsProperty.GndSurfs(gSurfNum).tempSched == nullptr) continue;
+            GndSurfaceTemp = GndSurfsProperty.GndSurfs(gSurfNum).tempSched->getCurrentVal();
             GndSurfaceTempSum += GndSurfViewFactor * pow_4(GndSurfaceTemp + Constant::Kelvin);
         }
         if (GndSurfaceTempSum == 0.0) {
@@ -9717,8 +9709,8 @@ void GetGroundSurfacesReflectanceAverage(EnergyPlusData &state)
         Real64 GndSurfRefl = 0.0;
         Real64 GndSurfsReflSum = 0.0;
         for (int gSurfNum = 1; gSurfNum <= GndSurfsProperty.NumGndSurfs; gSurfNum++) {
-            if (GndSurfsProperty.GndSurfs(gSurfNum).ReflSchPtr == 0) continue;
-            GndSurfRefl = ScheduleManager::GetCurrentScheduleValue(state, GndSurfsProperty.GndSurfs(gSurfNum).ReflSchPtr);
+            if (GndSurfsProperty.GndSurfs(gSurfNum).reflSched == nullptr) continue;
+            GndSurfRefl = GndSurfsProperty.GndSurfs(gSurfNum).reflSched->getCurrentVal();
             GndSurfsReflSum += GndSurfsProperty.GndSurfs(gSurfNum).ViewFactor * GndSurfRefl;
         }
         if (GndSurfsReflSum == 0.0) {
@@ -9765,8 +9757,7 @@ void GetSurroundingSurfacesTemperatureAverage(EnergyPlusData &state)
         Real64 SrdSurfaceTempSum = 0.0;
         auto &SrdSurfsProperty = state.dataSurface->SurroundingSurfsProperty(surface.SurfSurroundingSurfacesNum);
         for (int SrdSurfNum = 1; SrdSurfNum <= SrdSurfsProperty.TotSurroundingSurface; SrdSurfNum++) {
-            SrdSurfaceTemp =
-                ScheduleManager::GetCurrentScheduleValue(state, SrdSurfsProperty.SurroundingSurfs(SrdSurfNum).TempSchNum) + Constant::Kelvin;
+            SrdSurfaceTemp = SrdSurfsProperty.SurroundingSurfs(SrdSurfNum).tempSched->getCurrentVal() + Constant::Kelvin;
             SrdSurfaceTempSum += SrdSurfsProperty.SurroundingSurfs(SrdSurfNum).ViewFactor * pow_4(SrdSurfaceTemp);
         }
         surface.SrdSurfTemp = root_4(SrdSurfaceTempSum / surface.ViewFactorSrdSurfs) - Constant::Kelvin;

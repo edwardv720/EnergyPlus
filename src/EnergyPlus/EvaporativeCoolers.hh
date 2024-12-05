@@ -113,7 +113,7 @@ namespace EvaporativeCoolers {
         EvapCoolerType evapCoolerType; // Type of the EvapCooler
         std::string EvapControlType;   // Type of Control for the EvapCooler
         std::string Schedule;          // HeatingCoil Operation Schedule
-        int SchedPtr;                  // Pointer to the correct schedule
+        Sched::Schedule *availSched = nullptr;                  // Pointer to the correct schedule
         Real64 VolFlowRate;            // Volume Flow Rate in Evap Cooler needed for calculating SatEff
         Real64 DesVolFlowRate;         // Design volume flow rate (autosize or user input) - this is only used to compute design pump power
         Real64 OutletTemp;
@@ -209,7 +209,7 @@ namespace EvaporativeCoolers {
 
         // Default Constructor
         EvapConditions()
-            : EquipIndex(0), evapCoolerType(EvapCoolerType::Invalid), SchedPtr(0), VolFlowRate(0.0), DesVolFlowRate(0.0), OutletTemp(0.0),
+            : EquipIndex(0), evapCoolerType(EvapCoolerType::Invalid), VolFlowRate(0.0), DesVolFlowRate(0.0), OutletTemp(0.0),
               OuletWetBulbTemp(0.0), OutletHumRat(0.0), OutletEnthalpy(0.0), OutletPressure(0.0), OutletMassFlowRate(0.0),
               OutletMassFlowRateMaxAvail(0.0), OutletMassFlowRateMinAvail(0.0), InitFlag(false), InletNode(0), OutletNode(0), SecondaryInletNode(0),
               SecondaryOutletNode(0), TertiaryInletNode(0), InletMassFlowRate(0.0), InletMassFlowRateMaxAvail(0.0), InletMassFlowRateMinAvail(0.0),
@@ -236,7 +236,7 @@ namespace EvaporativeCoolers {
     {
         std::string Name; // user identifier
         int ZoneNodeNum;
-        int AvailSchedIndex;              // pointer to local availability schedule
+        Sched::Schedule *availSched = nullptr;              // local availability schedule
         std::string AvailManagerListName; // Name of an availability manager list object
         bool UnitIsAvailable;
         Avail::Status FanAvailStatus = Avail::Status::NoAction;
@@ -247,7 +247,7 @@ namespace EvaporativeCoolers {
         std::string FanName;
         int FanIndex;
         Real64 ActualFanVolFlowRate;
-        int FanAvailSchedPtr;
+        Sched::Schedule *fanAvailSched = nullptr;
         int FanInletNodeNum;
         int FanOutletNodeNum;
         HVAC::FanOp fanOp = HVAC::FanOp::Invalid;
@@ -307,8 +307,8 @@ namespace EvaporativeCoolers {
 
         // Default Constructor
         ZoneEvapCoolerUnitStruct()
-            : ZoneNodeNum(0), AvailSchedIndex(0), UnitIsAvailable(false), OAInletNodeNum(0), UnitOutletNodeNum(0), UnitReliefNodeNum(0),
-              fanType(HVAC::FanType::Invalid), FanIndex(0), ActualFanVolFlowRate(0.0), FanAvailSchedPtr(0), FanInletNodeNum(0), FanOutletNodeNum(0),
+            : ZoneNodeNum(0), UnitIsAvailable(false), OAInletNodeNum(0), UnitOutletNodeNum(0), UnitReliefNodeNum(0),
+              fanType(HVAC::FanType::Invalid), FanIndex(0), ActualFanVolFlowRate(0.0), FanInletNodeNum(0), FanOutletNodeNum(0),
               DesignAirVolumeFlowRate(0.0), DesignAirMassFlowRate(0.0), DesignFanSpeedRatio(0.0), FanSpeedRatio(0.0),
               fanPlace(HVAC::FanPlace::Invalid), ControlSchemeType(ControlType::Invalid), TimeElapsed(0.0), ThrottlingRange(0.0),
               IsOnThisTimestep(false), WasOnLastTimestep(false), ThresholdCoolingLoad(0.0), EvapCooler_1_Type_Num(EvapCoolerType::Invalid),
@@ -449,6 +449,10 @@ struct EvaporativeCoolersData : BaseGlobalStruct
     std::unordered_map<std::string, std::string> UniqueEvapCondNames;
     bool MySetPointCheckFlag = true;
     bool ZoneEquipmentListChecked = false;
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

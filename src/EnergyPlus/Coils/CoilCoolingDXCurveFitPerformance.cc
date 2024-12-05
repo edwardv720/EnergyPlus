@@ -66,7 +66,10 @@ using namespace EnergyPlus;
 void CoilCoolingDXCurveFitPerformance::instantiateFromInputSpec(EnergyPlus::EnergyPlusData &state,
                                                                 const CoilCoolingDXCurveFitPerformanceInputSpecification &input_data)
 {
-    static constexpr std::string_view routineName("CoilCoolingDXCurveFitOperatingMode::instantiateFromInputSpec: ");
+    static constexpr std::string_view routineName = "CoilCoolingDXCurveFitOperatingMode::instantiateFromInputSpec";
+
+    ErrorObjectHeader eoh{routineName, this->object_name, input_data.name};
+    
     bool errorsFound(false);
     this->original_input_specs = input_data;
     this->name = input_data.name;
@@ -75,6 +78,7 @@ void CoilCoolingDXCurveFitPerformance::instantiateFromInputSpec(EnergyPlus::Ener
     this->crankcaseHeaterCap = input_data.crankcase_heater_capacity;
     this->normalMode = CoilCoolingDXCurveFitOperatingMode(state, input_data.base_operating_mode_name);
     this->normalMode.oneTimeInit(state); // oneTimeInit does not need to be delayed in this use case
+
     if (Util::SameString(input_data.capacity_control, "CONTINUOUS")) {
         this->capControlMethod = CapControlMethod::CONTINUOUS;
     } else if (Util::SameString(input_data.capacity_control, "DISCRETE")) {
@@ -88,14 +92,9 @@ void CoilCoolingDXCurveFitPerformance::instantiateFromInputSpec(EnergyPlus::Ener
     this->evapCondBasinHeatCap = input_data.basin_heater_capacity;
     this->evapCondBasinHeatSetpoint = input_data.basin_heater_setpoint_temperature;
     if (input_data.basin_heater_operating_schedule_name.empty()) {
-        this->evapCondBasinHeatSchedulIndex = ScheduleManager::ScheduleAlwaysOn;
-    } else {
-        this->evapCondBasinHeatSchedulIndex = ScheduleManager::GetScheduleIndex(state, input_data.basin_heater_operating_schedule_name);
-    }
-    if (this->evapCondBasinHeatSchedulIndex == 0) {
-        ShowSevereError(state, std::string{routineName} + this->object_name + "=\"" + this->name + "\", invalid");
-        ShowContinueError(
-            state, "...Evaporative Condenser Basin Heater Operating Schedule Name=\"" + input_data.basin_heater_operating_schedule_name + "\".");
+        this->evapCondBasinHeatSched = Sched::GetScheduleAlwaysOn(state);
+    } else if ((this->evapCondBasinHeatSched = Sched::GetSchedule(state, input_data.basin_heater_operating_schedule_name)) == nullptr) {
+        ShowSevereItemNotFound(state, eoh, "Evaporative Condenser Basin Heater Operating Schedule Name", input_data.basin_heater_operating_schedule_name);
         errorsFound = true;
     }
 
@@ -215,7 +214,7 @@ void CoilCoolingDXCurveFitPerformance::simulate(EnergyPlus::EnergyPlusData &stat
                                                 Real64 LoadSHR)
 {
     static constexpr std::string_view RoutineName = "CoilCoolingDXCurveFitPerformance::simulate";
-    Real64 reportingConstant = state.dataHVACGlobal->TimeStepSys * Constant::SecInHour;
+    Real64 reportingConstant = state.dataHVACGlobal->TimeStepSys * Constant::rSecsInHour;
     this->recoveredEnergyRate = 0.0;
     this->NormalSHR = 0.0;
 
@@ -363,8 +362,8 @@ void CoilCoolingDXCurveFitPerformance::simulate(EnergyPlus::EnergyPlusData &stat
     this->crankcaseHeaterElectricityConsumption = this->crankcaseHeaterPower * reportingConstant;
 
     // basin heater
-    if (this->evapCondBasinHeatSchedulIndex > 0) {
-        Real64 currentBasinHeaterAvail = ScheduleManager::GetCurrentScheduleValue(state, this->evapCondBasinHeatSchedulIndex);
+    if (this->evapCondBasinHeatSched != nullptr) {
+        Real64 currentBasinHeaterAvail = this->evapCondBasinHeatSched->getCurrentVal();
         if (this->evapCondBasinHeatCap > 0.0 && currentBasinHeaterAvail > 0.0) {
             this->basinHeaterPower = max(0.0, this->evapCondBasinHeatCap * (this->evapCondBasinHeatSetpoint - state.dataEnvrn->OutDryBulbTemp));
         }

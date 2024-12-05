@@ -443,7 +443,7 @@ namespace EMSManager {
         for (int SensorNum = 1; SensorNum <= state.dataRuntimeLang->NumSensors; ++SensorNum) {
             int ErlVariableNum = state.dataRuntimeLang->Sensor(SensorNum).VariableNum;
             if ((ErlVariableNum > 0) && (state.dataRuntimeLang->Sensor(SensorNum).Index > -1)) {
-                if (state.dataRuntimeLang->Sensor(SensorNum).SchedNum == 0) { // not a schedule so get from output processor
+                if (state.dataRuntimeLang->Sensor(SensorNum).sched == nullptr) { // not a schedule so get from output processor
 
                     state.dataRuntimeLang->ErlVariable(ErlVariableNum).Value = RuntimeLanguageProcessor::SetErlValueNumber(
                         GetInternalVariableValue(
@@ -452,7 +452,7 @@ namespace EMSManager {
                 } else { // schedule so use schedule service
 
                     state.dataRuntimeLang->ErlVariable(ErlVariableNum).Value = RuntimeLanguageProcessor::SetErlValueNumber(
-                        ScheduleManager::GetCurrentScheduleValue(state, state.dataRuntimeLang->Sensor(SensorNum).SchedNum),
+                        state.dataRuntimeLang->Sensor(SensorNum).sched->getCurrentVal(),
                         state.dataRuntimeLang->ErlVariable(ErlVariableNum).Value);
                 }
             }
@@ -995,9 +995,8 @@ namespace EMSManager {
                     state.dataRuntimeLang->Sensor(SensorNum).CheckedOkay = true;
                     // If variable is Schedule Value, then get the schedule id to register it as being used
                     if (Util::SameString(state.dataRuntimeLang->Sensor(SensorNum).OutputVarName, "Schedule Value")) {
-                        state.dataRuntimeLang->Sensor(SensorNum).SchedNum =
-                            ScheduleManager::GetScheduleIndex(state, state.dataRuntimeLang->Sensor(SensorNum).UniqueKeyName);
-                        if (state.dataRuntimeLang->Sensor(SensorNum).SchedNum == 0) {
+                        state.dataRuntimeLang->Sensor(SensorNum).sched = Sched::GetSchedule(state, state.dataRuntimeLang->Sensor(SensorNum).UniqueKeyName);
+                        if (state.dataRuntimeLang->Sensor(SensorNum).sched == nullptr) {
                             state.dataRuntimeLang->Sensor(SensorNum).CheckedOkay = false;
                             if (reportErrors) {
                                 ShowSevereError(state,
@@ -1589,14 +1588,12 @@ namespace EMSManager {
         return FoundControl;
     }
 
-    bool isScheduleManaged(EnergyPlusData &state, int const scheduleNum)
+    bool isScheduleManaged(EnergyPlusData &state, Sched::Schedule *sched)
     {
         // Check if a specific schedule has an EMS or External Interface actuator assigned to it
         static constexpr std::string_view cControlTypeName = "SCHEDULE VALUE";
-        std::string_view cSchedName = state.dataScheduleMgr->Schedule(scheduleNum).Name;
-
         for (int Loop = 1; Loop <= state.dataRuntimeLang->numActuatorsUsed + state.dataRuntimeLang->NumExternalInterfaceActuatorsUsed; ++Loop) {
-            if ((Util::SameString(state.dataRuntimeLang->EMSActuatorUsed(Loop).UniqueIDName, cSchedName)) &&
+            if ((Util::SameString(state.dataRuntimeLang->EMSActuatorUsed(Loop).UniqueIDName, sched->Name)) &&
                 (Util::SameString(state.dataRuntimeLang->EMSActuatorUsed(Loop).ControlTypeName, cControlTypeName))) {
                 return true;
             }

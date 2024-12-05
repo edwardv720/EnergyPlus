@@ -67,6 +67,7 @@
 #include <EnergyPlus/DataWindowEquivalentLayer.hh>
 #include <EnergyPlus/EnergyPlus.hh>
 #include <EnergyPlus/Material.hh>
+#include <EnergyPlus/ScheduleManager.hh>
 #include <EnergyPlus/Shape.hh>
 
 namespace EnergyPlus {
@@ -589,13 +590,13 @@ namespace DataSurfaces {
         //   SolarIncidentInside                  // Not supported
         int MaterialMovInsulExt = 0;           // Pointer to the material used for exterior movable insulation
         int MaterialMovInsulInt = 0;           // Pointer to the material used for interior movable insulation
-        int SchedMovInsulExt = 0;              // Schedule for exterior movable insulation
-        int SchedMovInsulInt = 0;              // Schedule for interior movable insulation
-        int ExternalShadingSchInd = 0;         // Schedule for a the external shading
+        int movInsulExtSchedNum = Sched::SchedNum_Invalid;              // Schedule for exterior movable insulation
+        int movInsulIntSchedNum = Sched::SchedNum_Invalid;              // Schedule for interior movable insulation
+        int externalShadingSchedNum = Sched::SchedNum_Invalid;         // Schedule for a the external shading
         int SurroundingSurfacesNum = 0;        // Index of a surrounding surfaces list (defined in SurfaceProperties::SurroundingSurfaces)
         int LinkedOutAirNode = 0;              // Index of the an OutdoorAir:Node
-        int OutsideHeatSourceTermSchedule = 0; // Pointer to the schedule of additional source of heat flux rate applied to the outside surface
-        int InsideHeatSourceTermSchedule = 0;  // Pointer to the schedule of additional source of heat flux rate applied to the inside surface
+        int outsideHeatSourceTermSchedNum = Sched::SchedNum_Invalid; // schedule of additional source of heat flux rate applied to the outside surface
+        int insideHeatSourceTermSchedNum = Sched::SchedNum_Invalid;  // schedule of additional source of heat flux rate applied to the inside surface
 
         // based on boost::hash_combine
         std::size_t hash_combine(std::size_t current_hash, std::size_t new_hash) const
@@ -636,13 +637,13 @@ namespace DataSurfaces {
 
                     hash<int>()(MaterialMovInsulExt),
                     hash<int>()(MaterialMovInsulInt),
-                    hash<int>()(SchedMovInsulExt),
-                    hash<int>()(SchedMovInsulInt),
-                    hash<int>()(ExternalShadingSchInd),
+                    hash<int>()(movInsulExtSchedNum),
+                    hash<int>()(movInsulIntSchedNum),
+                    hash<int>()(externalShadingSchedNum),
                     hash<int>()(SurroundingSurfacesNum),
                     hash<int>()(LinkedOutAirNode),
-                    hash<int>()(OutsideHeatSourceTermSchedule),
-                    hash<int>()(InsideHeatSourceTermSchedule)};
+                    hash<int>()(outsideHeatSourceTermSchedNum),
+                    hash<int>()(insideHeatSourceTermSchedNum)};
         }
 
         std::size_t get_hash() const
@@ -669,10 +670,10 @@ namespace DataSurfaces {
                     FrameDivider == other.FrameDivider && SurfWinStormWinConstr == other.SurfWinStormWinConstr &&
 
                     MaterialMovInsulExt == other.MaterialMovInsulExt && MaterialMovInsulInt == other.MaterialMovInsulInt &&
-                    SchedMovInsulExt == other.SchedMovInsulExt && SchedMovInsulInt == other.SchedMovInsulInt &&
-                    ExternalShadingSchInd == other.ExternalShadingSchInd && SurroundingSurfacesNum == other.SurroundingSurfacesNum &&
-                    LinkedOutAirNode == other.LinkedOutAirNode && OutsideHeatSourceTermSchedule == other.OutsideHeatSourceTermSchedule &&
-                    InsideHeatSourceTermSchedule == other.InsideHeatSourceTermSchedule);
+                    movInsulExtSchedNum == other.movInsulExtSchedNum && movInsulIntSchedNum == other.movInsulIntSchedNum &&
+                    externalShadingSchedNum == other.externalShadingSchedNum && SurroundingSurfacesNum == other.SurroundingSurfacesNum &&
+                    LinkedOutAirNode == other.LinkedOutAirNode && outsideHeatSourceTermSchedNum == other.outsideHeatSourceTermSchedNum &&
+                    insideHeatSourceTermSchedNum == other.insideHeatSourceTermSchedNum);
         }
     };
 
@@ -749,8 +750,8 @@ namespace DataSurfaces {
 
         // Boundary conditions and interconnections
         bool HeatTransSurf;                      // True if surface is a heat transfer surface (light shelf can also be IsShadowing)
-        int OutsideHeatSourceTermSchedule;       // Pointer to the schedule of additional source of heat flux rate applied to the outside surface
-        int InsideHeatSourceTermSchedule;        // Pointer to the schedule of additional source of heat flux rate applied to the inside surface
+        Sched::Schedule *outsideHeatSourceTermSched = nullptr;       // Schedule of additional source of heat flux rate applied to the outside surface
+        Sched::Schedule *insideHeatSourceTermSched = nullptr;        // Schedule of additional source of heat flux rate applied to the inside surface
                                                  // False if a (detached) shadowing (sub)surface
         HeatTransferModel HeatTransferAlgorithm; // used for surface-specific heat transfer algorithm.
         std::string BaseSurfName;                // Name of BaseSurf
@@ -786,7 +787,7 @@ namespace DataSurfaces {
         bool IsShadowPossibleObstruction; // True if a surface can be an exterior obstruction
 
         // Optional parameters specific to shadowing surfaces and subsurfaces (detached shading, overhangs, wings, etc.)
-        int SchedShadowSurfIndex; // Schedule for a shadowing (sub)surface
+        Sched::Schedule *shadowSurfSched = nullptr; // Schedule for a shadowing (sub)surface
         bool IsTransparent;       // True if the schedule values are always 1.0 (or the minimum is 1.0)
         Real64 SchedMinValue;     // Schedule minimum value.
 
@@ -820,7 +821,7 @@ namespace DataSurfaces {
         bool SurfHasSurroundingSurfProperty;   // true if surrounding surfaces properties are listed for an external surface
         bool SurfSchedExternalShadingFrac;     // true if the external shading is scheduled or calculated externally to be imported
         int SurfSurroundingSurfacesNum;        // Index of a surrounding surfaces list (defined in SurfaceProperties::SurroundingSurfaces)
-        int SurfExternalShadingSchInd;         // Schedule for a the external shading
+        Sched::Schedule *surfExternalShadingSched = nullptr;         // Schedule for a the external shading
         int SurfLinkedOutAirNode;              // Index of the an OutdoorAir:Node, zero if none
         Real64 AE = 0.0;                       // Product of area and emissivity for each surface
         Real64 enclAESum = 0.0;                // Sum of area times emissivity for all other surfaces in enclosure
@@ -834,15 +835,15 @@ namespace DataSurfaces {
               Width(0.0), shapeCat(ShapeCat::Invalid), plane(0.0, 0.0, 0.0, 0.0), Centroid(0.0, 0.0, 0.0), lcsx(0.0, 0.0, 0.0), lcsy(0.0, 0.0, 0.0),
               lcsz(0.0, 0.0, 0.0), NewellAreaVector(0.0, 0.0, 0.0), NewellSurfaceNormalVector(0.0, 0.0, 0.0), OutNormVec(0.0, 0.0, 0.0), SinAzim(0.0),
               CosAzim(0.0), SinTilt(0.0), CosTilt(0.0), IsConvex(true), IsDegenerate(false), VerticesProcessed(false), XShift(0.0), YShift(0.0),
-              HeatTransSurf(false), OutsideHeatSourceTermSchedule(0), InsideHeatSourceTermSchedule(0),
+              HeatTransSurf(false), 
               HeatTransferAlgorithm(HeatTransferModel::Invalid), BaseSurf(0), NumSubSurfaces(0), Zone(0), spaceNum(0), ExtBoundCond(0),
               ExtSolar(false), ExtWind(false), hasIncSolMultiplier(false), IncSolMultiplier(1.0), ViewFactorGround(0.0), ViewFactorSky(0.0),
               ViewFactorGroundIR(0.0), ViewFactorSkyIR(0.0), OSCPtr(0), OSCMPtr(0), MirroredSurf(false), IsShadowing(false),
-              IsShadowPossibleObstruction(false), SchedShadowSurfIndex(0), IsTransparent(false), SchedMinValue(0.0), activeWindowShadingControl(0),
+              IsShadowPossibleObstruction(false), IsTransparent(false), SchedMinValue(0.0), activeWindowShadingControl(0),
               HasShadeControl(false), activeShadedConstruction(0), activeShadedConstructionPrev(0), FrameDivider(0), Multiplier(1.0),
               SolarEnclIndex(0), SolarEnclSurfIndex(0), IsAirBoundarySurf(false), IsSurfPropertyGndSurfacesDefined(false),
               SurfPropertyGndSurfIndex(0), UseSurfPropertyGndSurfTemp(false), UseSurfPropertyGndSurfRefl(false), GndReflSolarRad(0.0),
-              SurfHasSurroundingSurfProperty(false), SurfSchedExternalShadingFrac(false), SurfSurroundingSurfacesNum(0), SurfExternalShadingSchInd(0),
+              SurfHasSurroundingSurfProperty(false), SurfSchedExternalShadingFrac(false), SurfSurroundingSurfacesNum(0), 
               SurfLinkedOutAirNode(0), SrdSurfTemp(0.0), ViewFactorSrdSurfs(0.0)
         {
         }
@@ -913,10 +914,10 @@ namespace DataSurfaces {
 
         // Multiplier on sunlit fraction due to shadowing of glass by
         // frame and divider outside projections
-        std::array<Real64, (int)Constant::HoursInDay + 1> OutProjSLFracMult = {1.0};
+        std::array<Real64, (int)Constant::iHoursInDay + 1> OutProjSLFracMult = {1.0};
         // Multiplier on sunlit fraction due to shadowing of glass by
         // frame and divider inside and outside projections
-        std::array<Real64, (int)Constant::HoursInDay + 1> InOutProjSLFracMult = {1.0};
+        std::array<Real64, (int)Constant::iHoursInDay + 1> InOutProjSLFracMult = {1.0};
 
         // for shadowing of ground by building and obstructions [W/m2]
         // Enclosure inside surface area minus this surface and its
@@ -1159,7 +1160,7 @@ namespace DataSurfaces {
         //  OnNight/OnDayIfCoolingAndHighSolarOnWindow: shading on at night; shading on daytime if
         //                                         solar on window > setpoint (W/m2 of window) and
         //                                         prev. time step cooling rate > 0
-        int Schedule{0}; // Pointer to schedule of 0 and 1 values: 0 => window is not shaded;
+        Sched::Schedule *sched = nullptr; // schedule of 0 and 1 values: 0 => window is not shaded;
         //  1 => window is shaded if Type=Schedule or Type = ScheduleAnd...
         // and setpoint is exceeded.
         Real64 SetPoint{0.0}; // Control setpoint (dimension depends on Trigger:
@@ -1172,7 +1173,7 @@ namespace DataSurfaces {
         //   Dimension is deg C or W/m2.
         bool ShadingControlIsScheduled{false}; // True if shading control has a schedule
         bool GlareControlIsActive{false};      // True if shading control to reduce daylight glare is active
-        int SlatAngleSchedule{0};              // Pointer to schedule of slat angle values between 0.0 and 180.0 degrees
+        Sched::Schedule *slatAngleSched = nullptr;              // schedule of slat angle values between 0.0 and 180.0 degrees
         SlatAngleControl slatAngleControl{
             SlatAngleControl::Invalid}; // Takes one of the following values that specifies
                                         //  CHARACTER(len=32) :: slatAngleControlForBlinds = ' ' ! Takes one of the following values that specifies
@@ -1206,7 +1207,7 @@ namespace DataSurfaces {
         Real64 WindSpeedCoef;              // Coefficient modifying the wind speed term (s/m)
         Real64 ZoneAirTempCoef;            // Coefficient modifying the zone air temperature part of the equation
         std::string ConstTempScheduleName; // Schedule name for scheduled outside temp
-        int ConstTempScheduleIndex;        // Index for scheduled outside temp.
+        Sched::Schedule *constTempSched = nullptr;        // Index for scheduled outside temp.
         bool SinusoidalConstTempCoef;      // If true then ConstTempCoef varies by sine wave
         Real64 SinusoidPeriod;             // period of sine wave variation  (hr)
         Real64 TPreviousCoef;              // Coefficient modifying the OSC temp from the previous timestep (dimensionless)
@@ -1220,7 +1221,7 @@ namespace DataSurfaces {
         // Default Constructor
         OSCData()
             : ConstTemp(0.0), ConstTempCoef(0.0), ExtDryBulbCoef(0.0), GroundTempCoef(0.0), SurfFilmCoef(0.0), WindSpeedCoef(0.0),
-              ZoneAirTempCoef(0.0), ConstTempScheduleIndex(0), SinusoidalConstTempCoef(false), SinusoidPeriod(0.0), TPreviousCoef(0.0),
+              ZoneAirTempCoef(0.0), SinusoidalConstTempCoef(false), SinusoidPeriod(0.0), TPreviousCoef(0.0),
               TOutsideSurfPast(0.0), MinTempLimit(0.0), MaxTempLimit(0.0), MinLimitPresent(false), MaxLimitPresent(false), OSCTempCalc(0.0)
         {
         }
@@ -1260,8 +1261,7 @@ namespace DataSurfaces {
         Convect::OverrideType overrideType = // Override type, 1=value, 2=schedule, 3=model, 4=user curve
             Convect::OverrideType::Invalid;
         Real64 OverrideValue = 0.0;                            // User specified value
-        std::string ScheduleName = "";                         // Which surface (name)
-        int ScheduleIndex = 0;                                 // if type="schedule" is used
+        Sched::Schedule *sched = nullptr;                                 // if type="schedule" is used
         int UserCurveIndex = 0;                                // if type=UserCurve is used
         Convect::HcInt HcIntModelEq = Convect::HcInt::Invalid; // if type is one of specific model equations
         Convect::HcExt HcExtModelEq = Convect::HcExt::Invalid;
@@ -1285,14 +1285,9 @@ namespace DataSurfaces {
     {
         // Members
         std::string Name;
-        int SurfPtr;   // surface pointer
-        int ConstrPtr; // construction pointer
-        int SchedPtr;  // schedule pointer
-
-        // Default Constructor
-        SurfaceSolarIncident() : SurfPtr(0), ConstrPtr(0), SchedPtr(0)
-        {
-        }
+        int SurfPtr = 0;   // surface pointer
+        int ConstrPtr = 0; // construction pointer
+        Sched::Schedule *sched = nullptr;  // schedule
     };
 
     struct SurfaceIncidentSolarMultiplier
@@ -1301,7 +1296,7 @@ namespace DataSurfaces {
         std::string Name;
         int SurfaceIdx = 0;  // surface index
         Real64 Scaler = 1.0; // the constant multiplier constant from user input
-        int SchedPtr = 0;    // the index of the multiplier schedule
+        Sched::Schedule *sched = nullptr;    // multiplier schedule
     };
 
     struct FenestrationSolarAbsorbed
@@ -1311,7 +1306,7 @@ namespace DataSurfaces {
         int SurfPtr;           // surface pointer
         int ConstrPtr;         // construction pointer
         int NumOfSched;        // number of scheduled layers
-        Array1D_int SchedPtrs; // pointer to schedules for each layer in construction
+        Array1D<Sched::Schedule *> scheds; // pointer to schedules for each layer in construction
 
         // Default Constructor
         FenestrationSolarAbsorbed() : SurfPtr(0), ConstrPtr(0), NumOfSched(0)
@@ -1324,8 +1319,8 @@ namespace DataSurfaces {
         // Members
         std::string Name;        // name of a ground surface
         Real64 ViewFactor = 0.0; // view factor to a ground surface
-        int TempSchPtr = 0;      // pointer to a ground surface temperature schedule object
-        int ReflSchPtr = 0;      // pointer to a ground Surface reflectance schedule object
+        Sched::Schedule *tempSched = nullptr;      // pointer to a ground surface temperature schedule object
+        Sched::Schedule *reflSched = nullptr;      // pointer to a ground Surface reflectance schedule object
     };
 
     struct GroundSurfacesProperty
@@ -1345,7 +1340,7 @@ namespace DataSurfaces {
         // Members
         std::string Name;
         int SurfPtr = 0;             // surface pointer
-        int SunlitFracSchedPtr = 0;  // schedule pointer
+        Sched::Schedule *sunlitFracSched = nullptr;  // schedule
         int SurroundingSurfsPtr = 0; // schedule pointer
         int OutdoorAirNodePtr = 0;   // outdoor air node pointer
         int GroundSurfsPtr = 0;      // pointer to multiple ground surfaces object
@@ -1356,7 +1351,7 @@ namespace DataSurfaces {
         // Members
         std::string Name;
         Real64 ViewFactor = 0.0; // view factor to surrounding surface
-        int TempSchNum = 0;      // schedule pointer
+        Sched::Schedule *tempSched = nullptr;      // temperature schedule
     };
 
     struct SurroundingSurfacesProperty
@@ -1366,8 +1361,8 @@ namespace DataSurfaces {
         Real64 SkyViewFactor = 0.0;         // sky view factor
         Real64 GroundViewFactor = 0.0;      // ground view factor
         Real64 SurfsViewFactorSum = 0.0;    // surrounding surfaces view factor sum
-        int SkyTempSchNum = 0;              // schedule pointer
-        int GroundTempSchNum = 0;           // schedule pointer
+        Sched::Schedule *skyTempSched = nullptr;              // schedule
+        Sched::Schedule *groundTempSched = nullptr;           // schedule
         int TotSurroundingSurface = 0;      // Total number of surrounding surfaces defined for an exterior surface
         bool IsSkyViewFactorSet = false;    // false if the sky view factor field is blank
         bool IsGroundViewFactorSet = false; // false if the ground view factor field is blank
@@ -1580,8 +1575,8 @@ struct SurfacesData : BaseGlobalStruct
     // Surface movable insulation properties
     Array1D<int> SurfMaterialMovInsulExt; // Pointer to the material used for exterior movable insulation
     Array1D<int> SurfMaterialMovInsulInt; // Pointer to the material used for interior movable insulation
-    Array1D<int> SurfSchedMovInsulExt;    // Schedule for exterior movable insulation
-    Array1D<int> SurfSchedMovInsulInt;    // Schedule for interior movable insulation
+    Array1D<Sched::Schedule *> SurfMovInsulExtScheds;    // Schedule for exterior movable insulation
+    Array1D<Sched::Schedule *> SurfMovInsulIntScheds;    // Schedule for interior movable insulation
 
     // Surface EMS
     Array1D<bool> SurfEMSConstructionOverrideON;          // if true, EMS is calling to override the construction value
@@ -1788,7 +1783,7 @@ struct SurfacesData : BaseGlobalStruct
     Array1D<Real64> SurfWinMaxAirflow;                                         // Maximum gap airflow (m3/s per m of glazing width)
     Array1D<DataSurfaces::WindowAirFlowControlType> SurfWinAirflowControlType; // Gap airflow control type (ALWAYSONATMAXFLOW, etc.)
     Array1D<bool> SurfWinAirflowHasSchedule;                                   // True if gap airflow is scheduled
-    Array1D<int> SurfWinAirflowSchedulePtr;                                    // Gap airflow schedule pointer
+    Array1D<Sched::Schedule *> SurfWinAirflowScheds;                           // Gap airflow schedule
     Array1D<Real64> SurfWinAirflowThisTS;                                      // Gap airflow this timestep (m3/s per m of glazing width)
     Array1D<Real64> SurfWinTAirflowGapOutlet;                                  // Temperature of air leaving airflow gap between glass panes (C)
     Array1D<int> SurfWinWindowCalcIterationsRep;                               // Number of iterations in window heat balance calculation
@@ -1829,6 +1824,10 @@ struct SurfacesData : BaseGlobalStruct
     EPVector<DataSurfaces::SurroundingSurfacesProperty> SurroundingSurfsProperty;
     EPVector<DataSurfaces::IntMassObject> IntMassObjects;
     EPVector<DataSurfaces::GroundSurfacesProperty> GroundSurfsProperty;
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

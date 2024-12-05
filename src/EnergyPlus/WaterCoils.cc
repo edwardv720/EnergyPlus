@@ -134,7 +134,6 @@ using Psychrometrics::PsyWFnTdbH;
 using Psychrometrics::PsyWFnTdbRhPb;
 using Psychrometrics::PsyWFnTdbTwbPb;
 using Psychrometrics::PsyWFnTdpPb;
-using namespace ScheduleManager;
 
 void SimulateWaterCoilComponents(EnergyPlusData &state,
                                  std::string_view CompName,
@@ -250,6 +249,7 @@ void GetWaterCoilInput(EnergyPlusData &state)
 
     // SUBROUTINE PARAMETER DEFINITIONS:
     static constexpr std::string_view RoutineName("GetWaterCoilInput: "); // include trailing blank space
+    static constexpr std::string_view routineName = "GetWaterCoilInput";
 
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
     int CoilNum; // The WaterCoil that you are currently loading input into
@@ -323,6 +323,8 @@ void GetWaterCoilInput(EnergyPlusData &state)
                                                                  cAlphaFields,
                                                                  cNumericFields);
 
+        ErrorObjectHeader eoh{routineName, CurrentModuleObject, AlphArray(1)};
+        
         state.dataWaterCoils->WaterCoilNumericFields(CoilNum).FieldNames.allocate(MaxNums);
         state.dataWaterCoils->WaterCoilNumericFields(CoilNum).FieldNames = "";
         state.dataWaterCoils->WaterCoilNumericFields(CoilNum).FieldNames = cNumericFields;
@@ -331,19 +333,13 @@ void GetWaterCoilInput(EnergyPlusData &state)
         // ErrorsFound will be set to True if problem was found, left untouched otherwise
         GlobalNames::VerifyUniqueCoilName(state, CurrentModuleObject, AlphArray(1), ErrorsFound, CurrentModuleObject + " Name");
         auto &waterCoil = state.dataWaterCoils->WaterCoil(CoilNum);
+        
         waterCoil.Name = AlphArray(1);
-        waterCoil.Schedule = AlphArray(2);
         if (lAlphaBlanks(2)) {
-            waterCoil.SchedPtr = ScheduleManager::ScheduleAlwaysOn;
-        } else {
-            waterCoil.SchedPtr = GetScheduleIndex(state, AlphArray(2));
-            if (waterCoil.SchedPtr == 0) {
-                ShowSevereError(
-                    state,
-                    format(
-                        "{}: invalid {} entered ={} for {}={}", CurrentModuleObject, cAlphaFields(2), AlphArray(2), cAlphaFields(1), AlphArray(1)));
-                ErrorsFound = true;
-            }
+            waterCoil.availSched = Sched::GetScheduleAlwaysOn(state);
+        } else if ((waterCoil.availSched = Sched::GetSchedule(state, AlphArray(2))) == nullptr) {
+            ShowSevereItemNotFound(state, eoh, cAlphaFields(2), AlphArray(2));
+            ErrorsFound = true;
         }
 
         waterCoil.WaterCoilModelA = "SIMPLE";
@@ -493,6 +489,8 @@ void GetWaterCoilInput(EnergyPlusData &state)
                                                                  cAlphaFields,
                                                                  cNumericFields);
 
+        ErrorObjectHeader eoh{routineName, CurrentModuleObject, AlphArray(1)};
+        
         state.dataWaterCoils->WaterCoilNumericFields(CoilNum).FieldNames.allocate(MaxNums);
         state.dataWaterCoils->WaterCoilNumericFields(CoilNum).FieldNames = "";
         state.dataWaterCoils->WaterCoilNumericFields(CoilNum).FieldNames = cNumericFields;
@@ -503,18 +501,12 @@ void GetWaterCoilInput(EnergyPlusData &state)
 
         auto &waterCoil = state.dataWaterCoils->WaterCoil(CoilNum);
         waterCoil.Name = AlphArray(1);
-        waterCoil.Schedule = AlphArray(2);
+
         if (lAlphaBlanks(2)) {
-            waterCoil.SchedPtr = ScheduleManager::ScheduleAlwaysOn;
-        } else {
-            waterCoil.SchedPtr = GetScheduleIndex(state, AlphArray(2));
-            if (waterCoil.SchedPtr == 0) {
-                ShowSevereError(
-                    state,
-                    format(
-                        "{}: invalid {} entered ={} for {}={}", CurrentModuleObject, cAlphaFields(2), AlphArray(2), cAlphaFields(1), AlphArray(1)));
-                ErrorsFound = true;
-            }
+            waterCoil.availSched = Sched::GetScheduleAlwaysOn(state);
+        } else if ((waterCoil.availSched = Sched::GetSchedule(state, AlphArray(2))) == nullptr) { 
+            ShowSevereItemNotFound(state, eoh, cAlphaFields(2), AlphArray(2));
+            ErrorsFound = true;
         }
 
         waterCoil.WaterCoilModelA = "DETAILED FLAT FIN";
@@ -706,6 +698,7 @@ void GetWaterCoilInput(EnergyPlusData &state)
                                                                  cAlphaFields,
                                                                  cNumericFields);
 
+        ErrorObjectHeader eoh{routineName, CurrentModuleObject, AlphArray(1)};
         state.dataWaterCoils->WaterCoilNumericFields(CoilNum).FieldNames.allocate(MaxNums);
         state.dataWaterCoils->WaterCoilNumericFields(CoilNum).FieldNames = "";
         state.dataWaterCoils->WaterCoilNumericFields(CoilNum).FieldNames = cNumericFields;
@@ -716,18 +709,12 @@ void GetWaterCoilInput(EnergyPlusData &state)
 
         auto &waterCoil = state.dataWaterCoils->WaterCoil(CoilNum);
         waterCoil.Name = AlphArray(1);
-        waterCoil.Schedule = AlphArray(2);
+
         if (lAlphaBlanks(2)) {
-            waterCoil.SchedPtr = ScheduleManager::ScheduleAlwaysOn;
-        } else {
-            waterCoil.SchedPtr = GetScheduleIndex(state, AlphArray(2));
-            if (waterCoil.SchedPtr == 0) {
-                ShowSevereError(
-                    state,
-                    format(
-                        "{}: invalid {} entered ={} for {}={}", CurrentModuleObject, cAlphaFields(2), AlphArray(2), cAlphaFields(1), AlphArray(1)));
-                ErrorsFound = true;
-            }
+            waterCoil.availSched = Sched::GetScheduleAlwaysOn(state);
+        } else if ((waterCoil.availSched = Sched::GetSchedule(state, AlphArray(2))) == nullptr) {
+            ShowSevereItemNotFound(state, eoh, cAlphaFields(2), AlphArray(2));
+            ErrorsFound = true;
         }
 
         waterCoil.WaterCoilModelA = "Cooling";
@@ -2843,7 +2830,7 @@ void CalcSimpleHeatingCoil(EnergyPlusData &state,
     //  Also the coil has to be scheduled to be available
     if (((CapacitanceAir > 0.0) && (CapacitanceWater > 0.0)) &&
         (CalcMode == state.dataWaterCoils->DesignCalc || state.dataWaterCoils->MySizeFlag(CoilNum) ||
-         state.dataWaterCoils->MyUAAndFlowCalcFlag(CoilNum) || GetCurrentScheduleValue(state, waterCoil.SchedPtr) > 0.0)) {
+         state.dataWaterCoils->MyUAAndFlowCalcFlag(CoilNum) || waterCoil.availSched->getCurrentVal() > 0.0)) {
 
         if (UA <= 0.0) {
             ShowFatalError(state, format("UA is zero for COIL:Heating:Water {}", waterCoil.Name));
@@ -3093,7 +3080,7 @@ void CalcDetailFlatFinCoolingCoil(EnergyPlusData &state,
     }
 
     // If Coil is Scheduled ON then do the simulation
-    if (((GetCurrentScheduleValue(state, waterCoil.SchedPtr) > 0.0) && (WaterMassFlowRate > 0.0) && (AirMassFlow >= WaterCoils::MinAirMassFlow)) ||
+    if (((waterCoil.availSched->getCurrentVal() > 0.0) && (WaterMassFlowRate > 0.0) && (AirMassFlow >= WaterCoils::MinAirMassFlow)) ||
         (CalcMode == state.dataWaterCoils->DesignCalc)) {
         //        transfer inputs to simulation variables and calculate
         //        known thermodynamic functions
@@ -3604,7 +3591,7 @@ void CoolingCoil(EnergyPlusData &state,
     }
 
     // If Coil is Scheduled ON then do the simulation
-    if (((GetCurrentScheduleValue(state, waterCoil.SchedPtr) > 0.0) && (waterCoil.InletWaterMassFlowRate > 0.0) &&
+    if (((waterCoil.availSched->getCurrentVal() > 0.0) && (waterCoil.InletWaterMassFlowRate > 0.0) &&
          (AirMassFlowRate >= WaterCoils::MinAirMassFlow) && (waterCoil.DesAirVolFlowRate > 0.0) && (waterCoil.MaxWaterMassFlowRate > 0.0)) ||
         (CalcMode == state.dataWaterCoils->DesignCalc)) {
 
@@ -5345,7 +5332,7 @@ void CheckWaterCoilSchedule(EnergyPlusData &state, std::string_view CompName, Re
             ShowFatalError(state, format("CheckWaterCoilSchedule: Coil not found={}", CompName));
         }
         CompIndex = CoilNum;
-        Value = GetCurrentScheduleValue(state, state.dataWaterCoils->WaterCoil(CoilNum).SchedPtr); // not scheduled?
+        Value = state.dataWaterCoils->WaterCoil(CoilNum).availSched->getCurrentVal(); // not scheduled?
     } else {
         CoilNum = CompIndex;
         if (CoilNum > state.dataWaterCoils->NumWaterCoils || CoilNum < 1) {
@@ -5363,7 +5350,7 @@ void CheckWaterCoilSchedule(EnergyPlusData &state, std::string_view CompName, Re
                                   CompName,
                                   waterCoil.Name));
         }
-        Value = GetCurrentScheduleValue(state, waterCoil.SchedPtr); // not scheduled?
+        Value = waterCoil.availSched->getCurrentVal(); // not scheduled?
     }
 }
 
@@ -6130,10 +6117,10 @@ void UpdateWaterToAirCoilPlantConnection(EnergyPlusData &state,
     }
 }
 
-int GetWaterCoilAvailScheduleIndex(EnergyPlusData &state,
-                                   std::string const &CoilType, // must match coil types in this module
-                                   std::string const &CoilName, // must match coil names for the coil type
-                                   bool &ErrorsFound            // set to true if problem
+Sched::Schedule *GetWaterCoilAvailSched(EnergyPlusData &state,
+                                        std::string const &CoilType, // must match coil types in this module
+                                        std::string const &CoilName, // must match coil names for the coil type
+                                        bool &ErrorsFound            // set to true if problem
 )
 {
 
@@ -6154,13 +6141,12 @@ int GetWaterCoilAvailScheduleIndex(EnergyPlusData &state,
     }
 
     int WhichCoil = 0;
-    int AvailSchIndex = 0;
 
     if (Util::SameString(CoilType, "Coil:Heating:Water") || Util::SameString(CoilType, "Coil:Cooling:Water") ||
         Util::SameString(CoilType, "Coil:Cooling:Water:DetailedGeometry")) {
         WhichCoil = Util::FindItem(CoilName, state.dataWaterCoils->WaterCoil);
         if (WhichCoil != 0) {
-            AvailSchIndex = state.dataWaterCoils->WaterCoil(WhichCoil).SchedPtr;
+                return state.dataWaterCoils->WaterCoil(WhichCoil).availSched;
         }
     } else {
         WhichCoil = 0;
@@ -6169,10 +6155,10 @@ int GetWaterCoilAvailScheduleIndex(EnergyPlusData &state,
     if (WhichCoil == 0) {
         ShowSevereError(state, format("GetCoilAvailScheduleIndex: Could not find Coil, Type=\"{}\" Name=\"{}\"", CoilType, CoilName));
         ErrorsFound = true;
-        AvailSchIndex = 0;
+        return nullptr;
     }
 
-    return AvailSchIndex;
+    return nullptr;
 }
 
 void SetWaterCoilData(EnergyPlusData &state,

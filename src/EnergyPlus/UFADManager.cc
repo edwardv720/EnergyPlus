@@ -800,7 +800,7 @@ namespace RoomAir {
         Real64 HeightComfort = zoneU.ComfortHeight;       // height at which comfort temperature is calculated
         Real64 TempDiffCritRep = zoneU.TempTrigger;       // Minimum temperature difference between upper and occupied subzones for reporting
         Real64 DiffArea = zoneU.DiffArea;                 // diffuser effective area [m2]
-        Real64 ThrowAngle = Constant::DegToRadians * zoneU.DiffAngle; // diffuser slot angle relative to vertical [radians]
+        Real64 ThrowAngle = Constant::DegToRad * zoneU.DiffAngle; // diffuser slot angle relative to vertical [radians]
         Real64 SourceHeight = 0.0;                                    // height of plume sources above the floor [m]
         Real64 NumDiffusers = zoneU.DiffusersPerZone;
         Real64 PowerPerPlume = zoneU.PowerPerPlume;
@@ -1226,7 +1226,7 @@ namespace RoomAir {
         Real64 HeightComfort = zoneU.ComfortHeight;       // height at which comfort temperature is calculated
         Real64 TempDiffCritRep = zoneU.TempTrigger;       // Minimum temperature difference between upper and occupied subzones for reporting
         Real64 DiffArea = zoneU.DiffArea;                 // diffuser effective area [m2]
-        Real64 ThrowAngle = Constant::DegToRadians * zoneU.DiffAngle; // diffuser slot angle relative to vertical [radians]
+        Real64 ThrowAngle = Constant::DegToRad * zoneU.DiffAngle; // diffuser slot angle relative to vertical [radians]
         Real64 SourceHeight = zoneU.HeatSrcHeight;                    // height of plume sources above the floor [m]
         Real64 NumDiffusers = zoneU.DiffusersPerZone;
         Real64 PowerPerPlume = zoneU.PowerPerPlume;

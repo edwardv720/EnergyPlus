@@ -73,7 +73,7 @@ namespace FourPipeBeam {
     private: // Creation
         // Default Constructor
         HVACFourPipeBeam()
-            : coolingAvailSchedNum(0), coolingAvailable(false), heatingAvailSchedNum(0), heatingAvailable(false), totBeamLength(0.0),
+            : coolingAvailable(false), heatingAvailable(false), totBeamLength(0.0),
               totBeamLengthWasAutosized(false), vDotNormRatedPrimAir(0.0), mDotNormRatedPrimAir(0.0), beamCoolingPresent(false), vDotDesignCW(0.0),
               vDotDesignCWWasAutosized(false), mDotDesignCW(0.0), qDotNormRatedCooling(0.0), deltaTempRatedCooling(0.0), vDotNormRatedCW(0.0),
               mDotNormRatedCW(0.0), modCoolingQdotDeltaTFuncNum(0), modCoolingQdotAirFlowFuncNum(0), modCoolingQdotCWFlowFuncNum(0), mDotCW(0.0),
@@ -137,9 +137,9 @@ namespace FourPipeBeam {
         void CalcOutdoorAirVolumeFlowRate(EnergyPlusData &state);
 
     private:                      // data
-        int coolingAvailSchedNum; // index to schedule for cooling availability
+        Sched::Schedule *coolingAvailSched = nullptr; // schedule for cooling availability
         bool coolingAvailable;    // true if beam cooling is available
-        int heatingAvailSchedNum; // index to schedule for heating availability
+        Sched::Schedule *heatingAvailSched = nullptr; // schedule for heating availability
         bool heatingAvailable;    // true if beam heating is available
 
         Real64 totBeamLength;           // length of all the beams in the zone (autosizable) (m)
@@ -227,6 +227,10 @@ struct FourPipeBeamData : BaseGlobalStruct
 
     ///// Note use of shared_ptr here is not a good pattern, not to be replicated without further discussion.
     Array1D<std::shared_ptr<FourPipeBeam::HVACFourPipeBeam>> FourPipeBeams; // dimension to number of machines
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

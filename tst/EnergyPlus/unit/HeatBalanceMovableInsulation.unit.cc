@@ -69,21 +69,20 @@ namespace EnergyPlus {
 
 TEST_F(EnergyPlusFixture, HeatBalanceMovableInsulation_EvalOutsideMovableInsulation)
 {
+    state->init_state(*state);
     auto &s_mat = state->dataMaterial;
 
     int SurfNum = 1;
     state->dataSurface->Surface.allocate(SurfNum);
-    state->dataSurface->SurfSchedMovInsulExt.allocate(SurfNum);
+    state->dataSurface->SurfMovInsulExtScheds.allocate(SurfNum);
     state->dataSurface->SurfMaterialMovInsulExt.allocate(SurfNum);
-    state->dataSurface->SurfSchedMovInsulExt(SurfNum) = 1;
+    state->dataSurface->SurfMovInsulExtScheds(SurfNum) = Sched::GetScheduleAlwaysOn(*state);
     state->dataSurface->SurfMaterialMovInsulExt(SurfNum) = 1;
     state->dataHeatBalSurf->SurfMovInsulExtPresent.allocate(SurfNum);
     state->dataHeatBalSurf->SurfMovInsulHExt.allocate(SurfNum);
     state->dataHeatBalSurf->SurfAbsSolarExt.allocate(SurfNum);
     state->dataHeatBalSurf->SurfAbsThermalExt.allocate(SurfNum);
     state->dataHeatBalSurf->SurfRoughnessExt.allocate(SurfNum);
-    state->dataScheduleMgr->Schedule.allocate(1);
-    state->dataScheduleMgr->Schedule(1).CurrentValue = 1.0;
     state->dataHeatBalSurf->SurfMovInsulExtPresent(1) = true;
     state->dataHeatBalSurf->SurfMovInsulIndexList.push_back(1);
 
@@ -150,20 +149,19 @@ TEST_F(EnergyPlusFixture, HeatBalanceMovableInsulation_EvalOutsideMovableInsulat
 
 TEST_F(EnergyPlusFixture, HeatBalanceMovableInsulation_EvalInsideMovableInsulation)
 {
-
+    state->init_state(*state);
+    
     int SurfNum = 1;
     state->dataSurface->Surface.allocate(SurfNum);
 
-    state->dataSurface->SurfSchedMovInsulInt.allocate(SurfNum);
+    state->dataSurface->SurfMovInsulIntScheds.allocate(SurfNum);
     state->dataSurface->SurfMaterialMovInsulInt.allocate(SurfNum);
-    state->dataSurface->SurfSchedMovInsulInt(SurfNum) = 1;
+    state->dataSurface->SurfMovInsulIntScheds(SurfNum) = Sched::GetScheduleAlwaysOn(*state);
     state->dataSurface->SurfMaterialMovInsulInt(SurfNum) = 1;
     state->dataHeatBalSurf->SurfMovInsulIntPresent.allocate(SurfNum);
     state->dataHeatBalSurf->SurfMovInsulHInt.allocate(SurfNum);
     state->dataHeatBalSurf->SurfAbsSolarInt.allocate(SurfNum);
     state->dataHeatBalSurf->SurfAbsThermalInt.allocate(SurfNum);
-    state->dataScheduleMgr->Schedule.allocate(1);
-    state->dataScheduleMgr->Schedule(1).CurrentValue = 1.0;
     state->dataHeatBalSurf->SurfMovInsulIndexList.push_back(1);
 
     auto *mat = new Material::MaterialShade;
@@ -287,15 +285,14 @@ TEST_F(EnergyPlusFixture, SurfaceControlMovableInsulation_InvalidWindowSimpleGla
     });
 
     ASSERT_TRUE(process_idf(idf_objects));
-
+    state->init_state(*state);
     // set error to false
     bool ErrorsFound(false);
     // set zone data
     state->dataGlobal->NumOfZones = 1;
     state->dataHeatBal->Zone.allocate(1);
     state->dataHeatBal->Zone(1).Name = "ZONE ONE";
-    // get schedule data
-    ScheduleManager::ProcessScheduleInput(*state);
+
     // get materials data
     Material::GetMaterialData(*state, ErrorsFound);
     EXPECT_FALSE(ErrorsFound);
@@ -317,13 +314,13 @@ TEST_F(EnergyPlusFixture, SurfaceControlMovableInsulation_InvalidWindowSimpleGla
     state->dataSurface->TotSurfaces = 1;
     state->dataSurface->Surface.allocate(1);
     state->dataSurface->SurfMaterialMovInsulExt.allocate(1);
-    state->dataSurface->SurfSchedMovInsulExt.allocate(1);
+    state->dataSurface->SurfMovInsulExtScheds.allocate(1);
     state->dataSurface->SurfMaterialMovInsulInt.allocate(1);
-    state->dataSurface->SurfSchedMovInsulInt.allocate(1);
+    state->dataSurface->SurfMovInsulIntScheds.allocate(1);
     state->dataSurface->SurfMaterialMovInsulExt = 0;
-    state->dataSurface->SurfSchedMovInsulExt = 0;
+    state->dataSurface->SurfMovInsulExtScheds(1) = nullptr;
     state->dataSurface->SurfMaterialMovInsulInt = 0;
-    state->dataSurface->SurfSchedMovInsulInt = 0;
+    state->dataSurface->SurfMovInsulIntScheds(1) = nullptr;
     state->dataSurfaceGeometry->SurfaceTmp.allocate(1);
     int SurfNum = 0;
     int TotHTSurfs = state->dataSurface->TotSurfaces = 1;

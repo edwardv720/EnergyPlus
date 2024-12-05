@@ -260,7 +260,7 @@ void FiniteDiffGroundTempsModel::getWeatherData(EnergyPlusData &state)
             state.dataGlobal->BeginHourFlag = true;
             state.dataGlobal->EndHourFlag = false;
 
-            for (state.dataGlobal->TimeStep = 1; state.dataGlobal->TimeStep <= state.dataGlobal->NumOfTimeStepInHour; ++state.dataGlobal->TimeStep) {
+            for (state.dataGlobal->TimeStep = 1; state.dataGlobal->TimeStep <= state.dataGlobal->TimeStepsInHour; ++state.dataGlobal->TimeStep) {
 
                 state.dataGlobal->BeginTimeStepFlag = true;
 
@@ -271,7 +271,7 @@ void FiniteDiffGroundTempsModel::getWeatherData(EnergyPlusData &state)
                 // Note also that BeginTimeStepFlag, EndTimeStepFlag, and the
                 // SubTimeStepFlags can/will be set/reset in the HVAC Manager.
 
-                if (state.dataGlobal->TimeStep == state.dataGlobal->NumOfTimeStepInHour) {
+                if (state.dataGlobal->TimeStep == state.dataGlobal->TimeStepsInHour) {
                     state.dataGlobal->EndHourFlag = true;
                     if (state.dataGlobal->HourOfDay == 24) {
                         state.dataGlobal->EndDayFlag = true;
@@ -441,7 +441,7 @@ void FiniteDiffGroundTempsModel::performSimulation(EnergyPlusData &state)
     // Simulates model, repeating years, until steady-periodic temperatures are determined.
 
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-    timeStepInSeconds = Constant::SecsInDay;
+    timeStepInSeconds = Constant::rSecsInDay;
     bool convergedFinal = false;
 
     initDomain(state);
@@ -798,7 +798,7 @@ void FiniteDiffGroundTempsModel::initDomain(EnergyPlusData &state)
     tempModel->aveGroundTemp = annualAveAirTemp;
     tempModel->aveGroundTempAmplitude =
         (maxDailyAirTemp - minDailyAirTemp) / 4.0; // Rough estimate here. Ground temps will not swing as far as the air temp.
-    tempModel->phaseShiftInSecs = dayOfMinDailyAirTemp * Constant::SecsInDay;
+    tempModel->phaseShiftInSecs = dayOfMinDailyAirTemp * Constant::rSecsInDay;
     tempModel->groundThermalDiffisivity = baseConductivity / (baseDensity * baseSpecificHeat);
 
     // Initialize temperatures and volume
@@ -1023,7 +1023,7 @@ Real64 FiniteDiffGroundTempsModel::getGroundTempAtTimeInSeconds(EnergyPlusData &
 
     depth = _depth;
 
-    simTimeInDays = seconds / Constant::SecsInDay;
+    simTimeInDays = seconds / Constant::rSecsInDay;
 
     if (simTimeInDays > state.dataWeather->NumDaysInYear) {
         simTimeInDays = remainder(simTimeInDays, state.dataWeather->NumDaysInYear);

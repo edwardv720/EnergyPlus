@@ -102,7 +102,7 @@ namespace PlantChillers {
         Real64 SizFac;                          // sizing factor
         Real64 BasinHeaterPowerFTempDiff;       // Basin heater capacity per degree C below setpoint (W/C)
         Real64 BasinHeaterSetPointTemp;         // Setpoint temperature for basin heater operation (C)
-        int BasinHeaterSchedulePtr;             // Pointer to basin heater schedule
+        Sched::Schedule *basinHeaterSched = nullptr;             // basin heater schedule
         int ErrCount1;                          // for recurring error messages
         int ErrCount2;                          // for recurring error messages
         std::string MsgBuffer1;                 // - buffer to print warning messages on following time step
@@ -151,7 +151,7 @@ namespace PlantChillers {
               EvapInletNodeNum(0), EvapOutletNodeNum(0), CondInletNodeNum(0), CondOutletNodeNum(0), EvapVolFlowRate(0.0),
               EvapVolFlowRateWasAutoSized(false), EvapMassFlowRateMax(0.0), CondVolFlowRate(0.0), CondVolFlowRateWasAutoSized(false),
               CondMassFlowRateMax(0.0), CWPlantLoc{}, CDPlantLoc{}, SizFac(0.0), BasinHeaterPowerFTempDiff(0.0), BasinHeaterSetPointTemp(0.0),
-              BasinHeaterSchedulePtr(0), ErrCount1(0), ErrCount2(0), MsgDataLast(0.0), PrintMessage(false), MsgErrorCount(0), CheckEquipName(true),
+              ErrCount1(0), ErrCount2(0), MsgDataLast(0.0), PrintMessage(false), MsgErrorCount(0), CheckEquipName(true),
               PossibleSubcooling(false), CondMassFlowIndex(0), FaultyChillerSWTFlag(false), FaultyChillerSWTIndex(0), FaultyChillerSWTOffset(0.0),
               FaultyChillerFoulingFlag(false), FaultyChillerFoulingIndex(0), FaultyChillerFoulingFactor(1.0), MyFlag(true), MyEnvrnFlag(true),
               TimeStepSysLast(0.0), CurrentEndTimeLast(0.0), CondMassFlowRate(0.0), EvapMassFlowRate(0.0), CondOutletTemp(0.0),
@@ -204,7 +204,7 @@ namespace PlantChillers {
         Real64 HeatRecCapacityFraction;            // user input for heat recovery capacity fraction []
         Real64 HeatRecMaxCapacityLimit;            // Capacity limit for Heat recovery, one time calc [W]
         int HeatRecSetPointNodeNum;                // index for system node with the heat recover leaving setpoint
-        int HeatRecInletLimitSchedNum;             // index for schedule for the inlet high limit for heat recovery operation
+        Sched::Schedule *heatRecInletLimitSched = nullptr;             // schedule for the inlet high limit for heat recovery operation
         PlantLocation HRPlantLoc;                  // heat recovery water plant loop component index
         std::string EndUseSubcategory;             // identifier use for the end use subcategory
         Real64 CondOutletHumRat;                   // kg/kg - condenser outlet humditiy ratio, air side
@@ -227,7 +227,7 @@ namespace PlantChillers {
             : CapRatCoef(3, 0.0), PowerRatCoef(3, 0.0), FullLoadCoef(3, 0.0), TempLowLimitEvapOut(0.0), DesignHeatRecVolFlowRate(0.0),
               DesignHeatRecVolFlowRateWasAutoSized(false), DesignHeatRecMassFlowRate(0.0), HeatRecActive(false), HeatRecInletNodeNum(0),
               HeatRecOutletNodeNum(0), HeatRecCapacityFraction(0.0), HeatRecMaxCapacityLimit(0.0), HeatRecSetPointNodeNum(0),
-              HeatRecInletLimitSchedNum(0), HRPlantLoc{}, CondOutletHumRat(0.0), ActualCOP(0.0), QHeatRecovery(0.0), EnergyHeatRecovery(0.0),
+              HRPlantLoc{}, CondOutletHumRat(0.0), ActualCOP(0.0), QHeatRecovery(0.0), EnergyHeatRecovery(0.0),
               HeatRecInletTemp(0.0), HeatRecMdot(0.0), ChillerCondAvgTemp(0.0)
         {
         }
@@ -520,6 +520,10 @@ struct PlantChillersData : BaseGlobalStruct
     EPVector<PlantChillers::EngineDrivenChillerSpecs> EngineDrivenChiller;
     EPVector<PlantChillers::GTChillerSpecs> GTChiller;
     EPVector<PlantChillers::ConstCOPChillerSpecs> ConstCOPChiller;
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

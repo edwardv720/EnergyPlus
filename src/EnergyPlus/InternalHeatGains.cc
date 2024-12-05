@@ -190,8 +190,6 @@ namespace InternalHeatGains {
         // ZoneBaseboard:OutdoorTemperatureControlled
 
         // Using/Aliasing
-        using namespace ScheduleManager;
-
         using namespace OutputReportPredefined;
         using namespace DataLoopNode;
         using Curve::GetCurveIndex;
@@ -199,6 +197,7 @@ namespace InternalHeatGains {
 
         // SUBROUTINE PARAMETER DEFINITIONS:
         static constexpr std::string_view RoutineName("GetInternalHeatGains: ");
+        static constexpr std::string_view routineName = "GetInternalHeatGains";
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         int IOStat;
@@ -320,6 +319,7 @@ namespace InternalHeatGains {
                                                                          IHGAlphaFieldNames,
                                                                          IHGNumericFieldNames);
 
+                ErrorObjectHeader eoh{routineName, peopleModuleObject, IHGAlphas(1)}; 
                 // Create one People instance for every space associated with this People input object
                 auto &thisPeopleInput = peopleObjects(peopleInputNum);
                 for (int Item1 = 1; Item1 <= thisPeopleInput.numOfSpaces; ++Item1) {
@@ -331,61 +331,25 @@ namespace InternalHeatGains {
                     thisPeople.spaceIndex = spaceNum;
                     thisPeople.ZonePtr = zoneNum;
 
-                    thisPeople.NumberOfPeoplePtr = GetScheduleIndex(state, IHGAlphas(3));
+                    thisPeople.numberOfPeopleSched = Sched::GetSchedule(state, IHGAlphas(3));
                     SchMin = 0.0;
                     SchMax = 0.0;
-                    if (thisPeople.NumberOfPeoplePtr == 0) {
-                        if (Item1 == 1) { // only show error on first one
-                            if (IHGAlphaFieldBlanks(3)) {
-                                ShowSevereError(
-                                    state,
-                                    format("{}{}=\"{}\", {} is required.", RoutineName, peopleModuleObject, IHGAlphas(1), IHGAlphaFieldNames(3)));
-                            } else {
-                                ShowSevereError(state,
-                                                format("{}{}=\"{}\", invalid {} entered={}",
-                                                       RoutineName,
-                                                       peopleModuleObject,
-                                                       IHGAlphas(1),
-                                                       IHGAlphaFieldNames(3),
-                                                       IHGAlphas(3)));
-                            }
+
+                    if (Item1 == 1) { // only show error on first one
+                        if (IHGAlphaFieldBlanks(3)) {
+                            ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(3));
                             ErrorsFound = true;
-                        }
-                    } else { // check min/max on schedule
-                        SchMin = GetScheduleMinValue(state, thisPeople.NumberOfPeoplePtr);
-                        SchMax = GetScheduleMaxValue(state, thisPeople.NumberOfPeoplePtr);
-                        if (SchMin < 0.0 || SchMax < 0.0) {
-                            if (Item1 == 1) {
-                                if (SchMin < 0.0) {
-                                    ShowSevereError(state,
-                                                    format("{}{}=\"{}\", {}, minimum is < 0.0",
-                                                           RoutineName,
-                                                           peopleModuleObject,
-                                                           IHGAlphas(1),
-                                                           IHGAlphaFieldNames(3)));
-                                    ShowContinueError(state,
-                                                      format("Schedule=\"{}\". Minimum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(3), SchMin));
-                                    ErrorsFound = true;
-                                }
-                            }
-                            if (Item1 == 1) {
-                                if (SchMax < 0.0) {
-                                    ShowSevereError(state,
-                                                    format("{}{}=\"{}\", {}, maximum is < 0.0",
-                                                           RoutineName,
-                                                           peopleModuleObject,
-                                                           IHGAlphas(1),
-                                                           IHGAlphaFieldNames(3)));
-                                    ShowContinueError(state,
-                                                      format("Schedule=\"{}\". Maximum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(3), SchMax));
-                                    ErrorsFound = true;
-                                }
-                            }
+                        } else if (thisPeople.numberOfPeopleSched == nullptr) {
+                            ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3));
+                            ErrorsFound = true;
+                        } else if (!thisPeople.numberOfPeopleSched->checkMinVal(state, Clusive::In, 0.0)) {
+                            Sched::ShowSevereBadMin(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3), Clusive::In, 0.0);
+                            ErrorsFound = true;
                         }
                     }
 
                     // Number of people calculation method.
-                    {
+                    { // Why open a new scope here
                         std::string const &peopleMethod = IHGAlphas(4);
                         if (peopleMethod == "PEOPLE") {
                             // Set space load fraction
@@ -561,80 +525,35 @@ namespace InternalHeatGains {
                         ErrorsFound = true;
                     }
 
-                    thisPeople.ActivityLevelPtr = GetScheduleIndex(state, IHGAlphas(5));
-                    if (thisPeople.ActivityLevelPtr == 0) {
-                        if (Item1 == 1) {
-                            if (IHGAlphaFieldBlanks(5)) {
-                                ShowSevereError(
-                                    state,
-                                    format("{}{}=\"{}\", {} is required.", RoutineName, peopleModuleObject, IHGAlphas(1), IHGAlphaFieldNames(5)));
-                            } else {
-                                ShowSevereError(state,
-                                                format("{}{}=\"{}\", invalid {} entered={}",
-                                                       RoutineName,
-                                                       peopleModuleObject,
-                                                       IHGAlphas(1),
-                                                       IHGAlphaFieldNames(5),
-                                                       IHGAlphas(5)));
-                            }
+                    thisPeople.activityLevelSched = Sched::GetSchedule(state, IHGAlphas(5));
+                    
+                    if (Item1 == 1) {
+                        if (IHGAlphaFieldBlanks(5)) {
+                            ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(5));
                             ErrorsFound = true;
-                        }
-                    } else { // Check values in Schedule
-                        SchMin = GetScheduleMinValue(state, thisPeople.ActivityLevelPtr);
-                        SchMax = GetScheduleMaxValue(state, thisPeople.ActivityLevelPtr);
-                        if (SchMin < 0.0 || SchMax < 0.0) {
-                            if (Item1 == 1) {
-                                if (SchMin < 0.0) {
-                                    ShowSevereError(state,
-                                                    format("{}{}=\"{}\", {} minimum is < 0.0",
-                                                           RoutineName,
-                                                           peopleModuleObject,
-                                                           IHGAlphas(1),
-                                                           IHGAlphaFieldNames(5)));
-                                    ShowContinueError(state,
-                                                      format("Schedule=\"{}\". Minimum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(5), SchMin));
-                                    ErrorsFound = true;
-                                }
-                            }
-                            if (Item1 == 1) {
-                                if (SchMax < 0.0) {
-                                    ShowSevereError(state,
-                                                    format("{}{}=\"{}\", {} maximum is < 0.0",
-                                                           RoutineName,
-                                                           peopleModuleObject,
-                                                           IHGAlphas(1),
-                                                           IHGAlphaFieldNames(5)));
-                                    ShowContinueError(state,
-                                                      format("Schedule=\"{}\". Maximum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(5), SchMax));
-                                    ErrorsFound = true;
-                                }
-                            }
-                        } else if (SchMin < 70.0 || SchMax > 1000.0) {
-                            if (Item1 == 1) {
-                                ShowWarningError(
-                                    state, format("{}{}=\"{}\", {} values", RoutineName, peopleModuleObject, IHGAlphas(1), IHGAlphaFieldNames(5)));
-                                ShowContinueError(state, "fall outside typical range [70,1000] W/person for Thermal Comfort Reporting.");
-                                ShowContinueError(state, format("Odd comfort values may result; Schedule=\"{}\".", IHGAlphas(5)));
-                                ShowContinueError(state, format("Entered min/max range=[{:.1R},] W/person.{:.1R}", SchMin, SchMax));
-                            }
+                        } else if (thisPeople.activityLevelSched == nullptr) {
+                            ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(5), IHGAlphas(5));
+                            ErrorsFound = true;
+                        } else if (!thisPeople.activityLevelSched->checkMinVal(state, Clusive::In, 0.0)) {
+                            Sched::ShowSevereBadMin(state, eoh, IHGAlphaFieldNames(5), IHGAlphas(5), Clusive::In, 0.0);
+                            ErrorsFound = true;
+                        } else if (!thisPeople.activityLevelSched->checkMinMaxVals(state, Clusive::In, 70.0, Clusive::In, 1000.0)) {
+                            Sched::ShowWarningBadMinMax(state, eoh, IHGAlphaFieldNames(5), IHGAlphas(5),
+                                                        Clusive::In, 70.0, Clusive::In, 1000.0,
+                                                        "Values fall outside of typical w/person range for thermal comfort reporting.");
                         }
                     }
 
                     // Following is an optional parameter (ASHRAE 55 warnings
                     if (IHGNumAlphas >= 6) {
-                        if (Util::SameString(IHGAlphas(6), "Yes")) {
-                            thisPeople.Show55Warning = true;
-                        } else if (!Util::SameString(IHGAlphas(6), "No") && !IHGAlphaFieldBlanks(6)) {
+                        BooleanSwitch bs = getYesNoValue(IHGAlphas(6));
+                        if (bs == BooleanSwitch::Invalid) {
                             if (Item1 == 1) {
-                                ShowSevereError(state,
-                                                format("{}{}=\"{}\", {} field should be Yes or No",
-                                                       RoutineName,
-                                                       peopleModuleObject,
-                                                       IHGAlphas(1),
-                                                       IHGAlphaFieldNames(6)));
-                                ShowContinueError(state, format("...Field value=\"{}\" is invalid.", IHGAlphas(6)));
+                                ShowSevereInvalidKey(state, eoh, IHGAlphaFieldNames(6), IHGAlphas(6));
                                 ErrorsFound = true;
                             }
+                        } else {
+                            thisPeople.Show55Warning = true;
                         }
                     }
 
@@ -675,7 +594,7 @@ namespace InternalHeatGains {
 
                         for (int OptionNum = NumFirstTCModel; OptionNum <= lastOption; ++OptionNum) {
 
-                            {
+                            { // Why are we starting a nested scope immediately after opening up a scope?
                                 std::string const &thermalComfortType = IHGAlphas(OptionNum);
 
                                 if (thermalComfortType == "FANGER") {
@@ -716,13 +635,7 @@ namespace InternalHeatGains {
 
                                 } else { // An invalid keyword was entered--warn but ignore
                                     if (Item1 == 1) {
-                                        ShowWarningError(state,
-                                                         format("{}{}=\"{}\", invalid {} Option={}",
-                                                                RoutineName,
-                                                                peopleModuleObject,
-                                                                IHGAlphas(1),
-                                                                IHGAlphaFieldNames(OptionNum),
-                                                                IHGAlphas(OptionNum)));
+                                        ShowWarningInvalidKey(state, eoh, IHGAlphaFieldNames(OptionNum), IHGAlphas(OptionNum), "");
                                         ShowContinueError(state,
                                                           "Valid Values are \"Fanger\", \"Pierce\", \"KSU\", \"AdaptiveASH55\", "
                                                           "\"AdaptiveCEN15251\", \"CoolingEffectASH55\", \"AnkleDraftASH55\"");
@@ -797,297 +710,125 @@ namespace InternalHeatGains {
                                     ShowContinueError(state, "...Valid values are \"EnclosureAveraged\", \"SurfaceWeighted\", \"AngleFactor\".");
                                 }
                             } break;
-                            }
+                            } // switch (thisPeople.MRTCalcType)
 
                             if (!IHGAlphaFieldBlanks(9)) {
-                                thisPeople.WorkEffPtr = GetScheduleIndex(state, IHGAlphas(9));
-                                if (thisPeople.WorkEffPtr == 0) {
-                                    if (Item1 == 1) {
-                                        ShowSevereError(state,
-                                                        format("{}{}=\"{}\", invalid {} entered={}",
-                                                               RoutineName,
-                                                               peopleModuleObject,
-                                                               IHGAlphas(1),
-                                                               IHGAlphaFieldNames(9),
-                                                               IHGAlphas(9)));
+                               thisPeople.workEffSched = Sched::GetSchedule(state, IHGAlphas(9));
+                            }
+                            
+                            if (Item1 == 1) {
+                                if (IHGAlphaFieldBlanks(9)) {
+                                    if (ModelWithAdditionalInputs) {
+                                        ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(9)); 
+                                        ShowContinueError(state, "It is required when Thermal Comfort Model Type is one of "
+                                                          "\"Fanger\", \"Pierce\", \"KSU\", \"CoolingEffectASH55\" or \"AnkleDraftASH55\"");
                                         ErrorsFound = true;
                                     }
-                                } else { // check min/max on schedule
-                                    SchMin = GetScheduleMinValue(state, thisPeople.WorkEffPtr);
-                                    SchMax = GetScheduleMaxValue(state, thisPeople.WorkEffPtr);
-                                    if (SchMin < 0.0 || SchMax < 0.0) {
-                                        if (SchMin < 0.0) {
-                                            if (Item1 == 1) {
-                                                ShowSevereError(state,
-                                                                format("{}{}=\"{}\", {}, minimum is < 0.0",
-                                                                       RoutineName,
-                                                                       peopleModuleObject,
-                                                                       IHGAlphas(1),
-                                                                       IHGAlphaFieldNames(9)));
-                                                ShowContinueError(
-                                                    state,
-                                                    format("Schedule=\"{}\". Minimum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(9), SchMin));
-                                                ErrorsFound = true;
-                                            }
-                                        }
-                                        if (SchMax < 0.0) {
-                                            if (Item1 == 1) {
-                                                ShowSevereError(state,
-                                                                format("{}{}=\"{}\", {}, maximum is < 0.0",
-                                                                       RoutineName,
-                                                                       peopleModuleObject,
-                                                                       IHGAlphas(1),
-                                                                       IHGAlphaFieldNames(9)));
-                                                ShowContinueError(
-                                                    state,
-                                                    format("Schedule=\"{}\". Maximum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(9), SchMax));
-                                                ErrorsFound = true;
-                                            }
-                                        }
-                                    }
-                                    if (SchMax > 1.0) {
-                                        if (Item1 == 1) {
-                                            ShowWarningError(state,
-                                                             format("{}{}=\"{}\", {}, maximum is > 1.0",
-                                                                    RoutineName,
-                                                                    peopleModuleObject,
-                                                                    IHGAlphas(1),
-                                                                    IHGAlphaFieldNames(9)));
-                                            ShowContinueError(state,
-                                                              format("Schedule=\"{}\"; Entered min/max range=[{:.1R},{:.1R}] Work Efficiency.",
-                                                                     IHGAlphas(9),
-                                                                     SchMin,
-                                                                     SchMax));
-                                        }
-                                    }
-                                }
-                            } else if (ModelWithAdditionalInputs) {
-                                if (Item1 == 1) {
-                                    ShowSevereError(state,
-                                                    format("{}{}=\"{}\", blank {}. {} is required when Thermal Comfort Model Type is one of "
-                                                           "\"Fanger\", \"Pierce\", \"KSU\", \"CoolingEffectASH55\" or \"AnkleDraftASH55\"",
-                                                           RoutineName,
-                                                           peopleModuleObject,
-                                                           IHGAlphas(1),
-                                                           IHGAlphaFieldNames(9),
-                                                           IHGAlphaFieldNames(9)));
-                                    ErrorsFound = true;
+                                } else if (thisPeople.workEffSched == nullptr) {
+                                     ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(9), IHGAlphas(9));
+                                     ErrorsFound = true;
+                                } else if (!thisPeople.workEffSched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
+                                     Sched::ShowSevereBadMinMax(state, eoh, IHGAlphaFieldNames(9), IHGAlphas(9),
+                                                                  Clusive::In, 0.0, Clusive::In, 1.0);
+                                     ErrorsFound = true;
                                 }
                             }
 
-                            if (!IHGAlphaFieldBlanks(10) || !IHGAlphas(10).empty()) {
-                                thisPeople.clothingType = static_cast<ClothingType>(getEnumValue(clothingTypeNamesUC, IHGAlphas(10)));
-                                if (thisPeople.clothingType == ClothingType::Invalid) {
-                                    ShowSevereError(state,
-                                                    format("{}{}=\"{}\", invalid {}, value  ={}",
-                                                           RoutineName,
-                                                           peopleModuleObject,
-                                                           thisPeople.Name,
-                                                           IHGAlphaFieldNames(10),
-                                                           IHGAlphas(10)));
-                                    ShowContinueError(state,
-                                                      format(R"(...Valid values are "{}", "{}", "{}")",
-                                                             clothingTypeNamesUC[0],
-                                                             clothingTypeNamesUC[1],
-                                                             clothingTypeNamesUC[2]));
-                                    ErrorsFound = true;
-                                }
+                            if (IHGAlphaFieldBlanks(10)) {
+                            } else if ((thisPeople.clothingType = static_cast<ClothingType>(getEnumValue(clothingTypeNamesUC, IHGAlphas(10)))) ==
+                                       ClothingType::Invalid) {
+                                ShowSevereInvalidKey(state, eoh, IHGAlphaFieldNames(10), IHGAlphas(10));
+                                ErrorsFound = true;
+                            } else {
+                                    
                                 switch (thisPeople.clothingType) {
-                                case ClothingType::InsulationSchedule:
-                                    thisPeople.clothingType = ClothingType::InsulationSchedule;
-                                    thisPeople.ClothingPtr = GetScheduleIndex(state, IHGAlphas(12));
-                                    if (thisPeople.ClothingPtr == 0 && ModelWithAdditionalInputs) {
-                                        if (Item1 == 1) {
-                                            ShowSevereError(state,
-                                                            format("{}{}=\"{}\", invalid {} entered=\"{}\".",
-                                                                   RoutineName,
-                                                                   peopleModuleObject,
-                                                                   IHGAlphas(1),
-                                                                   IHGAlphaFieldNames(12),
-                                                                   IHGAlphas(12)));
+                                        
+                                case ClothingType::InsulationSchedule: {
+
+                                    thisPeople.clothingSched = Sched::GetSchedule(state, IHGAlphas(12));
+                                    if (Item1 == 1) {
+                                        if (IHGAlphaFieldBlanks(12)) {
+                                            ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(12), IHGAlphaFieldNames(10), IHGAlphas(10));
                                             ErrorsFound = true;
-                                        }
-                                    } else { // check min/max on schedule
-                                        SchMin = GetScheduleMinValue(state, thisPeople.ClothingPtr);
-                                        SchMax = GetScheduleMaxValue(state, thisPeople.ClothingPtr);
-                                        if (SchMin < 0.0 || SchMax < 0.0) {
-                                            if (SchMin < 0.0) {
-                                                if (Item1 == 1) {
-                                                    ShowSevereError(state,
-                                                                    format("{}{}=\"{}\", {}, minimum is < 0.0",
-                                                                           RoutineName,
-                                                                           peopleModuleObject,
-                                                                           IHGAlphas(1),
-                                                                           IHGAlphaFieldNames(12)));
-                                                    ShowContinueError(state,
-                                                                      format("Schedule=\"{}\". Minimum is [{:.1R}]. Values must be >= 0.0.",
-                                                                             IHGAlphas(12),
-                                                                             SchMin));
-                                                    ErrorsFound = true;
-                                                }
-                                            }
-                                            if (SchMax < 0.0) {
-                                                if (Item1 == 1) {
-                                                    ShowSevereError(state,
-                                                                    format("{}{}=\"{}\", {}, maximum is < 0.0",
-                                                                           RoutineName,
-                                                                           peopleModuleObject,
-                                                                           IHGAlphas(1),
-                                                                           IHGAlphaFieldNames(12)));
-                                                    ShowContinueError(state,
-                                                                      format("Schedule=\"{}\". Maximum is [{:.1R}]. Values must be >= 0.0.",
-                                                                             IHGAlphas(12),
-                                                                             SchMax));
-                                                    ErrorsFound = true;
-                                                }
-                                            }
-                                        }
-                                        if (SchMax > 2.0) {
-                                            if (Item1 == 1) {
-                                                ShowWarningError(state,
-                                                                 format("{}{}=\"{}\", {}, maximum is > 2.0",
-                                                                        RoutineName,
-                                                                        peopleModuleObject,
-                                                                        IHGAlphas(1),
-                                                                        IHGAlphaFieldNames(12)));
-                                                ShowContinueError(state,
-                                                                  format("Schedule=\"{}\"; Entered min/max range=[{:.1R},{:.1R}] Clothing.",
-                                                                         IHGAlphas(12),
-                                                                         SchMin,
-                                                                         SchMax));
-                                            }
+                                        } else if (thisPeople.clothingSched == nullptr) {
+                                            ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(12), IHGAlphas(12));
+                                            ErrorsFound = true;
+                                        } else if (!thisPeople.clothingSched->checkMinVal(state, Clusive::In, 0.0)) {
+                                            Sched::ShowSevereBadMin(state, eoh, IHGAlphaFieldNames(12), IHGAlphas(12), Clusive::In, 0.0);
+                                            ErrorsFound = true;
+                                        } else if (!thisPeople.clothingSched->checkMaxVal(state, Clusive::In, 2.0)) {
+                                            Sched::ShowWarningBadMax(state, eoh, IHGAlphaFieldNames(12), IHGAlphas(12), Clusive::In, 2.0, "");
                                         }
                                     }
-                                    break;
+                                } break;
 
-                                case ClothingType::DynamicAshrae55:
-                                    break; // nothing extra to do, at least for now
+                                case ClothingType::DynamicAshrae55: {
+                                } break; // nothing extra to do, at least for now
 
-                                case ClothingType::CalculationSchedule:
-                                    thisPeople.ClothingMethodPtr = GetScheduleIndex(state, IHGAlphas(11));
-                                    if (thisPeople.ClothingMethodPtr == 0) {
-                                        if (Item1 == 1) {
-                                            ShowSevereError(state,
-                                                            format("{}{}=\"{}\", invalid {} entered=\"{}\".",
-                                                                   RoutineName,
-                                                                   peopleModuleObject,
-                                                                   IHGAlphas(1),
-                                                                   IHGAlphaFieldNames(11),
-                                                                   IHGAlphas(11)));
+                                case ClothingType::CalculationSchedule: {
+                                    thisPeople.clothingMethodSched = Sched::GetSchedule(state, IHGAlphas(11));
+                                    
+                                    if (Item1 == 1) {
+                                        if (thisPeople.clothingMethodSched == nullptr) {
+                                            ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(11), IHGAlphas(11));
                                             ErrorsFound = true;
                                         }
                                     }
-                                    if (CheckScheduleValue(state, thisPeople.ClothingMethodPtr, 1)) {
-                                        thisPeople.ClothingPtr = GetScheduleIndex(state, IHGAlphas(12));
-                                        if (thisPeople.ClothingPtr == 0) {
+                                    
+                                    if (thisPeople.clothingMethodSched->hasVal(state, 1)) {
+                                        if ((thisPeople.clothingSched = Sched::GetSchedule(state, IHGAlphas(12))) == nullptr) {
                                             if (Item1 == 1) {
-                                                ShowSevereError(state,
-                                                                format("{}{}=\"{}\", invalid {} entered=\"{}\".",
-                                                                       RoutineName,
-                                                                       peopleModuleObject,
-                                                                       IHGAlphas(1),
-                                                                       IHGAlphaFieldNames(12),
-                                                                       IHGAlphas(12)));
+                                                ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(12), IHGAlphas(12));
                                                 ErrorsFound = true;
                                             }
                                         }
                                     }
-                                    break;
-                                default:
-                                    break; // nothing to do for the other cases
-                                }
+                                } break;
+                                        
+                                default: {
+                                } break; // nothing to do for the other cases
+                                } // switch (thisPeople.clothingType)
                             }
 
+                        
                             if (!IHGAlphaFieldBlanks(13)) {
-                                thisPeople.AirVelocityPtr = GetScheduleIndex(state, IHGAlphas(13));
-                                if (thisPeople.AirVelocityPtr == 0) {
-                                    if (Item1 == 1) {
-                                        ShowSevereError(state,
-                                                        format("{}{}=\"{}\", invalid {} entered=\"{}\".",
-                                                               RoutineName,
-                                                               peopleModuleObject,
-                                                               IHGAlphas(1),
-                                                               IHGAlphaFieldNames(13),
-                                                               IHGAlphas(13)));
+                               thisPeople.airVelocitySched = Sched::GetSchedule(state, IHGAlphas(13));
+                            }
+                            
+                            if (Item1 == 1) {
+                                if (IHGAlphaFieldBlanks(13)) {
+                                    if (ModelWithAdditionalInputs) {
+                                        ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(13));
+                                        ShowContinueError(state, "Required when Thermal Comfort Model Type is one of "
+                                                          "\"Fanger\", \"Pierce\", \"KSU\", \"CoolingEffectASH55\" or \"AnkleDraftASH55\"");
                                         ErrorsFound = true;
                                     }
-                                } else { // check min/max on schedule
-                                    SchMin = GetScheduleMinValue(state, thisPeople.AirVelocityPtr);
-                                    SchMax = GetScheduleMaxValue(state, thisPeople.AirVelocityPtr);
-                                    if (SchMin < 0.0 || SchMax < 0.0) {
-                                        if (SchMin < 0.0) {
-                                            if (Item1 == 1) {
-                                                ShowSevereError(state,
-                                                                format("{}{}=\"{}\", {}, minimum is < 0.0",
-                                                                       RoutineName,
-                                                                       peopleModuleObject,
-                                                                       IHGAlphas(1),
-                                                                       IHGAlphaFieldNames(13)));
-                                                ShowContinueError(
-                                                    state,
-                                                    format("Schedule=\"{}\". Minimum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(13), SchMin));
-                                                ErrorsFound = true;
-                                            }
-                                        }
-                                        if (SchMax < 0.0) {
-                                            if (Item1 == 1) {
-                                                ShowSevereError(state,
-                                                                format("{}{}=\"{}\", {}, maximum is < 0.0",
-                                                                       RoutineName,
-                                                                       peopleModuleObject,
-                                                                       IHGAlphas(1),
-                                                                       IHGAlphaFieldNames(13)));
-                                                ShowContinueError(
-                                                    state,
-                                                    format("Schedule=\"{}\". Maximum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(13), SchMax));
-                                                ErrorsFound = true;
-                                            }
-                                        }
-                                    }
-                                }
-                            } else if (ModelWithAdditionalInputs) {
-                                if (Item1 == 1) {
-                                    ShowSevereError(state,
-                                                    format("{}{}=\"{}\", blank {}. {} is required when Thermal Comfort Model Type is one of "
-                                                           "\"Fanger\", \"Pierce\", \"KSU\", \"CoolingEffectASH55\" or \"AnkleDraftASH55\"",
-                                                           RoutineName,
-                                                           peopleModuleObject,
-                                                           IHGAlphas(1),
-                                                           IHGAlphaFieldNames(13),
-                                                           IHGAlphaFieldNames(13)));
+                                } else if (thisPeople.airVelocitySched == nullptr) { 
+                                    ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(13), IHGAlphas(13));
+                                    ErrorsFound = true;
+                                } else if (!thisPeople.airVelocitySched->checkMinVal(state, Clusive::In, 0.0)) {
+                                    Sched::ShowSevereBadMin(state, eoh, IHGAlphaFieldNames(13), IHGAlphas(13), Clusive::In, 0.0);
                                     ErrorsFound = true;
                                 }
                             }
+                            
+                            if (!IHGAlphaFieldBlanks(21)) {
+                                thisPeople.ankleAirVelocitySched = Sched::GetSchedule(state, IHGAlphas(21));
+                            }
 
-                            int indexAnkleAirVelPtr = 21;
-                            if (!IHGAlphaFieldBlanks(indexAnkleAirVelPtr) || !IHGAlphas(indexAnkleAirVelPtr).empty()) {
-                                thisPeople.AnkleAirVelocityPtr = GetScheduleIndex(state, IHGAlphas(indexAnkleAirVelPtr));
-                                if (thisPeople.AnkleAirVelocityPtr == 0) {
-                                    if (Item1 == 1) {
-                                        ShowSevereError(state,
-                                                        format("{}{}=\"{}\", invalid {} entered=\"{}\".",
-                                                               RoutineName,
-                                                               peopleModuleObject,
-                                                               IHGAlphas(1),
-                                                               IHGAlphaFieldNames(indexAnkleAirVelPtr),
-                                                               IHGAlphas(indexAnkleAirVelPtr)));
+                            if (Item1 == 1) {
+                                if (IHGAlphaFieldBlanks(21)) {
+                                    if (thisPeople.AnkleDraftASH55) {
+                                        ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(21), IHGAlphas(21));
+                                        ShowContinueError(state, "Required when Thermal Comfort Model Type is one of "
+                                                          "\"Fanger\", \"Pierce\", \"KSU\", \"CoolingEffectASH55\" or \"AnkleDraftASH55\"");
                                         ErrorsFound = true;
                                     }
-                                }
-                            } else if (thisPeople.AnkleDraftASH55) {
-                                if (Item1 == 1) {
-                                    ShowSevereError(state,
-                                                    format("{}{}=\"{}\", blank {}. {} is required when Thermal Comfort Model Type is one of "
-                                                           "\"Fanger\", \"Pierce\", \"KSU\", \"CoolingEffectASH55\" or \"AnkleDraftASH55\"",
-                                                           RoutineName,
-                                                           peopleModuleObject,
-                                                           IHGAlphas(1),
-                                                           IHGAlphaFieldNames(indexAnkleAirVelPtr),
-                                                           IHGAlphaFieldNames(indexAnkleAirVelPtr)));
+                                } else if (thisPeople.ankleAirVelocitySched == nullptr) {
+                                    ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(21), IHGAlphas(21));
                                     ErrorsFound = true;
                                 }
                             }
-
                         } // usingthermalcomfort block
 
                     } // ...end of thermal comfort data IF-THEN block  (IHGNumAlphass > 6)
@@ -1095,7 +836,7 @@ namespace InternalHeatGains {
                     if (thisPeople.ZonePtr <= 0) continue; // Error, will be caught and terminated later
                 }
             }
-
+        
             for (int peopleNum = 1; peopleNum <= state.dataHeatBal->TotPeople; ++peopleNum) {
                 if (state.dataGlobal->AnyEnergyManagementSystemInModel) {
                     SetupEMSActuator(state,
@@ -1148,9 +889,9 @@ namespace InternalHeatGains {
                     int OptionNum = 0;
                     for (int Loop1 = 1; Loop1 <= state.dataHeatBal->TotPeople; ++Loop1) {
                         if (state.dataHeatBal->People(Loop1).ZonePtr != Loop) continue;
-                        if (maxOccupLoad < GetScheduleMaxValue(state, state.dataHeatBal->People(Loop1).NumberOfPeoplePtr) *
+                        if (maxOccupLoad < state.dataHeatBal->People(Loop1).numberOfPeopleSched->getCurrentVal() *
                                                state.dataHeatBal->People(Loop1).NumberOfPeople) {
-                            maxOccupLoad = GetScheduleMaxValue(state, state.dataHeatBal->People(Loop1).NumberOfPeoplePtr) *
+                            maxOccupLoad = state.dataHeatBal->People(Loop1).numberOfPeopleSched->getCurrentVal() *
                                            state.dataHeatBal->People(Loop1).NumberOfPeople;
                             OptionNum = Loop1;
                         }
@@ -1171,7 +912,7 @@ namespace InternalHeatGains {
                             ShowContinueError(state,
                                               format("Check values in People={}, Number of People Schedule={}",
                                                      state.dataHeatBal->People(OptionNum).Name,
-                                                     GetScheduleName(state, state.dataHeatBal->People(OptionNum).NumberOfPeoplePtr)));
+                                                     state.dataHeatBal->People(OptionNum).numberOfPeopleSched->getCurrentVal()));
                         }
                     }
                 }
@@ -1217,8 +958,11 @@ namespace InternalHeatGains {
                                                                          IHGAlphaFieldNames,
                                                                          IHGNumericFieldNames);
 
+                ErrorObjectHeader eoh{routineName, lightsModuleObject, IHGAlphas(1)};
+
                 auto &thisLightsInput = state.dataInternalHeatGains->lightsObjects(lightsInputNum);
                 // Create one Lights instance for every space associated with this Lights input object
+                // Why? Why can't multple spaces share a single lights instance?
                 for (int Item1 = 1; Item1 <= thisLightsInput.numOfSpaces; ++Item1) {
                     ++lightsNum;
                     auto &thisLights = state.dataHeatBal->Lights(lightsNum);
@@ -1228,56 +972,20 @@ namespace InternalHeatGains {
                     thisLights.spaceIndex = spaceNum;
                     thisLights.ZonePtr = zoneNum;
 
-                    thisLights.SchedPtr = GetScheduleIndex(state, IHGAlphas(3));
-                    SchMin = 0.0;
-                    SchMax = 0.0;
-                    if (thisLights.SchedPtr == 0) {
-                        if (Item1 == 1) {
-                            if (IHGAlphaFieldBlanks(3)) {
-                                ShowSevereError(
-                                    state,
-                                    format("{}{}=\"{}\", {} is required.", RoutineName, lightsModuleObject, IHGAlphas(1), IHGAlphaFieldNames(3)));
-                            } else {
-                                ShowSevereError(state,
-                                                format("{}{}=\"{}\", invalid {} entered={}",
-                                                       RoutineName,
-                                                       lightsModuleObject,
-                                                       IHGAlphas(1),
-                                                       IHGAlphaFieldNames(3),
-                                                       IHGAlphas(3)));
-                            }
+                    if (!IHGAlphaFieldBlanks(3)) {
+                        thisLights.sched = Sched::GetSchedule(state, IHGAlphas(3));
+                    }
+                    
+                    if (Item1 == 1) {
+                        if (IHGAlphaFieldBlanks(3)) {
+                            ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(3));
                             ErrorsFound = true;
-                        }
-                    } else { // check min/max on schedule
-                        SchMin = GetScheduleMinValue(state, thisLights.SchedPtr);
-                        SchMax = GetScheduleMaxValue(state, thisLights.SchedPtr);
-                        if (SchMin < 0.0 || SchMax < 0.0) {
-                            if (Item1 == 1) {
-                                if (SchMin < 0.0) {
-                                    ShowSevereError(state,
-                                                    format("{}{}=\"{}\", {}, minimum is < 0.0",
-                                                           RoutineName,
-                                                           lightsModuleObject,
-                                                           IHGAlphas(1),
-                                                           IHGAlphaFieldNames(3)));
-                                    ShowContinueError(state,
-                                                      format("Schedule=\"{}\". Minimum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(3), SchMin));
-                                    ErrorsFound = true;
-                                }
-                            }
-                            if (Item1 == 1) {
-                                if (SchMax < 0.0) {
-                                    ShowSevereError(state,
-                                                    format("{}{}=\"{}\", {}, maximum is < 0.0",
-                                                           RoutineName,
-                                                           lightsModuleObject,
-                                                           IHGAlphas(1),
-                                                           IHGAlphaFieldNames(3)));
-                                    ShowContinueError(state,
-                                                      format("Schedule=\"{}\". Maximum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(3), SchMax));
-                                    ErrorsFound = true;
-                                }
-                            }
+                        } else if (thisLights.sched == nullptr) { 
+                            ShowSevereItemNotFound(state, eoh,IHGAlphaFieldNames(3), IHGAlphas(3));
+                            ErrorsFound = true;
+                        } else if (!thisLights.sched->checkMinVal(state, Clusive::In, 0.0)) { 
+                            Sched::ShowSevereBadMin(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3), Clusive::In, 0.0);
+                            ErrorsFound = true;
                         }
                     }
 
@@ -1591,7 +1299,7 @@ namespace InternalHeatGains {
                 PreDefTableEntry(state, state.dataOutRptPredefined->pdchInLtPower, liteName, state.dataHeatBal->Lights(lightsNum).DesignLevel * mult);
                 PreDefTableEntry(state, state.dataOutRptPredefined->pdchInLtEndUse, liteName, state.dataHeatBal->Lights(lightsNum).EndUseSubcategory);
                 PreDefTableEntry(
-                    state, state.dataOutRptPredefined->pdchInLtSchd, liteName, GetScheduleName(state, state.dataHeatBal->Lights(lightsNum).SchedPtr));
+                    state, state.dataOutRptPredefined->pdchInLtSchd, liteName, state.dataHeatBal->Lights(lightsNum).sched->Name);
                 PreDefTableEntry(
                     state, state.dataOutRptPredefined->pdchInLtRetAir, liteName, state.dataHeatBal->Lights(lightsNum).FractionReturnAir, 4);
             } // Item1 - Number of Lights instances
@@ -1668,6 +1376,8 @@ namespace InternalHeatGains {
                                                                          IHGAlphaFieldNames,
                                                                          IHGNumericFieldNames);
 
+                ErrorObjectHeader eoh{routineName, elecEqModuleObject, IHGAlphas(1)};
+                
                 auto &thisElecEqInput = state.dataInternalHeatGains->zoneElectricObjects(elecEqInputNum);
                 for (int Item1 = 1; Item1 <= thisElecEqInput.numOfSpaces; ++Item1) {
                     ++elecEqNum;
@@ -1678,46 +1388,17 @@ namespace InternalHeatGains {
                     thisZoneElectric.spaceIndex = spaceNum;
                     thisZoneElectric.ZonePtr = zoneNum;
 
-                    thisZoneElectric.SchedPtr = GetScheduleIndex(state, IHGAlphas(3));
-                    SchMin = 0.0;
-                    SchMax = 0.0;
-                    if (thisZoneElectric.SchedPtr == 0) {
-                        if (IHGAlphaFieldBlanks(3)) {
-                            ShowSevereError(
-                                state, format("{}{}=\"{}\", {} is required.", RoutineName, elecEqModuleObject, IHGAlphas(1), IHGAlphaFieldNames(3)));
-                        } else {
-                            ShowSevereError(state,
-                                            format("{}{}=\"{}\", invalid {} entered={}",
-                                                   RoutineName,
-                                                   elecEqModuleObject,
-                                                   IHGAlphas(1),
-                                                   IHGAlphaFieldNames(3),
-                                                   IHGAlphas(3)));
-                        }
+                    // Why are error messages not guarded by (Item1 == 1) checks for equipment?
+                    
+                    if (IHGAlphaFieldBlanks(3)) {
+                        ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(3));
                         ErrorsFound = true;
-                    } else { // check min/max on schedule
-                        SchMin = GetScheduleMinValue(state, thisZoneElectric.SchedPtr);
-                        SchMax = GetScheduleMaxValue(state, thisZoneElectric.SchedPtr);
-                        if (SchMin < 0.0 || SchMax < 0.0) {
-                            if (SchMin < 0.0) {
-                                ShowSevereError(
-                                    state,
-                                    format(
-                                        "{}{}=\"{}\", {}, minimum is < 0.0", RoutineName, elecEqModuleObject, IHGAlphas(1), IHGAlphaFieldNames(3)));
-                                ShowContinueError(state,
-                                                  format("Schedule=\"{}\". Minimum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(3), SchMin));
-                                ErrorsFound = true;
-                            }
-                            if (SchMax < 0.0) {
-                                ShowSevereError(
-                                    state,
-                                    format(
-                                        "{}{}=\"{}\", {}, maximum is < 0.0", RoutineName, elecEqModuleObject, IHGAlphas(1), IHGAlphaFieldNames(3)));
-                                ShowContinueError(state,
-                                                  format("Schedule=\"{}\". Maximum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(3), SchMax));
-                                ErrorsFound = true;
-                            }
-                        }
+                    } else if ((thisZoneElectric.sched = Sched::GetSchedule(state, IHGAlphas(3))) == nullptr) {
+                        ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3));
+                        ErrorsFound = true;
+                    } else if (!thisZoneElectric.sched->checkMinVal(state, Clusive::In, 0.0)) { 
+                        Sched::ShowSevereBadMin(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3), Clusive::In, 0.0);
+                        ErrorsFound = true;
                     }
 
                     // Electric equipment design level calculation method.
@@ -1900,6 +1581,8 @@ namespace InternalHeatGains {
                                                                          IHGAlphaFieldNames,
                                                                          IHGNumericFieldNames);
 
+                ErrorObjectHeader eoh{routineName, gasEqModuleObject, IHGAlphas(1)};
+
                 auto &thisGasEqInput = zoneGasObjects(gasEqInputNum);
                 for (int Item1 = 1; Item1 <= thisGasEqInput.numOfSpaces; ++Item1) {
                     ++gasEqNum;
@@ -1910,57 +1593,21 @@ namespace InternalHeatGains {
                     thisZoneGas.spaceIndex = spaceNum;
                     thisZoneGas.ZonePtr = zoneNum;
 
-                    thisZoneGas.SchedPtr = GetScheduleIndex(state, IHGAlphas(3));
-                    SchMin = 0.0;
-                    SchMax = 0.0;
-                    if (thisZoneGas.SchedPtr == 0) {
-                        if (Item1 == 1) {
-                            if (IHGAlphaFieldBlanks(3)) {
-                                ShowSevereError(
-                                    state,
-                                    format(
-                                        "{}{}=\"{}\", {} is required.", RoutineName, gasEqModuleObject, thisGasEqInput.Name, IHGAlphaFieldNames(3)));
-                            } else {
-                                ShowSevereError(state,
-                                                format("{}{}=\"{}\", invalid {} entered={}",
-                                                       RoutineName,
-                                                       gasEqModuleObject,
-                                                       thisGasEqInput.Name,
-                                                       IHGAlphaFieldNames(3),
-                                                       IHGAlphas(3)));
-                            }
+                    if (!IHGAlphaFieldBlanks(3)) {
+                        thisZoneGas.sched = Sched::GetSchedule(state, IHGAlphas(3));
+                    }
+
+                    // And here for gas, we are guarding with (Item1 == 1) again
+                    if (Item1 == 1) {
+                        if (IHGAlphaFieldBlanks(3)) {
+                            ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(3));
                             ErrorsFound = true;
-                        }
-                    } else { // check min/max on schedule
-                        SchMin = GetScheduleMinValue(state, thisZoneGas.SchedPtr);
-                        SchMax = GetScheduleMaxValue(state, thisZoneGas.SchedPtr);
-                        if (SchMin < 0.0 || SchMax < 0.0) {
-                            if (Item1 == 1) {
-                                if (SchMin < 0.0) {
-                                    ShowSevereError(state,
-                                                    format("{}{}=\"{}\", {}, minimum is < 0.0",
-                                                           RoutineName,
-                                                           gasEqModuleObject,
-                                                           thisGasEqInput.Name,
-                                                           IHGAlphaFieldNames(3)));
-                                    ShowContinueError(state,
-                                                      format("Schedule=\"{}\". Minimum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(3), SchMin));
-                                    ErrorsFound = true;
-                                }
-                            }
-                            if (Item1 == 1) {
-                                if (SchMax < 0.0) {
-                                    ShowSevereError(state,
-                                                    format("{}{}=\"{}\", {}, maximum is < 0.0",
-                                                           RoutineName,
-                                                           gasEqModuleObject,
-                                                           thisGasEqInput.Name,
-                                                           IHGAlphaFieldNames(3)));
-                                    ShowContinueError(state,
-                                                      format("Schedule=\"{}\". Maximum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(3), SchMax));
-                                    ErrorsFound = true;
-                                }
-                            }
+                        } else if (thisZoneGas.sched == nullptr) { 
+                            ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3));
+                            ErrorsFound = true;
+                        } else if (!thisZoneGas.sched->checkMinVal(state, Clusive::In, 0.0)) {
+                            Sched::ShowSevereBadMin(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3), Clusive::In, 0.0);
+                            ErrorsFound = true;
                         }
                     }
 
@@ -2059,14 +1706,7 @@ namespace InternalHeatGains {
 
                         } else {
                             if (Item1 == 1) {
-                                ShowSevereError(state,
-                                                format("{}{}=\"{}\", invalid {}, value  ={}",
-                                                       RoutineName,
-                                                       gasEqModuleObject,
-                                                       thisGasEqInput.Name,
-                                                       IHGAlphaFieldNames(4),
-                                                       IHGAlphas(4)));
-                                ShowContinueError(state, "...Valid values are \"EquipmentLevel\", \"Watts/Area\", \"Watts/Person\".");
+                                ShowSevereInvalidKey(state, eoh, IHGAlphaFieldNames(4), IHGAlphas(4));
                                 ErrorsFound = true;
                             }
                         }
@@ -2171,6 +1811,8 @@ namespace InternalHeatGains {
                                                                          IHGAlphaFieldNames,
                                                                          IHGNumericFieldNames);
 
+                ErrorObjectHeader eoh{routineName, hwEqModuleObject, IHGAlphas(1)};
+
                 auto &thisHWEqInput = hotWaterEqObjects(hwEqInputNum);
                 for (int Item1 = 1; Item1 <= thisHWEqInput.numOfSpaces; ++Item1) {
                     ++hwEqNum;
@@ -2181,51 +1823,15 @@ namespace InternalHeatGains {
                     thisZoneHWEq.spaceIndex = spaceNum;
                     thisZoneHWEq.ZonePtr = zoneNum;
 
-                    thisZoneHWEq.SchedPtr = GetScheduleIndex(state, IHGAlphas(3));
-                    SchMin = 0.0;
-                    SchMax = 0.0;
-                    if (thisZoneHWEq.SchedPtr == 0) {
-                        if (IHGAlphaFieldBlanks(3)) {
-                            ShowSevereError(
-                                state,
-                                format("{}{}=\"{}\", {} is required.", RoutineName, hwEqModuleObject, thisHWEqInput.Name, IHGAlphaFieldNames(3)));
-                        } else {
-                            ShowSevereError(state,
-                                            format("{}{}=\"{}\", invalid {} entered={}",
-                                                   RoutineName,
-                                                   hwEqModuleObject,
-                                                   thisHWEqInput.Name,
-                                                   IHGAlphaFieldNames(3),
-                                                   IHGAlphas(3)));
-                        }
+                    if (IHGAlphaFieldBlanks(3)) {
+                        ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(3));
                         ErrorsFound = true;
-                    } else { // check min/max on schedule
-                        SchMin = GetScheduleMinValue(state, thisZoneHWEq.SchedPtr);
-                        SchMax = GetScheduleMaxValue(state, thisZoneHWEq.SchedPtr);
-                        if (SchMin < 0.0 || SchMax < 0.0) {
-                            if (SchMin < 0.0) {
-                                ShowSevereError(state,
-                                                format("{}{}=\"{}\", {}, minimum is < 0.0",
-                                                       RoutineName,
-                                                       hwEqModuleObject,
-                                                       thisHWEqInput.Name,
-                                                       IHGAlphaFieldNames(3)));
-                                ShowContinueError(state,
-                                                  format("Schedule=\"{}\". Minimum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(3), SchMin));
-                                ErrorsFound = true;
-                            }
-                            if (SchMax < 0.0) {
-                                ShowSevereError(state,
-                                                format("{}{}=\"{}\", {}, maximum is < 0.0",
-                                                       RoutineName,
-                                                       hwEqModuleObject,
-                                                       thisHWEqInput.Name,
-                                                       IHGAlphaFieldNames(3)));
-                                ShowContinueError(state,
-                                                  format("Schedule=\"{}\". Maximum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(3), SchMax));
-                                ErrorsFound = true;
-                            }
-                        }
+                    } else if ((thisZoneHWEq.sched = Sched::GetSchedule(state, IHGAlphas(3))) == nullptr) {
+                        ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3));
+                        ErrorsFound = true;
+                    } else if (!thisZoneHWEq.sched->checkMinVal(state, Clusive::In, 0.0)) {
+                        Sched::ShowSevereBadMin(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3), Clusive::In, 0.0);
+                        ErrorsFound = true;
                     }
 
                     // Hot Water equipment design level calculation method.
@@ -2407,6 +2013,8 @@ namespace InternalHeatGains {
                                                                          IHGAlphaFieldNames,
                                                                          IHGNumericFieldNames);
 
+                ErrorObjectHeader eoh{routineName, stmEqModuleObject, IHGAlphas(1)};
+                
                 auto &thisStmEqInput = steamEqObjects(stmEqInputNum);
                 for (int Item1 = 1; Item1 <= thisStmEqInput.numOfSpaces; ++Item1) {
                     ++stmEqNum;
@@ -2417,51 +2025,15 @@ namespace InternalHeatGains {
                     thisZoneStmEq.spaceIndex = spaceNum;
                     thisZoneStmEq.ZonePtr = zoneNum;
 
-                    thisZoneStmEq.SchedPtr = GetScheduleIndex(state, IHGAlphas(3));
-                    SchMin = 0.0;
-                    SchMax = 0.0;
-                    if (thisZoneStmEq.SchedPtr == 0) {
-                        if (IHGAlphaFieldBlanks(3)) {
-                            ShowSevereError(
-                                state,
-                                format("{}{}=\"{}\", {} is required.", RoutineName, stmEqModuleObject, thisStmEqInput.Name, IHGAlphaFieldNames(3)));
-                        } else {
-                            ShowSevereError(state,
-                                            format("{}{}=\"{}\", invalid {} entered={}",
-                                                   RoutineName,
-                                                   stmEqModuleObject,
-                                                   thisStmEqInput.Name,
-                                                   IHGAlphaFieldNames(3),
-                                                   IHGAlphas(3)));
-                        }
+                    if (IHGAlphaFieldBlanks(3)) {
+                        ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(3));
                         ErrorsFound = true;
-                    } else { // check min/max on schedule
-                        SchMin = GetScheduleMinValue(state, thisZoneStmEq.SchedPtr);
-                        SchMax = GetScheduleMaxValue(state, thisZoneStmEq.SchedPtr);
-                        if (SchMin < 0.0 || SchMax < 0.0) {
-                            if (SchMin < 0.0) {
-                                ShowSevereError(state,
-                                                format("{}{}=\"{}\", {}, minimum is < 0.0",
-                                                       RoutineName,
-                                                       stmEqModuleObject,
-                                                       thisStmEqInput.Name,
-                                                       IHGAlphaFieldNames(3)));
-                                ShowContinueError(state,
-                                                  format("Schedule=\"{}\". Minimum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(3), SchMin));
-                                ErrorsFound = true;
-                            }
-                            if (SchMax < 0.0) {
-                                ShowSevereError(state,
-                                                format("{}{}=\"{}\", {}, maximum is < 0.0",
-                                                       RoutineName,
-                                                       stmEqModuleObject,
-                                                       thisStmEqInput.Name,
-                                                       IHGAlphaFieldNames(3)));
-                                ShowContinueError(state,
-                                                  format("Schedule=\"{}\". Maximum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(3), SchMax));
-                                ErrorsFound = true;
-                            }
-                        }
+                    } else if ((thisZoneStmEq.sched = Sched::GetSchedule(state, IHGAlphas(3))) == nullptr) { 
+                        ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3));
+                        ErrorsFound = true;
+                    } else if (!thisZoneStmEq.sched->checkMinVal(state, Clusive::In, 0.0)) {
+                        Sched::ShowSevereBadMin(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3), Clusive::In, 0.0);
+                        ErrorsFound = true;
                     }
 
                     // Steam equipment design level calculation method.
@@ -2647,6 +2219,8 @@ namespace InternalHeatGains {
                                                                          IHGAlphaFieldNames,
                                                                          IHGNumericFieldNames);
 
+                ErrorObjectHeader eoh{routineName, othEqModuleObject, IHGAlphas(1)};
+                
                 auto &thisOthEqInput = otherEqObjects(othEqInputNum);
                 for (int Item1 = 1; Item1 <= thisOthEqInput.numOfSpaces; ++Item1) {
                     ++othEqNum;
@@ -2700,29 +2274,17 @@ namespace InternalHeatGains {
                         }
                     }
 
-                    thisZoneOthEq.SchedPtr = GetScheduleIndex(state, IHGAlphas(4));
-                    SchMin = 0.0;
-                    SchMax = 0.0;
-                    if (thisZoneOthEq.SchedPtr == 0) {
-                        if (IHGAlphaFieldBlanks(4)) {
-                            ShowSevereError(
-                                state,
-                                format("{}{}=\"{}\", {} is required.", RoutineName, othEqModuleObject, thisOthEqInput.Name, IHGAlphaFieldNames(4)));
-                        } else {
-                            ShowSevereError(state,
-                                            format("{}{}=\"{}\", invalid {} entered={}",
-                                                   RoutineName,
-                                                   othEqModuleObject,
-                                                   thisOthEqInput.Name,
-                                                   IHGAlphaFieldNames(4),
-                                                   IHGAlphas(4)));
-                        }
+                    if (IHGAlphaFieldBlanks(4)) {
+                        ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(4));
                         ErrorsFound = true;
-                    } else { // check min/max on schedule
-                        SchMin = GetScheduleMinValue(state, thisZoneOthEq.SchedPtr);
-                        SchMax = GetScheduleMaxValue(state, thisZoneOthEq.SchedPtr);
+                    } else if ((thisZoneOthEq.sched = Sched::GetSchedule(state, IHGAlphas(4))) == nullptr) { 
+                        ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(4), IHGAlphas(4));
+                        ErrorsFound = true;
+                    } else if (!thisZoneOthEq.sched->checkMinVal(state, Clusive::In, 0.0)) { 
+                        Sched::ShowSevereBadMin(state, eoh, IHGAlphaFieldNames(4), IHGAlphas(4), Clusive::In, 0.0);
+                        ErrorsFound = true;
                     }
-
+                    
                     // equipment design level calculation method.
                     unsigned int DesignLevelFieldNumber;
                     {
@@ -2926,6 +2488,8 @@ namespace InternalHeatGains {
                                                                          IHGAlphaFieldNames,
                                                                          IHGNumericFieldNames);
 
+                ErrorObjectHeader eoh{routineName, itEqModuleObject, IHGAlphas(1)};
+
                 auto &thisITEqInput = iTEqObjects(itEqInputNum);
                 for (int Item1 = 1; Item1 <= thisITEqInput.numOfSpaces; ++Item1) {
                     ++itEqNum;
@@ -3041,85 +2605,23 @@ namespace InternalHeatGains {
                         }
 
                         if (IHGAlphaFieldBlanks(5)) {
-                            thisZoneITEq.OperSchedPtr = ScheduleManager::ScheduleAlwaysOn;
-                        } else {
-                            thisZoneITEq.OperSchedPtr = GetScheduleIndex(state, IHGAlphas(5));
-                        }
-                        SchMin = 0.0;
-                        SchMax = 0.0;
-                        if (thisZoneITEq.OperSchedPtr == 0) {
-                            ShowSevereError(state,
-                                            format("{}{}=\"{}\", invalid {} entered={}",
-                                                   RoutineName,
-                                                   itEqModuleObject,
-                                                   IHGAlphas(1),
-                                                   IHGAlphaFieldNames(5),
-                                                   IHGAlphas(5)));
+                            thisZoneITEq.operSched = Sched::GetScheduleAlwaysOn(state);
+                        } else if ((thisZoneITEq.operSched = Sched::GetSchedule(state, IHGAlphas(5))) == nullptr) { 
+                            ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(5), IHGAlphas(5));
                             ErrorsFound = true;
-                        } else { // check min/max on schedule
-                            SchMin = GetScheduleMinValue(state, thisZoneITEq.OperSchedPtr);
-                            SchMax = GetScheduleMaxValue(state, thisZoneITEq.OperSchedPtr);
-                            if (SchMin < 0.0 || SchMax < 0.0) {
-                                if (SchMin < 0.0) {
-                                    ShowSevereError(
-                                        state,
-                                        format(
-                                            "{}{}=\"{}\", {}, minimum is < 0.0", RoutineName, itEqModuleObject, IHGAlphas(1), IHGAlphaFieldNames(5)));
-                                    ShowContinueError(state,
-                                                      format("Schedule=\"{}\". Minimum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(5), SchMin));
-                                    ErrorsFound = true;
-                                }
-                                if (SchMax < 0.0) {
-                                    ShowSevereError(
-                                        state,
-                                        format(
-                                            "{}{}=\"{}\", {}, maximum is < 0.0", RoutineName, itEqModuleObject, IHGAlphas(1), IHGAlphaFieldNames(5)));
-                                    ShowContinueError(state,
-                                                      format("Schedule=\"{}\". Maximum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(5), SchMax));
-                                    ErrorsFound = true;
-                                }
-                            }
+                        } else if (!thisZoneITEq.operSched->checkMinVal(state, Clusive::In, 0.0)) {
+                            Sched::ShowSevereBadMin(state, eoh, IHGAlphaFieldNames(5), IHGAlphas(5), Clusive::In, 0.0);
+                            ErrorsFound = true;
                         }
-
+                        
                         if (IHGAlphaFieldBlanks(6)) {
-                            thisZoneITEq.CPULoadSchedPtr = ScheduleManager::ScheduleAlwaysOn;
-                        } else {
-                            thisZoneITEq.CPULoadSchedPtr = GetScheduleIndex(state, IHGAlphas(6));
-                        }
-                        SchMin = 0.0;
-                        SchMax = 0.0;
-                        if (thisZoneITEq.CPULoadSchedPtr == 0) {
-                            ShowSevereError(state,
-                                            format("{}{}=\"{}\", invalid {} entered={}",
-                                                   RoutineName,
-                                                   itEqModuleObject,
-                                                   IHGAlphas(1),
-                                                   IHGAlphaFieldNames(6),
-                                                   IHGAlphas(6)));
+                            thisZoneITEq.cpuLoadSched = Sched::GetScheduleAlwaysOn(state);
+                        } else if ((thisZoneITEq.cpuLoadSched = Sched::GetSchedule(state, IHGAlphas(6))) == nullptr) { 
+                            ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(6), IHGAlphas(6));
                             ErrorsFound = true;
-                        } else { // check min/max on schedule
-                            SchMin = GetScheduleMinValue(state, thisZoneITEq.CPULoadSchedPtr);
-                            SchMax = GetScheduleMaxValue(state, thisZoneITEq.CPULoadSchedPtr);
-                            if (SchMin < 0.0 || SchMax < 0.0) {
-                                if (SchMin < 0.0) {
-                                    ShowSevereError(
-                                        state,
-                                        format(
-                                            "{}{}=\"{}\", {}, minimum is < 0.0", RoutineName, itEqModuleObject, IHGAlphas(1), IHGAlphaFieldNames(6)));
-                                    ShowContinueError(state,
-                                                      format("Schedule=\"{}\". Minimum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(6), SchMin));
-                                    ErrorsFound = true;
-                                }
-                                if (SchMax < 0.0) {
-                                    ShowSevereError(
-                                        state,
-                                        format(
-                                            "{}{}=\"{}\", {}, maximum is < 0.0", RoutineName, itEqModuleObject, IHGAlphas(1), IHGAlphaFieldNames(6)));
-                                    ShowContinueError(state,
-                                                      format("Schedule=\"{}\". Maximum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(6), SchMax));
-                                    ErrorsFound = true;
-                                }
-                            }
+                        } else if (!thisZoneITEq.cpuLoadSched->checkMinVal(state, Clusive::In, 0.0)) {
+                            Sched::ShowSevereBadMin(state, eoh, IHGAlphaFieldNames(6), IHGAlphas(6), Clusive::In, 0.0);
+                            ErrorsFound = true;
                         }
 
                         // Calculate nominal min/max equipment level
@@ -3287,54 +2789,32 @@ namespace InternalHeatGains {
                             thisZoneITEq.EndUseSubcategoryUPS = "ITE-UPS";
                         }
                         if (thisZoneITEq.FlowControlWithApproachTemps) {
-                            if (!IHGAlphaFieldBlanks(20)) {
-                                thisZoneITEq.SupplyApproachTempSch = GetScheduleIndex(state, IHGAlphas(20));
-                                if (thisZoneITEq.SupplyApproachTempSch == 0) {
-                                    ShowSevereError(state,
-                                                    format("{}{}=\"{}\", invalid {} entered={}",
-                                                           RoutineName,
-                                                           itEqModuleObject,
-                                                           IHGAlphas(1),
-                                                           IHGAlphaFieldNames(20),
-                                                           IHGAlphas(20)));
-                                    ErrorsFound = true;
-                                }
-                            } else {
+                            if (IHGAlphaFieldBlanks(20)) {
                                 if (!hasSupplyApproachTemp) {
-                                    ShowSevereError(state, format("{}{} \"{}\"", RoutineName, itEqModuleObject, IHGAlphas(1)));
-                                    ShowContinueError(
-                                        state,
+                                    ShowSevereCustom(state, eoh, 
                                         format("For {}= FlowControlWithApproachTemperatures, either {} or {} is required, but both are left blank.",
                                                IHGAlphaFieldNames(3),
                                                IHGNumericFieldNames(10),
                                                IHGAlphaFieldNames(20)));
                                     ErrorsFound = true;
                                 }
-                            }
+                            } else if ((thisZoneITEq.supplyApproachTempSched = Sched::GetSchedule(state, IHGAlphas(20))) == nullptr) {
+                                ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(20), IHGAlphas(20));
+                                ErrorsFound = true;
+                            } 
 
-                            if (!IHGAlphaFieldBlanks(21)) {
-                                thisZoneITEq.ReturnApproachTempSch = GetScheduleIndex(state, IHGAlphas(21));
-                                if (thisZoneITEq.ReturnApproachTempSch == 0) {
-                                    ShowSevereError(state,
-                                                    format("{}{}=\"{}\", invalid {} entered={}",
-                                                           RoutineName,
-                                                           itEqModuleObject,
-                                                           IHGAlphas(1),
-                                                           IHGAlphaFieldNames(20),
-                                                           IHGAlphas(20)));
-                                    ErrorsFound = true;
-                                }
-                            } else {
+                            if (IHGAlphaFieldBlanks(21)) {
                                 if (!hasReturnApproachTemp) {
-                                    ShowSevereError(state, format("{}{} \"{}\"", RoutineName, itEqModuleObject, IHGAlphas(1)));
-                                    ShowContinueError(
-                                        state,
+                                    ShowSevereCustom(state, eoh, 
                                         format("For {}= FlowControlWithApproachTemperatures, either {} or {} is required, but both are left blank.",
                                                IHGAlphaFieldNames(3),
                                                IHGNumericFieldNames(11),
                                                IHGAlphaFieldNames(21)));
                                     ErrorsFound = true;
                                 }
+                            } else if ((thisZoneITEq.returnApproachTempSched = Sched::GetSchedule(state, IHGAlphas(21))) == nullptr) { 
+                                ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(20), IHGAlphas(20));
+                                ErrorsFound = true;
                             }
                         }
 
@@ -3409,6 +2889,8 @@ namespace InternalHeatGains {
                                                                          IHGAlphaFieldNames,
                                                                          IHGNumericFieldNames);
 
+                ErrorObjectHeader eoh{routineName, bbModuleObject, IHGAlphas(1)};
+
                 auto &thisBBHeatInput = zoneBBHeatObjects(bbHeatInputNum);
                 for (int Item1 = 1; Item1 <= thisBBHeatInput.numOfSpaces; ++Item1) {
                     ++bbHeatNum;
@@ -3419,49 +2901,15 @@ namespace InternalHeatGains {
                     thisZoneBBHeat.spaceIndex = spaceNum;
                     thisZoneBBHeat.ZonePtr = zoneNum;
 
-                    thisZoneBBHeat.SchedPtr = GetScheduleIndex(state, IHGAlphas(3));
-                    if (thisZoneBBHeat.SchedPtr == 0) {
-                        if (IHGAlphaFieldBlanks(3)) {
-                            ShowSevereError(
-                                state,
-                                format("{}{}=\"{}\", {} is required.", RoutineName, bbModuleObject, thisBBHeatInput.Name, IHGAlphaFieldNames(3)));
-                        } else {
-                            ShowSevereError(state,
-                                            format("{}{}=\"{}\", invalid {} entered={}",
-                                                   RoutineName,
-                                                   bbModuleObject,
-                                                   thisBBHeatInput.Name,
-                                                   IHGAlphaFieldNames(3),
-                                                   IHGAlphas(3)));
-                        }
+                    if (IHGAlphaFieldBlanks(3)) {
+                        ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(3));
                         ErrorsFound = true;
-                    } else { // check min/max on schedule
-                        SchMin = GetScheduleMinValue(state, thisZoneBBHeat.SchedPtr);
-                        SchMax = GetScheduleMaxValue(state, thisZoneBBHeat.SchedPtr);
-                        if (SchMin < 0.0 || SchMax < 0.0) {
-                            if (SchMin < 0.0) {
-                                ShowSevereError(state,
-                                                format("{}{}=\"{}\", {}, minimum is < 0.0",
-                                                       RoutineName,
-                                                       bbModuleObject,
-                                                       thisBBHeatInput.Name,
-                                                       IHGAlphaFieldNames(3)));
-                                ShowContinueError(state,
-                                                  format("Schedule=\"{}\". Minimum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(3), SchMin));
-                                ErrorsFound = true;
-                            }
-                            if (SchMax < 0.0) {
-                                ShowSevereError(state,
-                                                format("{}{}=\"{}\", {}, maximum is < 0.0",
-                                                       RoutineName,
-                                                       bbModuleObject,
-                                                       thisBBHeatInput.Name,
-                                                       IHGAlphaFieldNames(3)));
-                                ShowContinueError(state,
-                                                  format("Schedule=\"{}\". Maximum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(3), SchMax));
-                                ErrorsFound = true;
-                            }
-                        }
+                    } else if ((thisZoneBBHeat.sched = Sched::GetSchedule(state, IHGAlphas(3))) == nullptr) { 
+                        ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3));
+                        ErrorsFound = true;
+                    } else if (!thisZoneBBHeat.sched->checkMinVal(state, Clusive::In, 0.0)) {
+                        Sched::ShowSevereBadMin(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3), Clusive::In, 0.0);
+                        ErrorsFound = true;
                     }
 
                     if (IHGNumAlphas > 3) {
@@ -3550,6 +2998,8 @@ namespace InternalHeatGains {
                                                                      IHGAlphaFieldBlanks,
                                                                      IHGAlphaFieldNames,
                                                                      IHGNumericFieldNames);
+
+            ErrorObjectHeader eoh{routineName, contamSSModuleObject, IHGAlphas(1)};
             Util::IsNameEmpty(state, IHGAlphas(1), contamSSModuleObject, ErrorsFound);
 
             state.dataHeatBal->ZoneCO2Gen(Loop).Name = IHGAlphas(1);
@@ -3563,40 +3013,15 @@ namespace InternalHeatGains {
                 ErrorsFound = true;
             }
 
-            state.dataHeatBal->ZoneCO2Gen(Loop).SchedPtr = GetScheduleIndex(state, IHGAlphas(3));
-            if (state.dataHeatBal->ZoneCO2Gen(Loop).SchedPtr == 0) {
-                if (IHGAlphaFieldBlanks(3)) {
-                    ShowSevereError(state,
-                                    format("{}{}=\"{}\", {} is required.", RoutineName, contamSSModuleObject, IHGAlphas(1), IHGAlphaFieldNames(3)));
-                } else {
-                    ShowSevereError(state,
-                                    format("{}{}=\"{}\", invalid {} entered={}",
-                                           RoutineName,
-                                           contamSSModuleObject,
-                                           IHGAlphas(1),
-                                           IHGAlphaFieldNames(3),
-                                           IHGAlphas(3)));
-                }
+            if (IHGAlphaFieldBlanks(3)) {
+                ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(3));
                 ErrorsFound = true;
-            } else { // check min/max on schedule
-                SchMin = GetScheduleMinValue(state, state.dataHeatBal->ZoneCO2Gen(Loop).SchedPtr);
-                SchMax = GetScheduleMaxValue(state, state.dataHeatBal->ZoneCO2Gen(Loop).SchedPtr);
-                if (SchMin < 0.0 || SchMax < 0.0) {
-                    if (SchMin < 0.0) {
-                        ShowSevereError(
-                            state,
-                            format("{}{}=\"{}\", {}, minimum is < 0.0", RoutineName, contamSSModuleObject, IHGAlphas(1), IHGAlphaFieldNames(3)));
-                        ShowContinueError(state, format("Schedule=\"{}\". Minimum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(3), SchMin));
-                        ErrorsFound = true;
-                    }
-                    if (SchMax < 0.0) {
-                        ShowSevereError(
-                            state,
-                            format("{}{}=\"{}\", {}, maximum is < 0.0", RoutineName, contamSSModuleObject, IHGAlphas(1), IHGAlphaFieldNames(3)));
-                        ShowContinueError(state, format("Schedule=\"{}\". Maximum is [{:.1R}]. Values must be >= 0.0.", IHGAlphas(3), SchMax));
-                        ErrorsFound = true;
-                    }
-                }
+            } else if ((state.dataHeatBal->ZoneCO2Gen(Loop).sched = Sched::GetSchedule(state, IHGAlphas(3))) == nullptr) { 
+                ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3));
+                ErrorsFound = true;
+            } else if (!state.dataHeatBal->ZoneCO2Gen(Loop).sched->checkMinVal(state, Clusive::In, 0.0)) { 
+                Sched::ShowSevereBadMin(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3), Clusive::In, 0.0);
+                ErrorsFound = true;
             }
 
             state.dataHeatBal->ZoneCO2Gen(Loop).CO2DesignRate = IHGNumbers(1);
@@ -3642,7 +3067,6 @@ namespace InternalHeatGains {
         if (ErrorsFound) {
             ShowFatalError(state, format("{}Errors found in Getting Internal Gains Input, Program Stopped", RoutineName));
         }
-
         setupIHGOutputs(state);
 
         static constexpr std::string_view Format_721(
@@ -3754,7 +3178,7 @@ namespace InternalHeatGains {
                   Format_722,
                   "People",
                   state.dataHeatBal->People(Loop).Name,
-                  GetScheduleName(state, state.dataHeatBal->People(Loop).NumberOfPeoplePtr),
+                  state.dataHeatBal->People(Loop).numberOfPeopleSched->Name,
                   state.dataHeatBal->Zone(ZoneNum).Name,
                   state.dataHeatBal->Zone(ZoneNum).FloorArea,
                   state.dataHeatBal->Zone(ZoneNum).TotOccupants);
@@ -3776,7 +3200,7 @@ namespace InternalHeatGains {
             } else {
                 print(state.files.eio, "{:.3R},", state.dataHeatBal->People(Loop).UserSpecSensFrac);
             }
-            print(state.files.eio, "{},", GetScheduleName(state, state.dataHeatBal->People(Loop).ActivityLevelPtr));
+            print(state.files.eio, "{},", state.dataHeatBal->People(Loop).activityLevelSched->Name);
 
             if (state.dataHeatBal->People(Loop).Show55Warning) {
                 print(state.files.eio, "Yes,");
@@ -3789,22 +3213,22 @@ namespace InternalHeatGains {
 
             auto &thisPeople = state.dataHeatBal->People(Loop);
             // weekdays
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, thisPeople.NumberOfPeoplePtr, DayTypeGroup::Weekday);
+            std::tie(SchMin, SchMax) = thisPeople.numberOfPeopleSched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
             print(state.files.eio, "{:.1R},", thisPeople.NumberOfPeople * SchMin);
             print(state.files.eio, "{:.1R},", thisPeople.NumberOfPeople * SchMax);
 
             // weekends/holidays
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, thisPeople.NumberOfPeoplePtr, DayTypeGroup::WeekEndHoliday);
+            std::tie(SchMin, SchMax) = thisPeople.numberOfPeopleSched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WeekEndHoliday);
             print(state.files.eio, "{:.1R},", thisPeople.NumberOfPeople * SchMin);
             print(state.files.eio, "{:.1R},", thisPeople.NumberOfPeople * SchMax);
 
             // summer design days
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, thisPeople.NumberOfPeoplePtr, DayTypeGroup::SummerDesignDay);
+            std::tie(SchMin, SchMax) = thisPeople.numberOfPeopleSched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::SummerDesignDay);
             print(state.files.eio, "{:.1R},", thisPeople.NumberOfPeople * SchMin);
             print(state.files.eio, "{:.1R},", thisPeople.NumberOfPeople * SchMax);
 
             // winter design days
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, thisPeople.NumberOfPeoplePtr, DayTypeGroup::WinterDesignDay);
+            std::tie(SchMin, SchMax) = thisPeople.numberOfPeopleSched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WinterDesignDay);
             print(state.files.eio, "{:.1R},", thisPeople.NumberOfPeople * SchMin);
             print(state.files.eio, "{:.1R},", thisPeople.NumberOfPeople * SchMax);
 
@@ -3820,18 +3244,18 @@ namespace InternalHeatGains {
                 } else {
                     print(state.files.eio, "N/A,");
                 }
-                print(state.files.eio, "{},", GetScheduleName(state, state.dataHeatBal->People(Loop).WorkEffPtr));
+                print(state.files.eio, "{},", state.dataHeatBal->People(Loop).workEffSched->Name);
 
                 print(state.files.eio, clothingTypeEIOStrings[static_cast<int>(state.dataHeatBal->People(Loop).clothingType)]);
 
                 if (state.dataHeatBal->People(Loop).clothingType == ClothingType::CalculationSchedule) {
-                    print(state.files.eio, "{},", GetScheduleName(state, state.dataHeatBal->People(Loop).ClothingMethodPtr));
+                    print(state.files.eio, "{},", state.dataHeatBal->People(Loop).clothingMethodSched->Name);
                 } else {
                     print(state.files.eio, "N/A,");
                 }
 
-                print(state.files.eio, "{},", GetScheduleName(state, state.dataHeatBal->People(Loop).ClothingPtr));
-                print(state.files.eio, "{},", GetScheduleName(state, state.dataHeatBal->People(Loop).AirVelocityPtr));
+                print(state.files.eio, "{},", state.dataHeatBal->People(Loop).clothingSched->Name);
+                print(state.files.eio, "{},", state.dataHeatBal->People(Loop).airVelocitySched->Name);
 
                 if (state.dataHeatBal->People(Loop).Fanger) {
                     print(state.files.eio, "Yes,");
@@ -3862,6 +3286,7 @@ namespace InternalHeatGains {
                 print(state.files.eio, "\n");
             }
         }
+
         for (int Loop = 1; Loop <= state.dataHeatBal->TotLights; ++Loop) {
             if (Loop == 1) {
                 print(state.files.eio,
@@ -3886,7 +3311,7 @@ namespace InternalHeatGains {
                   Format_722,
                   "Lights",
                   state.dataHeatBal->Lights(Loop).Name,
-                  GetScheduleName(state, state.dataHeatBal->Lights(Loop).SchedPtr),
+                  state.dataHeatBal->Lights(Loop).sched->Name,
                   state.dataHeatBal->Zone(ZoneNum).Name,
                   state.dataHeatBal->Zone(ZoneNum).FloorArea,
                   state.dataHeatBal->Zone(ZoneNum).TotOccupants);
@@ -3907,25 +3332,26 @@ namespace InternalHeatGains {
 
             auto &light = state.dataHeatBal->Lights(Loop);
             // weekdays
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, light.SchedPtr, DayTypeGroup::Weekday);
+            std::tie(SchMin, SchMax) = light.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
             print(state.files.eio, "{:.3R},", light.DesignLevel * SchMin);
             print(state.files.eio, "{:.1R},", light.DesignLevel * SchMax);
 
             // weekends/holidays
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, light.SchedPtr, DayTypeGroup::WeekEndHoliday);
+            std::tie(SchMin, SchMax) = light.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WeekEndHoliday);
             print(state.files.eio, "{:.3R},", light.DesignLevel * SchMin);
             print(state.files.eio, "{:.3R},", light.DesignLevel * SchMax);
 
             // summer design days
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, light.SchedPtr, DayTypeGroup::SummerDesignDay);
+            std::tie(SchMin, SchMax) = light.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::SummerDesignDay);
             print(state.files.eio, "{:.3R},", light.DesignLevel * SchMin);
             print(state.files.eio, "{:.3R},", light.DesignLevel * SchMax);
 
             // winter design days
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, light.SchedPtr, DayTypeGroup::WinterDesignDay);
+            std::tie(SchMin, SchMax) = light.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WinterDesignDay);
             print(state.files.eio, "{:.3R},", light.DesignLevel * SchMin);
             print(state.files.eio, "{:.3R}\n", light.DesignLevel * SchMax);
         }
+
         for (int Loop = 1; Loop <= state.dataHeatBal->TotElecEquip; ++Loop) {
             if (Loop == 1) {
                 print(state.files.eio,
@@ -3950,7 +3376,7 @@ namespace InternalHeatGains {
                   Format_722,
                   "ElectricEquipment",
                   state.dataHeatBal->ZoneElectric(Loop).Name,
-                  GetScheduleName(state, state.dataHeatBal->ZoneElectric(Loop).SchedPtr),
+                  state.dataHeatBal->ZoneElectric(Loop).sched->Name,
                   state.dataHeatBal->Zone(ZoneNum).Name,
                   state.dataHeatBal->Zone(ZoneNum).FloorArea,
                   state.dataHeatBal->Zone(ZoneNum).TotOccupants);
@@ -3970,22 +3396,22 @@ namespace InternalHeatGains {
 
             auto &electric = state.dataHeatBal->ZoneElectric(Loop);
             // weekdays
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, electric.SchedPtr, DayTypeGroup::Weekday);
+            std::tie(SchMin, SchMax) = electric.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
             print(state.files.eio, "{:.3R},", electric.DesignLevel * SchMin);
             print(state.files.eio, "{:.3R},", electric.DesignLevel * SchMax);
 
             // weekends/holidays
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, electric.SchedPtr, DayTypeGroup::WeekEndHoliday);
+            std::tie(SchMin, SchMax) = electric.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WeekEndHoliday);
             print(state.files.eio, "{:.3R},", electric.DesignLevel * SchMin);
             print(state.files.eio, "{:.3R},", electric.DesignLevel * SchMax);
 
             // summer design days
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, electric.SchedPtr, DayTypeGroup::SummerDesignDay);
+            std::tie(SchMin, SchMax) = electric.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::SummerDesignDay);
             print(state.files.eio, "{:.3R},", electric.DesignLevel * SchMin);
             print(state.files.eio, "{:.3R},", electric.DesignLevel * SchMax);
 
             // winter design days
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, electric.SchedPtr, DayTypeGroup::WinterDesignDay);
+            std::tie(SchMin, SchMax) = electric.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WinterDesignDay);
             print(state.files.eio, "{:.3R},", electric.DesignLevel * SchMin);
             print(state.files.eio, "{:.3R}\n", electric.DesignLevel * SchMax);
         }
@@ -4014,7 +3440,7 @@ namespace InternalHeatGains {
                   Format_722,
                   "GasEquipment",
                   state.dataHeatBal->ZoneGas(Loop).Name,
-                  GetScheduleName(state, state.dataHeatBal->ZoneGas(Loop).SchedPtr),
+                  state.dataHeatBal->ZoneGas(Loop).sched->Name,
                   state.dataHeatBal->Zone(ZoneNum).Name,
                   state.dataHeatBal->Zone(ZoneNum).FloorArea,
                   state.dataHeatBal->Zone(ZoneNum).TotOccupants);
@@ -4034,22 +3460,22 @@ namespace InternalHeatGains {
 
             auto &gas = state.dataHeatBal->ZoneGas(Loop);
             // weekdays
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, gas.SchedPtr, DayTypeGroup::Weekday);
+            std::tie(SchMin, SchMax) = gas.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
             print(state.files.eio, "{:.3R},", gas.DesignLevel * SchMin);
             print(state.files.eio, "{:.3R},", gas.DesignLevel * SchMax);
 
             // weekends/holidays
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, gas.SchedPtr, DayTypeGroup::WeekEndHoliday);
+            std::tie(SchMin, SchMax) = gas.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WeekEndHoliday);
             print(state.files.eio, "{:.3R},", gas.DesignLevel * SchMin);
             print(state.files.eio, "{:.3R},", gas.DesignLevel * SchMax);
 
             // summer design days
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, gas.SchedPtr, DayTypeGroup::SummerDesignDay);
+            std::tie(SchMin, SchMax) = gas.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::SummerDesignDay);
             print(state.files.eio, "{:.3R},", gas.DesignLevel * SchMin);
             print(state.files.eio, "{:.3R},", gas.DesignLevel * SchMax);
 
             // winter design days
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, gas.SchedPtr, DayTypeGroup::WinterDesignDay);
+            std::tie(SchMin, SchMax) = gas.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WinterDesignDay);
             print(state.files.eio, "{:.3R},", gas.DesignLevel * SchMin);
             print(state.files.eio, "{:.3R}\n", gas.DesignLevel * SchMax);
         }
@@ -4079,7 +3505,7 @@ namespace InternalHeatGains {
                   Format_722,
                   "HotWaterEquipment",
                   state.dataHeatBal->ZoneHWEq(Loop).Name,
-                  GetScheduleName(state, state.dataHeatBal->ZoneHWEq(Loop).SchedPtr),
+                  state.dataHeatBal->ZoneHWEq(Loop).sched->Name,
                   state.dataHeatBal->Zone(ZoneNum).Name,
                   state.dataHeatBal->Zone(ZoneNum).FloorArea,
                   state.dataHeatBal->Zone(ZoneNum).TotOccupants);
@@ -4099,22 +3525,22 @@ namespace InternalHeatGains {
 
             auto &hweq = state.dataHeatBal->ZoneHWEq(Loop);
             // weekdays
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, hweq.SchedPtr, DayTypeGroup::Weekday);
+            std::tie(SchMin, SchMax) = hweq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
             print(state.files.eio, "{:.3R},", hweq.DesignLevel * SchMin);
             print(state.files.eio, "{:.3R},", hweq.DesignLevel * SchMax);
 
             // weekends/holidays
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, hweq.SchedPtr, DayTypeGroup::WeekEndHoliday);
+            std::tie(SchMin, SchMax) = hweq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WeekEndHoliday);
             print(state.files.eio, "{:.3R},", hweq.DesignLevel * SchMin);
             print(state.files.eio, "{:.3R},", hweq.DesignLevel * SchMax);
 
             // summer design days
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, hweq.SchedPtr, DayTypeGroup::SummerDesignDay);
+            std::tie(SchMin, SchMax) = hweq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::SummerDesignDay);
             print(state.files.eio, "{:.3R},", hweq.DesignLevel * SchMin);
             print(state.files.eio, "{:.3R},", hweq.DesignLevel * SchMax);
 
             // winter design days
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, hweq.SchedPtr, DayTypeGroup::WinterDesignDay);
+            std::tie(SchMin, SchMax) = hweq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WinterDesignDay);
             print(state.files.eio, "{:.3R},", hweq.DesignLevel * SchMin);
             print(state.files.eio, "{:.3R}\n", hweq.DesignLevel * SchMax);
         }
@@ -4144,7 +3570,7 @@ namespace InternalHeatGains {
                   Format_722,
                   "SteamEquipment",
                   state.dataHeatBal->ZoneSteamEq(Loop).Name,
-                  GetScheduleName(state, state.dataHeatBal->ZoneSteamEq(Loop).SchedPtr),
+                  state.dataHeatBal->ZoneSteamEq(Loop).sched->Name,
                   state.dataHeatBal->Zone(ZoneNum).Name,
                   state.dataHeatBal->Zone(ZoneNum).FloorArea,
                   state.dataHeatBal->Zone(ZoneNum).TotOccupants);
@@ -4164,22 +3590,22 @@ namespace InternalHeatGains {
 
             auto &stmeq = state.dataHeatBal->ZoneSteamEq(Loop);
             // weekdays
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, stmeq.SchedPtr, DayTypeGroup::Weekday);
+            std::tie(SchMin, SchMax) = stmeq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
             print(state.files.eio, "{:.3R},", stmeq.DesignLevel * SchMin);
             print(state.files.eio, "{:.3R},", stmeq.DesignLevel * SchMax);
 
             // weekends/holidays
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, stmeq.SchedPtr, DayTypeGroup::WeekEndHoliday);
+            std::tie(SchMin, SchMax) = stmeq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WeekEndHoliday);
             print(state.files.eio, "{:.3R},", stmeq.DesignLevel * SchMin);
             print(state.files.eio, "{:.3R},", stmeq.DesignLevel * SchMax);
 
             // summer design days
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, stmeq.SchedPtr, DayTypeGroup::SummerDesignDay);
+            std::tie(SchMin, SchMax) = stmeq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::SummerDesignDay);
             print(state.files.eio, "{:.3R},", stmeq.DesignLevel * SchMin);
             print(state.files.eio, "{:.3R},", stmeq.DesignLevel * SchMax);
 
             // winter design days
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, stmeq.SchedPtr, DayTypeGroup::WinterDesignDay);
+            std::tie(SchMin, SchMax) = stmeq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WinterDesignDay);
             print(state.files.eio, "{:.3R},", stmeq.DesignLevel * SchMin);
             print(state.files.eio, "{:.3R}\n", stmeq.DesignLevel * SchMax);
         }
@@ -4209,7 +3635,7 @@ namespace InternalHeatGains {
                   Format_722,
                   "OtherEquipment",
                   state.dataHeatBal->ZoneOtherEq(Loop).Name,
-                  GetScheduleName(state, state.dataHeatBal->ZoneOtherEq(Loop).SchedPtr),
+                  state.dataHeatBal->ZoneOtherEq(Loop).sched->Name,
                   state.dataHeatBal->Zone(ZoneNum).Name,
                   state.dataHeatBal->Zone(ZoneNum).FloorArea,
                   state.dataHeatBal->Zone(ZoneNum).TotOccupants);
@@ -4228,22 +3654,22 @@ namespace InternalHeatGains {
 
             auto &other = state.dataHeatBal->ZoneOtherEq(Loop);
             // weekdays
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, other.SchedPtr, DayTypeGroup::Weekday);
+            std::tie(SchMin, SchMax) = other.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
             print(state.files.eio, "{:.3R},", other.DesignLevel * SchMin);
             print(state.files.eio, "{:.3R},", other.DesignLevel * SchMax);
 
             // weekends/holidays
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, other.SchedPtr, DayTypeGroup::WeekEndHoliday);
+            std::tie(SchMin, SchMax) = other.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WeekEndHoliday);
             print(state.files.eio, "{:.3R},", other.DesignLevel * SchMin);
             print(state.files.eio, "{:.3R},", other.DesignLevel * SchMax);
 
             // summer design days
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, other.SchedPtr, DayTypeGroup::SummerDesignDay);
+            std::tie(SchMin, SchMax) = other.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::SummerDesignDay);
             print(state.files.eio, "{:.3R},", other.DesignLevel * SchMin);
             print(state.files.eio, "{:.3R},", other.DesignLevel * SchMax);
 
             // winter design days
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, other.SchedPtr, DayTypeGroup::WinterDesignDay);
+            std::tie(SchMin, SchMax) = other.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WinterDesignDay);
             print(state.files.eio, "{:.3R},", other.DesignLevel * SchMin);
             print(state.files.eio, "{:.3R}\n", other.DesignLevel * SchMax);
         }
@@ -4274,7 +3700,7 @@ namespace InternalHeatGains {
                   Format_722,
                   "ElectricEquipment:ITE:AirCooled",
                   state.dataHeatBal->ZoneITEq(Loop).Name,
-                  GetScheduleName(state, state.dataHeatBal->ZoneITEq(Loop).OperSchedPtr),
+                  state.dataHeatBal->ZoneITEq(Loop).operSched->Name,
                   state.dataHeatBal->Zone(ZoneNum).Name,
                   state.dataHeatBal->Zone(ZoneNum).FloorArea,
                   state.dataHeatBal->Zone(ZoneNum).TotOccupants);
@@ -4295,22 +3721,22 @@ namespace InternalHeatGains {
 
             auto &iteq = state.dataHeatBal->ZoneITEq(Loop);
             // weekdays
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, iteq.OperSchedPtr, DayTypeGroup::Weekday);
+            std::tie(SchMin, SchMax) = iteq.operSched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
             print(state.files.eio, "{:.3R},", iteq.DesignTotalPower * SchMin);
             print(state.files.eio, "{:.3R},", iteq.DesignTotalPower * SchMax);
 
             // weekends/holidays
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, iteq.OperSchedPtr, DayTypeGroup::WeekEndHoliday);
+            std::tie(SchMin, SchMax) = iteq.operSched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WeekEndHoliday);
             print(state.files.eio, "{:.3R},", iteq.DesignTotalPower * SchMin);
             print(state.files.eio, "{:.3R},", iteq.DesignTotalPower * SchMax);
 
             // summer design days
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, iteq.OperSchedPtr, DayTypeGroup::SummerDesignDay);
+            std::tie(SchMin, SchMax) = iteq.operSched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::SummerDesignDay);
             print(state.files.eio, "{:.3R},", iteq.DesignTotalPower * SchMin);
             print(state.files.eio, "{:.3R},", iteq.DesignTotalPower * SchMax);
 
             // winter design days
-            std::tie(SchMin, SchMax) = getScheduleMinMaxByDayType(state, iteq.OperSchedPtr, DayTypeGroup::WinterDesignDay);
+            std::tie(SchMin, SchMax) = iteq.operSched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WinterDesignDay);
             print(state.files.eio, "{:.3R},", iteq.DesignTotalPower * SchMin);
             print(state.files.eio, "{:.3R},", iteq.DesignTotalPower * SchMax);
 
@@ -4339,7 +3765,7 @@ namespace InternalHeatGains {
                   Format_722,
                   "Outdoor Controlled Baseboard Heat",
                   state.dataHeatBal->ZoneBBHeat(Loop).Name,
-                  GetScheduleName(state, state.dataHeatBal->ZoneBBHeat(Loop).SchedPtr),
+                  state.dataHeatBal->ZoneBBHeat(Loop).sched->Name,
                   state.dataHeatBal->Zone(ZoneNum).Name,
                   state.dataHeatBal->Zone(ZoneNum).FloorArea,
                   state.dataHeatBal->Zone(ZoneNum).TotOccupants);
@@ -7356,7 +6782,6 @@ namespace InternalHeatGains {
         // that are independent of the zone air temperature.
 
         // Using/Aliasing
-        using namespace ScheduleManager;
         using Dayltg::FigureTDDZoneGains;
         using FuelCellElectricGenerator::FigureFuelCellZoneGains;
         using MicroCHPElectricGenerator::FigureMicroCHPZoneGains;
@@ -7540,7 +6965,7 @@ namespace InternalHeatGains {
             int NZ = state.dataHeatBal->People(Loop).ZonePtr;
             int spaceNum = thisPeople.spaceIndex;
             auto &thisSpaceHB = state.dataZoneTempPredictorCorrector->spaceHeatBalance(spaceNum);
-            NumberOccupants = thisPeople.NumberOfPeople * GetCurrentScheduleValue(state, thisPeople.NumberOfPeoplePtr);
+            NumberOccupants = thisPeople.NumberOfPeople * thisPeople.numberOfPeopleSched->getCurrentVal();
             if (thisPeople.EMSPeopleOn) NumberOccupants = thisPeople.EMSNumberOfPeople;
 
             TotalPeopleGain = 0.0;
@@ -7548,7 +6973,7 @@ namespace InternalHeatGains {
 
             auto &thisZoneRep = state.dataHeatBal->ZonePreDefRep(NZ);
             if (NumberOccupants > 0.0) {
-                ActivityLevel_WperPerson = GetCurrentScheduleValue(state, thisPeople.ActivityLevelPtr);
+                ActivityLevel_WperPerson = thisPeople.activityLevelSched->getCurrentVal();
                 TotalPeopleGain = NumberOccupants * ActivityLevel_WperPerson;
                 // if the user did not specify a sensible fraction, calculate the sensible heat gain
                 if (thisPeople.UserSpecSensFrac == Constant::AutoCalculate) {
@@ -7600,7 +7025,7 @@ namespace InternalHeatGains {
             auto &thisLights = state.dataHeatBal->Lights(Loop);
             int NZ = thisLights.ZonePtr;
             int spaceNum = thisLights.spaceIndex;
-            Q = thisLights.DesignLevel * GetCurrentScheduleValue(state, thisLights.SchedPtr);
+            Q = thisLights.DesignLevel * thisLights.sched->getCurrentVal();
 
             if (state.dataDayltg->ZoneDaylight(NZ).totRefPts > 0) {
                 if (thisLights.FractionReplaceable > 0.0) { // FractionReplaceable can only be 0 or 1 for these models
@@ -7660,7 +7085,7 @@ namespace InternalHeatGains {
 
         for (int Loop = 1; Loop <= state.dataHeatBal->TotElecEquip; ++Loop) {
             auto &thisElecEq = state.dataHeatBal->ZoneElectric(Loop);
-            Q = thisElecEq.DesignLevel * GetCurrentScheduleValue(state, thisElecEq.SchedPtr);
+            Q = thisElecEq.DesignLevel * thisElecEq.sched->getCurrentVal();
 
             // Reduce equipment power due to demand limiting
             if (thisElecEq.ManageDemand && (Q > thisElecEq.DemandLimit)) Q = thisElecEq.DemandLimit;
@@ -7685,7 +7110,7 @@ namespace InternalHeatGains {
 
         for (int Loop = 1; Loop <= state.dataHeatBal->TotGasEquip; ++Loop) {
             auto &thisGasEq = state.dataHeatBal->ZoneGas(Loop);
-            Q = thisGasEq.DesignLevel * GetCurrentScheduleValue(state, thisGasEq.SchedPtr);
+            Q = thisGasEq.DesignLevel * thisGasEq.sched->getCurrentVal();
 
             // Set Q to EMS override if being called for by EMs
             if (thisGasEq.EMSZoneEquipOverrideOn) Q = thisGasEq.EMSEquipPower;
@@ -7708,7 +7133,7 @@ namespace InternalHeatGains {
 
         for (int Loop = 1; Loop <= state.dataHeatBal->TotOthEquip; ++Loop) {
             auto &thisOtherEq = state.dataHeatBal->ZoneOtherEq(Loop);
-            Q = thisOtherEq.DesignLevel * GetCurrentScheduleValue(state, thisOtherEq.SchedPtr);
+            Q = thisOtherEq.DesignLevel * thisOtherEq.sched->getCurrentVal();
 
             // Set Q to EMS override if being called for by EMs
             if (thisOtherEq.EMSZoneEquipOverrideOn) Q = thisOtherEq.EMSEquipPower;
@@ -7732,7 +7157,7 @@ namespace InternalHeatGains {
 
         for (int Loop = 1; Loop <= state.dataHeatBal->TotHWEquip; ++Loop) {
             auto &thisHWEq = state.dataHeatBal->ZoneHWEq(Loop);
-            Q = thisHWEq.DesignLevel * GetCurrentScheduleValue(state, thisHWEq.SchedPtr);
+            Q = thisHWEq.DesignLevel * thisHWEq.sched->getCurrentVal();
 
             // Set Q to EMS override if being called for by EMs
             if (thisHWEq.EMSZoneEquipOverrideOn) Q = thisHWEq.EMSEquipPower;
@@ -7754,7 +7179,7 @@ namespace InternalHeatGains {
 
         for (int Loop = 1; Loop <= state.dataHeatBal->TotStmEquip; ++Loop) {
             auto &thisSteamEq = state.dataHeatBal->ZoneSteamEq(Loop);
-            Q = thisSteamEq.DesignLevel * GetCurrentScheduleValue(state, thisSteamEq.SchedPtr);
+            Q = thisSteamEq.DesignLevel * thisSteamEq.sched->getCurrentVal();
 
             // Set Q to EMS override if being called for by EMs
             if (thisSteamEq.EMSZoneEquipOverrideOn) Q = thisSteamEq.EMSEquipPower;
@@ -7787,7 +7212,7 @@ namespace InternalHeatGains {
             } else {
                 Q = thisBBHeat.CapatLowTemperature;
             }
-            Q *= GetCurrentScheduleValue(state, thisBBHeat.SchedPtr);
+            Q *= thisBBHeat.sched->getCurrentVal();
 
             // set with EMS value if being called for.
             if (thisBBHeat.EMSZoneBaseboardOverrideOn) Q = thisBBHeat.EMSZoneBaseboardPower;
@@ -7806,7 +7231,7 @@ namespace InternalHeatGains {
         for (int Loop = 1; Loop <= state.dataHeatBal->TotCO2Gen; ++Loop) {
             int NZ = state.dataHeatBal->ZoneCO2Gen(Loop).ZonePtr;
             state.dataHeatBal->ZoneCO2Gen(Loop).CO2GainRate =
-                state.dataHeatBal->ZoneCO2Gen(Loop).CO2DesignRate * GetCurrentScheduleValue(state, state.dataHeatBal->ZoneCO2Gen(Loop).SchedPtr);
+                    state.dataHeatBal->ZoneCO2Gen(Loop).CO2DesignRate * state.dataHeatBal->ZoneCO2Gen(Loop).sched->getCurrentVal();
             state.dataHeatBal->ZoneRpt(NZ).CO2Rate += state.dataHeatBal->ZoneCO2Gen(Loop).CO2GainRate;
         }
 
@@ -7870,7 +7295,7 @@ namespace InternalHeatGains {
                             state.dataInternalHeatGains->adjQL * thisEnclosure.radThermAbsMult * state.dataHeatBalSurf->SurfAbsThermalInt(SurfNum);
                         // store the magnitude and time of the pulse
                         state.dataOutRptTab->radiantPulseTimestep(state.dataSize->CurOverallSimDay, zoneNum) =
-                            (state.dataGlobal->HourOfDay - 1) * state.dataGlobal->NumOfTimeStepInHour + state.dataGlobal->TimeStep;
+                            (state.dataGlobal->HourOfDay - 1) * state.dataGlobal->TimeStepsInHour + state.dataGlobal->TimeStep;
                         state.dataOutRptTab->radiantPulseReceived(state.dataSize->CurOverallSimDay, SurfNum) =
                             (state.dataInternalHeatGains->adjQL - state.dataInternalHeatGains->curQL) * thisEnclosure.radThermAbsMult *
                             state.dataHeatBalSurf->SurfAbsThermalInt(SurfNum) * state.dataSurface->Surface(SurfNum).Area;
@@ -7918,7 +7343,6 @@ namespace InternalHeatGains {
         // This broken into a separate subroutine, because the calculations are more detailed than the other
         // types of internal gains.
 
-        using ScheduleManager::GetCurrentScheduleValue;
         using namespace Psychrometrics;
         using Curve::CurveValue;
         using HVAC::SmallAirVolFlow;
@@ -8057,8 +7481,8 @@ namespace InternalHeatGains {
             NZ = state.dataHeatBal->ZoneITEq(Loop).ZonePtr;
             auto &thisZoneHB = state.dataZoneTempPredictorCorrector->zoneHeatBalance(NZ);
             int spaceNum = state.dataHeatBal->ZoneITEq(Loop).spaceIndex;
-            OperSchedFrac = GetCurrentScheduleValue(state, state.dataHeatBal->ZoneITEq(Loop).OperSchedPtr);
-            CPULoadSchedFrac = GetCurrentScheduleValue(state, state.dataHeatBal->ZoneITEq(Loop).CPULoadSchedPtr);
+            OperSchedFrac = state.dataHeatBal->ZoneITEq(Loop).operSched->getCurrentVal();
+            CPULoadSchedFrac = state.dataHeatBal->ZoneITEq(Loop).cpuLoadSched->getCurrentVal();
 
             // Determine inlet air temperature and humidity
             AirConnection = state.dataHeatBal->ZoneITEq(Loop).AirConnectionType;
@@ -8067,8 +7491,8 @@ namespace InternalHeatGains {
             if (state.dataHeatBal->ZoneITEq(Loop).FlowControlWithApproachTemps) {
                 TSupply = state.dataLoopNodes->Node(SupplyNodeNum).Temp;
                 WSupply = state.dataLoopNodes->Node(SupplyNodeNum).HumRat;
-                if (state.dataHeatBal->ZoneITEq(Loop).SupplyApproachTempSch != 0) {
-                    TAirIn = TSupply + GetCurrentScheduleValue(state, state.dataHeatBal->ZoneITEq(Loop).SupplyApproachTempSch);
+                if (state.dataHeatBal->ZoneITEq(Loop).supplyApproachTempSched != nullptr) {
+                    TAirIn = TSupply + state.dataHeatBal->ZoneITEq(Loop).supplyApproachTempSched->getCurrentVal();
                 } else {
                     TAirIn = TSupply + state.dataHeatBal->ZoneITEq(Loop).SupplyApproachTemp;
                 }
@@ -8113,13 +7537,13 @@ namespace InternalHeatGains {
             if (state.dataGlobal->DoingSizing && state.dataHeatBal->ZoneITEq(Loop).FlowControlWithApproachTemps) {
 
                 TAirInDesign = state.dataHeatBal->ZoneITEq(Loop).SizingTAirIn;
-                if (state.dataHeatBal->ZoneITEq(Loop).SupplyApproachTempSch != 0) {
-                    TAirInDesign = TAirInDesign + GetCurrentScheduleValue(state, state.dataHeatBal->ZoneITEq(Loop).SupplyApproachTempSch);
+                if (state.dataHeatBal->ZoneITEq(Loop).supplyApproachTempSched != nullptr) {
+                    TAirInDesign = TAirInDesign + state.dataHeatBal->ZoneITEq(Loop).supplyApproachTempSched->getCurrentVal();
                 } else {
                     TAirInDesign = TAirInDesign + state.dataHeatBal->ZoneITEq(Loop).SupplyApproachTemp;
                 }
-                OperSchedFrac = GetCurrentScheduleValue(state, state.dataHeatBal->ZoneITEq(Loop).OperSchedPtr);
-                CPULoadSchedFrac = GetCurrentScheduleValue(state, state.dataHeatBal->ZoneITEq(Loop).CPULoadSchedPtr);
+                OperSchedFrac = state.dataHeatBal->ZoneITEq(Loop).operSched->getCurrentVal();
+                CPULoadSchedFrac = state.dataHeatBal->ZoneITEq(Loop).cpuLoadSched->getCurrentVal();
             }
 
             CPUPower = max(state.dataHeatBal->ZoneITEq(Loop).DesignCPUPower * OperSchedFrac *
@@ -8321,9 +7745,9 @@ namespace InternalHeatGains {
                 totalGain = 0;
                 totalRate = 0;
                 for (int i : it->second) {
-                    if (state.dataHeatBal->ZoneITEq(i).ReturnApproachTempSch != 0) {
+                    if (state.dataHeatBal->ZoneITEq(i).returnApproachTempSched != nullptr) {
                         TAirReturn = state.dataHeatBal->ZoneITEq(i).AirOutletDryBulbT +
-                                     GetCurrentScheduleValue(state, state.dataHeatBal->ZoneITEq(i).ReturnApproachTempSch);
+                                state.dataHeatBal->ZoneITEq(i).returnApproachTempSched->getCurrentVal();
                     } else {
                         TAirReturn = state.dataHeatBal->ZoneITEq(i).AirOutletDryBulbT + state.dataHeatBal->ZoneITEq(i).ReturnApproachTemp;
                     }
@@ -9571,7 +8995,7 @@ namespace InternalHeatGains {
                (int)DataHeatBalance::IntGainType::Num);
 
         if (state.dataGlobal->CompLoadReportIsReq && !state.dataGlobal->isPulseZoneSizing) {
-            int TimeStepInDay = (state.dataGlobal->HourOfDay - 1) * state.dataGlobal->NumOfTimeStepInHour + state.dataGlobal->TimeStep;
+            int TimeStepInDay = (state.dataGlobal->HourOfDay - 1) * state.dataGlobal->TimeStepsInHour + state.dataGlobal->TimeStep;
             for (int iZone = 1; iZone <= state.dataGlobal->NumOfZones; ++iZone) {
                 state.dataOutRptTab->peopleInstantSeq(state.dataSize->CurOverallSimDay, TimeStepInDay, iZone) =
                     SumInternalConvectionGainsByTypes(state, iZone, IntGainTypesPeople);
@@ -9748,7 +9172,6 @@ namespace InternalHeatGains {
         }
         return sumReturnAirGainRate;
     }
-
 } // namespace InternalHeatGains
 
 } // namespace EnergyPlus

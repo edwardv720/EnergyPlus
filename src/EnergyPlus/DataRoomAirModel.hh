@@ -195,8 +195,7 @@ namespace RoomAir {
         // Members
         std::string ZoneName = "";       // Name of zone
         int ZonePtr = 0;                 // Pointer to the zone number for this statement
-        int SchedGainsPtr = -1;          // Schedule for internal gain fraction to occupied zone
-        std::string SchedGainsName = ""; // Gains Schedule name
+        Sched::Schedule *gainsSched = nullptr;          // Schedule for internal gain fraction to occupied zone
         Real64 NumPlumesPerOcc = 0.0;    // Effective number of plumes per occupant
         Real64 ThermostatHeight = 0.0;   // Height of thermostat/ temperature control sensor
         Real64 ComfortHeight = 0.0;      // Height at which air temperature is measured for comfort purposes
@@ -208,8 +207,7 @@ namespace RoomAir {
         // Members
         std::string ZoneName = "";              // Name of zone
         int ZonePtr = 0;                        // Pointer to the zone number for this statement
-        int SchedGainsPtr = 0;                  // Schedule for internal gain fraction to occupied zone
-        std::string SchedGainsName = "";        // Gains Schedule name
+        Sched::Schedule *gainsSched = nullptr;                  // Schedule for internal gain fraction to occupied zone
         Comfort VforComfort = Comfort::Invalid; // Use Recirculation or Jet velocity and temperatures
         // for comfort models
     };
@@ -345,10 +343,8 @@ namespace RoomAir {
         std::string Name = "";              // Name
         std::string ZoneName = "";          // Zone name in building
         int ZoneID = 0;                     // Index of Zone in Heat Balance
-        std::string AvailSched = "";        // Name of availability schedule
-        int AvailSchedID = 0;               // index of availability schedule
-        std::string PatternCntrlSched = ""; // name of schedule that selects pattern
-        int PatternSchedID = 0;             // index of pattern selecting schedule
+        Sched::Schedule *availSched = nullptr;               // availability schedule
+        Sched::Schedule *patternSched = nullptr;             // pattern selecting schedule
         // calculated and from elsewhere
         Real64 ZoneHeight = 0.0;      // in meters, from Zone%CeilingHeight
         int ZoneNodeID = 0;           // index in Node array for this zone
@@ -482,8 +478,7 @@ namespace RoomAir {
         std::string ZoneName = "";      // Zone name in building
         int ZoneID = 0;                 // Index of Zone in Heat Balance
         int ActualZoneID = 0;           // Index of controlled zones in ZoneCOnfigure
-        std::string AvailSched = "";    // Name of availability schedule
-        int AvailSchedID = 0;           // index of availability schedule
+        Sched::Schedule *availSched = nullptr;           // index of availability schedule
         int ControlAirNodeID = 0;       // index of roomair node that is HVAC control sensor location
         int NumOfAirNodes = 0;          // Number of air nodes
         Array1D<AFNAirNodeNested> Node; // Node struct
@@ -649,6 +644,10 @@ struct RoomAirModelData : BaseGlobalStruct
     EPVector<RoomAir::TemperaturePattern> AirPattern;                       // user defined patterns ,various types
     EPVector<RoomAir::AirPatternInfobyZone> AirPatternZoneInfo;             // added zone information for user defined patterns
     EPVector<RoomAir::AFNInfoByZone> AFNZoneInfo;                           // added zone info
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

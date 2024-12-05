@@ -98,8 +98,7 @@ namespace HVACMultiSpeedHeatPump {
         // Members
         // Some variables in this type are arrays (dimension=MaxSpeed) to support the number of speeds
         std::string Name;                         // Name of the engine driven heat pump
-        std::string AvaiSchedule;                 // Availability Schedule name
-        int AvaiSchedPtr;                         // Pointer to the correct schedule
+        Sched::Schedule *availSched = nullptr;    // availability schedule
         int AirInletNodeNum;                      // Node number of the heat pump air inlet
         int AirOutletNodeNum;                     // Node number of the heat pump air inlet
         std::string AirInletNodeName;             // Node name of the heat pump air inlet
@@ -117,8 +116,7 @@ namespace HVACMultiSpeedHeatPump {
         int FanInletNode;                         // Fan Inlet node
         int FanOutletNode;                        // Fan Outlet node
         Real64 FanVolFlow;                        // Supply fan volumetric flow rate
-        std::string FanSchedule;                  // Supply air fan operating mode schedule name
-        int FanSchedPtr;                          // Pointer to the Supply air fan operating mode schedule
+        Sched::Schedule *fanOpModeSched = nullptr; // Supply air fan operating mode schedule
         HVAC::FanOp fanOp = HVAC::FanOp::Invalid; // mode of operation; 1=cycling fan, cycling compressor; 2=continuous fan, cycling compresor
         std::string DXHeatCoilName;               // COIL:DX:MultiSpeed:Heating name
         int HeatCoilType;                         // Heating coil type: 1 COIL:DX:MultiSpeed:Heating only
@@ -223,9 +221,9 @@ namespace HVACMultiSpeedHeatPump {
 
         // Default Constructor
         MSHeatPumpData()
-            : AvaiSchedPtr(0), AirInletNodeNum(0), AirOutletNodeNum(0), ControlZoneNum(0), ZoneSequenceCoolingNum(0), ZoneSequenceHeatingNum(0),
+            : AirInletNodeNum(0), AirOutletNodeNum(0), ControlZoneNum(0), ZoneSequenceCoolingNum(0), ZoneSequenceHeatingNum(0),
               NodeNumOfControlledZone(0), FlowFraction(0.0), fanType(HVAC::FanType::Invalid), FanNum(0), fanPlace(HVAC::FanPlace::Invalid),
-              FanInletNode(0), FanOutletNode(0), FanVolFlow(0.0), FanSchedPtr(0), HeatCoilType(0), HeatCoilNum(0), DXHeatCoilIndex(0),
+              FanInletNode(0), FanOutletNode(0), FanVolFlow(0.0), HeatCoilType(0), HeatCoilNum(0), DXHeatCoilIndex(0),
               HeatCoilIndex(0), CoolCoilType(0), DXCoolCoilIndex(0), SuppHeatCoilType(0), SuppHeatCoilNum(0), DesignSuppHeatingCapacity(0.0),
               SuppMaxAirTemp(0.0), SuppMaxOATemp(0.0), AuxOnCyclePower(0.0), AuxOffCyclePower(0.0), DesignHeatRecFlowRate(0.0), HeatRecActive(false),
               HeatRecInletNodeNum(0), HeatRecOutletNodeNum(0), MaxHeatRecOutletTemp(0.0), DesignHeatRecMassFlowRate(0.0), HRPlantLoc{},
@@ -417,6 +415,10 @@ struct HVACMultiSpeedHeatPumpData : BaseGlobalStruct
     int ErrCountVar = 0;           // Counter used to minimize the occurrence of output warnings
 
     std::string HeatCoilName; // TODO: What's the best plan here?
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

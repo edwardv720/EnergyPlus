@@ -114,7 +114,6 @@ namespace WindowAC {
     using HVAC::SmallAirVolFlow;
     using HVAC::SmallLoad;
     using HVAC::SmallMassFlow;
-    using namespace ScheduleManager;
     using Psychrometrics::PsyCpAirFnW;
     using Psychrometrics::PsyHFnTdbW;
     using Psychrometrics::PsyRhoAirFnPbTdbW;
@@ -178,7 +177,7 @@ namespace WindowAC {
 
         RemainingOutputToCoolingSP = state.dataZoneEnergyDemand->ZoneSysEnergyDemand(ZoneNum).RemainingOutputReqToCoolSP;
 
-        if (RemainingOutputToCoolingSP < 0.0 && state.dataHeatBalFanSys->TempControlType(ZoneNum) != HVAC::ThermostatType::SingleHeating) {
+        if (RemainingOutputToCoolingSP < 0.0 && state.dataHeatBalFanSys->TempControlType(ZoneNum) != HVAC::SetptType::SingleHeat) {
             QZnReq = RemainingOutputToCoolingSP;
         } else {
             QZnReq = 0.0;
@@ -302,17 +301,14 @@ namespace WindowAC {
 
             state.dataWindowAC->WindAC(WindACNum).Name = Alphas(1);
             state.dataWindowAC->WindAC(WindACNum).UnitType = state.dataWindowAC->WindowAC_UnitType; // 'ZoneHVAC:WindowAirConditioner'
-            state.dataWindowAC->WindAC(WindACNum).Sched = Alphas(2);
+
             if (lAlphaBlanks(2)) {
-                state.dataWindowAC->WindAC(WindACNum).SchedPtr = ScheduleManager::ScheduleAlwaysOn;
-            } else {
-                state.dataWindowAC->WindAC(WindACNum).SchedPtr = GetScheduleIndex(state, Alphas(2)); // convert schedule name to pointer
-                if (state.dataWindowAC->WindAC(WindACNum).SchedPtr == 0) {
-                    ShowSevereError(state, format("{}=\"{}\" invalid data.", CurrentModuleObject, state.dataWindowAC->WindAC(WindACNum).Name));
-                    ShowContinueError(state, format("invalid-not found {}=\"{}\".", cAlphaFields(2), Alphas(2)));
-                    ErrorsFound = true;
-                }
+                state.dataWindowAC->WindAC(WindACNum).availSched = Sched::GetScheduleAlwaysOn(state);
+            } else if ((state.dataWindowAC->WindAC(WindACNum).availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) { 
+                ShowSevereItemNotFound(state, eoh, cAlphaFields(2), Alphas(2));
+                ErrorsFound = true;
             }
+            
             state.dataWindowAC->WindAC(WindACNum).MaxAirVolFlow = Numbers(1);
             state.dataWindowAC->WindAC(WindACNum).OutAirVolFlow = Numbers(2);
 
@@ -398,7 +394,7 @@ namespace WindowAC {
                         ErrorsFound = true;
                     }
                 }
-                windAC.FanAvailSchedPtr = fan->availSchedNum;
+                windAC.fanAvailSched = fan->availSched;
             }
 
             state.dataWindowAC->WindAC(WindACNum).DXCoilName = Alphas(10);
@@ -434,17 +430,11 @@ namespace WindowAC {
                 ErrorsFound = true;
             }
 
-            state.dataWindowAC->WindAC(WindACNum).FanSchedPtr = GetScheduleIndex(state, Alphas(11));
-
-            // Default to cycling fan when fan mode schedule is not present
-            if (!lAlphaBlanks(11) && state.dataWindowAC->WindAC(WindACNum).FanSchedPtr == 0) {
-                ShowSevereError(
-                    state,
-                    format(
-                        "{} \"{}\" {} not found: {}", CurrentModuleObject, state.dataWindowAC->WindAC(WindACNum).Name, cAlphaFields(11), Alphas(11)));
-                ErrorsFound = true;
-            } else if (lAlphaBlanks(11)) {
+            if (lAlphaBlanks(11)) {
                 state.dataWindowAC->WindAC(WindACNum).fanOp = HVAC::FanOp::Cycling;
+            } else if ((state.dataWindowAC->WindAC(WindACNum).fanOpModeSched = Sched::GetSchedule(state, Alphas(11))) == nullptr) { 
+                ShowSevereItemNotFound(state, eoh, cAlphaFields(11), Alphas(11));
+                ErrorsFound = true;
             }
 
             state.dataWindowAC->WindAC(WindACNum).fanPlace = static_cast<HVAC::FanPlace>(getEnumValue(HVAC::fanPlaceNamesUC, Alphas(12)));
@@ -809,8 +799,8 @@ namespace WindowAC {
             state.dataWindowAC->MyEnvrnFlag(WindACNum) = true;
         }
 
-        if (state.dataWindowAC->WindAC(WindACNum).FanSchedPtr > 0) {
-            if (GetCurrentScheduleValue(state, state.dataWindowAC->WindAC(WindACNum).FanSchedPtr) == 0.0) {
+        if (state.dataWindowAC->WindAC(WindACNum).fanOpModeSched != nullptr) {
+            if (state.dataWindowAC->WindAC(WindACNum).fanOpModeSched->getCurrentVal() == 0.0) {
                 state.dataWindowAC->WindAC(WindACNum).fanOp = HVAC::FanOp::Cycling;
             } else {
                 state.dataWindowAC->WindAC(WindACNum).fanOp = HVAC::FanOp::Continuous;
@@ -822,8 +812,8 @@ namespace WindowAC {
         OutsideAirNode = state.dataWindowAC->WindAC(WindACNum).OutsideAirNode;
         AirRelNode = state.dataWindowAC->WindAC(WindACNum).AirReliefNode;
         // Set the inlet node mass flow rate
-        if (GetCurrentScheduleValue(state, state.dataWindowAC->WindAC(WindACNum).SchedPtr) <= 0.0 ||
-            (GetCurrentScheduleValue(state, state.dataWindowAC->WindAC(WindACNum).FanAvailSchedPtr) <= 0.0 && !state.dataHVACGlobal->TurnFansOn) ||
+        if (state.dataWindowAC->WindAC(WindACNum).availSched->getCurrentVal() <= 0.0 ||
+            (state.dataWindowAC->WindAC(WindACNum).fanAvailSched->getCurrentVal() <= 0.0 && !state.dataHVACGlobal->TurnFansOn) ||
             state.dataHVACGlobal->TurnFansOff) {
             state.dataWindowAC->WindAC(WindACNum).PartLoadFrac = 0.0;
             state.dataLoopNodes->Node(InletNode).MassFlowRate = 0.0;
@@ -858,7 +848,7 @@ namespace WindowAC {
 
         // Constant fan systems are tested for ventilation load to determine if load to be met changes.
         if (state.dataWindowAC->WindAC(WindACNum).fanOp == HVAC::FanOp::Continuous && state.dataWindowAC->WindAC(WindACNum).PartLoadFrac > 0.0 &&
-            (GetCurrentScheduleValue(state, state.dataWindowAC->WindAC(WindACNum).FanAvailSchedPtr) > 0.0 || state.dataHVACGlobal->TurnFansOn) &&
+            (state.dataWindowAC->WindAC(WindACNum).fanAvailSched->getCurrentVal() > 0.0 || state.dataHVACGlobal->TurnFansOn) &&
             !state.dataHVACGlobal->TurnFansOff) {
 
             CalcWindowACOutput(state, WindACNum, FirstHVACIteration, state.dataWindowAC->WindAC(WindACNum).fanOp, 0.0, false, NoCompOutput);

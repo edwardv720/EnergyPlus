@@ -928,7 +928,7 @@ int minutes(EnergyPlusState state)
 int numTimeStepsInHour([[maybe_unused]] EnergyPlusState state)
 {
     const auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
-    return thisState->dataGlobal->NumOfTimeStepInHour;
+    return thisState->dataGlobal->TimeStepsInHour;
 }
 
 int zoneTimeStepNum([[maybe_unused]] EnergyPlusState state)
@@ -1021,8 +1021,8 @@ int todayWeatherIsRainAtTime(EnergyPlusState state, int hour, int timeStepNum)
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
 
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return (int)thisState->dataWeather->wvarsHrTsToday(timeStepNum, iHour).IsRain;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1035,8 +1035,8 @@ int todayWeatherIsSnowAtTime(EnergyPlusState state, int hour, int timeStepNum)
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
 
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return (int)thisState->dataWeather->wvarsHrTsToday(timeStepNum, iHour).IsSnow;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1049,8 +1049,8 @@ Real64 todayWeatherOutDryBulbAtTime(EnergyPlusState state, int hour, int timeSte
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
 
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return thisState->dataWeather->wvarsHrTsToday(timeStepNum, iHour).OutDryBulbTemp;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1062,8 +1062,8 @@ Real64 todayWeatherOutDewPointAtTime(EnergyPlusState state, int hour, int timeSt
 {
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
     int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return thisState->dataWeather->wvarsHrTsToday(timeStepNum, iHour).OutDewPointTemp;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1075,8 +1075,8 @@ Real64 todayWeatherOutBarometricPressureAtTime(EnergyPlusState state, int hour, 
 {
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
     int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return thisState->dataWeather->wvarsHrTsToday(timeStepNum, iHour).OutBaroPress;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1088,8 +1088,8 @@ Real64 todayWeatherOutRelativeHumidityAtTime(EnergyPlusState state, int hour, in
 {
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return thisState->dataWeather->wvarsHrTsToday(timeStepNum, iHour).OutRelHum;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1101,8 +1101,8 @@ Real64 todayWeatherWindSpeedAtTime(EnergyPlusState state, int hour, int timeStep
 {
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return thisState->dataWeather->wvarsHrTsToday(timeStepNum, iHour).WindSpeed;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1114,8 +1114,8 @@ Real64 todayWeatherWindDirectionAtTime(EnergyPlusState state, int hour, int time
 {
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return thisState->dataWeather->wvarsHrTsToday(timeStepNum, iHour).WindDir;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1127,8 +1127,8 @@ Real64 todayWeatherSkyTemperatureAtTime(EnergyPlusState state, int hour, int tim
 {
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return thisState->dataWeather->wvarsHrTsToday(timeStepNum, iHour).SkyTemp;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1140,8 +1140,8 @@ Real64 todayWeatherHorizontalIRSkyAtTime(EnergyPlusState state, int hour, int ti
 {
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return thisState->dataWeather->wvarsHrTsToday(timeStepNum, iHour).HorizIRSky;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1153,8 +1153,8 @@ Real64 todayWeatherBeamSolarRadiationAtTime(EnergyPlusState state, int hour, int
 {
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return thisState->dataWeather->wvarsHrTsToday(timeStepNum, iHour).BeamSolarRad;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1166,8 +1166,8 @@ Real64 todayWeatherDiffuseSolarRadiationAtTime(EnergyPlusState state, int hour, 
 {
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return thisState->dataWeather->wvarsHrTsToday(timeStepNum, iHour).DifSolarRad;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1179,8 +1179,8 @@ Real64 todayWeatherAlbedoAtTime(EnergyPlusState state, int hour, int timeStepNum
 {
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return thisState->dataWeather->wvarsHrTsToday(timeStepNum, iHour).Albedo;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1192,8 +1192,8 @@ Real64 todayWeatherLiquidPrecipitationAtTime(EnergyPlusState state, int hour, in
 {
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return thisState->dataWeather->wvarsHrTsToday(timeStepNum, iHour).LiquidPrecip;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1205,8 +1205,8 @@ int tomorrowWeatherIsRainAtTime(EnergyPlusState state, int hour, int timeStepNum
 {
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return (int)thisState->dataWeather->wvarsHrTsTomorrow(timeStepNum, iHour).IsRain;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1218,8 +1218,8 @@ int tomorrowWeatherIsSnowAtTime(EnergyPlusState state, int hour, int timeStepNum
 {
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return (int)thisState->dataWeather->wvarsHrTsTomorrow(timeStepNum, iHour).IsSnow;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1231,8 +1231,8 @@ Real64 tomorrowWeatherOutDryBulbAtTime(EnergyPlusState state, int hour, int time
 {
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return thisState->dataWeather->wvarsHrTsTomorrow(timeStepNum, iHour).OutDryBulbTemp;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1244,8 +1244,8 @@ Real64 tomorrowWeatherOutDewPointAtTime(EnergyPlusState state, int hour, int tim
 {
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return thisState->dataWeather->wvarsHrTsTomorrow(timeStepNum, iHour).OutDewPointTemp;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1257,8 +1257,8 @@ Real64 tomorrowWeatherOutBarometricPressureAtTime(EnergyPlusState state, int hou
 {
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return thisState->dataWeather->wvarsHrTsTomorrow(timeStepNum, iHour).OutBaroPress;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1270,8 +1270,8 @@ Real64 tomorrowWeatherOutRelativeHumidityAtTime(EnergyPlusState state, int hour,
 {
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return thisState->dataWeather->wvarsHrTsTomorrow(timeStepNum, iHour).OutRelHum;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1283,8 +1283,8 @@ Real64 tomorrowWeatherWindSpeedAtTime(EnergyPlusState state, int hour, int timeS
 {
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return thisState->dataWeather->wvarsHrTsTomorrow(timeStepNum, iHour).WindSpeed;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1296,8 +1296,8 @@ Real64 tomorrowWeatherWindDirectionAtTime(EnergyPlusState state, int hour, int t
 {
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return thisState->dataWeather->wvarsHrTsTomorrow(timeStepNum, iHour).WindDir;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1309,8 +1309,8 @@ Real64 tomorrowWeatherSkyTemperatureAtTime(EnergyPlusState state, int hour, int 
 {
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return thisState->dataWeather->wvarsHrTsTomorrow(timeStepNum, iHour).SkyTemp;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1322,8 +1322,8 @@ Real64 tomorrowWeatherHorizontalIRSkyAtTime(EnergyPlusState state, int hour, int
 {
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return thisState->dataWeather->wvarsHrTsTomorrow(timeStepNum, iHour).HorizIRSky;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1335,8 +1335,8 @@ Real64 tomorrowWeatherBeamSolarRadiationAtTime(EnergyPlusState state, int hour, 
 {
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return thisState->dataWeather->wvarsHrTsTomorrow(timeStepNum, iHour).BeamSolarRad;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1348,8 +1348,8 @@ Real64 tomorrowWeatherDiffuseSolarRadiationAtTime(EnergyPlusState state, int hou
 {
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return thisState->dataWeather->wvarsHrTsTomorrow(timeStepNum, iHour).DifSolarRad;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1361,8 +1361,8 @@ Real64 tomorrowWeatherAlbedoAtTime(EnergyPlusState state, int hour, int timeStep
 {
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return thisState->dataWeather->wvarsHrTsTomorrow(timeStepNum, iHour).Albedo;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1374,8 +1374,8 @@ Real64 tomorrowWeatherLiquidPrecipitationAtTime(EnergyPlusState state, const int
 {
     auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
     const int iHour = hour + 1;
-    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::HoursInDay) && (timeStepNum > 0) &&
-        (timeStepNum <= thisState->dataGlobal->NumOfTimeStepInHour)) {
+    if ((iHour > 0) && (iHour <= EnergyPlus::Constant::iHoursInDay) && (timeStepNum > 0) &&
+        (timeStepNum <= thisState->dataGlobal->TimeStepsInHour)) {
         return thisState->dataWeather->wvarsHrTsTomorrow(timeStepNum, iHour).LiquidPrecip;
     }
     ShowSevereError(*thisState, "Invalid return from weather lookup, check hour and time step argument values are in range.");
@@ -1386,5 +1386,5 @@ Real64 tomorrowWeatherLiquidPrecipitationAtTime(EnergyPlusState state, const int
 Real64 currentSimTime(EnergyPlusState state)
 {
     const auto *thisState = static_cast<EnergyPlus::EnergyPlusData *>(state);
-    return (thisState->dataGlobal->DayOfSim - 1) * EnergyPlus::Constant::HoursInDay + currentTime(state);
+    return (thisState->dataGlobal->DayOfSim - 1) * EnergyPlus::Constant::iHoursInDay + currentTime(state);
 }

@@ -72,7 +72,7 @@ namespace HVACStandAloneERV {
         // input data
         std::string Name;                            // name of the stand alone ERV unit
         std::string UnitType;                        // ZoneHVAC:EnergyRecoveryVentilator
-        int SchedPtr;                                // pointer to availability schedule
+        Sched::Schedule *availSched = nullptr;                                // availability schedule
         std::string HeatExchangerName;               // name of the heat exchanger within the ERV unit
         int HeatExchangerIndex;                      // Pointer to heat exchanger
         HVAC::HXType hxType = HVAC::HXType::Invalid; // Parameter equivalent of HX object type
@@ -80,13 +80,13 @@ namespace HVACStandAloneERV {
         int SupplyAirOutletNode;                     // supply air outlet node for the stand alone ERV
         std::string SupplyAirFanName;                // fan name in the supply air stream of the ERV
         int SupplyAirFanIndex;                       // index to supply air fan
-        int SupplyAirFanSchPtr;                      // index to supply air fan schedule
+        Sched::Schedule *supplyAirFanSched = nullptr;                      // supply air fan schedule
         HVAC::FanType supplyAirFanType;              // parameter equivalent of fan type
         int ExhaustAirInletNode;                     // exhaust air inlet node for the stand alone ERV
         int ExhaustAirOutletNode;                    // exhaust air outlet node for the stand alone ERV
         std::string ExhaustAirFanName;               // fan name in exhaust air stream of the ERV
         int ExhaustAirFanIndex;                      // index to exhaust air fan
-        int ExhaustAirFanSchPtr;                     // index to exhaust air fan schedule
+        Sched::Schedule *exhaustAirFanSched = nullptr;                     // exhaust air fan schedule
         HVAC::FanType exhaustAirFanType;             // paramter equivalent of fan type
         Real64 SupplyAirVolFlow;                     // volumetric flow rate through the supply side of the ERV
         Real64 ExhaustAirVolFlow;                    // volumetric flow rate through the exhaust side of the ERV
@@ -104,7 +104,7 @@ namespace HVACStandAloneERV {
         Real64 DesignEAFanMassFlowRate;              // EA fan mass flow rate
         Real64 AirVolFlowPerFloorArea;               // Air flow rate per unit floor area, used for autosizing
         Real64 AirVolFlowPerOccupant;                // Air flow rate per occupant, used for autosizing
-        int EconomizerOASchedPtr;                    // schedule to modify outdoor air
+        Sched::Schedule *economizerOASched = nullptr;                    // schedule to modify outdoor air
         bool FlowError;                              // used for one-time warning message for flow imbalance (Init)
         Avail::Status availStatus = Avail::Status::NoAction;
         std::string AvailManagerListName; // Name of an availability manager list object
@@ -127,13 +127,13 @@ namespace HVACStandAloneERV {
 
         // Default Constructor
         StandAloneERVData()
-            : SchedPtr(0), HeatExchangerIndex(0), SupplyAirInletNode(0), SupplyAirOutletNode(0), SupplyAirFanIndex(0), SupplyAirFanSchPtr(0),
+            : HeatExchangerIndex(0), SupplyAirInletNode(0), SupplyAirOutletNode(0), SupplyAirFanIndex(0), 
               supplyAirFanType(HVAC::FanType::Invalid), ExhaustAirInletNode(0), ExhaustAirOutletNode(0), ExhaustAirFanIndex(0),
-              ExhaustAirFanSchPtr(0), exhaustAirFanType(HVAC::FanType::Invalid), SupplyAirVolFlow(0.0), ExhaustAirVolFlow(0.0),
+              exhaustAirFanType(HVAC::FanType::Invalid), SupplyAirVolFlow(0.0), ExhaustAirVolFlow(0.0),
               ControllerNameDefined(false), ControlledZoneNum(0), ControllerIndex(0), MaxSupAirMassFlow(0.0), MaxExhAirMassFlow(0.0),
               HighRHOAFlowRatio(1.0), DesignSAFanVolFlowRate(0.0), DesignEAFanVolFlowRate(0.0), DesignHXVolFlowRate(0.0),
               DesignSAFanMassFlowRate(0.0), DesignEAFanMassFlowRate(0.0), AirVolFlowPerFloorArea(0.0), AirVolFlowPerOccupant(0.0),
-              EconomizerOASchedPtr(0), FlowError(true), ElecUseRate(0.0), ElecUseEnergy(0.0), SensCoolingEnergy(0.0), SensCoolingRate(0.0),
+              FlowError(true), ElecUseRate(0.0), ElecUseEnergy(0.0), SensCoolingEnergy(0.0), SensCoolingRate(0.0),
               LatCoolingEnergy(0.0), LatCoolingRate(0.0), TotCoolingEnergy(0.0), TotCoolingRate(0.0), SensHeatingEnergy(0.0), SensHeatingRate(0.0),
               LatHeatingEnergy(0.0), LatHeatingRate(0.0), TotHeatingEnergy(0.0), TotHeatingRate(0.0), FirstPass(true)
         {
@@ -207,6 +207,10 @@ struct HVACStandAloneERVData : BaseGlobalStruct
     Array1D_bool MyEnvrnFlag;
     Array1D_bool MyZoneEqFlag;             // used to set up zone equipment availability managers
     bool ZoneEquipmentListChecked = false; // True after the Zone Equipment List has been checked for items
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

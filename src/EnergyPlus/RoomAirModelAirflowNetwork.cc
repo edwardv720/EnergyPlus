@@ -831,14 +831,14 @@ namespace RoomAir {
                             if (state.dataSurface->SurfWinHeatGain(SurfNum) >= 0.0) {
                                 state.dataSurface->SurfWinHeatGainRep(SurfNum) = state.dataSurface->SurfWinHeatGain(SurfNum);
                                 state.dataSurface->SurfWinHeatGainRepEnergy(SurfNum) =
-                                    state.dataSurface->SurfWinHeatGainRep(SurfNum) * state.dataGlobal->TimeStepZone * Constant::SecInHour;
+                                    state.dataSurface->SurfWinHeatGainRep(SurfNum) * state.dataGlobal->TimeStepZone * Constant::rSecsInHour;
                             } else {
                                 state.dataSurface->SurfWinHeatLossRep(SurfNum) = -state.dataSurface->SurfWinHeatGain(SurfNum);
                                 state.dataSurface->SurfWinHeatLossRepEnergy(SurfNum) =
-                                    state.dataSurface->SurfWinHeatLossRep(SurfNum) * state.dataGlobal->TimeStepZone * Constant::SecInHour;
+                                    state.dataSurface->SurfWinHeatLossRep(SurfNum) * state.dataGlobal->TimeStepZone * Constant::rSecsInHour;
                             }
                             state.dataSurface->SurfWinHeatTransferRepEnergy(SurfNum) =
-                                state.dataSurface->SurfWinHeatGain(SurfNum) * state.dataGlobal->TimeStepZone * Constant::SecInHour;
+                                state.dataSurface->SurfWinHeatGain(SurfNum) * state.dataGlobal->TimeStepZone * Constant::rSecsInHour;
                         }
                     }
 

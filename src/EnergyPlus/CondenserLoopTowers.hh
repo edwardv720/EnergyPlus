@@ -197,8 +197,8 @@ namespace CondenserLoopTowers {
         ModelType TowerModelType = ModelType::Invalid; // Type of empirical model (1=CoolTools)
         int VSTower = 0;                               // Index to a variable speed tower (otherwise = 0)
         int FanPowerfAirFlowCurve = 0;                 // Index to fan power correlation curve for VS Towers
-        int BlowDownSchedulePtr = 0;                   // Pointer to blow down schedule
-        int BasinHeaterSchedulePtr = 0;                // Pointer to basin heater schedule
+        Sched::Schedule *blowDownSched = nullptr;                   // Pointer to blow down schedule
+        Sched::Schedule *basinHeaterSched = nullptr;                // Pointer to basin heater schedule
         int HighMassFlowErrorCount = 0;                // Counter when mass flow rate is > Design*TowerMassFlowRateMultiplier
         int HighMassFlowErrorIndex = 0;                // Index for high mass flow recurring error message
         int OutletWaterTempErrorCount = 0;             // Counter when outlet water temperature is < minimum allowed temperature
@@ -229,7 +229,7 @@ namespace CondenserLoopTowers {
         Real64 DriftLossFraction = 0.008;                // default value is 0.008%
         Blowdown BlowdownMode = Blowdown::Concentration; // sets how tower water blowdown is modeled
         Real64 ConcentrationRatio = 3.0;                 // ratio of solids in blowdown vs make up water
-        int SchedIDBlowdown = 0;                         // index "pointer" to schedule of blowdown in [m3/s]
+        Sched::Schedule *blowdownSched = nullptr;                         // index "pointer" to schedule of blowdown in [m3/s]
         bool SuppliedByWaterSystem = false;
         int WaterTankID = 0;          // index "pointer" to WaterStorage structure
         int WaterTankDemandARRID = 0; // index "pointer" to demand array inside WaterStorage structure
@@ -440,6 +440,10 @@ struct CondenserLoopTowersData : BaseGlobalStruct
 {
     bool GetInput = true;
     Array1D<CondenserLoopTowers::CoolingTower> towers; // dimension to number of machines
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

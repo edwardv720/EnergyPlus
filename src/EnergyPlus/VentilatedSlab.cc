@@ -122,7 +122,6 @@ namespace VentilatedSlab {
     // Using/Aliasing
     using namespace DataLoopNode;
     using HVAC::SmallAirVolFlow;
-    using namespace ScheduleManager;
     using namespace Psychrometrics;
 
     static std::string const fluidNameSteam("STEAM");
@@ -230,7 +229,6 @@ namespace VentilatedSlab {
         auto &GetSteamCoilMaxFlowRate(SteamCoils::GetCoilMaxWaterFlowRate);
         auto &GetHXAssistedCoilFlowRate(HVACHXAssistedCoolingCoil::GetCoilMaxWaterFlowRate);
         using HVACHXAssistedCoolingCoil::GetHXCoilTypeAndName;
-        using ScheduleManager::GetScheduleIndex;
         using namespace DataLoopNode;
         using namespace DataSurfaceLists;
 
@@ -329,14 +327,9 @@ namespace VentilatedSlab {
 
             ventSlab.Name = state.dataIPShortCut->cAlphaArgs(1);
             if (lAlphaBlanks(2)) {
-                ventSlab.SchedPtr = ScheduleManager::ScheduleAlwaysOn;
-            } else if ((ventSlab.SchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(2))) == 0) { // convert schedule name to pointer
-                ShowSevereError(state,
-                                format(R"({}="{}" invalid {}="{}" not found.)",
-                                       CurrentModuleObject,
-                                       ventSlab.Name,
-                                       cAlphaFields(2),
-                                       state.dataIPShortCut->cAlphaArgs(2)));
+                ventSlab.availSched = Sched::GetScheduleAlwaysOn(state);
+            } else if ((ventSlab.availSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(2))) == nullptr) { 
+                ShowSevereItemNotFound(state, eoh, cAlphaFields(2), state.dataIPShortCut->cAlphaArgs(2));
                 ErrorsFound = true;
             }
 
@@ -488,88 +481,62 @@ namespace VentilatedSlab {
                 static_cast<OutsideAirControlType>(getEnumValue(OutsideAirControlTypeNamesUC, Util::makeUPPER(state.dataIPShortCut->cAlphaArgs(5))));
 
             switch (ventSlab.outsideAirControlType) {
+
             case OutsideAirControlType::VariablePercent: {
-                ventSlab.MaxOASchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(7)); // convert schedule name to pointer
-                if (ventSlab.MaxOASchedPtr == 0) {
-                    ShowSevereError(state,
-                                    format(R"({}="{}" invalid {}="{}" not found.)",
-                                           CurrentModuleObject,
-                                           ventSlab.Name,
-                                           cAlphaFields(7),
-                                           state.dataIPShortCut->cAlphaArgs(7)));
+                if (lAlphaBlanks(7)) {
+                    ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaFieldNames(7));
                     ErrorsFound = true;
-                } else if (!CheckScheduleValueMinMax(state, ventSlab.MaxOASchedPtr, ">=", 0.0, "<=", 1.0)) {
-                    ShowSevereError(state,
-                                    format("{}=\"{}\" invalid {}=\"{}\" values out of range [0,1].",
-                                           CurrentModuleObject,
-                                           ventSlab.Name,
-                                           cAlphaFields(7),
-                                           state.dataIPShortCut->cAlphaArgs(7)));
+                } else if ((ventSlab.maxOASched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(7))) == nullptr) {
+                    ShowSevereItemNotFound(state, eoh, cAlphaFields(7), state.dataIPShortCut->cAlphaArgs(7));
+                    ErrorsFound = true;
+                } else if (!ventSlab.maxOASched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
+                    Sched::ShowSevereBadMinMax(state, eoh, cAlphaFields(7), state.dataIPShortCut->cAlphaArgs(7),
+                                                 Clusive::In, 0.0, Clusive::In, 1.0);
                     ErrorsFound = true;
                 }
-                break;
-            }
+            } break;
+                    
             case OutsideAirControlType::FixedOAControl: {
-                ventSlab.MaxOASchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(7)); // convert schedule name to pointer
-                if (ventSlab.MaxOASchedPtr == 0) {
-                    ShowSevereError(state,
-                                    format(R"({}="{}" invalid {}="{}" not found.)",
-                                           CurrentModuleObject,
-                                           ventSlab.Name,
-                                           cAlphaFields(7),
-                                           state.dataIPShortCut->cAlphaArgs(7)));
+
+                if (lAlphaBlanks(7)) {
+                    ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaFieldNames(7));
                     ErrorsFound = true;
-                } else if (!CheckScheduleValueMinMax(state, ventSlab.MaxOASchedPtr, true, 0.0)) {
-                    ShowSevereError(state,
-                                    format("{}=\"{}\" invalid {}=\"{}\" values out of range (must be >=0).",
-                                           CurrentModuleObject,
-                                           ventSlab.Name,
-                                           cAlphaFields(7),
-                                           state.dataIPShortCut->cAlphaArgs(7)));
+                } else if ((ventSlab.maxOASched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(7))) == nullptr) {
+                    ShowSevereItemNotFound(state, eoh, cAlphaFields(7), state.dataIPShortCut->cAlphaArgs(7));
+                    ErrorsFound = true;
+                } else if (!ventSlab.maxOASched->checkMinVal(state, Clusive::In, 0.0)) {
+                    Sched::ShowSevereBadMin(state, eoh, cAlphaFields(7), state.dataIPShortCut->cAlphaArgs(7), Clusive::In, 0.0);
                     ErrorsFound = true;
                 }
-                break;
-            }
+            } break;
+                    
             case OutsideAirControlType::FixedTemperature: {
-                ventSlab.TempSchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(7)); // convert schedule name to pointer
-                if (ventSlab.TempSchedPtr == 0) {
-                    ShowSevereError(state,
-                                    format(R"({}="{}" invalid {}="{}" not found.)",
-                                           CurrentModuleObject,
-                                           ventSlab.Name,
-                                           cAlphaFields(7),
-                                           state.dataIPShortCut->cAlphaArgs(7)));
+                if (lAlphaBlanks(7)) {
+                    ShowSevereEmptyField(state, eoh, cAlphaFields(7));
+                    ErrorsFound = true;
+                } else if ((ventSlab.tempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(7))) == nullptr) {
+                    ShowSevereItemNotFound(state, eoh, cAlphaFields(7), state.dataIPShortCut->cAlphaArgs(7));
                     ErrorsFound = true;
                 }
-                break;
-            }
+            } break;
+
             default: {
                 ShowSevereError(
                     state,
                     format(R"({}="{}" invalid {}="{}".)", CurrentModuleObject, ventSlab.Name, cAlphaFields(5), state.dataIPShortCut->cAlphaArgs(5)));
-            }
-            }
+            } break;
+            } // switch (outsideAirControlType)
 
-            ventSlab.MinOASchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(6)); // convert schedule name to pointer
-            if (ventSlab.MinOASchedPtr == 0) {
-                ShowSevereError(state,
-                                format(R"({}="{}" invalid {}="{}" not found.)",
-                                       CurrentModuleObject,
-                                       ventSlab.Name,
-                                       cAlphaFields(6),
-                                       state.dataIPShortCut->cAlphaArgs(6)));
+            if (lAlphaBlanks(6)) {
+            } else if ((ventSlab.minOASched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(6))) == nullptr) {
+                ShowSevereItemNotFound(state, eoh, cAlphaFields(6), state.dataIPShortCut->cAlphaArgs(6));
                 ErrorsFound = true;
             }
 
             // System Configuration:
-            ventSlab.SysConfg =
-                static_cast<VentilatedSlabConfig>(getEnumValue(VentilatedSlabConfigNamesUC, Util::makeUPPER(state.dataIPShortCut->cAlphaArgs(8))));
-
+            ventSlab.SysConfg = static_cast<VentilatedSlabConfig>(getEnumValue(VentilatedSlabConfigNamesUC, state.dataIPShortCut->cAlphaArgs(8)));
             if (ventSlab.SysConfg == VentilatedSlabConfig::Invalid) {
-                ShowSevereError(
-                    state,
-                    format(R"({}="{}" invalid {}="{}".)", CurrentModuleObject, ventSlab.Name, cAlphaFields(8), state.dataIPShortCut->cAlphaArgs(8)));
-                ShowContinueError(state, "Control reset to SLAB ONLY Configuration.");
+                ShowWarningInvalidKey(state, eoh, cAlphaFields(8), state.dataIPShortCut->cAlphaArgs(8), "Control reset to SLAB ONLY Configuration.");
                 ventSlab.SysConfg = VentilatedSlabConfig::SlabOnly;
             }
 
@@ -622,101 +589,58 @@ namespace VentilatedSlab {
             // Heating User Input Data For Ventilated Slab Control :
 
             // High Air Temp :
-            ventSlab.HotAirHiTempSchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(10));
-            if ((ventSlab.HotAirHiTempSchedPtr == 0) && (!lAlphaBlanks(10))) {
-                ShowSevereError(state,
-                                format(R"({}="{}" invalid {}="{}" not found.)",
-                                       CurrentModuleObject,
-                                       ventSlab.Name,
-                                       cAlphaFields(10),
-                                       state.dataIPShortCut->cAlphaArgs(10)));
+            if (lAlphaBlanks(10)) {
+            } else if ((ventSlab.hotAirHiTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(10))) == nullptr) {
+                ShowSevereItemNotFound(state, eoh, cAlphaFields(10), state.dataIPShortCut->cAlphaArgs(10));
                 ErrorsFound = true;
             }
 
             // Low Air Temp :
-
-            ventSlab.HotAirLoTempSchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(11));
-            if ((ventSlab.HotAirLoTempSchedPtr == 0) && (!lAlphaBlanks(11))) {
-                ShowSevereError(state,
-                                format(R"({}="{}" invalid {}="{}" not found.)",
-                                       CurrentModuleObject,
-                                       ventSlab.Name,
-                                       cAlphaFields(11),
-                                       state.dataIPShortCut->cAlphaArgs(11)));
+            if (lAlphaBlanks(11)) {
+            } else if ((ventSlab.hotAirLoTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(11))) == nullptr) { 
+                ShowSevereItemNotFound(state, eoh, cAlphaFields(11), state.dataIPShortCut->cAlphaArgs(11));
                 ErrorsFound = true;
             }
 
-            ventSlab.HotCtrlHiTempSchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(12));
-            if ((ventSlab.HotCtrlHiTempSchedPtr == 0) && (!lAlphaBlanks(12))) {
-                ShowSevereError(state,
-                                format(R"({}="{}" invalid {}="{}" not found.)",
-                                       CurrentModuleObject,
-                                       ventSlab.Name,
-                                       cAlphaFields(12),
-                                       state.dataIPShortCut->cAlphaArgs(12)));
+            if (lAlphaBlanks(12)) {
+            } else if ((ventSlab.hotCtrlHiTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(12))) == nullptr) {
+                ShowSevereItemNotFound(state, eoh, cAlphaFields(12), state.dataIPShortCut->cAlphaArgs(12));
                 ErrorsFound = true;
             }
 
-            ventSlab.HotCtrlLoTempSchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(13));
-            if ((ventSlab.HotCtrlLoTempSchedPtr == 0) && (!lAlphaBlanks(13))) {
-                ShowSevereError(state,
-                                format(R"({}="{}" invalid {}="{}" not found.)",
-                                       CurrentModuleObject,
-                                       ventSlab.Name,
-                                       cAlphaFields(13),
-                                       state.dataIPShortCut->cAlphaArgs(13)));
+            if (lAlphaBlanks(13)) {
+            } else if ((ventSlab.hotCtrlLoTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(13))) == nullptr) { 
+                ShowSevereItemNotFound(state, eoh, cAlphaFields(13), state.dataIPShortCut->cAlphaArgs(13));
                 ErrorsFound = true;
             }
 
             // Cooling User Input Data For Ventilated Slab Control :
             // Cooling High Temp Sch.
-            ventSlab.ColdAirHiTempSchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(14));
-            if ((ventSlab.ColdAirHiTempSchedPtr == 0) && (!lAlphaBlanks(14))) {
-                ShowSevereError(state,
-                                format(R"({}="{}" invalid {}="{}" not found.)",
-                                       CurrentModuleObject,
-                                       ventSlab.Name,
-                                       cAlphaFields(14),
-                                       state.dataIPShortCut->cAlphaArgs(14)));
+            if (lAlphaBlanks(14)) {
+            } else if ((ventSlab.coldAirHiTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(14))) == nullptr) {
+                ShowSevereItemNotFound(state, eoh, cAlphaFields(14), state.dataIPShortCut->cAlphaArgs(14));
                 ErrorsFound = true;
             }
 
             // Cooling Low Temp Sch.
-
-            ventSlab.ColdAirLoTempSchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(15));
-            if ((ventSlab.ColdAirLoTempSchedPtr == 0) && (!lAlphaBlanks(15))) {
-                ShowSevereError(state,
-                                format(R"({}="{}" invalid {}="{}" not found.)",
-                                       CurrentModuleObject,
-                                       ventSlab.Name,
-                                       cAlphaFields(15),
-                                       state.dataIPShortCut->cAlphaArgs(15)));
+            if (lAlphaBlanks(15)) {
+            } else if ((ventSlab.coldAirLoTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(15))) == nullptr) { 
+                ShowSevereItemNotFound(state, eoh, cAlphaFields(15), state.dataIPShortCut->cAlphaArgs(15));
                 ErrorsFound = true;
             }
 
             // Cooling Control High Sch.
 
-            ventSlab.ColdCtrlHiTempSchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(16));
-            if ((ventSlab.ColdCtrlHiTempSchedPtr == 0) && (!lAlphaBlanks(16))) {
-                ShowSevereError(state,
-                                format(R"({}="{}" invalid {}="{}" not found.)",
-                                       CurrentModuleObject,
-                                       ventSlab.Name,
-                                       cAlphaFields(16),
-                                       state.dataIPShortCut->cAlphaArgs(16)));
+            if (lAlphaBlanks(16)) {
+            } else if ((ventSlab.coldCtrlHiTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(16))) == nullptr) { 
+                ShowSevereItemNotFound(state, eoh, cAlphaFields(16), state.dataIPShortCut->cAlphaArgs(16));
                 ErrorsFound = true;
             }
 
             // Cooling Control Low Sch.
-
-            ventSlab.ColdCtrlLoTempSchedPtr = GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(17));
-            if ((ventSlab.ColdCtrlLoTempSchedPtr == 0) && (!lAlphaBlanks(17))) {
-                ShowSevereError(state,
-                                format(R"({}="{}" invalid {}="{}" not found.)",
-                                       CurrentModuleObject,
-                                       ventSlab.Name,
-                                       cAlphaFields(17),
-                                       state.dataIPShortCut->cAlphaArgs(17)));
+            if (lAlphaBlanks(17)) {
+            } else if ((ventSlab.coldCtrlLoTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(17))) == nullptr) {
+                ShowSevereItemNotFound(state, eoh, cAlphaFields(17), state.dataIPShortCut->cAlphaArgs(17));
                 ErrorsFound = true;
             }
 
@@ -987,17 +911,17 @@ namespace VentilatedSlab {
             } else {
                 ventSlab.fanType = state.dataFans->fans(ventSlab.Fan_Index)->type;
                 if (ventSlab.fanType != HVAC::FanType::Constant && ventSlab.fanType != HVAC::FanType::SystemModel) {
-                    ShowSevereCustomMessage(state,
-                                            eoh,
-                                            format("Only fans of type Fan:ConstantVolume and Fan:SystemModel are supported.  {} is of type {}",
-                                                   ventSlab.FanName,
-                                                   HVAC::fanTypeNames[(int)ventSlab.fanType]));
+                    ShowSevereCustom(state,
+                                     eoh,
+                                     format("Only fans of type Fan:ConstantVolume and Fan:SystemModel are supported.  {} is of type {}",
+                                            ventSlab.FanName,
+                                            HVAC::fanTypeNames[(int)ventSlab.fanType]));
                     ErrorsFound = true;
                 }
             }
             if (ventSlab.outsideAirControlType == OutsideAirControlType::FixedOAControl) {
                 ventSlab.OutAirVolFlow = ventSlab.MinOutAirVolFlow;
-                ventSlab.MaxOASchedPtr = ventSlab.MinOASchedPtr;
+                ventSlab.maxOASched = ventSlab.minOASched;
             }
 
             // Add fan to component sets array
@@ -1521,7 +1445,6 @@ namespace VentilatedSlab {
         using FluidProperties::GetDensityGlycol;
         using PlantUtilities::InitComponentNodes;
         using PlantUtilities::ScanPlantLoopsForObject;
-        using ScheduleManager::GetCurrentScheduleValue;
 
         // Locals
         // SUBROUTINE ARGUMENT DEFINITIONS:
@@ -2617,7 +2540,6 @@ namespace VentilatedSlab {
         using HeatingCoils::CheckHeatingCoilSchedule;
         using HVACHXAssistedCoolingCoil::CheckHXAssistedCoolingCoilSchedule;
         using NodeInputManager::GetOnlySingleNode;
-        using ScheduleManager::GetCurrentScheduleValue;
         using SteamCoils::CheckSteamCoilSchedule;
         using WaterCoils::CheckWaterCoilSchedule;
 
@@ -2833,15 +2755,15 @@ namespace VentilatedSlab {
             SetPointTemp = 0.0; // Suppress uninitialized warning
             ShowSevereError(state, format("Illegal control type in low temperature radiant system: {}", ventSlab.Name));
             ShowFatalError(state, "Preceding condition causes termination.");
-        }
-        }
+        } break;
+        } // switch (ctrlType)
 
         // Load Check
 
-        AirTempHeatHi = GetCurrentScheduleValue(state, ventSlab.HotCtrlHiTempSchedPtr);
-        AirTempCoolLo = GetCurrentScheduleValue(state, ventSlab.ColdCtrlLoTempSchedPtr);
+        AirTempHeatHi = ventSlab.hotCtrlHiTempSched->getCurrentVal();
+        AirTempCoolLo = ventSlab.coldCtrlLoTempSched->getCurrentVal();
 
-        if (((SetPointTemp >= AirTempHeatHi) && (SetPointTemp <= AirTempCoolLo)) || (GetCurrentScheduleValue(state, ventSlab.SchedPtr) <= 0)) {
+        if (((SetPointTemp >= AirTempHeatHi) && (SetPointTemp <= AirTempCoolLo)) || (ventSlab.availSched->getCurrentVal() <= 0)) {
 
             // System is off or has no load upon it; set the flow rates to zero and then
             // simulate the components with the no flow conditions
@@ -2914,15 +2836,15 @@ namespace VentilatedSlab {
                 state.dataVentilatedSlab->OperatingMode = HeatingMode;
 
                 // Check the setpoint and temperature span
-                SetPointTempHi = GetCurrentScheduleValue(state, ventSlab.HotCtrlHiTempSchedPtr);
-                SetPointTempLo = GetCurrentScheduleValue(state, ventSlab.HotCtrlLoTempSchedPtr);
+                SetPointTempHi = ventSlab.hotCtrlHiTempSched->getCurrentVal();
+                SetPointTempLo = ventSlab.hotCtrlLoTempSched->getCurrentVal();
                 if (SetPointTempHi < SetPointTempLo) {
                     ShowSevereError(state, format("Heating setpoint temperature mismatch in{}", ventSlab.Name));
                     ShowContinueError(state, "High setpoint temperature is less than low setpoint temperature--check your schedule input");
                     ShowFatalError(state, "Preceding condition causes termination.");
                 }
-                AirTempHi = GetCurrentScheduleValue(state, ventSlab.HotAirHiTempSchedPtr);
-                AirTempLo = GetCurrentScheduleValue(state, ventSlab.HotAirLoTempSchedPtr);
+                AirTempHi = ventSlab.hotAirHiTempSched->getCurrentVal();
+                AirTempLo = ventSlab.hotAirLoTempSched->getCurrentVal();
 
                 if (AirTempHi < AirTempLo) {
                     ShowSevereError(state, format("Heating Air temperature mismatch in{}", ventSlab.Name));
@@ -2966,7 +2888,7 @@ namespace VentilatedSlab {
                 state.dataVentilatedSlab->HCoilOn = true;
 
                 if (state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate > 0.0) {
-                    MinOAFrac = GetCurrentScheduleValue(state, ventSlab.MinOASchedPtr) *
+                    MinOAFrac = ventSlab.minOASched->getCurrentVal() *
                                 (ventSlab.MinOutAirMassFlow / state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate);
                 } else {
                     MinOAFrac = 0.0;
@@ -3008,14 +2930,14 @@ namespace VentilatedSlab {
 
                         } else { // Tinlet < Toutdoor
 
-                            MaxOAFrac = GetCurrentScheduleValue(state, ventSlab.MaxOASchedPtr);
+                            MaxOAFrac = ventSlab.maxOASched->getCurrentVal();
                             state.dataVentilatedSlab->OAMassFlowRate = MaxOAFrac * state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate;
                         }
                         break;
                     }
                     case OutsideAirControlType::FixedTemperature: {
                         // This is basically the same algorithm as for the heating case...
-                        Tdesired = GetCurrentScheduleValue(state, ventSlab.TempSchedPtr);
+                        Tdesired = ventSlab.tempSched->getCurrentVal();
                         MaxOAFrac = 1.0;
 
                         if (std::abs(Tinlet - Toutdoor) <= LowTempDiff) { // no difference in indoor and outdoor conditions-->set OA to minimum
@@ -3068,7 +2990,7 @@ namespace VentilatedSlab {
                         // In this control type, the outdoor air flow rate is fixed to the maximum value
                         // which is equal to the minimum value, regardless of all the other conditions.
                         if (state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate > 0.0) {
-                            MaxOAFrac = GetCurrentScheduleValue(state, ventSlab.MaxOASchedPtr);
+                            MaxOAFrac = ventSlab.maxOASched->getCurrentVal();
                         } else {
                             MaxOAFrac = 0.0;
                         }
@@ -3085,7 +3007,7 @@ namespace VentilatedSlab {
                     }
                     case OutsideAirControlType::FixedTemperature: {
                         // This is basically the same algorithm as for the heating case...
-                        Tdesired = GetCurrentScheduleValue(state, ventSlab.TempSchedPtr);
+                        Tdesired = ventSlab.tempSched->getCurrentVal();
                         MaxOAFrac = 1.0;
 
                         if (std::abs(Tinlet - Toutdoor) <= LowTempDiff) { // no difference in indoor and outdoor conditions-->set OA to minimum
@@ -3180,16 +3102,16 @@ namespace VentilatedSlab {
 
                 state.dataVentilatedSlab->OperatingMode = CoolingMode;
 
-                SetPointTempHi = GetCurrentScheduleValue(state, ventSlab.ColdCtrlHiTempSchedPtr);
-                SetPointTempLo = GetCurrentScheduleValue(state, ventSlab.ColdCtrlLoTempSchedPtr);
+                SetPointTempHi = ventSlab.coldCtrlHiTempSched->getCurrentVal();
+                SetPointTempLo = ventSlab.coldCtrlLoTempSched->getCurrentVal();
                 if (SetPointTempHi < SetPointTempLo) {
                     ShowSevereError(state, format("Cooling setpoint temperature mismatch in{}", ventSlab.Name));
                     ShowContinueError(state, "High setpoint temperature is less than low setpoint temperature--check your schedule input");
                     ShowFatalError(state, "Preceding condition causes termination.");
                 }
 
-                AirTempHi = GetCurrentScheduleValue(state, ventSlab.ColdAirHiTempSchedPtr);
-                AirTempLo = GetCurrentScheduleValue(state, ventSlab.ColdAirLoTempSchedPtr);
+                AirTempHi = ventSlab.coldAirHiTempSched->getCurrentVal();
+                AirTempLo = ventSlab.coldAirLoTempSched->getCurrentVal();
                 if (AirTempHi < AirTempLo) {
                     ShowSevereError(state, format("Cooling Air temperature mismatch in{}", ventSlab.Name));
                     ShowContinueError(state, "High Air temperature is less than low Air temperature--check your schedule input");
@@ -3220,7 +3142,7 @@ namespace VentilatedSlab {
                 state.dataVentilatedSlab->HCoilOn = false;
 
                 if (state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate > 0.0) {
-                    MinOAFrac = GetCurrentScheduleValue(state, ventSlab.MinOASchedPtr) *
+                    MinOAFrac = ventSlab.minOASched->getCurrentVal() *
                                 (ventSlab.MinOutAirMassFlow / state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate);
                 } else {
                     MinOAFrac = 0.0;
@@ -3243,7 +3165,7 @@ namespace VentilatedSlab {
                         // In this control type, the outdoor air flow rate is fixed to the maximum value
                         // which is equal to the minimum value, regardless of all the other conditions.
                         if (state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate > 0.0) {
-                            MaxOAFrac = GetCurrentScheduleValue(state, ventSlab.MaxOASchedPtr);
+                            MaxOAFrac = ventSlab.maxOASched->getCurrentVal();
                         } else {
                             MaxOAFrac = 0.0;
                         }
@@ -3268,14 +3190,14 @@ namespace VentilatedSlab {
 
                         } else { // Tinlet > Toutdoor
 
-                            MaxOAFrac = GetCurrentScheduleValue(state, ventSlab.MaxOASchedPtr);
+                            MaxOAFrac = ventSlab.maxOASched->getCurrentVal();
                             state.dataVentilatedSlab->OAMassFlowRate = MaxOAFrac * state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate;
                         }
                         break;
                     }
                     case OutsideAirControlType::FixedTemperature: {
                         // This is basically the same algorithm as for the heating case...
-                        Tdesired = GetCurrentScheduleValue(state, ventSlab.TempSchedPtr);
+                        Tdesired = ventSlab.tempSched->getCurrentVal();
                         MaxOAFrac = 1.0;
 
                         if (std::abs(Tinlet - Toutdoor) <= LowTempDiff) { // no difference in indoor and outdoor conditions-->set OA to minimum
@@ -3333,7 +3255,7 @@ namespace VentilatedSlab {
                         // In this control type, the outdoor air flow rate is fixed to the maximum value
                         // which is equal to the minimum value, regardless of all the other conditions.
                         if (state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate > 0.0) {
-                            MaxOAFrac = GetCurrentScheduleValue(state, ventSlab.MaxOASchedPtr);
+                            MaxOAFrac = ventSlab.maxOASched->getCurrentVal();
                         } else {
                             MaxOAFrac = 0.0;
                         }
@@ -3348,7 +3270,7 @@ namespace VentilatedSlab {
                     }
                     case OutsideAirControlType::FixedTemperature: {
                         // This is basically the same algorithm as for the heating case...
-                        Tdesired = GetCurrentScheduleValue(state, ventSlab.TempSchedPtr);
+                        Tdesired = ventSlab.tempSched->getCurrentVal();
 
                         MaxOAFrac = 1.0;
 

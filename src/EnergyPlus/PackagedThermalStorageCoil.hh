@@ -129,9 +129,9 @@ namespace PackagedThermalStorageCoil {
     {
         // Members
         std::string Name;             // Name of TES cooling package
-        int AvailSchedNum;            // pointer to availability schedule
+        Sched::Schedule *availSched = nullptr;            // availability schedule
         PTSCCtrlType ModeControlType; // how are operation modes controlled
-        int ControlModeSchedNum;      // pointer to control schedule if used
+        Sched::Schedule *controlModeSched = nullptr;      // control schedule if used
         bool EMSControlModeOn;        // if true, then EMS actuator has been used
         Real64 EMSControlModeValue;   // value to use from EMS actuator for control mode
         PTSCOperatingMode CurControlMode = PTSCOperatingMode::Off;
@@ -309,7 +309,7 @@ namespace PackagedThermalStorageCoil {
         Real64 EvapCondPumpElecNomPower;                        // Nominal power input to the evap condenser water circulation pump [W]
         Real64 EvapCondPumpElecEnergy;                          // Electric energy used by condenser water circulation pump [J]
         Real64 BasinHeaterPowerFTempDiff;                       // Basin heater power for evaporatively cooled condensers [W/K]
-        int BasinHeaterAvailSchedNum;                           // basin heater availability schedule pointer num
+        Sched::Schedule *basinHeaterAvailSched = nullptr;                           // basin heater availability schedule pointer num
         Real64 BasinHeaterSetpointTemp;                         // evap water basin temperature setpoint [C]
         EvapWaterSupply EvapWaterSupplyMode;                    // where does evap water come from
         std::string EvapWaterSupplyName;                        // name of water source e.g. water storage tank
@@ -376,7 +376,7 @@ namespace PackagedThermalStorageCoil {
 
         // Default Constructor
         PackagedTESCoolingCoilStruct()
-            : AvailSchedNum(0), ModeControlType(PTSCCtrlType::Invalid), ControlModeSchedNum(0), EMSControlModeOn(false), EMSControlModeValue(0.0),
+            : ModeControlType(PTSCCtrlType::Invalid), EMSControlModeOn(false), EMSControlModeValue(0.0),
               ControlModeErrorIndex(0), RatedEvapAirVolFlowRate(0.0), RatedEvapAirMassFlowRate(0.0), EvapAirInletNodeNum(0), EvapAirOutletNodeNum(0),
               CoolingOnlyModeIsAvailable(false), CoolingOnlyRatedTotCap(0.0), CoolingOnlyRatedSHR(0.0), CoolingOnlyRatedCOP(0.0),
               CoolingOnlyCapFTempCurve(0), CoolingOnlyCapFTempObjectNum(0), CoolingOnlyCapFFlowCurve(0), CoolingOnlyCapFFlowObjectNum(0),
@@ -417,7 +417,7 @@ namespace PackagedThermalStorageCoil {
               AncillaryControlsPower(0.0), ColdWeatherMinimumTempLimit(0.0), ColdWeatherAncillaryPower(0.0), CondAirInletNodeNum(0),
               CondAirOutletNodeNum(0), CondenserAirVolumeFlow(0.0), CondenserAirFlowSizingFactor(0.0), CondenserAirMassFlow(0.0), EvapCondEffect(0.0),
               CondInletTemp(0.0), EvapCondPumpElecNomPower(0.0), EvapCondPumpElecEnergy(0.0), BasinHeaterPowerFTempDiff(0.0),
-              BasinHeaterAvailSchedNum(0), BasinHeaterSetpointTemp(0.0), EvapWaterSupplyMode(EvapWaterSupply::WaterSupplyFromMains),
+              BasinHeaterSetpointTemp(0.0), EvapWaterSupplyMode(EvapWaterSupply::WaterSupplyFromMains),
               EvapWaterSupTankID(0), EvapWaterTankDemandARRID(0), CondensateCollectMode(CondensateAction::Discard), CondensateTankID(0),
               CondensateTankSupplyARRID(0), StorageMedia(MediaType::Invalid), StorageFluidIndex(0), FluidStorageVolume(0.0), IceStorageCapacity(0.0),
               StorageCapacitySizingFactor(0.0), MinimumFluidTankTempLimit(0.0), MaximumFluidTankTempLimit(100.0), RatedFluidTankTemp(0.0),
@@ -501,6 +501,10 @@ struct PackagedThermalStorageCoilData : BaseGlobalStruct
     Array1D_bool MySizeFlag;   // One time sizing flag
     Array1D_bool MyEnvrnFlag;  // flag for init once at start of environment
     Array1D_bool MyWarmupFlag; // flag for init after warmup complete
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

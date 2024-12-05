@@ -107,9 +107,9 @@ namespace PlantCentralGSHP {
         std::string WrapperComponentName;         // Component name
         int WrapperPerformanceObjectIndex;        // Component index in the input array
         int WrapperIdenticalObjectNum;            // Number of identical objects
-        int CHSchedPtr;                           // Index to schedule
+        Sched::Schedule *chSched = nullptr;                           // schedule
 
-        WrapperComponentSpecs() : WrapperPerformanceObjectIndex(0), WrapperIdenticalObjectNum(0), CHSchedPtr(0)
+        WrapperComponentSpecs() : WrapperPerformanceObjectIndex(0), WrapperIdenticalObjectNum(0) 
         {
         }
     };
@@ -331,8 +331,8 @@ namespace PlantCentralGSHP {
     {
         std::string Name;           // User identifier
         bool VariableFlowCH;        // True if all chiller heaters are variable flow control
-        int SchedPtr;               // Schedule value for ancillary power control
-        int CHSchedPtr;             // Schedule value for individual chiller heater control
+        Sched::Schedule *ancillaryPowerSched = nullptr;               // Schedule value for ancillary power control
+        Sched::Schedule *chSched = nullptr;             // Schedule value for individual chiller heater control
         CondenserType ControlMode;  // SmartMixing or FullyMixing
         int CHWInletNodeNum;        // Node number on the inlet side of the plant (Chilled Water side)
         int CHWOutletNodeNum;       // Node number on the outlet side of the plant (Chilled Water side)
@@ -376,7 +376,7 @@ namespace PlantCentralGSHP {
         bool mySizesReported;
 
         WrapperSpecs()
-            : VariableFlowCH(false), SchedPtr(0), CHSchedPtr(0), ControlMode(CondenserType::Invalid), CHWInletNodeNum(0), CHWOutletNodeNum(0),
+            : VariableFlowCH(false), ControlMode(CondenserType::Invalid), CHWInletNodeNum(0), CHWOutletNodeNum(0),
               HWInletNodeNum(0), HWOutletNodeNum(0), GLHEInletNodeNum(0), GLHEOutletNodeNum(0), NumOfComp(0), CHWMassFlowRate(0.0),
               HWMassFlowRate(0.0), GLHEMassFlowRate(0.0), CHWMassFlowRateMax(0.0), HWMassFlowRateMax(0.0), GLHEMassFlowRateMax(0.0),
               WrapperCoolingLoad(0.0), WrapperHeatingLoad(0.0), AncillaryPower(0.0), CoolSetPointErrDone(false), HeatSetPointErrDone(false),
@@ -475,6 +475,10 @@ struct PlantCentralGSHPData : BaseGlobalStruct
     Real64 ChillerFalseLoadRate = 0.0; // Chiller/heater false load over and above the water-side load [W]
     EPVector<PlantCentralGSHP::WrapperSpecs> Wrapper;
     EPVector<PlantCentralGSHP::ChillerHeaterSpecs> ChillerHeater;
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

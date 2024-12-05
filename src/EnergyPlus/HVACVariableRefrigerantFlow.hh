@@ -161,7 +161,7 @@ namespace HVACVariableRefrigerantFlow {
         Real64 QCondenser;                     // Water condenser heat rejection/absorption (W)
         Real64 QCondEnergy;                    // Water condenser heat rejection/aborption energy (J)
         Real64 CondenserSideOutletTemp;        // Water condenser outlet temp (C)
-        int SchedPtr;                          // Pointer to the correct schedule
+        Sched::Schedule *availSched = nullptr;                          // Pointer to the correct schedule // LOL
         Real64 CoolingCapacity;                // Nominal VRF heat pump cooling capacity (W)
         Real64 TotalCoolingCapacity;           // Nominal VRF heat pump cooling capacity (W)
         Real64 CoolingCombinationRatio;        // Ratio or terminal unit cooling capacity to VRF condenser capacity
@@ -207,7 +207,7 @@ namespace HVACVariableRefrigerantFlow {
         int MasterZonePtr;                                                // index to master thermostat zone
         int MasterZoneTUIndex;                                            // index to TU in master thermostat zone
         ThermostatCtrlType ThermostatPriority;                            // VRF priority control (1=LoadPriority, 2=ZonePriority, etc)
-        int SchedPriorityPtr;                                             // VRF priority control schedule pointer
+        Sched::Schedule *prioritySched = nullptr;                                             // VRF priority control schedule
         int ZoneTUListPtr;                                                // index to zone terminal unit list
         bool HeatRecoveryUsed;                                            // .TRUE. = heat recovery used
         Real64 VertPipeLngth;                                             // vertical piping length (m)
@@ -308,7 +308,7 @@ namespace HVACVariableRefrigerantFlow {
         Real64 BasinHeaterSetPointTemp;   // setpoint temperature for basin heater operation (C)
         Real64 BasinHeaterPower;          // Basin heater power (W)
         Real64 BasinHeaterConsumption;    // Basin heater energy consumption (J)
-        int BasinHeaterSchedulePtr;       // Pointer to basin heater schedule
+        Sched::Schedule *basinHeaterSched = nullptr;       // Pointer to basin heater schedule
         // end variables for Basin Heater interactions
         bool EMSOverrideHPOperatingMode;
         Real64 EMSValueForHPOperatingMode;
@@ -392,14 +392,14 @@ namespace HVACVariableRefrigerantFlow {
         VRFCondenserEquipment()
             : VRFSystemTypeNum(0), VRFAlgorithmType(AlgorithmType::Invalid), VRFType(DataPlant::PlantEquipmentType::Invalid), SourcePlantLoc{},
               WaterCondenserDesignMassFlow(0.0), WaterCondenserMassFlow(0.0), QCondenser(0.0), QCondEnergy(0.0), CondenserSideOutletTemp(0.0),
-              SchedPtr(-1), CoolingCapacity(0.0), TotalCoolingCapacity(0.0), CoolingCombinationRatio(1.0), VRFCondPLR(0.0), VRFCondRTF(0.0),
+              CoolingCapacity(0.0), TotalCoolingCapacity(0.0), CoolingCombinationRatio(1.0), VRFCondPLR(0.0), VRFCondRTF(0.0),
               VRFCondCyclingRatio(0.0), CondenserInletTemp(0.0), CoolingCOP(0.0), OperatingCoolingCOP(0.0), RatedCoolingPower(0.0),
               HeatingCapacity(0.0), HeatingCapacitySizeRatio(1.0), LockHeatingCapacity(false), TotalHeatingCapacity(0.0),
               HeatingCombinationRatio(1.0), HeatingCOP(0.0), OperatingHeatingCOP(0.0), RatedHeatingPower(0.0), MinOATCooling(0.0), MaxOATCooling(0.0),
               MinOATHeating(0.0), MaxOATHeating(0.0), CoolCapFT(0), CoolEIRFT(0), HeatCapFT(0), HeatEIRFT(0), CoolBoundaryCurvePtr(0),
               HeatBoundaryCurvePtr(0), EIRCoolBoundaryCurvePtr(0), CoolEIRFPLR1(0), CoolEIRFPLR2(0), CoolCapFTHi(0), CoolEIRFTHi(0), HeatCapFTHi(0),
               HeatEIRFTHi(0), EIRHeatBoundaryCurvePtr(0), HeatEIRFPLR1(0), HeatEIRFPLR2(0), CoolPLFFPLR(0), HeatPLFFPLR(0), MinPLR(0.0),
-              MasterZonePtr(0), MasterZoneTUIndex(0), ThermostatPriority(ThermostatCtrlType::Invalid), SchedPriorityPtr(0), ZoneTUListPtr(0),
+              MasterZonePtr(0), MasterZoneTUIndex(0), ThermostatPriority(ThermostatCtrlType::Invalid), ZoneTUListPtr(0),
               HeatRecoveryUsed(false), VertPipeLngth(0.0), PCFLengthCoolPtr(0), PCFHeightCool(0.0), EquivPipeLngthCool(0.0),
               PipingCorrectionCooling(1.0), PCFLengthHeatPtr(0), PCFHeightHeat(0.0), EquivPipeLngthHeat(0.0), PipingCorrectionHeating(1.0),
               CCHeaterPower(0.0), CompressorSizeRatio(0.0), NumCompressors(0), MaxOATCCHeater(0.0), DefrostEIRPtr(0), DefrostFraction(0.0),
@@ -417,7 +417,7 @@ namespace HVACVariableRefrigerantFlow {
               HRModeChange(false), HRTimer(0.0), HRTime(0.0), EvapWaterSupplyMode(EvapWaterSupply::FromMains), EvapWaterSupTankID(0),
               EvapWaterTankDemandARRID(0), CondensateTankID(0), CondensateTankSupplyARRID(0), CondensateVdot(0.0), CondensateVol(0.0),
               BasinHeaterPowerFTempDiff(0.0), BasinHeaterSetPointTemp(0.0), BasinHeaterPower(0.0), BasinHeaterConsumption(0.0),
-              BasinHeaterSchedulePtr(0), EMSOverrideHPOperatingMode(false), EMSValueForHPOperatingMode(0.0), HPOperatingModeErrorIndex(0),
+              EMSOverrideHPOperatingMode(false), EMSValueForHPOperatingMode(0.0), HPOperatingModeErrorIndex(0),
               VRFHeatRec(0.0), VRFHeatEnergyRec(0.0), AlgorithmIUCtrl(1), CondensingTemp(44.0), CondTempFixed(0.0), CoffEvapCap(1.0),
               CompActSpeed(0.0), CompMaxDeltaP(0.0), C1Te(0.0), C2Te(0.0), C3Te(0.0), C1Tc(0.0), C2Tc(0.0), C3Tc(0.0), DiffOUTeTo(5),
               EffCompInverter(0.95), EvaporatingTemp(6.0), EvapTempFixed(0.0), HROUHexRatio(0.0), IUEvaporatingTemp(6.0), IUCondensingTemp(44.0),
@@ -630,8 +630,8 @@ namespace HVACVariableRefrigerantFlow {
         Array1D_bool HRCoolRequest;           // defines a cooling load on VRFTerminalUnits when QZnReq > 0
         Array1D_bool CoolingCoilAvailable;    // cooling coil availability scheduled on
         Array1D_bool HeatingCoilAvailable;    // cooling coil availability scheduled on
-        Array1D_int CoolingCoilAvailSchPtr;   // cooling coil availability schedule index
-        Array1D_int HeatingCoilAvailSchPtr;   // heating coil availability schedule index
+        Array1D<Sched::Schedule *> coolingCoilAvailScheds;   // cooling coil availability schedule index
+        Array1D<Sched::Schedule *> heatingCoilAvailScheds;   // heating coil availability schedule index
 
         // Default Constructor
         TerminalUnitListData() : NumTUInList(0), reset_isSimulatedFlags(true)
@@ -644,7 +644,7 @@ namespace HVACVariableRefrigerantFlow {
         // Members
         std::string Name;                                  // Name of the VRF Terminal Unit
         TUType type = TUType::Invalid;                     // DataHVACGlobals VRF Terminal Unit type
-        int SchedPtr = -1;                                 // Pointer to the correct schedule
+        Sched::Schedule *availSched = nullptr;                                 // Pointer to the correct schedule // LOL // avail?
         int VRFSysNum = 0;                                 // index to VRF Condenser
         int TUListIndex = 0;                               // index to VRF Terminal Unit List
         int IndexToTUInTUList = 0;                         // index to TU in VRF Terminal Unit List
@@ -678,8 +678,8 @@ namespace HVACVariableRefrigerantFlow {
         Real64 SuppHeatPartLoadRatio = 0.0;                // supplemental heating coil part load ratio
         Real64 SuppHeatingCoilLoad = 0.0;                  // supplemental heating coil heating load
         HVAC::FanType fanType = HVAC::FanType::Invalid;    // index to fan type
-        int FanOpModeSchedPtr = 0;                         // Pointer to the correct fan operating mode schedule
-        int FanAvailSchedPtr = -1;                         // Pointer to the correct fan availability schedule
+        Sched::Schedule *fanOpModeSched = nullptr;     // Pointer to the correct fan operating mode schedule
+        Sched::Schedule *fanAvailSched = nullptr;                         // Pointer to the correct fan availability schedule
         int FanIndex = 0;                                  // Index to fan object
         Real64 FanPower = 0.0;                             // power reported by fan component
         HVAC::FanOp fanOp = HVAC::FanOp::Invalid;          // operation mode: 1 = cycling fan, cycling coil 2 = constant fan, cycling coil
@@ -1038,6 +1038,10 @@ struct HVACVarRefFlowData : BaseGlobalStruct
     EPVector<HVACVariableRefrigerantFlow::VRFTerminalUnitEquipment> VRFTU;           // ZoneHVAC:TerminalUnit:VariableRefrigerantFlow object
     EPVector<HVACVariableRefrigerantFlow::TerminalUnitListData> TerminalUnitList;    // zoneTerminalUnitList object
     EPVector<HVACVariableRefrigerantFlow::VRFTUNumericFieldData> VRFTUNumericFields; // holds VRF TU numeric input fields character field name
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

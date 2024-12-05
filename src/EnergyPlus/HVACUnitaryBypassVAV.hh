@@ -108,8 +108,8 @@ namespace HVACUnitaryBypassVAV {
     {
         std::string Name;                      // Name of unit
         std::string UnitType;                  // Type of unit
-        std::string Sched;                     // Availability schedule name
-        int SchedPtr = 0;                      // Index number to availability schedule
+        std::string availSchedName;                     // Availability schedule name
+        Sched::Schedule *availSched = nullptr;                      // availability schedule
         Real64 MaxCoolAirVolFlow = 0.0;        // System air volumetric flow rate during cooling operation [m3/s]
         Real64 MaxHeatAirVolFlow = 0.0;        // System air volumetric flow rate during heating operation [m3/s]
         Real64 MaxNoCoolHeatAirVolFlow = 0.0;  // System air volumetric flow rate when no cooling or heating [m3/s]
@@ -122,7 +122,7 @@ namespace HVACUnitaryBypassVAV {
         Real64 CoolOutAirMassFlow = 0.0;       // OA mass flow rate during cooling operation [kg/s]
         Real64 HeatOutAirMassFlow = 0.0;       // OA mass flow rate during heating operation [kg/s]
         Real64 NoCoolHeatOutAirMassFlow = 0.0; // OA mass flow rate when no cooling or heating [kg/s]
-        int OutAirSchPtr = 0;                  // Index number to outside air multiplier schedule
+        Sched::Schedule *outAirSched = nullptr;                  // outside air multiplier schedule
         int AirInNode = 0;                     // Inlet air node number for CBVAV unit
         int AirOutNode = 0;                    // Outlet air node number for CBVAV unit
         int CondenserNodeNum = 0;              // DX Coil condenser air inlet node number
@@ -139,7 +139,7 @@ namespace HVACUnitaryBypassVAV {
         HVAC::FanType fanType = HVAC::FanType::Invalid;
         HVAC::FanPlace fanPlace = HVAC::FanPlace::Invalid; // Fan placement is either blowthru (1) or drawthru (2)
         int FanIndex = 0;                                  // Index number to fan
-        int FanOpModeSchedPtr = 0;                         // Fan operating mode schedule pointer
+        Sched::Schedule *fanOpModeSched = nullptr;                         // Fan operating mode schedule
         Real64 FanVolFlow = 0.0;                           // Volumetric flow rate of system supply air fan [m3/s]
         Real64 HeatingSpeedRatio = 1.0;                    // Fan speed ratio in heating mode
         Real64 CoolingSpeedRatio = 1.0;                    // Fan speed ratio in cooling mode
@@ -342,6 +342,10 @@ struct HVACUnitaryBypassVAVData : BaseGlobalStruct
     Array1D_bool MyEnvrnFlag;     // Used for initializations each begin environment flag
     Array1D_bool MySizeFlag;      // Used for sizing CBVAV inputs one time
     Array1D_bool MyPlantScanFlag; // Used for initializations plant component for heating coils
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

@@ -367,7 +367,7 @@ namespace Window {
             // handling of optical properties
 
             for (int IPhi = 1; IPhi <= 10; ++IPhi) {
-                CosPhiIndepVar(IPhi) = std::cos((IPhi - 1) * 10.0 * Constant::DegToRadians);
+                CosPhiIndepVar(IPhi) = std::cos((IPhi - 1) * 10.0 * Constant::DegToRad);
             }
 
             TotLay = thisConstruct.TotLayers;
@@ -663,7 +663,7 @@ namespace Window {
             for (int IPhi = 1; IPhi <= TotalIPhi; ++IPhi) {
                 // 10 degree increment for incident angle is only value for a construction without a layer = SpectralAndAngle
                 Phi = double(IPhi - 1) * 10.0;
-                CosPhi = std::cos(Phi * Constant::DegToRadians);
+                CosPhi = std::cos(Phi * Constant::DegToRad);
                 if (std::abs(CosPhi) < 0.0001) CosPhi = 0.0;
 
                 // For each wavelength, get glass layer properties at this angle of incidence
@@ -863,7 +863,7 @@ namespace Window {
             // When a construction has a layer = SpectralAndAngle, the 10 degree increment will be overridden.
             for (int IPhi = 1; IPhi <= TotalIPhi; ++IPhi) {
                 Phi = double(IPhi - 1) * 10.0;
-                CosPhi = std::cos(Phi * Constant::DegToRadians);
+                CosPhi = std::cos(Phi * Constant::DegToRad);
                 if (std::abs(CosPhi) < 0.0001) CosPhi = 0.0;
 
                 // For each wavelength, get glass layer properties at this angle of incidence
@@ -1467,7 +1467,7 @@ namespace Window {
                     tvisPhiFit(IPhi) = 0.0;
 
                     Phi = double(IPhi - 1) * 10.0;
-                    CosPhi = std::cos(Phi * Constant::DegToRadians);
+                    CosPhi = std::cos(Phi * Constant::DegToRad);
                     if (std::abs(CosPhi) < 0.0001) CosPhi = 0.0;
                     Real64 cos_pow(1.0);
                     for (int CoefNum = 1; CoefNum <= 6; ++CoefNum) {
@@ -2069,7 +2069,6 @@ namespace Window {
         using Psychrometrics::PsyCpAirFnW;
         using Psychrometrics::PsyTdpFnWPb;
         // unused0909  USE DataEnvironment, ONLY: CurMnDyHr
-        using ScheduleManager::GetCurrentScheduleValue;
         using WindowComplexManager::CalcComplexWindowThermal;
         using WindowEquivalentLayer::EQLWindowSurfaceHeatBalance;
 
@@ -2207,7 +2206,7 @@ namespace Window {
             wm->nglface = 2 * wm->ngllayer;
             ShadeFlag = s_surf->SurfWinShadingFlag(SurfNum);
             wm->tilt = surf.Tilt;
-            wm->tiltr = wm->tilt * Constant::DegToRadians;
+            wm->tiltr = wm->tilt * Constant::DegToRad;
             SurfNumAdj = surf.ExtBoundCond;
             wm->hcin = state.dataHeatBalSurf->SurfHConvInt(SurfNum); // Room-side surface convective film conductance
             Real64 RefAirTemp = s_surf->Surface(SurfNum).getInsideAirTemperature(state, SurfNum);
@@ -4095,9 +4094,6 @@ namespace Window {
         // Based on ISO/DIS 15099, "Thermal Performance of Windows, Doors and Shading Devices --
         // Detailed Calculations"
 
-        // Using/Aliasing
-        using ScheduleManager::GetCurrentScheduleValue;
-
         // Locals
         // SUBROUTINE ARGUMENT DEFINITIONS:
         //   air flow or bottom for downward air flow (K)
@@ -4900,7 +4896,7 @@ namespace Window {
             asp = 1.524 / wm->gaps[IGap - 1].width;
         }
 
-        wm->tiltr = wm->tilt * Constant::DegToRadians;
+        wm->tiltr = wm->tilt * Constant::DegToRad;
         ra = gr * pr;
         //! fw if (ra > 2.0e6): error that outside range of Rayleigh number?
 
@@ -5707,7 +5703,7 @@ namespace Window {
         // SUBROUTINE ARGUMENT DEFINITIONS:
         // 0,10,20,...,80,90 degress
 
-        Real64 const DPhiR(10.0 * Constant::DegToRadians); // Half of 10-deg incidence angle increment (radians)
+        Real64 const DPhiR(10.0 * Constant::DegToRad); // Half of 10-deg incidence angle increment (radians)
 
         DiffuseAverage = 0.0;
         for (int IPhi = 1; IPhi <= 9; ++IPhi) {
@@ -6622,7 +6618,7 @@ namespace Window {
 
         TiltDeg = 90.0;
 
-        sineTilt = std::sin(TiltDeg * Constant::DegToRadians); // degrees as arg
+        sineTilt = std::sin(TiltDeg * Constant::DegToRad); // degrees as arg
 
         while (iter < MaxIterations && errtemp > errtemptol) {
             for (int i = 1; i <= wm->nglface; ++i) {
@@ -7514,14 +7510,14 @@ namespace Window {
         relativeAltitude.allocate(N, M);
 
         for (int j = 0; j <= N - 1; ++j) {
-            Real64 currAzimuth = (90.0 / N) * j * Constant::DegToRadians;
+            Real64 currAzimuth = (90.0 / N) * j * Constant::DegToRad;
             sunAzimuth.push_back(currAzimuth); // Azimuth angle of sun during integration
             sin_sunAzimuth.push_back(std::sin(currAzimuth));
             cos_sunAzimuth.push_back(std::cos(currAzimuth));
         }
 
         for (int i = 0; i <= M - 1; ++i) {
-            Real64 currAltitude = (90.0 / M) * i * Constant::DegToRadians;
+            Real64 currAltitude = (90.0 / M) * i * Constant::DegToRad;
             sunAltitude.push_back(currAltitude); // Altitude angle of sun during integration
             sin_sunAltitude.push_back(std::sin(currAltitude));
             cos_sunAltitude.push_back(std::cos(currAltitude));

@@ -181,7 +181,6 @@ void GetZoneEquipmentData(EnergyPlusData &state)
     using NodeInputManager::GetOnlySingleNode;
     using NodeInputManager::InitUniqueNodeCheck;
     using namespace DataLoopNode;
-    using namespace ScheduleManager;
 
     // SUBROUTINE PARAMETER DEFINITIONS:
     static constexpr std::string_view RoutineName("GetZoneEquipmentData: "); // include trailing blank space
@@ -751,10 +750,14 @@ void processZoneEquipmentInput(EnergyPlusData &state,
                                Array1D_int &NodeNums)
 {
     static constexpr std::string_view RoutineName("processZoneEquipmentInput: "); // include trailing blank space
+    static constexpr std::string_view routineName = "processZoneEquipmentInput";
+    
     int spaceFieldShift = 0;
     if (isSpace) {
         spaceFieldShift = -1;
     }
+
+    ErrorObjectHeader eoh{routineName, zoneEqModuleObject, AlphArray(1)};
 
     thisEquipConfig.IsControlled = true;
     thisEquipConfig.ZoneName = AlphArray(1); // for x-referencing with the geometry data
@@ -794,20 +797,10 @@ void processZoneEquipmentInput(EnergyPlusData &state,
 
     std::string ReturnNodeListName = AlphArray(6 + spaceFieldShift);
     if (lAlphaBlanks(7)) {
-        thisEquipConfig.ReturnFlowSchedPtrNum = ScheduleManager::ScheduleAlwaysOn;
-    } else {
-        thisEquipConfig.ReturnFlowSchedPtrNum = ScheduleManager::GetScheduleIndex(state, AlphArray(7 + spaceFieldShift));
-        if (thisEquipConfig.ReturnFlowSchedPtrNum == 0) {
-            ShowSevereError(state,
-                            format("{}{}: invalid {} entered ={} for {}={}",
-                                   RoutineName,
-                                   zoneEqModuleObject,
-                                   cAlphaFields(7),
-                                   AlphArray(7),
-                                   cAlphaFields(1),
-                                   AlphArray(1)));
-            state.dataZoneEquip->GetZoneEquipmentDataErrorsFound = true;
-        }
+        thisEquipConfig.returnFlowSched = Sched::GetScheduleAlwaysOn(state);
+    } else if ((thisEquipConfig.returnFlowSched = Sched::GetSchedule(state, AlphArray(7 + spaceFieldShift))) == nullptr) {
+        ShowSevereItemNotFound(state, eoh, cAlphaFields(7), AlphArray(7));
+        state.dataZoneEquip->GetZoneEquipmentDataErrorsFound = true;
     }
     std::string ReturnFlowBasisNodeListName = AlphArray(8 + spaceFieldShift);
 
@@ -861,8 +854,8 @@ void processZoneEquipmentInput(EnergyPlusData &state,
                 thisZoneEquipList.HeatingPriority.allocate(thisZoneEquipList.NumOfEquipTypes);
                 thisZoneEquipList.CoolingCapacity.allocate(thisZoneEquipList.NumOfEquipTypes);
                 thisZoneEquipList.HeatingCapacity.allocate(thisZoneEquipList.NumOfEquipTypes);
-                thisZoneEquipList.SequentialCoolingFractionSchedPtr.allocate(thisZoneEquipList.NumOfEquipTypes);
-                thisZoneEquipList.SequentialHeatingFractionSchedPtr.allocate(thisZoneEquipList.NumOfEquipTypes);
+                thisZoneEquipList.sequentialCoolingFractionScheds.allocate(thisZoneEquipList.NumOfEquipTypes);
+                thisZoneEquipList.sequentialHeatingFractionScheds.allocate(thisZoneEquipList.NumOfEquipTypes);
                 for (int eqNum = 1; eqNum <= thisZoneEquipList.NumOfEquipTypes; ++eqNum) {
                     thisZoneEquipList.EquipTypeName(eqNum) = "";
                     thisZoneEquipList.EquipType(eqNum) = DataZoneEquipment::ZoneEquipType::Invalid;
@@ -874,8 +867,8 @@ void processZoneEquipmentInput(EnergyPlusData &state,
                     thisZoneEquipList.HeatingPriority(eqNum) = 0;
                     thisZoneEquipList.CoolingCapacity(eqNum) = 0;
                     thisZoneEquipList.HeatingCapacity(eqNum) = 0;
-                    thisZoneEquipList.SequentialCoolingFractionSchedPtr(eqNum) = 0;
-                    thisZoneEquipList.SequentialHeatingFractionSchedPtr(eqNum) = 0;
+                    thisZoneEquipList.sequentialCoolingFractionScheds(eqNum) = nullptr;
+                    thisZoneEquipList.sequentialHeatingFractionScheds(eqNum) = nullptr;
                 }
 
                 auto const &extensionSchemaProps = objectSchemaProps["equipment"]["items"]["properties"];
@@ -932,15 +925,11 @@ void processZoneEquipmentInput(EnergyPlusData &state,
                     std::string coolingSchName =
                         ip->getAlphaFieldValue(extensibleInstance, extensionSchemaProps, "zone_equipment_sequential_cooling_fraction_schedule_name");
                     if (coolingSchName.empty()) {
-                        thisZoneEquipList.SequentialCoolingFractionSchedPtr(ZoneEquipTypeNum) = ScheduleManager::ScheduleAlwaysOn;
+                        thisZoneEquipList.sequentialCoolingFractionScheds(ZoneEquipTypeNum) = Sched::GetScheduleAlwaysOn(state);
                     } else {
-                        thisZoneEquipList.SequentialCoolingFractionSchedPtr(ZoneEquipTypeNum) =
-                            ScheduleManager::GetScheduleIndex(state, coolingSchName);
-                        if (thisZoneEquipList.SequentialCoolingFractionSchedPtr(ZoneEquipTypeNum) == 0) {
-                            ShowSevereError(state, format("{}{} = \"{}\".", RoutineName, CurrentModuleObject, thisZoneEquipList.Name));
-                            ShowContinueError(state,
-                                              format("invalid zone_equipment_sequential_cooling_fraction_schedule_name=[{}].", coolingSchName));
-                            ShowContinueError(state, "Schedule does not exist.");
+                        thisZoneEquipList.sequentialCoolingFractionScheds(ZoneEquipTypeNum) = Sched::GetSchedule(state, coolingSchName);
+                        if (thisZoneEquipList.sequentialCoolingFractionScheds(ZoneEquipTypeNum) == nullptr) {
+                            ShowSevereItemNotFound(state, eoh, "zone_equipment_sequential_cooling_fraction_schedule_name", coolingSchName);
                             state.dataZoneEquip->GetZoneEquipmentDataErrorsFound = true;
                         }
                     }
@@ -948,15 +937,11 @@ void processZoneEquipmentInput(EnergyPlusData &state,
                     std::string heatingSchName =
                         ip->getAlphaFieldValue(extensibleInstance, extensionSchemaProps, "zone_equipment_sequential_heating_fraction_schedule_name");
                     if (heatingSchName.empty()) {
-                        thisZoneEquipList.SequentialHeatingFractionSchedPtr(ZoneEquipTypeNum) = ScheduleManager::ScheduleAlwaysOn;
+                        thisZoneEquipList.sequentialHeatingFractionScheds(ZoneEquipTypeNum) = Sched::GetScheduleAlwaysOn(state);
                     } else {
-                        thisZoneEquipList.SequentialHeatingFractionSchedPtr(ZoneEquipTypeNum) =
-                            ScheduleManager::GetScheduleIndex(state, heatingSchName);
-                        if (thisZoneEquipList.SequentialHeatingFractionSchedPtr(ZoneEquipTypeNum) == 0) {
-                            ShowSevereError(state, format("{}{} = \"{}\".", RoutineName, CurrentModuleObject, thisZoneEquipList.Name));
-                            ShowContinueError(state,
-                                              format("invalid zone_equipment_sequential_heating_fraction_schedule_name=[{}].", coolingSchName));
-                            ShowContinueError(state, "Schedule does not exist.");
+                        thisZoneEquipList.sequentialHeatingFractionScheds(ZoneEquipTypeNum) = Sched::GetSchedule(state, heatingSchName);
+                        if (thisZoneEquipList.sequentialHeatingFractionScheds(ZoneEquipTypeNum) == nullptr) {
+                            ShowSevereItemNotFound(state, eoh, "zone_equipment_sequential_heating_fraction_schedule_name", coolingSchName);
                             state.dataZoneEquip->GetZoneEquipmentDataErrorsFound = true;
                         }
                     }
@@ -1746,14 +1731,14 @@ void EquipList::getPrioritiesForInletNode(EnergyPlusData &state,
     state.dataHVACGlobal->MinAirLoopIterationsAfterFirst = minIterations;
 }
 
-Real64 EquipList::SequentialHeatingFraction(EnergyPlusData &state, const int equipNum)
+Real64 EquipList::SequentialHeatingFraction([[maybe_unused]] EnergyPlusData &state, const int equipNum)
 {
-    return ScheduleManager::GetCurrentScheduleValue(state, SequentialHeatingFractionSchedPtr(equipNum));
+    return sequentialHeatingFractionScheds(equipNum)->getCurrentVal();
 }
 
-Real64 EquipList::SequentialCoolingFraction(EnergyPlusData &state, const int equipNum)
+Real64 EquipList::SequentialCoolingFraction([[maybe_unused]] EnergyPlusData &state, const int equipNum)
 {
-    return ScheduleManager::GetCurrentScheduleValue(state, SequentialCoolingFractionSchedPtr(equipNum));
+    return sequentialCoolingFractionScheds(equipNum)->getCurrentVal();
 }
 
 int GetZoneEquipControlledZoneNum(EnergyPlusData &state, DataZoneEquipment::ZoneEquipType const zoneEquipType, std::string const &EquipmentName)
@@ -2036,12 +2021,16 @@ void ZoneEquipmentSplitter::adjustLoads(EnergyPlusData &state, int zoneNum, int 
 {
     auto &thisZoneEnergyDemand = state.dataZoneEnergyDemand->ZoneSysEnergyDemand(zoneNum);
     auto &thisZoneMoistureDemand = state.dataZoneEnergyDemand->ZoneSysMoistureDemand(zoneNum);
+
+    auto &zoneTstatSetpt = state.dataHeatBalFanSys->zoneTstatSetpts(zoneNum);
+    
     Real64 sensibleRatio = 1.0;
     Real64 latentRatio = 1.0;
     switch (this->tstatControl) {
-    case DataZoneEquipment::ZoneEquipTstatControl::Ideal:
+    case DataZoneEquipment::ZoneEquipTstatControl::Ideal: {
         return;
-        break; // Do nothing
+    } break; // Do nothing
+            
     case DataZoneEquipment::ZoneEquipTstatControl::SingleSpace: {
         Real64 controlSpaceFrac = this->spaces[this->controlSpaceNumber].fraction;
         if (controlSpaceFrac > 0.0) {
@@ -2057,6 +2046,7 @@ void ZoneEquipmentSplitter::adjustLoads(EnergyPlusData &state, int zoneNum, int 
             }
         }
     } break;
+            
     case DataZoneEquipment::ZoneEquipTstatControl::Maximum: {
         int maxSpaceIndex = 0;
         Real64 maxDeltaTemp = 0.0; // Only positive deltaTemps are relevant
@@ -2064,8 +2054,7 @@ void ZoneEquipmentSplitter::adjustLoads(EnergyPlusData &state, int zoneNum, int 
         for (auto &splitterSpace : this->spaces) {
             Real64 spaceTemp =
                 state.dataZoneTempPredictorCorrector->spaceHeatBalance(splitterSpace.spaceIndex).T1; // Based on calcPredictedSystemLoad usage
-            Real64 spaceDeltaTemp = max((state.dataHeatBalFanSys->ZoneThermostatSetPointLo(zoneNum) - spaceTemp),
-                                        (spaceTemp - state.dataHeatBalFanSys->ZoneThermostatSetPointHi(zoneNum)));
+            Real64 spaceDeltaTemp = max((zoneTstatSetpt.setptLo - spaceTemp), (spaceTemp - zoneTstatSetpt.setptHi));
             if (spaceDeltaTemp > maxDeltaTemp) {
                 maxSpaceIndex = splitterSpace.spaceIndex;
                 maxSpaceFrac = splitterSpace.fraction;
@@ -2250,7 +2239,7 @@ void EquipConfiguration::calcReturnFlows(EnergyPlusData &state,
     Real64 totReturnFlow = 0.0; // Total flow to all return nodes in the zone (kg/s)
     Real64 totVarReturnFlow =
         0.0; // Total variable return flow, for return nodes connected to an airloop with an OA system or not with specified flow (kg/s)
-    Real64 returnSchedFrac = ScheduleManager::GetCurrentScheduleValue(state, this->ReturnFlowSchedPtrNum);
+    Real64 returnSchedFrac = this->returnFlowSched->getCurrentVal();
     this->FixedReturnFlow = false;
     FinalTotalReturnMassFlow = 0.0;
     this->TotAvailAirLoopOA = 0.0;

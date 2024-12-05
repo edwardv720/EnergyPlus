@@ -541,7 +541,7 @@ Real64 EIRPlantLoopHeatPump::heatingCapacityModifierASHP(EnergyPlusData &state) 
     }
 }
 
-void EIRPlantLoopHeatPump::setPartLoadAndCyclingRatio(EnergyPlusData &state, Real64 &partLoadRatio)
+void EIRPlantLoopHeatPump::setPartLoadAndCyclingRatio([[maybe_unused ]] EnergyPlusData &state, Real64 &partLoadRatio)
 {
     // Initialize cycling ratio to 1.0
     Real64 cyclingRatio = 1.0;
@@ -713,7 +713,7 @@ void EIRPlantLoopHeatPump::calcHeatRecoveryHeatTransferASHP(EnergyPlusData &stat
     }
 }
 
-void EIRPlantLoopHeatPump::setHeatRecoveryOperatingStatusASHP(EnergyPlusData &state, bool FirstHVACIteration)
+void EIRPlantLoopHeatPump::setHeatRecoveryOperatingStatusASHP([[maybe_unused]] EnergyPlusData &state, [[maybe_unused]] bool FirstHVACIteration)
 {
     if (!this->running) {
         if (this->heatRecoveryAvailable) {

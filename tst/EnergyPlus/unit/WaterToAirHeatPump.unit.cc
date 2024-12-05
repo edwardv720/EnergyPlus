@@ -136,7 +136,8 @@ TEST_F(EnergyPlusFixture, WaterToAirHeatPumpTest_SimWaterToAir)
     });
 
     ASSERT_TRUE(process_idf(idf_objects));
-
+    state->init_state(*state);
+    
     auto *refrig = new FluidProperties::RefrigProps;
     refrig->Name = "R22";
     state->dataFluidProps->refrigs.push_back(refrig);

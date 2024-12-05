@@ -91,11 +91,7 @@ TEST_F(EnergyPlusFixture, PlantUtilities_RegisterPlantCompDesignFlowTest1)
 TEST_F(EnergyPlusFixture, TestRegulateCondenserCompFlowReqOp)
 {
     // test consecutive call to fluid properties getInput
-    FluidProperties::GetFluidPropertiesData(*state);
-    EXPECT_EQ(1, state->dataFluidProps->refrigs.isize());
-    EXPECT_EQ(1, state->dataFluidProps->glycols.isize());
-
-    FluidProperties::GetFluidPropertiesData(*state); // should never happen but if it does it's safe
+    state->init_state(*state);
     EXPECT_EQ(1, state->dataFluidProps->refrigs.isize());
     EXPECT_EQ(1, state->dataFluidProps->glycols.isize());
 

@@ -83,8 +83,7 @@ namespace HighTempRadiantSystem {
         // Members
         // Input data
         std::string Name;               // name of hydronic radiant system
-        std::string SchedName;          // availability schedule
-        int SchedPtr;                   // index to schedule
+        Sched::Schedule *availSched = nullptr;                   // availability schedule
         int ZonePtr;                    // Point to this zone in the Zone derived type
         Constant::eResource HeaterType; // Type of heater (NaturalGas or Electricity)
         Real64 MaxPowerCapac;           // Maximum capacity of the radiant heater in Watts
@@ -96,8 +95,7 @@ namespace HighTempRadiantSystem {
         // (by definition this is 1 minus the sum of all other fractions)
         RadControlType ControlType;        // Control type for the system (MAT, MRT, or op temp)
         Real64 ThrottlRange;               // Throttling range for heating [C]
-        std::string SetptSched;            // Schedule name for the zone setpoint temperature
-        int SetptSchedPtr;                 // Schedule index for the zone setpoint temperature
+        Sched::Schedule *setptSched = nullptr;                 // Schedule for the zone setpoint temperature
         Real64 FracDistribPerson;          // Fraction of fraction radiant incident on a "person" in the space
         int TotSurfToDistrib;              // Total number of surfaces the heater sends radiation to
         Array1D_string SurfaceName;        // Surface name in the list of surfaces heater sends radiation to
@@ -126,8 +124,8 @@ namespace HighTempRadiantSystem {
 
         // Default Constructor
         HighTempRadiantSystemData()
-            : SchedPtr(0), ZonePtr(0), HeaterType(Constant::eResource::Invalid), MaxPowerCapac(0.0), CombustionEffic(0.0), FracRadiant(0.0),
-              FracLatent(0.0), FracLost(0.0), FracConvect(0.0), ControlType(RadControlType::Invalid), ThrottlRange(0.0), SetptSchedPtr(0),
+            : ZonePtr(0), HeaterType(Constant::eResource::Invalid), MaxPowerCapac(0.0), CombustionEffic(0.0), FracRadiant(0.0),
+              FracLatent(0.0), FracLost(0.0), FracConvect(0.0), ControlType(RadControlType::Invalid), ThrottlRange(0.0), 
               FracDistribPerson(0.0), TotSurfToDistrib(0), ZeroHTRSourceSumHATsurf(0.0), QHTRRadSource(0.0), QHTRRadSrcAvg(0.0),
               LastSysTimeElapsed(0.0), LastTimeStepSys(0.0), LastQHTRRadSrc(0.0), ElecPower(0.0), ElecEnergy(0.0), GasPower(0.0), GasEnergy(0.0),
               HeatPower(0.0), HeatEnergy(0.0), HeatingCapMethod(DataSizing::DesignSizingType::Invalid), ScaledHeatingCapacity(0.0)
@@ -200,6 +198,10 @@ struct HighTempRadiantSystemData : BaseGlobalStruct
     bool firstTime = true; // For one-time initializations
     bool MyEnvrnFlag = true;
     bool ZoneEquipmentListChecked = false; // True after the Zone Equipment List has been checked for items
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

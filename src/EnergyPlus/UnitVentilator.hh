@@ -106,7 +106,7 @@ namespace UnitVentilator {
     struct UnitVentilatorData
     {
         std::string Name;      // name of unit
-        int SchedPtr = 0;      // index to schedule
+        Sched::Schedule *availSched = nullptr;
         int AirInNode = 0;     // inlet air node number
         int AirOutNode = 0;    // outlet air node number
         int FanOutletNode = 0; // outlet node number for fan exit
@@ -114,17 +114,17 @@ namespace UnitVentilator {
         HVAC::FanType fanType = HVAC::FanType::Invalid; // Fan type number (see DataHVACGlobals)
         std::string FanName;                            // name of fan
         int Fan_Index = 0;
-        int FanSchedPtr = 0;                      // index to fan operating mode schedule
-        int FanAvailSchedPtr = 0;                 // index to fan availability schedule
+        Sched::Schedule *fanOpModeSched = nullptr;                      // index to fan operating mode schedule
+        Sched::Schedule *fanAvailSched = nullptr;
         HVAC::FanOp fanOp = HVAC::FanOp::Invalid; // mode of operation; 1=cycling fan, cycling coil, 2=continuous fan, cycling coil
         int ControlCompTypeNum = 0;
         int CompErrIndex = 0;
         Real64 MaxAirVolFlow = 0.0;                     // m3/s
         Real64 MaxAirMassFlow = 0.0;                    // kg/s
         OAControl OAControlType = OAControl::Invalid;   // type of control; options are VARIABLE PERCENT and FIXED TEMPERATURE
-        int MinOASchedPtr = 0;                          // index to schedule
-        int MaxOASchedPtr = 0;                          // index to schedule
-        int TempSchedPtr = 0;                           // index to schedule
+        Sched::Schedule *minOASched = nullptr;
+        Sched::Schedule *maxOASched = nullptr;
+        Sched::Schedule *tempSched = nullptr;
         int OutsideAirNode = 0;                         // outside air node number
         int AirReliefNode = 0;                          // relief air node number
         int OAMixerOutNode = 0;                         // outlet node after the outside air mixer (inlet to coils if present)
@@ -140,7 +140,7 @@ namespace UnitVentilator {
         int HCoil_Index = 0;
         DataPlant::PlantEquipmentType HeatingCoilType = DataPlant::PlantEquipmentType::Invalid;
         int HCoil_FluidIndex = 0;
-        int HCoilSchedPtr = 0; // index to schedule
+        Sched::Schedule *hCoilSched = nullptr;
         Real64 HCoilSchedValue = 0.0;
         Real64 MaxVolHotWaterFlow = 0.0; // m3/s
         Real64 MaxVolHotSteamFlow = 0.0; // m3/s
@@ -162,7 +162,7 @@ namespace UnitVentilator {
         std::string CCoilPlantType; // type of cooling coil for plant
         DataPlant::PlantEquipmentType CoolingCoilType = DataPlant::PlantEquipmentType::Invalid;
         CoolCoilType CCoilType = CoolCoilType::Invalid;
-        int CCoilSchedPtr = 0; // index to schedule
+        Sched::Schedule *cCoilSched = nullptr;
         Real64 CCoilSchedValue = 0.0;
         Real64 MaxVolColdWaterFlow = 0.0; // m3/s
         Real64 MaxColdWaterFlow = 0.0;    // kg/s
@@ -313,6 +313,10 @@ struct UnitVentilatorsData : BaseGlobalStruct
     int ATMixOutNode = 0;   // outlet node of ATM Mixer
     int ATMixerPriNode = 0; // primary air node of ATM Mixer
     int ZoneNode = 0;       // zone node
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

@@ -176,6 +176,9 @@ TEST_F(EnergyPlusFixture, HeatBalanceKiva_SetInitialBCs)
     });
 
     ASSERT_TRUE(process_idf(idf_objects));
+    state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 60;    // must initialize this to get schedules initialized
+    state->init_state(*state);
 
     bool ErrorsFound(false); // If errors detected in input
     HeatBalanceManager::GetZoneData(*state, ErrorsFound);
@@ -187,14 +190,10 @@ TEST_F(EnergyPlusFixture, HeatBalanceKiva_SetInitialBCs)
     state->dataEnvrn->DayOfWeek = 1;               // must initialize this to get schedules initialized
     state->dataGlobal->HourOfDay = 1;              // must initialize this to get schedules initialized
     state->dataGlobal->TimeStep = 1;               // must initialize this to get schedules initialized
-    state->dataGlobal->NumOfTimeStepInHour = 1;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesPerTimeStep = 60;    // must initialize this to get schedules initialized
-    ScheduleManager::ProcessScheduleInput(*state); // read schedules
 
     ZoneTempPredictorCorrector::GetZoneAirSetPoints(*state);
 
-    state->dataScheduleMgr->Schedule(state->dataZoneCtrls->TempControlledZone(DualZoneNum).CTSchedIndex).CurrentValue =
-        static_cast<int>(HVAC::ThermostatType::DualSetPointWithDeadBand);
+    state->dataZoneCtrls->TempControlledZone(DualZoneNum).setptTypeSched->currentVal = (int)HVAC::SetptType::DualHeatCool;
 
     // Test Initial Indoor Temperature input of 15C with Cooling/Heating Setpoints of 24C/20C
 
@@ -227,8 +226,8 @@ TEST_F(EnergyPlusFixture, HeatBalanceKiva_SetInitialBCs)
 
     // Test using default Initial Indoor Temperature with Cooling/Heating Setpoints of 100C/-100C
 
-    state->dataZoneCtrls->TempControlledZone(1).SchIndx_DualSetPointWDeadBandCool = 4;
-    state->dataZoneCtrls->TempControlledZone(1).SchIndx_DualSetPointWDeadBandHeat = 5;
+    state->dataZoneCtrls->TempControlledZone(1).setpts[(int)HVAC::SetptType::DualHeatCool].coolSetptSched = Sched::GetSchedule(*state, "CLGSETP_SCH_EXTREME");
+    state->dataZoneCtrls->TempControlledZone(1).setpts[(int)HVAC::SetptType::DualHeatCool].heatSetptSched = Sched::GetSchedule(*state, "HTGSETP_SCH_EXTREME");
 
     Real64 heatingSetpoint3 = -100.0;
     Real64 zoneAssumedTemperature3 = -9999;
@@ -245,9 +244,8 @@ TEST_F(EnergyPlusFixture, HeatBalanceKiva_SetInitialBCs)
 
     // Test Initial Indoor Temperature input of 15C with Cooling/Heating Setpoints of 100C/-100C
 
-    state->dataZoneCtrls->TempControlledZone(1).SchIndx_DualSetPointWDeadBandCool = 4;
-    state->dataZoneCtrls->TempControlledZone(1).SchIndx_DualSetPointWDeadBandHeat = 5;
-
+    state->dataZoneCtrls->TempControlledZone(1).setpts[(int)HVAC::SetptType::DualHeatCool].coolSetptSched = Sched::GetSchedule(*state, "CLGSETP_SCH_EXTREME");
+    state->dataZoneCtrls->TempControlledZone(1).setpts[(int)HVAC::SetptType::DualHeatCool].heatSetptSched = Sched::GetSchedule(*state, "HTGSETP_SCH_EXTREME");
     Real64 zoneAssumedTemperature4 = 15.0;
     HeatBalanceKivaManager::KivaInstanceMap kv4(*state, fnd, 0, {}, 0, zoneAssumedTemperature4, 1.0, 0, &km);
 
@@ -694,6 +692,9 @@ TEST_F(EnergyPlusFixture, HeatBalanceKiva_setupKivaInstances_ThermalComfort)
     });
 
     ASSERT_TRUE(process_idf(idf_objects));
+    state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 60;    // must initialize this to get schedules initialized
+    state->init_state(*state);
 
     bool ErrorsFound(false); // If errors detected in input
     ASSERT_FALSE(ErrorsFound);
@@ -702,9 +703,6 @@ TEST_F(EnergyPlusFixture, HeatBalanceKiva_setupKivaInstances_ThermalComfort)
     state->dataEnvrn->DayOfWeek = 1;               // must initialize this to get schedules initialized
     state->dataGlobal->HourOfDay = 1;              // must initialize this to get schedules initialized
     state->dataGlobal->TimeStep = 1;               // must initialize this to get schedules initialized
-    state->dataGlobal->NumOfTimeStepInHour = 1;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesPerTimeStep = 60;    // must initialize this to get schedules initialized
-    ScheduleManager::ProcessScheduleInput(*state); // read schedules
 
     state->files.inputWeatherFilePath.filePath = configured_source_directory() / "tst/EnergyPlus/unit/Resources/HeatBalanceKivaManagerOSkyTest.epw";
     HeatBalanceManager::GetHeatBalanceInput(*state);

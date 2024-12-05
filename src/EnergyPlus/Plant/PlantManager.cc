@@ -284,7 +284,6 @@ void GetPlantLoopData(EnergyPlusData &state)
     // calls the Input Processor to retrieve data from input file.
 
     // Using/Aliasing
-    using ScheduleManager::GetScheduleIndex;
     using SetPointManager::IsNodeOnSetPtManager;
     HVAC::CtrlVarType localTempSetPt = HVAC::CtrlVarType::Temp;
     using NodeInputManager::GetOnlySingleNode;
@@ -2205,7 +2204,6 @@ void InitializeLoops(EnergyPlusData &state, bool const FirstHVACIteration) // tr
     // temperature changes. Branch levels for all branches are also set.
 
     // Using/Aliasing
-    using ScheduleManager::GetCurrentScheduleValue;
     using namespace DataSizing;
     using EMSManager::CheckIfNodeSetPointManagedByEMS;
 
@@ -2522,9 +2520,6 @@ void ReInitPlantLoopsAtFirstHVACIteration(EnergyPlusData &state)
     // called from SimHVAC to reset mass flow rate requests
     // this contains all the initializations
 
-    // Using/Aliasing
-    using ScheduleManager::GetCurrentScheduleValue;
-
     // SUBROUTINE PARAMETER DEFINITIONS:
     Real64 constexpr StartQuality(1.0);
     Real64 constexpr StartHumRat(0.0);
@@ -2810,7 +2805,7 @@ void ReInitPlantLoopsAtFirstHVACIteration(EnergyPlusData &state)
         for (OpNum = 1; OpNum <= state.dataPlnt->PlantLoop(LoopNum).NumOpSchemes; ++OpNum) {
             // If the operating scheme is scheduled "OFF", go to next scheme
             state.dataPlnt->PlantLoop(LoopNum).OpScheme(OpNum).Available =
-                GetCurrentScheduleValue(state, state.dataPlnt->PlantLoop(LoopNum).OpScheme(OpNum).SchedPtr) > 0.0;
+                state.dataPlnt->PlantLoop(LoopNum).OpScheme(OpNum).sched->getCurrentVal() > 0.0;
         }
     }
 }
@@ -2894,7 +2889,6 @@ void CheckPlantOnAbort(EnergyPlusData &state)
     if (!(allocated(state.dataPlnt->PlantLoop))) return;
 
     for (LoopNum = 1; LoopNum <= state.dataPlnt->TotNumLoops; ++LoopNum) {
-        int constexpr numLoopSides = 2;
         for (DataPlant::LoopSideLocation SideNum : DataPlant::LoopSideKeys) {
             if (!(state.dataPlnt->PlantLoop(LoopNum).LoopSide(SideNum).Splitter.Exists)) continue;
 

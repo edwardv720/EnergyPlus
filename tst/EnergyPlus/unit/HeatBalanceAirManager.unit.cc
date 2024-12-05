@@ -86,7 +86,8 @@ TEST_F(EnergyPlusFixture, HeatBalanceAirManager_RoomAirModelType_Test)
     });
 
     ASSERT_TRUE(process_idf(idf_objects));
-
+    state->init_state(*state);
+    
     state->dataGlobal->NumOfZones = 2;
 
     state->dataHeatBal->Zone.allocate(2);
@@ -369,9 +370,14 @@ TEST_F(EnergyPlusFixture, HeatBalanceAirManager_GetInfiltrationAndVentilation)
     state->dataIPShortCut->lNumericFieldBlanks.dimension(MaxNumeric, false);
 
     bool ErrorsFound = false;
+
+    state->init_state(*state);
+    
     HeatBalanceManager::GetHeatBalanceInput(*state);
     std::string const error_string = delimited_string(
-        {"   ** Warning ** GetSurfaceData: Entered Space Floor Area(s) differ more than 5% from calculated Space Floor Area(s).",
+        {"   ** Warning ** Version: missing in IDF, processing for EnergyPlus version=\"24.2\"",
+         "   ** Warning ** No Timestep object found.  Number of TimeSteps in Hour defaulted to 4.",
+         "   ** Warning ** GetSurfaceData: Entered Space Floor Area(s) differ more than 5% from calculated Space Floor Area(s).",
          "   **   ~~~   ** ...use Output:Diagnostics,DisplayExtraWarnings; to show more details on individual Spaces.",
          "   ** Warning ** CalculateZoneVolume: 1 zone is not fully enclosed. For more details use:  Output:Diagnostics,DisplayExtrawarnings; ",
          "   ** Warning ** CalcApproximateViewFactors: Zero area for all other zone surfaces.",
@@ -755,10 +761,14 @@ TEST_F(EnergyPlusFixture, HeatBalanceAirManager_GetMixingAndCrossMixing)
     state->dataIPShortCut->rNumericArgs.dimension(MaxNumeric, 0.0);
     state->dataIPShortCut->lNumericFieldBlanks.dimension(MaxNumeric, false);
 
+    state->init_state(*state);
+    
     bool ErrorsFound = false;
     HeatBalanceManager::GetHeatBalanceInput(*state);
     std::string const error_string = delimited_string(
-        {"   ** Warning ** GetSurfaceData: Entered Space Floor Area(s) differ more than 5% from calculated Space Floor Area(s).",
+        {"   ** Warning ** Version: missing in IDF, processing for EnergyPlus version=\"24.2\"",
+         "   ** Warning ** No Timestep object found.  Number of TimeSteps in Hour defaulted to 4.",
+         "   ** Warning ** GetSurfaceData: Entered Space Floor Area(s) differ more than 5% from calculated Space Floor Area(s).",
          "   **   ~~~   ** ...use Output:Diagnostics,DisplayExtraWarnings; to show more details on individual Spaces.",
          "   ** Warning ** CalculateZoneVolume: 1 zone is not fully enclosed. For more details use:  Output:Diagnostics,DisplayExtrawarnings; ",
          "   ** Warning ** CalcApproximateViewFactors: Zero area for all other zone surfaces.",
@@ -884,6 +894,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceAirManager_GetMixingAndCrossMixing)
 
 TEST_F(EnergyPlusFixture, HeatBalanceAirManager_InitSimpleMixingConvectiveHeatGains_Test)
 {
+    state->init_state(*state);
     Real64 expectedResult1;
     Real64 expectedResult2;
     Real64 constexpr allowedTolerance = 0.00001;
@@ -893,9 +904,9 @@ TEST_F(EnergyPlusFixture, HeatBalanceAirManager_InitSimpleMixingConvectiveHeatGa
     state->dataHeatBal->TotCrossMixing = 0;
     state->dataHeatBal->TotMixing = 3;
     state->dataHeatBal->Mixing.allocate(state->dataHeatBal->TotMixing);
-    state->dataHeatBal->Mixing(1).SchedPtr = -1; // this returns a value of one
-    state->dataHeatBal->Mixing(2).SchedPtr = -1; // this returns a value of one
-    state->dataHeatBal->Mixing(3).SchedPtr = -1; // this returns a value of one
+    state->dataHeatBal->Mixing(1).sched = Sched::GetScheduleAlwaysOn(*state); 
+    state->dataHeatBal->Mixing(2).sched = Sched::GetScheduleAlwaysOn(*state); 
+    state->dataHeatBal->Mixing(3).sched = Sched::GetScheduleAlwaysOn(*state); 
     state->dataHeatBal->Mixing(1).EMSSimpleMixingOn = false;
     state->dataHeatBal->Mixing(2).EMSSimpleMixingOn = false;
     state->dataHeatBal->Mixing(3).EMSSimpleMixingOn = false;

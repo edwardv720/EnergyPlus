@@ -77,7 +77,6 @@
 #include <numeric>
 
 using namespace EnergyPlus;
-using namespace EnergyPlus::ScheduleManager;
 
 TEST_F(EnergyPlusFixture, SkyTempTest)
 {
@@ -129,30 +128,34 @@ TEST_F(EnergyPlusFixture, SkyTempTest)
     });
 
     ASSERT_TRUE(process_idf(idf_objects));
+    state->dataGlobal->TimeStepsInHour = 4;
+    state->dataGlobal->MinutesInTimeStep = 60 / state->dataGlobal->TimeStepsInHour;
+
+    state->init_state(*state);
+    
     Array2D<Real64> TomorrowSkyTemp; // Sky temperature
-    state->dataGlobal->NumOfTimeStepInHour = 4;
-    state->dataGlobal->MinutesPerTimeStep = 60 / state->dataGlobal->NumOfTimeStepInHour;
-    TomorrowSkyTemp.allocate(state->dataGlobal->NumOfTimeStepInHour, 24);
+    TomorrowSkyTemp.allocate(state->dataGlobal->TimeStepsInHour, 24);
     TomorrowSkyTemp = 0.0;
 
+    auto *tSkySched = Sched::GetSchedule(*state, "TSKYSCHEDULE");
     // Febuary 27
-    ScheduleManager::GetScheduleValuesForDay(*state, 1, TomorrowSkyTemp, 58, 3);
+    tSkySched->getDayVals(*state, TomorrowSkyTemp, 58, 3);
     EXPECT_NEAR(2.27, TomorrowSkyTemp(1, 1), .001);
 
     // Febuary 28
-    ScheduleManager::GetScheduleValuesForDay(*state, 1, TomorrowSkyTemp, 59, 4);
+    tSkySched->getDayVals(*state, TomorrowSkyTemp, 59, 4);
     EXPECT_NEAR(2.28, TomorrowSkyTemp(1, 1), .001);
 
     // March 1
-    ScheduleManager::GetScheduleValuesForDay(*state, 1, TomorrowSkyTemp, 60, 5);
+    tSkySched->getDayVals(*state, TomorrowSkyTemp, 60, 5);
     EXPECT_NEAR(3.01, TomorrowSkyTemp(1, 1), .001);
 
     // Not March 2, this "Day" is ignored unless its a leap year, otherwise same data as March 1
-    ScheduleManager::GetScheduleValuesForDay(*state, 1, TomorrowSkyTemp, 61, 6);
+    tSkySched->getDayVals(*state, TomorrowSkyTemp, 61, 6);
     EXPECT_NEAR(3.01, TomorrowSkyTemp(1, 1), .001);
 
     // March 2
-    ScheduleManager::GetScheduleValuesForDay(*state, 1, TomorrowSkyTemp, 62, 6);
+    tSkySched->getDayVals(*state, TomorrowSkyTemp, 62, 6);
     EXPECT_NEAR(3.02, TomorrowSkyTemp(1, 1), .001);
 }
 
@@ -318,7 +321,8 @@ TEST_F(EnergyPlusFixture, UnderwaterBoundaryConditionFullyPopulated)
                           "Schedule:Constant, WaterVelocitySchedule, , 3.0;"
                           "SurfaceProperty:OtherSideConditionsModel, UnderwaterSurfaceName, ConvectiveUnderwater;"});
     ASSERT_TRUE(process_idf(idf_objects));
-
+    state->init_state(*state);
+    
     // need to populate the OSCM array by calling the get input for it
     bool errorsFound = false;
     SurfaceGeometry::GetOSCMData(*state, errorsFound);
@@ -331,8 +335,8 @@ TEST_F(EnergyPlusFixture, UnderwaterBoundaryConditionFullyPopulated)
     EXPECT_EQ(state->dataWeather->underwaterBoundaries[0].Name, "UNDERWATERSURFACENAME");
     EXPECT_NEAR(state->dataWeather->underwaterBoundaries[0].distanceFromLeadingEdge, 31.4159, 0.0001);
     EXPECT_EQ(state->dataWeather->underwaterBoundaries[0].OSCMIndex, 1);
-    EXPECT_EQ(state->dataWeather->underwaterBoundaries[0].WaterTempScheduleIndex, 1);
-    EXPECT_EQ(state->dataWeather->underwaterBoundaries[0].VelocityScheduleIndex, 2);
+    EXPECT_EQ(state->dataWeather->underwaterBoundaries[0].waterTempSched->Name, "WATERTEMPSCHEDULE");
+    EXPECT_EQ(state->dataWeather->underwaterBoundaries[0].velocitySched->Name, "WATERVELOCITYSCHEDULE");
 }
 
 TEST_F(EnergyPlusFixture, UnderwaterBoundaryConditionMissingVelocityOK)
@@ -342,7 +346,8 @@ TEST_F(EnergyPlusFixture, UnderwaterBoundaryConditionMissingVelocityOK)
                                                       "Schedule:Constant, WaterTempSchedule, , 30;",
                                                       "SurfaceProperty:OtherSideConditionsModel, UnderwaterSurfaceName, ConvectiveUnderwater;"});
     ASSERT_TRUE(process_idf(idf_objects));
-
+    state->init_state(*state);
+    
     // need to populate the OSCM array by calling the get input for it
     bool errorsFound = false;
     SurfaceGeometry::GetOSCMData(*state, errorsFound);
@@ -355,8 +360,8 @@ TEST_F(EnergyPlusFixture, UnderwaterBoundaryConditionMissingVelocityOK)
     EXPECT_EQ(state->dataWeather->underwaterBoundaries[0].Name, "UNDERWATERSURFACENAME");
     EXPECT_NEAR(state->dataWeather->underwaterBoundaries[0].distanceFromLeadingEdge, 31.4159, 0.0001);
     EXPECT_EQ(state->dataWeather->underwaterBoundaries[0].OSCMIndex, 1);
-    EXPECT_EQ(state->dataWeather->underwaterBoundaries[0].WaterTempScheduleIndex, 1);
-    EXPECT_EQ(state->dataWeather->underwaterBoundaries[0].VelocityScheduleIndex, 0);
+    EXPECT_NE(state->dataWeather->underwaterBoundaries[0].waterTempSched, nullptr);
+    EXPECT_EQ(state->dataWeather->underwaterBoundaries[0].velocitySched, nullptr);
 }
 
 TEST_F(EnergyPlusFixture, UnderwaterBoundaryConditionConvectionCoefficients)
@@ -688,7 +693,7 @@ TEST_F(EnergyPlusFixture, ASHRAE_Tau2017ModelTest)
 
     bool ErrorsFound(false);
     state->dataEnvrn->TotDesDays = 2;
-    state->dataGlobal->NumOfTimeStepInHour = 0;
+    state->dataGlobal->TimeStepsInHour = 0;
     // setup environment state
     state->dataWeather->Environment.allocate(state->dataEnvrn->TotDesDays);
     state->dataWeather->DesignDay.allocate(state->dataEnvrn->TotDesDays);
@@ -791,7 +796,7 @@ TEST_F(EnergyPlusFixture, WeatherManager_NoLocation)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->dataGlobal->BeginSimFlag = false;
-    state->dataGlobal->NumOfTimeStepInHour = 4;
+    state->dataGlobal->TimeStepsInHour = 4;
     state->dataWeather->LocationGathered = false;
 
     bool Available{false};
@@ -874,8 +879,8 @@ TEST_F(SQLiteFixture, DesignDay_EnthalphyAtMaxDB)
 
     state->dataWeather->Environment(1).DesignDayNum = 1;
     state->dataWeather->Environment(1).WP_Type1 = 0;
-    state->dataGlobal->MinutesPerTimeStep = 60;
-    state->dataGlobal->NumOfTimeStepInHour = 1;
+    state->dataGlobal->MinutesInTimeStep = 60;
+    state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->BeginSimFlag = true;
     state->dataReportFlag->DoWeatherInitReporting = true;
 
@@ -891,7 +896,7 @@ TEST_F(SQLiteFixture, DesignDay_EnthalphyAtMaxDB)
 
     unsigned n_RH_not100 = 0;
     for (int Hour = 1; Hour <= 24; ++Hour) {
-        for (int TS = 1; TS <= state->dataGlobal->NumOfTimeStepInHour; ++TS) {
+        for (int TS = 1; TS <= state->dataGlobal->TimeStepsInHour; ++TS) {
             EXPECT_GE(state->dataWeather->wvarsHrTsTomorrow(TS, Hour).OutRelHum, 0.);
             EXPECT_LE(state->dataWeather->wvarsHrTsTomorrow(TS, Hour).OutRelHum, 100.);
             if (state->dataWeather->wvarsHrTsTomorrow(TS, Hour).OutRelHum < 100.) {
@@ -1145,7 +1150,7 @@ TEST_F(EnergyPlusFixture, IRHoriz_InterpretWeatherCalculateMissingIRHoriz)
 
     bool ErrorsFound(false);
     state->dataEnvrn->TotDesDays = 2;
-    state->dataGlobal->NumOfTimeStepInHour = 0;
+    state->dataGlobal->TimeStepsInHour = 0;
 
     // setup environment state
     state->dataWeather->Environment.allocate(state->dataEnvrn->TotDesDays);
@@ -1157,7 +1162,7 @@ TEST_F(EnergyPlusFixture, IRHoriz_InterpretWeatherCalculateMissingIRHoriz)
 
     state->dataWeather->Envrn = 1;
 
-    state->dataGlobal->NumOfTimeStepInHour = 1;
+    state->dataGlobal->TimeStepsInHour = 1;
     state->dataWeather->Environment.allocate(1);
     state->dataWeather->Environment(1).skyTempModel = Weather::SkyTempModel::ClarkAllen;
 
@@ -1220,6 +1225,8 @@ TEST_F(EnergyPlusFixture, Add_and_InterpolateWeatherInputOutputTest)
     bool ErrorsFound(false);
     ErrorsFound = false;
 
+    state->init_state(*state);
+
     state->dataWeather->WeatherFileExists = true;
     state->files.inputWeatherFilePath.filePath = configured_source_directory() / "weather/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw";
 
@@ -1249,7 +1256,7 @@ TEST_F(EnergyPlusFixture, Add_and_InterpolateWeatherInputOutputTest)
 
     state->dataWeather->Envrn = 1;
 
-    state->dataGlobal->NumOfTimeStepInHour = 4;
+    state->dataGlobal->TimeStepsInHour = 4;
     state->dataWeather->Environment.allocate(1);
     state->dataWeather->Environment(1).skyTempModel = Weather::SkyTempModel::ClarkAllen;
     state->dataWeather->Environment(1).StartMonth = 1;
@@ -1319,6 +1326,8 @@ TEST_F(EnergyPlusFixture, Fix_first_hour_weather_data_interpolation_OutputTest)
     bool ErrorsFound(false);
     ErrorsFound = false;
 
+    state->init_state(*state);
+    
     state->dataWeather->WeatherFileExists = true;
     state->files.inputWeatherFilePath.filePath = configured_source_directory() / "weather/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw";
 
@@ -1333,7 +1342,7 @@ TEST_F(EnergyPlusFixture, Fix_first_hour_weather_data_interpolation_OutputTest)
     // The added first hour processing will be called here:
     Weather::GetNextEnvironment(*state, Available, ErrorsFound);
 
-    state->dataGlobal->NumOfTimeStepInHour = 4;
+    state->dataGlobal->TimeStepsInHour = 4;
     state->dataWeather->Environment(1).skyTempModel = Weather::SkyTempModel::ClarkAllen;
     state->dataWeather->Environment(1).StartMonth = 1;
     state->dataWeather->Environment(1).StartDay = 1;
@@ -1444,8 +1453,9 @@ TEST_F(EnergyPlusFixture, Fix_OpaqueSkyCover_Test)
     ASSERT_TRUE(process_idf(idf_objects));
 
     SimulationManager::PostIPProcessing(*state);
+    state->init_state(*state);
+
     bool ErrorsFound(false);
-    ErrorsFound = false;
 
     state->dataWeather->WeatherFileExists = true;
     state->files.inputWeatherFilePath.filePath = configured_source_directory() / "weather/USA_IL_University.of.Illinois-Willard.AP.725315_TMY3.epw";
@@ -1469,7 +1479,7 @@ TEST_F(EnergyPlusFixture, Fix_OpaqueSkyCover_Test)
 
     state->dataWeather->Envrn = 1;
 
-    state->dataGlobal->NumOfTimeStepInHour = 4;
+    state->dataGlobal->TimeStepsInHour = 4;
     state->dataWeather->Environment.allocate(1);
     state->dataWeather->Environment(1).skyTempModel = Weather::SkyTempModel::ClarkAllen;
     state->dataWeather->Environment(1).StartMonth = 1;
@@ -1583,17 +1593,20 @@ TEST_F(EnergyPlusFixture, WeatherManager_SetRainFlag)
     // setting up start ------------------------------------------------------------------------------
     ASSERT_TRUE(process_idf(idf_objects));
 
-    SimulationManager::ManageSimulation(*state);
-    WaterManager::GetWaterManagerInput(*state);
     state->dataGlobal->DayOfSim = 2; // avoid array bounds problem in RecKeepHeatBalance
     state->dataWeather->Envrn = 1;
-    state->dataGlobal->NumOfTimeStepInHour = 4; // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesPerTimeStep = 15; // must initialize this to get schedules initialized
+    state->dataGlobal->TimeStepsInHour = 4; // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 15; // must initialize this to get schedules initialized
     state->dataGlobal->TimeStepZone = 0.25;
-    state->dataGlobal->TimeStepZoneSec = state->dataGlobal->TimeStepZone * Constant::SecInHour;
+    state->dataGlobal->TimeStepZoneSec = state->dataGlobal->TimeStepZone * Constant::rSecsInHour;
 
-    ScheduleManager::ProcessScheduleInput(*state); // read schedules
+    state->init_state(*state);
 
+    SimulationManager::ManageSimulation(*state);
+    WaterManager::GetWaterManagerInput(*state);
+    
+    state->dataWeather->Envrn = 1;
+    
     state->dataEnvrn->Month = 5;
     state->dataEnvrn->DayOfMonth = 31;
     state->dataGlobal->HourOfDay = 24;
@@ -1603,16 +1616,16 @@ TEST_F(EnergyPlusFixture, WeatherManager_SetRainFlag)
     state->dataGlobal->TimeStep = 1;
     state->dataEnvrn->DayOfYear_Schedule = General::OrdinalDay(state->dataEnvrn->Month, state->dataEnvrn->DayOfMonth, 1);
     state->dataEnvrn->DSTIndicator = 0; // DST IS OFF
-    ScheduleManager::UpdateScheduleValues(*state);
+    Sched::UpdateScheduleVals(*state);
 
-    state->dataWeather->Interpolation.allocate(state->dataGlobal->NumOfTimeStepInHour);
+    state->dataWeather->Interpolation.allocate(state->dataGlobal->TimeStepsInHour);
     state->dataWeather->Interpolation = 0;
     // setting up end ------------------------------------------------------------------------------
 
     // Need to instantiate some stuff to avoid a crash
     // Weather::ReadUserWeatherInput(*state);
 
-    state->dataWeather->wvarsHrTsToday.allocate(state->dataGlobal->NumOfTimeStepInHour, Constant::HoursInDay);
+    state->dataWeather->wvarsHrTsToday.allocate(state->dataGlobal->TimeStepsInHour, Constant::iHoursInDay);
     state->dataWeather->wvarsHrTsToday(1, 24).IsRain = false;
     state->dataEnvrn->RunPeriodEnvironment = true;
     Weather::SetCurrentWeather(*state);
@@ -1626,7 +1639,7 @@ TEST_F(EnergyPlusFixture, WeatherManager_SetRainFlag)
     ASSERT_FALSE(state->dataEnvrn->IsRain);
 
     // site:precipitation overwritten of rain flag does not take effect during sizing period
-    state->dataGlobal->NumOfTimeStepInHour = 4;
+    state->dataGlobal->TimeStepsInHour = 4;
     state->dataWeather->wvarsHrTsToday(1, 24).IsRain = false;
     state->dataEnvrn->RunPeriodEnvironment = false;
     Weather::SetCurrentWeather(*state);
@@ -1842,7 +1855,7 @@ TEST_F(EnergyPlusFixture, WeatherRunPeriod_WeatherFile_OK)
     state->files.inputWeatherFilePath.filePath = configured_source_directory() / "weather/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw";
 
     state->dataGlobal->BeginSimFlag = false;
-    state->dataGlobal->NumOfTimeStepInHour = 4;
+    state->dataGlobal->TimeStepsInHour = 4;
     state->dataWeather->LocationGathered = false;
     state->dataGlobal->DoWeathSim = true;
 
@@ -1899,7 +1912,7 @@ TEST_F(EnergyPlusFixture, WeatherRunPeriod_WeatherFile_Missing)
     state->files.inputWeatherFilePath.filePath = "doesntnotexist.epw";
 
     state->dataGlobal->BeginSimFlag = false;
-    state->dataGlobal->NumOfTimeStepInHour = 4;
+    state->dataGlobal->TimeStepsInHour = 4;
     state->dataWeather->LocationGathered = false;
     state->dataGlobal->DoWeathSim = true;
 
@@ -2477,7 +2490,7 @@ TEST_F(EnergyPlusFixture, EPW_no_eol_at_end_of_file)
     state->files.inputWeatherFilePath.filePath = configured_source_directory() / "tst/EnergyPlus/unit/Resources/chicago_no_eol_at_end_of_file.epw";
 
     state->dataGlobal->BeginSimFlag = false;
-    state->dataGlobal->NumOfTimeStepInHour = 4;
+    state->dataGlobal->TimeStepsInHour = 4;
     state->dataWeather->LocationGathered = false;
     state->dataGlobal->DoWeathSim = true;
 

@@ -90,8 +90,8 @@ namespace HybridEvapCoolingModel {
     using Curve::CurveValue;
     using Curve::GetCurveIndex;
     using Curve::GetCurveMinMaxValues;
-    using ScheduleManager::GetCurrentScheduleValue;
 
+// Ummm these will have to go
 #define DEF_Tdb 0
 #define DEF_RH 1
 
@@ -713,7 +713,7 @@ namespace HybridEvapCoolingModel {
         }
     }
 
-    bool Model::MeetsSupplyAirTOC(EnergyPlusData &state, Real64 Tsupplyair)
+    bool Model::MeetsSupplyAirTOC([[maybe_unused]] EnergyPlusData &state, Real64 Tsupplyair)
     {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         Spencer Maxwell Dutton
@@ -734,17 +734,17 @@ namespace HybridEvapCoolingModel {
         // Using/Aliasing
         Real64 MinSAT = 10;
         Real64 MaxSAT = 20;
-        if (TsaMin_schedule_pointer > 0) {
-            MinSAT = GetCurrentScheduleValue(state, TsaMin_schedule_pointer);
+        if (TsaMinSched != nullptr) {
+            MinSAT = TsaMinSched->getCurrentVal();
         }
-        if (TsaMax_schedule_pointer > 0) {
-            MaxSAT = GetCurrentScheduleValue(state, TsaMax_schedule_pointer);
+        if (TsaMaxSched != nullptr) {
+            MaxSAT = TsaMaxSched->getCurrentVal();
         }
         if (Tsupplyair < MinSAT || Tsupplyair > MaxSAT) return false;
         return true;
     }
 
-    bool Model::MeetsSupplyAirRHOC(EnergyPlusData &state, Real64 SupplyW)
+    bool Model::MeetsSupplyAirRHOC([[maybe_unused]] EnergyPlusData &state, Real64 SupplyW)
     {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         Spencer Maxwell Dutton
@@ -765,18 +765,18 @@ namespace HybridEvapCoolingModel {
         // Using/Aliasing
         Real64 MinRH = 0;
         Real64 MaxRH = 1;
-        if (RHsaMin_schedule_pointer > 0) {
-            MinRH = GetCurrentScheduleValue(state, RHsaMin_schedule_pointer);
+        if (RHsaMinSched != nullptr) {
+            MinRH = RHsaMinSched->getCurrentVal();
         }
-        if (RHsaMax_schedule_pointer > 0) {
-            MaxRH = GetCurrentScheduleValue(state, RHsaMax_schedule_pointer);
+        if (RHsaMaxSched != nullptr) {
+            MaxRH = RHsaMaxSched->getCurrentVal();
         }
         if (SupplyW < MinRH || SupplyW > MaxRH) return false;
         return true;
     }
 
     Model::Model()
-        : Initialized(false), ZoneNum(0), SchedPtr(0), SystemMaximumSupplyAirFlowRate(0.0), ScalingFactor(0.0),
+        : Initialized(false), ZoneNum(0), SystemMaximumSupplyAirFlowRate(0.0), ScalingFactor(0.0),
           ScaledSystemMaximumSupplyAirMassFlowRate(0.0), UnitOn(0), UnitTotalCoolingRate(0.0), UnitTotalCoolingEnergy(0.0),
           UnitSensibleCoolingRate(0.0), UnitSensibleCoolingEnergy(0.0), UnitLatentCoolingRate(0.0), UnitLatentCoolingEnergy(0.0),
           SystemTotalCoolingRate(0.0), SystemTotalCoolingEnergy(0.0), SystemSensibleCoolingRate(0.0), SystemSensibleCoolingEnergy(0.0),
@@ -788,8 +788,8 @@ namespace HybridEvapCoolingModel {
           WaterConsumptionRate(0.0), WaterConsumption(0.0), QSensZoneOut(0), QLatentZoneOut(0), QLatentZoneOutMass(0), ExternalStaticPressure(0.0),
           RequestedHumdificationMass(0.0), RequestedHumdificationLoad(0.0), RequestedHumdificationEnergy(0.0), RequestedDeHumdificationMass(0.0),
           RequestedDeHumdificationLoad(0.0), RequestedDeHumdificationEnergy(0.0), RequestedLoadToHeatingSetpoint(0.0),
-          RequestedLoadToCoolingSetpoint(0.0), TsaMin_schedule_pointer(0), TsaMax_schedule_pointer(0), RHsaMin_schedule_pointer(0),
-          RHsaMax_schedule_pointer(0), PrimaryMode(0), PrimaryModeRuntimeFraction(0.0), averageOSAF(0), ErrorCode(0), InletNode(0), OutletNode(0),
+          RequestedLoadToCoolingSetpoint(0.0),
+          PrimaryMode(0), PrimaryModeRuntimeFraction(0.0), averageOSAF(0), ErrorCode(0), InletNode(0), OutletNode(0),
           SecondaryInletNode(0), SecondaryOutletNode(0), FinalElectricalPower(0.0), FinalElectricalEnergy(0.0), InletMassFlowRate(0.0),
           InletTemp(0.0), InletWetBulbTemp(0.0), InletHumRat(0.0), InletEnthalpy(0.0), InletPressure(0.0), InletRH(0.0),
           OutletVolumetricFlowRate(0.0), OutletMassFlowRate(0.0), PowerLossToAir(0.0), FanHeatTemp(0.0), OutletTemp(0.0), OutletWetBulbTemp(0.0),
@@ -1843,7 +1843,7 @@ namespace HybridEvapCoolingModel {
         UnitOn = 1;
         bool ForceOff = false;
         StandBy = false;
-        if (GetCurrentScheduleValue(state, SchedPtr) <= 0 || availStatus == Avail::Status::ForceOff) {
+        if (availSched->getCurrentVal() <= 0 || availStatus == Avail::Status::ForceOff) {
             UnitOn = 0;
             ForceOff = true;
         }

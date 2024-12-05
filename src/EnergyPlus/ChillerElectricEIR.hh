@@ -117,7 +117,7 @@ namespace ChillerElectricEIR {
         Real64 HeatRecCapacityFraction = 0.0;              // user input for heat recovery capacity fraction []
         Real64 HeatRecMaxCapacityLimit = 0.0;              // Capacity limit for Heat recovery, one time calc [W]
         int HeatRecSetPointNodeNum = 0;                    // index for system node with the heat recover leaving setpoint
-        int HeatRecInletLimitSchedNum = 0;                 // index for schedule for the inlet high limit for heat recovery operation
+        Sched::Schedule *heatRecInletLimitSched = nullptr; // schedule for the inlet high limit for heat recovery operation
         int ChillerCapFTIndex = 0;                         // Index for the total cooling capacity modifier curve
         // (function of leaving chilled water temperature and
         //  entering condenser fluid temperature)
@@ -138,7 +138,7 @@ namespace ChillerElectricEIR {
         PlantLocation CWPlantLoc;         // chilled water plant loop component index
         PlantLocation CDPlantLoc;         // condenser water plant loop component index
         PlantLocation HRPlantLoc;         // heat recovery water plant loop component index
-        int BasinHeaterSchedulePtr = 0;   // Pointer to basin heater schedule
+        Sched::Schedule *basinHeaterSched = nullptr;   // basin heater schedule
         int CondMassFlowIndex = 0;
         std::string MsgBuffer1;          // - buffer to print warning messages on following time step
         std::string MsgBuffer2;          // - buffer to print warning messages on following time step
@@ -190,7 +190,7 @@ namespace ChillerElectricEIR {
         bool IPLVFlag = true;
         int ChillerCondLoopFlowFLoopPLRIndex = 0; // Condenser loop flow rate fraction function of loop PLR
         int CondDT = 0;                           // Temperature difference across condenser
-        int CondDTScheduleNum = 0;                // Temperature difference across condenser schedule index
+        Sched::Schedule *condDTSched = nullptr;   // Temperature difference across condenser schedule
         Real64 MinCondFlowRatio = 0.2;            // Minimum condenser flow fraction
         DataBranchAirLoopPlant::ControlType EquipFlowCtrl = DataBranchAirLoopPlant::ControlType::Invalid;
         Real64 VSBranchPumpMinLimitMassFlowCond = 0.0;
@@ -251,6 +251,10 @@ struct ChillerElectricEIRData : BaseGlobalStruct
 {
     bool getInputFlag = true;
     Array1D<ChillerElectricEIR::ElectricEIRChillerSpecs> ElectricEIRChiller;
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

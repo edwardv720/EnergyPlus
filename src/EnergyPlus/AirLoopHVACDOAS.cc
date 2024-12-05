@@ -440,7 +440,7 @@ namespace AirLoopHVACDOAS {
 
     void AirLoopDOAS::getAirLoopDOASInput(EnergyPlusData &state)
     {
-
+        constexpr std::string_view routineName = "AirLoopDOAS::getAirLoopDOASInput";
         std::string const cCurrentModuleObject = "AirLoopHVAC:DedicatedOutdoorAirSystem";
 
         auto const instances = state.dataInputProcessing->inputProcessor->epJSON.find(cCurrentModuleObject);
@@ -457,6 +457,8 @@ namespace AirLoopHVACDOAS {
                 ++AirLoopDOASNum;
                 AirLoopDOAS thisDOAS;
 
+                ErrorObjectHeader eoh{routineName, cCurrentModuleObject, thisObjectName};
+                
                 thisDOAS.Name = Util::makeUPPER(thisObjectName);
                 // get OA and avail num
                 thisDOAS.OASystemName = Util::makeUPPER(fields.at("airloophvac_outdoorairsystem_name").get<std::string>());
@@ -758,12 +760,9 @@ namespace AirLoopHVACDOAS {
                 }
 
                 thisDOAS.AvailManagerSchedName = Util::makeUPPER(fields.at("availability_schedule_name").get<std::string>());
-                thisDOAS.m_AvailManagerSchedPtr = ScheduleManager::GetScheduleIndex(state, thisDOAS.AvailManagerSchedName);
-                if (thisDOAS.m_AvailManagerSchedPtr == 0) {
-                    cFieldName = "Availability Schedule Name";
-                    ShowSevereError(
-                        state,
-                        format("{}, \"{}\" {} not found: {}", cCurrentModuleObject, thisDOAS.Name, cFieldName, thisDOAS.AvailManagerSchedName));
+
+                if ((thisDOAS.m_AvailManagerSched = Sched::GetSchedule(state, thisDOAS.AvailManagerSchedName)) == nullptr) {
+                    ShowSevereItemNotFound(state, eoh, "Availability Schedule Name", thisDOAS.AvailManagerSchedName);
                     errorsFound = true;
                 }
 
@@ -948,7 +947,7 @@ namespace AirLoopHVACDOAS {
             this->SumMassFlowRate += state.dataLoopNodes->Node(NodeNum).MassFlowRate;
         }
 
-        SchAvailValue = ScheduleManager::GetCurrentScheduleValue(state, this->m_AvailManagerSchedPtr);
+        SchAvailValue = this->m_AvailManagerSched->getCurrentVal();
         if (SchAvailValue < 1.0) {
             this->SumMassFlowRate = 0.0;
         }

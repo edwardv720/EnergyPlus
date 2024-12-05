@@ -77,7 +77,6 @@ using namespace EnergyPlus::DataSurfaces;
 using namespace EnergyPlus::EMSManager;
 using namespace EnergyPlus::HeatBalanceManager;
 using namespace EnergyPlus::OutputProcessor;
-using namespace EnergyPlus::ScheduleManager;
 using namespace EnergyPlus::SimulationManager;
 using namespace EnergyPlus::SurfaceGeometry;
 
@@ -85,7 +84,6 @@ using namespace EnergyPlus::SurfaceGeometry;
 
 TEST_F(EnergyPlusFixture, DataHeatBalance_CheckConstructLayers)
 {
-
     bool ErrorsFound(false);
 
     std::string const idf_objects = delimited_string({
@@ -805,12 +803,7 @@ TEST_F(EnergyPlusFixture, DataHeatBalance_CheckConstructLayers)
     ASSERT_TRUE(process_idf(idf_objects));
 
     // OutputProcessor::TimeValue.allocate(2);
-
-    ScheduleManager::ProcessScheduleInput(*state); // read schedules
-
-    ErrorsFound = false;
-    GetProjectControlData(*state, ErrorsFound); // read project control data
-    EXPECT_FALSE(ErrorsFound);                  // expect no errors
+    state->init_state(*state);
 
     ErrorsFound = false;
     Material::GetMaterialData(*state, ErrorsFound); // read material data
@@ -902,7 +895,8 @@ TEST_F(EnergyPlusFixture, DataHeatBalance_CheckConstructLayers)
 
 TEST_F(EnergyPlusFixture, DataHeatBalance_setUserTemperatureLocationPerpendicular)
 {
-
+    state->init_state(*state);
+                
     Real64 userInputValue;
     Real64 expectedReturnValue;
     Real64 actualReturnValue;
@@ -932,6 +926,7 @@ TEST_F(EnergyPlusFixture, DataHeatBalance_setUserTemperatureLocationPerpendicula
 
 TEST_F(EnergyPlusFixture, DataHeatBalance_setNodeSourceAndUserTemp)
 {
+    state->init_state(*state);
     int expectedNodeNumberAtSource;
     int expectedNodeNumberAtUserSpecifiedLocation;
     state->dataConstruction->Construct.allocate(1);
@@ -992,6 +987,7 @@ TEST_F(EnergyPlusFixture, DataHeatBalance_setNodeSourceAndUserTemp)
 
 TEST_F(EnergyPlusFixture, DataHeatBalance_AssignReverseConstructionNumberTest)
 {
+    state->init_state(*state);
     int ConstrNum;
     int expectedResultRevConstrNum;
     int functionResultRevConstrNum;
@@ -1039,7 +1035,7 @@ TEST_F(EnergyPlusFixture, DataHeatBalance_AssignReverseConstructionNumberTest)
 
 TEST_F(EnergyPlusFixture, DataHeatBalance_setThicknessPerpendicularTest)
 {
-
+    state->init_state(*state);
     Real64 userInputValue;
     Real64 expectedReturnValue;
     Real64 actualReturnValue;
@@ -1048,6 +1044,12 @@ TEST_F(EnergyPlusFixture, DataHeatBalance_setThicknessPerpendicularTest)
     auto &thisConstruct(state->dataConstruction->Construct(1));
     thisConstruct.Name = "TestThisConstruction";
 
+    std::string const error_string0 =
+        delimited_string({"   ** Warning ** Version: missing in IDF, processing for EnergyPlus version=\"24.2\"",
+                          "   ** Warning ** ConstructionProperty:InternalHeatSource has a tube spacing that is less than 2 mm.  This is not allowed.",
+                          "   **   ~~~   ** Construction=TestThisConstruction has this problem.  The tube spacing has been reset to 0.15m (~6 "
+                          "inches) for this construction.",
+                          "   **   ~~~   ** As per the Input Output Reference, tube spacing is only used for 2-D solutions and autosizing."});
     std::string const error_string1 =
         delimited_string({"   ** Warning ** ConstructionProperty:InternalHeatSource has a tube spacing that is less than 2 mm.  This is not allowed.",
                           "   **   ~~~   ** Construction=TestThisConstruction has this problem.  The tube spacing has been reset to 0.15m (~6 "
@@ -1067,7 +1069,7 @@ TEST_F(EnergyPlusFixture, DataHeatBalance_setThicknessPerpendicularTest)
     expectedReturnValue = 0.075;
     actualReturnValue = thisConstruct.setThicknessPerpendicular(*state, userInputValue);
     EXPECT_NEAR(expectedReturnValue, actualReturnValue, 0.0001);
-    EXPECT_TRUE(compare_err_stream(error_string1, true));
+    EXPECT_TRUE(compare_err_stream(error_string0, true));
 
     // Test 2: User value is greater than zero but still too small--should be reset to the "default" value (warning messages produced)
     userInputValue = 0.0001;
@@ -1098,6 +1100,7 @@ TEST_F(EnergyPlusFixture, DataHeatBalance_setThicknessPerpendicularTest)
 
 TEST_F(EnergyPlusFixture, DataHeatBalance_ComputeNominalUwithConvCoeffsTest)
 {
+    state->init_state(*state);
     Real64 expectedAnswer;
     Real64 actualAnswer;
     Real64 allowableTolerance = 0.00001;

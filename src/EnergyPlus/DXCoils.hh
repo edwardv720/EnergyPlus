@@ -113,8 +113,7 @@ namespace DXCoils {
         std::string Name;       // Name of the DX Coil
         std::string DXCoilType; // type of coil
         int DXCoilType_Num;     // Integer equivalent to DXCoilType
-        std::string Schedule;   // WaterCoil Operation Schedule
-        int SchedPtr;           // Pointer to the correct schedule
+        Sched::Schedule *availSched = nullptr;           // availability schedule
         //          RatedCoolCap, RatedSHR and RatedCOP do not include the thermal or electrical
         //          effects due to the supply air fan
         Array1D<Real64> RatedTotCap;                 // Gross total cooling capacity at rated conditions [watts]
@@ -171,7 +170,7 @@ namespace DXCoils {
         std::string LowOutTempBuffer1;     // holds warning message until next iteration (only prints 1 message/iteration)
         std::string LowOutTempBuffer2;     // holds warning message until next iteration (only prints 1 message/iteration)
         int HeatingCoilPLFCurvePTR;        // PLF curve index to gas or electric heating coil (used in latent degradation model)
-        int BasinHeaterSchedulePtr;        // Pointer to basin heater schedule
+        Sched::Schedule *basinHeaterSched = nullptr;        // Pointer to basin heater schedule
         // start of multi-speed compressor variables
         Real64 RatedTotCap2; // Gross total cooling capacity at rated conditions, low speed [watts]
         // Note: For HPWHs, RatedTotCap2   = Water Heating Capacity for Coil:DX:HPWH and
@@ -455,7 +454,7 @@ namespace DXCoils {
 
         // Default Constructor
         DXCoilData()
-            : DXCoilType_Num(0), SchedPtr(0), RatedTotCap(MaxModes, 0.0), HeatSizeRatio(1.0), RatedTotCapEMSOverrideOn(MaxModes, false),
+            : DXCoilType_Num(0), RatedTotCap(MaxModes, 0.0), HeatSizeRatio(1.0), RatedTotCapEMSOverrideOn(MaxModes, false),
               RatedTotCapEMSOverrideValue(MaxModes, 0.0), RatedSHR(MaxModes, 0.0), RatedSHREMSOverrideOn(MaxModes, false),
               RatedSHREMSOverrideValue(MaxModes, 0.0), RatedCOP(MaxModes, 0.0), RatedAirVolFlowRate(MaxModes, 0.0),
               RatedAirVolFlowRateEMSOverrideON(MaxModes, false), RatedAirVolFlowRateEMSOverrideValue(MaxModes, 0.0),
@@ -466,7 +465,7 @@ namespace DXCoils {
               CrankcaseHeaterPower(0.0), MaxOATCrankcaseHeater(0.0), CrankcaseHeaterCapacityCurveIndex(0), CrankcaseHeaterConsumption(0.0),
               BasinHeaterPowerFTempDiff(0.0), BasinHeaterSetPointTemp(0.0), CompanionUpstreamDXCoil(0), FindCompanionUpStreamCoil(true),
               CondenserInletNodeNum(MaxModes, 0), LowOutletTempIndex(0), FullLoadOutAirTempLast(0.0), FullLoadInletAirTempLast(0.0),
-              PrintLowOutTempMessage(false), HeatingCoilPLFCurvePTR(0), BasinHeaterSchedulePtr(0), RatedTotCap2(0.0), RatedSHR2(0.0), RatedCOP2(0.0),
+              PrintLowOutTempMessage(false), HeatingCoilPLFCurvePTR(0), RatedTotCap2(0.0), RatedSHR2(0.0), RatedCOP2(0.0),
               RatedAirVolFlowRate2(0.0), FanPowerPerEvapAirFlowRate_LowSpeed(MaxModes, 0.0), FanPowerPerEvapAirFlowRate_2023_LowSpeed(MaxModes, 0.0),
               RatedAirMassFlowRate2(0.0), RatedCBF2(0.0), CCapFTemp2(0), EIRFTemp2(0), RatedEIR2(0.0), InternalStaticPressureDrop(0.0),
               RateWithInternalStaticAndFanObject(false), SupplyFanIndex(0), supplyFanType(HVAC::FanType::Invalid), RatedEIR(MaxModes, 0.0),
@@ -785,7 +784,7 @@ namespace DXCoils {
                                 bool &ErrorsFound            // set to true if problem
     );
 
-    int GetDXCoilAvailSchPtr(EnergyPlusData &state,
+    Sched::Schedule *GetDXCoilAvailSched(EnergyPlusData &state,
                              std::string const &CoilType,                // must match coil types in this module
                              std::string const &CoilName,                // must match coil names for the coil type
                              bool &ErrorsFound,                          // set to true if problem
@@ -990,6 +989,10 @@ struct DXCoilsData : BaseGlobalStruct
     Real64 EIRTempModFac = 0.0;      // EIR modifier (function of entering wetbulb, outside drybulb) [-]
     Real64 EIRFlowModFac = 0.0;      // EIR modifier (function of actual supply air flow vs rated flow) [-]
     Real64 TempDryBulb_Leaving_Apoint = 0.0;
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

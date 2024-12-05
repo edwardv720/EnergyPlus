@@ -128,7 +128,6 @@ namespace SteamBaseboardRadiator {
         // This subroutine simulates the steam baseboards or radiators.
 
         using PlantUtilities::SetComponentFlowRate;
-        using ScheduleManager::GetCurrentScheduleValue;
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         int BaseboardNum; // index of unit in baseboard array
@@ -180,7 +179,7 @@ namespace SteamBaseboardRadiator {
                     .DesignObjectPtr)}; // Array that contains the design data for steam baseboard objects
 
             if (QZnReq > SmallLoad && !state.dataZoneEnergyDemand->CurDeadBandOrSetback(ControlledZoneNum) &&
-                (GetCurrentScheduleValue(state, state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).SchedPtr) > 0.0)) {
+                (state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).sched->getCurrentVal() > 0.0)) {
 
                 // On the first HVAC iteration the system values are given to the controller, but after that
                 // the demand limits are in place and there needs to be feedback to the Zone Equipment
@@ -265,13 +264,13 @@ namespace SteamBaseboardRadiator {
         // REFERENCES:
         // HWBaseboardRadiator module
 
+        static constexpr std::string_view routineName = "GetSteamBaseboardInput";
+            
         // Using/Aliasing
         using BranchNodeConnections::TestCompSet;
 
         using GlobalNames::VerifyUniqueBaseboardName;
         using NodeInputManager::GetOnlySingleNode;
-        using ScheduleManager::GetCurrentScheduleValue;
-        using ScheduleManager::GetScheduleIndex;
         using namespace DataSizing;
 
         // SUBROUTINE PARAMETER DEFINITIONS:
@@ -333,6 +332,7 @@ namespace SteamBaseboardRadiator {
                                                                      state.dataIPShortCut->lAlphaFieldBlanks,
                                                                      state.dataIPShortCut->cAlphaFieldNames,
                                                                      state.dataIPShortCut->cNumericFieldNames);
+
             Util::IsNameEmpty(
                 state, state.dataIPShortCut->cAlphaArgs(1), state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam_Design, ErrorsFound);
             state.dataSteamBaseboardRadiator->SteamBaseboardDesignNumericFields(BaseboardDesignNum).FieldNames.allocate(NumNumbers);
@@ -517,6 +517,9 @@ namespace SteamBaseboardRadiator {
                                                                      state.dataIPShortCut->lAlphaFieldBlanks,
                                                                      state.dataIPShortCut->cAlphaFieldNames,
                                                                      state.dataIPShortCut->cNumericFieldNames);
+
+            ErrorObjectHeader eoh{routineName, state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam, state.dataIPShortCut->cAlphaArgs(1)};
+            
             Util::IsNameEmpty(state, state.dataIPShortCut->cAlphaArgs(1), state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam, ErrorsFound);
             state.dataSteamBaseboardRadiator->SteamBaseboardNumericFields(BaseboardNum).FieldNames.allocate(NumNumbers);
             state.dataSteamBaseboardRadiator->SteamBaseboardNumericFields(BaseboardNum).FieldNames = "";
@@ -543,22 +546,11 @@ namespace SteamBaseboardRadiator {
                                                                            .DesignObjectPtr)}; // Contains the design data for steam baseboard object
 
             // Get schedule
-            state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Schedule = state.dataIPShortCut->cAlphaArgs(3);
             if (state.dataIPShortCut->lAlphaFieldBlanks(3)) {
-                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).SchedPtr = ScheduleManager::ScheduleAlwaysOn;
-            } else {
-                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).SchedPtr =
-                    GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(3));
-                if (state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).SchedPtr == 0) {
-                    ShowSevereError(state,
-                                    format("{}{}=\"{}\", {}=\"{}\" not found.",
-                                           RoutineName,
-                                           state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam,
-                                           state.dataIPShortCut->cAlphaArgs(1),
-                                           state.dataIPShortCut->cAlphaFieldNames(3),
-                                           state.dataIPShortCut->cAlphaArgs(3)));
-                    ErrorsFound = true;
-                }
+                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).sched = Sched::GetScheduleAlwaysOn(state);
+            } else if ((state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).sched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(3))) == nullptr) {
+                ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(3), state.dataIPShortCut->cAlphaArgs(3));
+                ErrorsFound = true;
             }
 
             // Get inlet node number
@@ -1298,7 +1290,6 @@ namespace SteamBaseboardRadiator {
         using FluidProperties::GetSatEnthalpyRefrig;
         using FluidProperties::GetSatSpecificHeatRefrig;
         using HVAC::SmallLoad;
-        using ScheduleManager::GetCurrentScheduleValue;
 
         // Locals
         // SUBROUTINE ARGUMENT DEFINITIONS:
@@ -1337,7 +1328,7 @@ namespace SteamBaseboardRadiator {
         SubcoolDeltaT = state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).DegOfSubcooling;
 
         if (QZnReq > SmallLoad && !state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum) && SteamMassFlowRate > 0.0 &&
-            GetCurrentScheduleValue(state, state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).SchedPtr) > 0) {
+            state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).sched->getCurrentVal() > 0) {
             // Unit is on
             EnthSteamInDry = GetSatEnthalpyRefrig(
                 state, fluidNameSteam, SteamInletTemp, 1.0, state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).FluidIndex, RoutineName);
@@ -1579,13 +1570,13 @@ namespace SteamBaseboardRadiator {
         //       RE-ENGINEERED  na
 
         state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).TotEnergy =
-            state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).TotPower * state.dataHVACGlobal->TimeStepSys * Constant::SecInHour;
+            state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).TotPower * state.dataHVACGlobal->TimeStepSysSec;
         state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Energy =
             state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Power * state.dataHVACGlobal->TimeStepSysSec;
         state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).ConvEnergy =
-            state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).ConvPower * state.dataHVACGlobal->TimeStepSys * Constant::SecInHour;
+            state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).ConvPower * state.dataHVACGlobal->TimeStepSysSec;
         state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).RadEnergy =
-            state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).RadPower * state.dataHVACGlobal->TimeStepSys * Constant::SecInHour;
+            state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).RadPower * state.dataHVACGlobal->TimeStepSysSec;
     }
 
     void

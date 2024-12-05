@@ -140,7 +140,7 @@ namespace DesiccantDehumidifiers {
         Real64 MinProcAirInHumRat; // min allowable process inlet air humidity ratio [kg water / kg air]
         Real64 MaxProcAirInHumRat; // max allowable process inlet air humidity ratio [kg water / kg air]
         // Internal Data
-        int SchedPtr;                  // index of availability schedule
+        Sched::Schedule *availSched = nullptr;                  // availability schedule
         Real64 NomProcAirMassFlow;     // nominal process air mass flow rate [kg/s]
         Real64 NomRegenAirMassFlow;    // nominal regeneration air mass flow rate [kg/s]
         Real64 ProcAirInTemp;          // process inlet air temperature [C]
@@ -224,7 +224,7 @@ namespace DesiccantDehumidifiers {
               NomRotorPower(0.0), RegenCoilIndex(0), RegenFanIndex(0), regenFanType(HVAC::FanType::Invalid), ProcDryBulbCurvefTW(0),
               ProcDryBulbCurvefV(0), ProcHumRatCurvefTW(0), ProcHumRatCurvefV(0), RegenEnergyCurvefTW(0), RegenEnergyCurvefV(0), RegenVelCurvefTW(0),
               RegenVelCurvefV(0), NomRegenTemp(121.0), MinProcAirInTemp(-73.3), MaxProcAirInTemp(65.6), MinProcAirInHumRat(0.0),
-              MaxProcAirInHumRat(0.21273), SchedPtr(0), NomProcAirMassFlow(0.0), NomRegenAirMassFlow(0.0), ProcAirInTemp(0.0), ProcAirInHumRat(0.0),
+              MaxProcAirInHumRat(0.21273), NomProcAirMassFlow(0.0), NomRegenAirMassFlow(0.0), ProcAirInTemp(0.0), ProcAirInHumRat(0.0),
               ProcAirInEnthalpy(0.0), ProcAirInMassFlowRate(0.0), ProcAirOutTemp(0.0), ProcAirOutHumRat(0.0), ProcAirOutEnthalpy(0.0),
               ProcAirOutMassFlowRate(0.0), RegenAirInTemp(0.0), RegenAirInHumRat(0.0), RegenAirInEnthalpy(0.0), RegenAirInMassFlowRate(0.0),
               RegenAirVel(0.0), DehumTypeCode(DesicDehumType::Invalid), WaterRemove(0.0), WaterRemoveRate(0.0), SpecRegenEnergy(0.0), QRegen(0.0),
@@ -306,6 +306,10 @@ struct DesiccantDehumidifiersData : BaseGlobalStruct
     Array1D_bool MyEnvrnFlag;
     Array1D_bool MyPlantScanFlag; // Used for init plant component for heating coils
     Real64 QRegen = 0.0;          // required coil load passed to sim heating coil routine (W)
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

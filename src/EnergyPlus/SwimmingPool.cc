@@ -160,6 +160,8 @@ void GetSwimmingPool(EnergyPlusData &state)
 
     // SUBROUTINE PARAMETER DEFINITIONS:
     static constexpr std::string_view RoutineName("GetSwimmingPool: "); // include trailing blank space
+    static constexpr std::string_view routineName = "GetSwimmingPool"; 
+    
     Real64 constexpr MinCoverFactor(0.0);                               // minimum value for cover factors
     Real64 constexpr MaxCoverFactor(1.0);                               // maximum value for cover factors
     Real64 constexpr MinDepth(0.05);                                    // minimum average pool depth (to avoid obvious input errors)
@@ -223,6 +225,9 @@ void GetSwimmingPool(EnergyPlusData &state)
                                                                  lAlphaBlanks,
                                                                  cAlphaFields,
                                                                  cNumericFields);
+
+        ErrorObjectHeader eoh{routineName, CurrentModuleObject, Alphas(1)};
+        
         Util::IsNameEmpty(state, Alphas(1), CurrentModuleObject, ErrorsFound);
         state.dataSwimmingPools->Pool(Item).Name = Alphas(1);
 
@@ -247,29 +252,27 @@ void GetSwimmingPool(EnergyPlusData &state)
             ErrorsFound = true;
         }
 
-        state.dataSwimmingPools->Pool(Item).ActivityFactorSchedName = Alphas(3);
-        state.dataSwimmingPools->Pool(Item).ActivityFactorSchedPtr = ScheduleManager::GetScheduleIndex(state, Alphas(3));
-        if ((state.dataSwimmingPools->Pool(Item).ActivityFactorSchedPtr == 0) && (!lAlphaBlanks(3))) {
-            ShowSevereError(state, format("{} not found: {}", cAlphaFields(3), Alphas(3)));
-            ShowContinueError(state, format("Occurs in {} = {}", CurrentModuleObject, Alphas(1)));
+        if (lAlphaBlanks(3)) {
+        } else if ((state.dataSwimmingPools->Pool(Item).activityFactorSched = Sched::GetSchedule(state, Alphas(3))) == nullptr) { 
+            ShowSevereItemNotFound(state, eoh, cAlphaFields(3), Alphas(3));
             ErrorsFound = true;
         }
 
-        state.dataSwimmingPools->Pool(Item).MakeupWaterSupplySchedPtr = ScheduleManager::GetScheduleIndex(state, Alphas(4));
-        if ((state.dataSwimmingPools->Pool(Item).MakeupWaterSupplySchedPtr == 0) && (!lAlphaBlanks(4))) {
-            ShowSevereError(state, format("{} not found: {}", cAlphaFields(4), Alphas(4)));
-            ShowContinueError(state, format("Occurs in {} = {}", CurrentModuleObject, Alphas(1)));
+        if (lAlphaBlanks(4)) {
+        } else if ((state.dataSwimmingPools->Pool(Item).makeupWaterSupplySched = Sched::GetSchedule(state, Alphas(4))) == nullptr) { 
+            ShowSevereItemNotFound(state, eoh, cAlphaFields(4), Alphas(4));
             ErrorsFound = true;
         }
 
-        state.dataSwimmingPools->Pool(Item).CoverSchedName = Alphas(5);
-        state.dataSwimmingPools->Pool(Item).CoverSchedPtr = ScheduleManager::GetScheduleIndex(state, Alphas(5));
-        if ((state.dataSwimmingPools->Pool(Item).CoverSchedPtr == 0) && (!lAlphaBlanks(5))) {
-            ShowSevereError(state, format("{} not found: {}", cAlphaFields(5), Alphas(5)));
-            ShowContinueError(state, format("Occurs in {} = {}", CurrentModuleObject, Alphas(1)));
+        if (lAlphaBlanks(5)) {
+        } else if ((state.dataSwimmingPools->Pool(Item).coverSched = Sched::GetSchedule(state, Alphas(5))) == nullptr) { 
+            ShowSevereItemNotFound(state, eoh, cAlphaFields(5), Alphas(5));
+            ErrorsFound = true;
+        } else if (!state.dataSwimmingPools->Pool(Item).coverSched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
+            Sched::ShowSevereBadMinMax(state, eoh, cAlphaFields(5), Alphas(5), Clusive::In, 0.0, Clusive::In, 1.0);
             ErrorsFound = true;
         }
-
+                
         state.dataSwimmingPools->Pool(Item).CoverEvapFactor = Numbers(2);
         if (state.dataSwimmingPools->Pool(Item).CoverEvapFactor < MinCoverFactor) {
             ShowWarningError(state, format("{}{}=\"{} has an evaporation cover factor less than zero.", RoutineName, CurrentModuleObject, Alphas(1)));
@@ -356,19 +359,14 @@ void GetSwimmingPool(EnergyPlusData &state)
             state.dataSwimmingPools->Pool(Item).MiscPowerFactor = MinPowerFactor;
         }
 
-        state.dataSwimmingPools->Pool(Item).SetPtTempSchedPtr = ScheduleManager::GetScheduleIndex(state, Alphas(8));
-        if ((state.dataSwimmingPools->Pool(Item).SetPtTempSchedPtr == 0) && (!lAlphaBlanks(8))) {
-            ShowSevereError(state, format("{} not found: {}", cAlphaFields(8), Alphas(8)));
-            ShowContinueError(state, format("Occurs in {} = {}", CurrentModuleObject, Alphas(1)));
-            ErrorsFound = true;
-        }
         if (lAlphaBlanks(8)) {
-            ShowSevereError(state,
-                            format("{} left blank.  This is NOT allowed as there must be a pool water setpoint temperature.", cAlphaFields(8)));
-            ShowContinueError(state, format("Occurs in {} = {}", CurrentModuleObject, Alphas(1)));
+            ShowSevereEmptyField(state, eoh, cAlphaFields(8));
+            ErrorsFound = true;
+        } else if ((state.dataSwimmingPools->Pool(Item).setPtTempSched = Sched::GetSchedule(state, Alphas(8))) == nullptr) { 
+            ShowSevereItemNotFound(state, eoh, cAlphaFields(8), Alphas(8));
             ErrorsFound = true;
         }
-
+        
         state.dataSwimmingPools->Pool(Item).MaxNumOfPeople = Numbers(8);
         if (state.dataSwimmingPools->Pool(Item).MaxNumOfPeople < 0.0) {
             ShowWarningError(
@@ -377,19 +375,15 @@ void GetSwimmingPool(EnergyPlusData &state)
             state.dataSwimmingPools->Pool(Item).MaxNumOfPeople = 0.0;
         }
 
-        state.dataSwimmingPools->Pool(Item).PeopleSchedName = Alphas(9);
-        state.dataSwimmingPools->Pool(Item).PeopleSchedPtr = ScheduleManager::GetScheduleIndex(state, Alphas(9));
-        if ((state.dataSwimmingPools->Pool(Item).PeopleSchedPtr == 0) && (!lAlphaBlanks(9))) {
-            ShowSevereError(state, format("{} not found: {}", cAlphaFields(9), Alphas(9)));
-            ShowContinueError(state, format("Occurs in {} = {}", CurrentModuleObject, Alphas(1)));
+        if (lAlphaBlanks(9)) {
+        } else if ((state.dataSwimmingPools->Pool(Item).peopleSched = Sched::GetSchedule(state, Alphas(9))) == nullptr) { 
+            ShowSevereItemNotFound(state, eoh, cAlphaFields(9), Alphas(9));
             ErrorsFound = true;
         }
 
-        state.dataSwimmingPools->Pool(Item).PeopleHeatGainSchedName = Alphas(10);
-        state.dataSwimmingPools->Pool(Item).PeopleHeatGainSchedPtr = ScheduleManager::GetScheduleIndex(state, Alphas(10));
-        if ((state.dataSwimmingPools->Pool(Item).PeopleHeatGainSchedPtr == 0) && (!lAlphaBlanks(10))) {
-            ShowSevereError(state, format("{} not found: {}", cAlphaFields(10), Alphas(10)));
-            ShowContinueError(state, format("Occurs in {} = {}", CurrentModuleObject, Alphas(1)));
+        if (lAlphaBlanks(10)) {
+        } else if ((state.dataSwimmingPools->Pool(Item).peopleHeatGainSched = Sched::GetSchedule(state, Alphas(10))) == nullptr) { 
+            ShowSevereItemNotFound(state, eoh, cAlphaFields(10), Alphas(10));
             ErrorsFound = true;
         }
     }
@@ -477,8 +471,8 @@ void SwimmingPoolData::initialize(EnergyPlusData &state, bool const FirstHVACIte
     Real64 constexpr MaxActivityFactor = 10.0; // Maximum value for activity factor (realistically)
 
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-    Real64 HeatGainPerPerson = ScheduleManager::GetCurrentScheduleValue(state, this->PeopleHeatGainSchedPtr);
-    Real64 PeopleModifier = ScheduleManager::GetCurrentScheduleValue(state, this->PeopleSchedPtr);
+    Real64 HeatGainPerPerson = this->peopleHeatGainSched->getCurrentVal();
+    Real64 PeopleModifier = this->peopleSched->getCurrentVal();
 
     if (this->MyOneTimeFlag) {
         this->setupOutputVars(state); // Set up the output variables once here
@@ -535,15 +529,15 @@ void SwimmingPoolData::initialize(EnergyPlusData &state, bool const FirstHVACIte
     this->WaterInletTemp = state.dataLoopNodes->Node(this->WaterInletNode).Temp;
 
     // get the schedule values for different scheduled parameters
-    if (this->ActivityFactorSchedPtr > 0) {
-        this->CurActivityFactor = ScheduleManager::GetCurrentScheduleValue(state, this->ActivityFactorSchedPtr);
+    if (this->activityFactorSched != nullptr) {
+        this->CurActivityFactor = this->activityFactorSched->getCurrentVal();
         if (this->CurActivityFactor < MinActivityFactor) {
             this->CurActivityFactor = MinActivityFactor;
             ShowWarningError(state,
                              format("{}: Swimming Pool =\"{} Activity Factor Schedule =\"{} has a negative value.  This is not allowed.",
                                     RoutineName,
                                     this->Name,
-                                    this->ActivityFactorSchedName));
+                                    this->activityFactorSched->Name));
             ShowContinueError(state, "The activity factor has been reset to zero.");
         }
         if (this->CurActivityFactor > MaxActivityFactor) {
@@ -552,7 +546,7 @@ void SwimmingPoolData::initialize(EnergyPlusData &state, bool const FirstHVACIte
                              format("{}: Swimming Pool =\"{} Activity Factor Schedule =\"{} has a value larger than 10.  This is not allowed.",
                                     RoutineName,
                                     this->Name,
-                                    this->ActivityFactorSchedName));
+                                    this->activityFactorSched->Name));
             ShowContinueError(state, "The activity factor has been reset to unity.");
         }
     } else {
@@ -560,33 +554,33 @@ void SwimmingPoolData::initialize(EnergyPlusData &state, bool const FirstHVACIte
         this->CurActivityFactor = 1.0;
     }
 
-    this->CurSetPtTemp = ScheduleManager::GetCurrentScheduleValue(state, this->SetPtTempSchedPtr);
+    this->CurSetPtTemp = this->setPtTempSched->getCurrentVal();
 
-    if (this->MakeupWaterSupplySchedPtr > 0) {
-        this->CurMakeupWaterTemp = ScheduleManager::GetCurrentScheduleValue(state, this->MakeupWaterSupplySchedPtr);
+    if (this->makeupWaterSupplySched != nullptr) {
+        this->CurMakeupWaterTemp = this->makeupWaterSupplySched->getCurrentVal();
     } else {
         // use water main temperaure if no schedule present in input
         this->CurMakeupWaterTemp = state.dataEnvrn->WaterMainsTemp;
     }
 
     // determine the current heat gain from people
-    if (this->PeopleHeatGainSchedPtr > 0) {
+    if (this->peopleHeatGainSched != nullptr) {
         if (HeatGainPerPerson < 0.0) {
             ShowWarningError(state,
                              format("{}: Swimming Pool =\"{} Heat Gain Schedule =\"{} has a negative value.  This is not allowed.",
                                     RoutineName,
                                     this->Name,
-                                    this->PeopleHeatGainSchedName));
+                                    this->peopleHeatGainSched->Name));
             ShowContinueError(state, "The heat gain per person has been reset to zero.");
             HeatGainPerPerson = 0.0;
         }
-        if (this->PeopleSchedPtr > 0) {
+        if (this->peopleSched != nullptr) {
             if (PeopleModifier < 0.0) {
                 ShowWarningError(state,
                                  format("{}: Swimming Pool =\"{} People Schedule =\"{} has a negative value.  This is not allowed.",
                                         RoutineName,
                                         this->Name,
-                                        this->PeopleSchedName));
+                                        this->peopleSched->Name));
                 ShowContinueError(state, "The number of people has been reset to zero.");
                 PeopleModifier = 0.0;
             }
@@ -600,14 +594,15 @@ void SwimmingPoolData::initialize(EnergyPlusData &state, bool const FirstHVACIte
     this->PeopleHeatGain = PeopleModifier * HeatGainPerPerson * this->MaxNumOfPeople;
 
     // once cover schedule value is established, define the current values of the cover heat transfer factors
-    if (this->CoverSchedPtr > 0) {
-        this->CurCoverSchedVal = ScheduleManager::GetCurrentScheduleValue(state, this->CoverSchedPtr);
+    if (this->coverSched != nullptr) {
+        this->CurCoverSchedVal = this->coverSched->getCurrentVal();
+        // Why is this checking done here as opposed to where the schedule is first retrieved?
         if (this->CurCoverSchedVal > 1.0) {
             ShowWarningError(state,
                              format("{}: Swimming Pool =\"{} Cover Schedule =\"{} has a value greater than 1.0 (100%).  This is not allowed.",
                                     RoutineName,
                                     this->Name,
-                                    this->CoverSchedName));
+                                    this->coverSched->Name));
             ShowContinueError(state, "The cover has been reset to one or fully covered.");
             this->CurCoverSchedVal = 1.0;
         } else if (this->CurCoverSchedVal < 0.0) {
@@ -615,7 +610,7 @@ void SwimmingPoolData::initialize(EnergyPlusData &state, bool const FirstHVACIte
                              format("{}: Swimming Pool =\"{} Cover Schedule =\"{} has a negative value.  This is not allowed.",
                                     RoutineName,
                                     this->Name,
-                                    this->CoverSchedName));
+                                    this->coverSched->Name));
             ShowContinueError(state, "The cover has been reset to zero or uncovered.");
             this->CurCoverSchedVal = 0.0;
         }

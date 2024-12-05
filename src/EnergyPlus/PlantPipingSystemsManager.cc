@@ -206,11 +206,11 @@ namespace PlantPipingSystemsManager {
             // The time init should be done here before we DoOneTimeInits because the DoOneTimeInits
             // includes a ground temperature initialization, which is based on the Cur%CurSimTimeSeconds variable
             // which would be carried over from the previous environment
-            thisDomain.Cur.CurSimTimeStepSize = state.dataGlobal->TimeStepZone * Constant::SecInHour;
+            thisDomain.Cur.CurSimTimeStepSize = state.dataGlobal->TimeStepZone * Constant::rSecsInHour;
             thisDomain.Cur.CurSimTimeSeconds =
-                ((state.dataGlobal->DayOfSim - 1) * 24 + (state.dataGlobal->HourOfDay - 1) +
+                ((state.dataGlobal->DayOfSim - 1) * Constant::iHoursInDay + (state.dataGlobal->HourOfDay - 1) +
                  (state.dataGlobal->TimeStep - 1) * state.dataGlobal->TimeStepZone + state.dataHVACGlobal->SysTimeElapsed) *
-                Constant::SecInHour;
+                Constant::rSecsInHour;
 
             // There are also some inits that are "close to one time" inits...( one-time in standalone, each envrn in E+ )
             if ((state.dataGlobal->BeginSimFlag && thisDomain.BeginSimInit) || (state.dataGlobal->BeginEnvrnFlag && thisDomain.BeginSimEnvironment)) {
@@ -4346,13 +4346,13 @@ namespace PlantPipingSystemsManager {
         Latitude_Radians = Constant::Pi / 180.0 * Latitude_Degrees;
 
         // The day of year at this point in the simulation
-        DayOfYear = int(this->Cur.CurSimTimeSeconds / Constant::SecsInDay);
+        DayOfYear = int(this->Cur.CurSimTimeSeconds / Constant::rSecsInDay);
 
         // The number of seconds into the current day
-        CurSecondsIntoToday = int(mod(this->Cur.CurSimTimeSeconds, Constant::SecsInDay));
+        CurSecondsIntoToday = int(mod(this->Cur.CurSimTimeSeconds, Constant::rSecsInDay));
 
         // The number of hours into today
-        HourOfDay = int(CurSecondsIntoToday / Constant::SecInHour);
+        HourOfDay = int(CurSecondsIntoToday / Constant::rSecsInHour);
 
         // For convenience convert to Kelvin once
         CurAirTempK = this->Cur.CurAirTemp + 273.15;

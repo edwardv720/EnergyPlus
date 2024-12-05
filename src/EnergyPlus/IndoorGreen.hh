@@ -81,12 +81,11 @@ namespace IndoorGreen {
         std::string Name;
         std::string ZoneName;
         std::string SurfName;
-        std::string Schedule;
-        int SchedPtr = 0;
-        int SchedLEDPtr = 0;
+        Sched::Schedule *sched = nullptr;
+        Sched::Schedule *ledSched = nullptr;
         int LightRefPtr = 0;               // daylight reference point number;
         int LightControlPtr = 0;           // daylight control point number;
-        int SchedLEDDaylightTargetPtr = 0; // LED-Daylight PPFD setpoint schedule pointer
+        Sched::Schedule *ledDaylightTargetSched = nullptr; // LED-Daylight PPFD setpoint schedule
         Real64 LeafArea = 0.0;             // one-sided leaf area
         Real64 LEDNominalPPFD = 0.0;       // nominal PPFD for LED grow light (PPFD)
         Real64 LEDNominalEleP = 0.0;       // nominal power for total LED grow light (W)
@@ -127,6 +126,10 @@ struct IndoorGreenData : BaseGlobalStruct
     int NumIndoorGreen = 0; // Number of Indoor Greenery Systems found in input
     bool getInputFlag = true;
     Array1D<IndoorGreen::IndoorGreenParams> indoorGreens;
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

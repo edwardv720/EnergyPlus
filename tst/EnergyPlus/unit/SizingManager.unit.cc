@@ -71,6 +71,7 @@ using namespace EnergyPlus::DataSizing;
 
 TEST_F(EnergyPlusFixture, GetOARequirementsTest_DSOA1)
 {
+    state->init_state(*state);
     bool ErrorsFound(false); // If errors detected in input
     int OAIndex(0);          // Zone number
     int NumAlphas(2);
@@ -223,7 +224,7 @@ TEST_F(EnergyPlusFixture, GetOARequirementsTest_DSOA1)
 
 TEST_F(EnergyPlusFixture, SizingManagerTest_TimeIndexToHrMinString_test)
 {
-    state->dataGlobal->MinutesPerTimeStep = 15;
+    state->dataGlobal->MinutesInTimeStep = 15;
 
     EXPECT_EQ("00:00:00", TimeIndexToHrMinString(*state, 0));
     EXPECT_EQ("00:15:00", TimeIndexToHrMinString(*state, 1));
@@ -232,7 +233,7 @@ TEST_F(EnergyPlusFixture, SizingManagerTest_TimeIndexToHrMinString_test)
     EXPECT_EQ("19:45:00", TimeIndexToHrMinString(*state, 79));
     EXPECT_EQ("24:00:00", TimeIndexToHrMinString(*state, 96));
 
-    state->dataGlobal->MinutesPerTimeStep = 3;
+    state->dataGlobal->MinutesInTimeStep = 3;
 
     EXPECT_EQ("00:00:00", TimeIndexToHrMinString(*state, 0));
     EXPECT_EQ("00:03:00", TimeIndexToHrMinString(*state, 1));
@@ -298,7 +299,8 @@ TEST_F(EnergyPlusFixture, SizingManager_DOASControlStrategyDefaultSpecificationT
     });
 
     ASSERT_TRUE(process_idf(idf_objects));
-
+    state->init_state(*state);
+    
     bool ErrorsFound(false);
     HeatBalanceManager::GetZoneData(*state, ErrorsFound);
     ASSERT_FALSE(ErrorsFound);
@@ -367,7 +369,8 @@ TEST_F(EnergyPlusFixture, SizingManager_DOASControlStrategyDefaultSpecificationT
     });
 
     ASSERT_TRUE(process_idf(idf_objects));
-
+    state->init_state(*state);
+    
     bool ErrorsFound(false);
     HeatBalanceManager::GetZoneData(*state, ErrorsFound);
     ASSERT_FALSE(ErrorsFound);
@@ -551,10 +554,11 @@ TEST_F(EnergyPlusFixture, SizingManager_OverrideAvgWindowInSizing)
     });
 
     EXPECT_TRUE(process_idf(idf_objects));
-
+    state->init_state(*state);
+    
     SimulationManager::GetProjectData(*state);
     EXPECT_TRUE(state->dataGlobal->OverrideTimestep);
     SizingManager::GetSizingParams(*state);
-    EXPECT_EQ(state->dataGlobal->NumOfTimeStepInHour, 1);
+    EXPECT_EQ(state->dataGlobal->TimeStepsInHour, 1);
     EXPECT_EQ(state->dataSize->NumTimeStepsInAvg, 1);
 }

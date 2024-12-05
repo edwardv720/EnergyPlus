@@ -393,6 +393,10 @@ struct BSDFWindowData : BaseGlobalStruct
     Array2D<Real64> BSDFTempMtrx;                                         // Temporary matrix for holding axisymmetric input
     EPVector<DataBSDFWindow::BSDFWindowGeomDescr> ComplexWind;            // Window geometry structure: set in CalcPerSolarBeam/SolarShading
 
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
+
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {
     }

@@ -97,7 +97,7 @@ namespace PhotovoltaicThermalCollectors {
         Real64 ThermalActiveFract = 0.0;                       // fraction of surface area with active thermal collection
         ThermEfficEnum ThermEfficMode = ThermEfficEnum::FIXED; // setting for how therm effic is determined
         Real64 ThermEffic = 0.0;                               // fixed or current Therm efficiency
-        int ThermEffSchedNum = 0;                              // pointer to schedule for therm effic (if any)
+        Sched::Schedule *thermEffSched = nullptr;                              // pointer to schedule for therm effic (if any)
         Real64 SurfEmissivity = 0.0;                           // surface emittance in long wave IR
         Real64 LastCollectorTemp = 0.0;                        // store previous temperature
     };
@@ -107,7 +107,7 @@ namespace PhotovoltaicThermalCollectors {
         std::string Name;
         std::string OSCMName;               // OtherSideConditionsModel
         int OSCMPtr = 0;                    // OtherSideConditionsModel index
-        int SchedPtr = 0;                   // Availablity schedule
+        Sched::Schedule *availSched = nullptr;                   // Availablity schedule
         Real64 PVEffGapWidth = 0.0;         // Effective Gap Plenum Behind PV modules (m)
         Real64 PVCellTransAbsProduct = 0.0; // PV cell Transmittance-Absorptance prodiuct
         Real64 BackMatTranAbsProduct = 0.0; // Backing Material Normal Transmittance-Absorptance Product
@@ -255,6 +255,10 @@ struct PhotovoltaicThermalCollectorsData : BaseGlobalStruct
     bool GetInputFlag = true; // First time, input is "gotten"
     int NumPVT = 0;           // count of all types of PVT in input file
     Array1D<PhotovoltaicThermalCollectors::PVTCollectorStruct> PVT;
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

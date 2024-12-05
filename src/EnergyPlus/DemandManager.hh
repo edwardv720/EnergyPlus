@@ -58,6 +58,7 @@
 #include <EnergyPlus/Data/BaseData.hh>
 #include <EnergyPlus/DataGlobals.hh>
 #include <EnergyPlus/EnergyPlus.hh>
+#include <EnergyPlus/ScheduleManager.hh>
 
 namespace EnergyPlus {
 
@@ -121,11 +122,11 @@ namespace DemandManager {
         // Members
         std::string Name;                   // Name of DEMAND MANAGER LIST
         int Meter;                          // Index to meter to demand limit
-        int LimitSchedule;                  // Schedule index for demand limit
+        Sched::Schedule *limitSched = nullptr;                  // Schedule for demand limit
         Real64 SafetyFraction;              // Multiplier applied to demand limit schedule
-        int BillingSchedule;                // Schedule index for billing month periods
+        Sched::Schedule *billingSched = nullptr;                // Schedule for billing month periods
         Real64 BillingPeriod;               // Current billing period value
-        int PeakSchedule;                   // Schedule index for billing month periods
+        Sched::Schedule *peakSched = nullptr;                   // Schedule index for billing month periods
         int AveragingWindow;                // Number of timesteps for averaging demand window
         Array1D<Real64> History;            // Demand window history
         ManagePriorityType ManagerPriority; // Indicator for priority (SEQUENTIAL, OPTIMAL, ALL)
@@ -142,7 +143,7 @@ namespace DemandManager {
 
         // Default Constructor
         DemandManagerListData()
-            : Meter(0), LimitSchedule(0), SafetyFraction(1.0), BillingSchedule(0), BillingPeriod(0.0), PeakSchedule(0), AveragingWindow(1),
+            : Meter(0), SafetyFraction(1.0), BillingPeriod(0.0), AveragingWindow(1),
               ManagerPriority(ManagePriorityType::Invalid), MeterDemand(0.0), AverageDemand(0.0), PeakDemand(0.0), ScheduledLimit(0.0),
               DemandLimit(0.0), AvoidedDemand(0.0), OverLimit(0.0), OverLimitDuration(0.0)
         {
@@ -156,7 +157,7 @@ namespace DemandManager {
         ManagerType Type;      // Type of DEMAND MANAGER (:LIGHTS, :ELECTRICEQUIPMENT, etc.)
         int DemandManagerList; // Reference to parent DEMAND MANAGER LIST for error checking
         bool CanReduceDemand;  // Flag to indicate whether manager can reduce demand
-        int AvailSchedule;     // Schedule index pointer for Availability Schedule
+        Sched::Schedule *availSched = nullptr;     // Availability Schedule
         bool Available;        // Availability flag
         bool Activate;         // Flag to activate the manager
         bool Active;           // Flag to indicate that the manager is active
@@ -180,7 +181,7 @@ namespace DemandManager {
 
         // Default Constructor
         DemandManagerData()
-            : Type(ManagerType::Invalid), DemandManagerList(0), CanReduceDemand(false), AvailSchedule(0), Available(false), Activate(false),
+            : Type(ManagerType::Invalid), DemandManagerList(0), CanReduceDemand(false), Available(false), Activate(false),
               Active(false), LimitControl(ManagerLimit::Invalid), SelectionControl(ManagerSelection::Invalid), LimitDuration(0), ElapsedTime(0),
               RotationDuration(0), ElapsedRotationTime(0), RotatedLoadNum(0), LowerLimit(0.0), UpperLimit(0.0), NumOfLoads(0), FixedRate(0.0),
               ReductionRatio(0.0)
@@ -232,6 +233,10 @@ struct DemandManagerData : BaseGlobalStruct
     bool ResimHB = true;
     bool ResimExt = true;
     bool firstTime = true;
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

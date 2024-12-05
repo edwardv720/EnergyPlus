@@ -146,8 +146,7 @@ namespace PurchasedAirManager {
         // Members
         std::string cObjectName;     // Name of the object from IDD
         std::string Name;            // Name or identifier of this piece of equipment
-        std::string AvailSched;      // System availability schedule
-        int AvailSchedPtr;           // Index to system availability schedule
+        Sched::Schedule *availSched = nullptr;           // System availability schedule
         int ZoneSupplyAirNodeNum;    // Node number of zone supply air node for purchased air
         int ZoneExhaustAirNodeNum;   // Node number of zone exhaust air node for purchased air
         int PlenumExhaustAirNodeNum; // Node number of plenum exhaust air node
@@ -168,10 +167,8 @@ namespace PurchasedAirManager {
         //       or LimitFlowRateAndCapacity
         Real64 MaxCoolVolFlowRate;  // Maximum cooling supply air flow [m3/s]
         Real64 MaxCoolTotCap;       // Maximum cooling total capacity [W]
-        std::string HeatSched;      // Heating availablity schedule
-        int HeatSchedPtr;           // Index to heating availability schedule
-        std::string CoolSched;      // Cooling availability schedule
-        int CoolSchedPtr;           // Index to the cooling availability schedule
+        Sched::Schedule *heatAvailSched = nullptr;           // Heating availability schedule
+        Sched::Schedule *coolAvailSched = nullptr;           // Index to the cooling availability schedule
         HumControl DehumidCtrlType; // Dehumidification control type - ConstantSensibleHeatRatio,
         //      Humidistat, or ConstantSupplyHumidityRatio
         Real64 CoolSHR;           // Cooling sensible heat ratio
@@ -187,7 +184,7 @@ namespace PurchasedAirManager {
         HeatRecovery HtRecType;             // Outdoor air heat recovery type - None, Sensible, Enthalpy
         Real64 HtRecSenEff;                 // Sensible heat recovery effectiveness
         Real64 HtRecLatEff;                 // Latent heat recovery effectiveness
-        int OAFlowFracSchPtr;               // Fraction schedule applied to total OA requirement
+        Sched::Schedule *oaFlowFracSched = nullptr;               // Fraction schedule applied to total OA requirement
         Real64 MaxHeatMassFlowRate;         // The maximum heating air mass flow rate [kg/s]
         Real64 MaxCoolMassFlowRate;         // The maximum cooling air mass flow rate [kg/s]
         bool EMSOverrideMdotOn;             // if true, then EMS is calling to override supply mass flow rate
@@ -281,13 +278,13 @@ namespace PurchasedAirManager {
 
         // Default Constructor
         ZonePurchasedAir()
-            : AvailSchedPtr(0), ZoneSupplyAirNodeNum(0), ZoneExhaustAirNodeNum(0), PlenumExhaustAirNodeNum(0), ReturnPlenumIndex(0),
+            : ZoneSupplyAirNodeNum(0), ZoneExhaustAirNodeNum(0), PlenumExhaustAirNodeNum(0), ReturnPlenumIndex(0),
               PurchAirArrayIndex(0), ZoneRecircAirNodeNum(0), MaxHeatSuppAirTemp(0.0), MinCoolSuppAirTemp(0.0), MaxHeatSuppAirHumRat(0.0),
               MinCoolSuppAirHumRat(0.0), HeatingLimit(LimitType::Invalid), MaxHeatVolFlowRate(0.0), MaxHeatSensCap(0.0),
-              CoolingLimit(LimitType::Invalid), MaxCoolVolFlowRate(0.0), MaxCoolTotCap(0.0), HeatSchedPtr(0), CoolSchedPtr(0),
+              CoolingLimit(LimitType::Invalid), MaxCoolVolFlowRate(0.0), MaxCoolTotCap(0.0), 
               DehumidCtrlType(HumControl::Invalid), CoolSHR(0.0), HumidCtrlType(HumControl::Invalid), OARequirementsPtr(0), DCVType(DCV::Invalid),
               EconomizerType(Econ::Invalid), OutdoorAir(false), OutdoorAirNodeNum(0), HtRecType(HeatRecovery::Invalid), HtRecSenEff(0.0),
-              HtRecLatEff(0.0), OAFlowFracSchPtr(0), MaxHeatMassFlowRate(0.0), MaxCoolMassFlowRate(0.0), EMSOverrideMdotOn(false),
+              HtRecLatEff(0.0), MaxHeatMassFlowRate(0.0), MaxCoolMassFlowRate(0.0), EMSOverrideMdotOn(false),
               EMSValueMassFlowRate(0.0), EMSOverrideOAMdotOn(false), EMSValueOAMassFlowRate(0.0), EMSOverrideSupplyTempOn(false),
               EMSValueSupplyTemp(0.0), EMSOverrideSupplyHumRatOn(false), EMSValueSupplyHumRat(0.0), MinOAMassFlowRate(0.0),
               OutdoorAirMassFlowRate(0.0), OutdoorAirVolFlowRateStdRho(0.0), SupplyAirMassFlowRate(0.0), SupplyAirVolFlowRateStdRho(0.0),
@@ -407,6 +404,10 @@ struct PurchasedAirManagerData : BaseGlobalStruct
     Array1D_bool InitPurchasedAirOneTimeUnitInitsDone; // True if one-time inits for PurchAirNum are completed
     Array1D<PurchasedAirManager::PurchAirPlenumArrayData>
         TempPurchAirPlenumArrays; // Used to save the indices of scalable sizing object for zone HVAC
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

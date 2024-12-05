@@ -230,7 +230,7 @@ namespace VariableSpeedCoils {
         Real64 BasinHeaterPowerFTempDiff;   // Basin heater capacity per degree C below setpoint (W/C)
         Real64 BasinHeaterSetPointTemp;     // setpoint temperature for basin heater operation (C)
         Real64 BasinHeaterPower;            // Basin heater power (W)
-        int BasinHeaterSchedulePtr;         // Pointer to basin heater schedule
+        Sched::Schedule *basinHeaterSched = nullptr;         // basin heater schedule
         Array1D<Real64> EvapCondAirFlow;    // Air flow rate through the evap condenser at high speed, volumetric flow rate
         // for water use calcs [m3/s]
         Array1D<Real64> EvapCondEffect; // effectiveness of the evaporatively cooled condenser
@@ -312,7 +312,7 @@ namespace VariableSpeedCoils {
               CondenserType(DataHeatBalance::RefrigCondenserType::Air), ReportEvapCondVars(false), EvapCondPumpElecNomPower(0.0),
               EvapCondPumpElecPower(0.0), EvapWaterConsumpRate(0.0), EvapCondPumpElecConsumption(0.0), EvapWaterConsump(0.0),
               BasinHeaterConsumption(0.0), BasinHeaterPowerFTempDiff(0.0), BasinHeaterSetPointTemp(0.0), BasinHeaterPower(0.0),
-              BasinHeaterSchedulePtr(0), EvapCondAirFlow(HVAC::MaxSpeedLevels, 0.0), EvapCondEffect(HVAC::MaxSpeedLevels, 0.0),
+              EvapCondAirFlow(HVAC::MaxSpeedLevels, 0.0), EvapCondEffect(HVAC::MaxSpeedLevels, 0.0),
               MSRatedEvapCondVolFlowPerRatedTotCap(HVAC::MaxSpeedLevels, 0.0), EvapWaterSupplyMode(101), EvapWaterSupTankID(0),
               EvapWaterTankDemandARRID(0), CondensateCollectMode(1001), CondensateTankID(0), CondensateTankSupplyARRID(0), CondensateVdot(0.0),
               CondensateVol(0.0), CondInletTemp(0.0), SupplyFanIndex(0), supplyFanType(HVAC::FanType::Invalid), SourceAirMassFlowRate(0.0),
@@ -580,6 +580,10 @@ struct VariableSpeedCoilsData : BaseGlobalStruct
     Real64 OutdoorPressure_CalcVarSpeedCoilCooling = 0.0;       // Outdoor barometric pressure at condenser (Pa)
     Real64 CrankcaseHeatingPower_CalcVarSpeedCoilCooling = 0.0; // power due to crankcase heater
     Real64 CompAmbTemp_CalcVarSpeedCoilCooling = 0.0;           // Ambient temperature at compressor
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

@@ -172,7 +172,7 @@ private:               // data
     Real64 ancillACuseRate_;
     Real64 ancillACuseEnergy_;
     InverterModelType modelType_; // type of inverter model used
-    int availSchedPtr_;           // number for availability schedule.
+    Sched::Schedule *availSched_ = nullptr;           // number for availability schedule.
     ThermalLossDestination heatLossesDestination_;
     int zoneNum_;                              // destination zone for heat losses from inverter.
     Real64 zoneRadFract_;                      // radiative fraction for thermal losses to zone
@@ -238,7 +238,7 @@ private: // data
     Real64 qdotRadZone_;
     Real64 ancillACuseRate_;
     Real64 ancillACuseEnergy_;
-    int availSchedPtr_;            // number for availability schedule.
+    Sched::Schedule *availSched_ = nullptr;            // number for availability schedule.
     ConverterModelType modelType_; // type of inverter model used
     int curveNum_;                 // performance curve or table index
     ThermalLossDestination heatLossesDestination_;
@@ -371,7 +371,7 @@ private: // data
     int maxRainflowArrayBounds_;
     bool myWarmUpFlag_;
     StorageModelType storageModelMode_;            // type of model parameter, SimpleBucketStorage
-    int availSchedPtr_;                            // availability schedule index.
+    Sched::Schedule *availSched_ = nullptr;                            // availability schedule index.
     ThermalLossDestination heatLossesDestination_; // mode for where thermal losses go
     int zoneNum_;                                  // destination zone for heat losses from inverter.
     Real64 zoneRadFract_;                          // radiative fraction for thermal losses to zone
@@ -495,7 +495,7 @@ private: // data
 
     std::string name_; // user identifier
     bool myOneTimeFlag_;
-    int availSchedPtr_;                                // availability schedule index.
+    Sched::Schedule *availSched_ = nullptr;                                // availability schedule
     TransformerUse usageMode_;                         // mode for transformer usage
     ThermalLossDestination heatLossesDestination_;     // mode for where thermal losses go
     int zoneNum_;                                      // destination zone for heat losses from inverter.
@@ -572,8 +572,7 @@ public:                          // data // might make this class a friend of El
     std::string compPlantName;                                                           // name of plant component if heat recovery
     int generatorIndex;                                                                  // index in generator model data struct
     Real64 maxPowerOut;                                                                  // Maximum Power Output (W)
-    std::string availSched;                                                              // Operation Schedule.
-    int availSchedPtr;                                                                   // pointer to operation schedule
+    Sched::Schedule *availSched = nullptr;                                                                   // pointer to operation schedule
     Real64 powerRequestThisTimestep;                                                     // Current Demand on Equipment (W)
     bool onThisTimestep;                                                                 // Indicator whether Generator on
     Real64 eMSPowerRequest;                                                              // EMS actuator for current demand on equipment (W)
@@ -696,7 +695,7 @@ private: // data
     bool generatorsPresent_;               // true if any generators
     bool myCoGenSetupFlag_;
     Real64 demandLimit_; // Demand Limit in Watts(W) which the generator will operate above
-    int trackSchedPtr_;  // "pointer" to schedule for electrical demand to meet.
+    Sched::Schedule *trackSched_ = nullptr;  // schedule for electrical demand to meet.
     bool storagePresent_;
     std::string storageName_;            // hold name for verificaton and error messages
     bool transformerPresent_;            // should only be transformers for on-site load center, not facility service
@@ -714,10 +713,10 @@ private: // data
     bool designStorageChargePowerWasSet_;    // true if a value was input
     Real64 designStorageDischargePower_;     // rate of electric power exported to grid by being drawn from storage
     bool designStorageDischargePowerWasSet_; // true if value was input
-    int storageChargeModSchedIndex_;         // index of fraction schedule for controlling charge rate over time
-    int storageDischargeModSchedIndex_;      // index of fraction schedule for controlling discharge rate over time.
+    Sched::Schedule *storageChargeModSched_ = nullptr;         // index of fraction schedule for controlling charge rate over time
+    Sched::Schedule *storageDischargeModSched_ = nullptr;      // index of fraction schedule for controlling discharge rate over time.
     Real64 facilityDemandTarget_;            // target utility demand level in Watts
-    int facilityDemandTargetModSchedIndex_;  // index of fracton schedule for controlling target demand over time.
+    Sched::Schedule *facilityDemandTargetModSched_ = nullptr;  // index of fracton schedule for controlling target demand over time.
     bool eMSOverridePelFromStorage_;         // if true, EMS calling for override
     Real64 eMSValuePelFromStorage_;          // value EMS is directing to use, power from storage [W]
     bool eMSOverridePelIntoStorage_;         // if true, EMS calling for override
@@ -827,6 +826,10 @@ struct ElectPwrSvcMgrData : BaseGlobalStruct
 {
 
     std::unique_ptr<ElectricPowerServiceManager> facilityElectricServiceObj;
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

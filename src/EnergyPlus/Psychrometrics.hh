@@ -1702,9 +1702,13 @@ struct PsychrometricsData : BaseGlobalStruct
     bool ReportErrors = true;
     bool useInterpolationPsychTsatFnPb = false;
 
-    void init_state(EnergyPlusData &state) override
+    void init_constant_state(EnergyPlusData &state) override
     {
         Psychrometrics::InitializePsychRoutines(state);
+    }
+
+    void init_state([[maybe_unused]] EnergyPlusData &state) override
+    {
     }
 
     void clear_state() override

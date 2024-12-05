@@ -70,7 +70,6 @@ namespace PlantManager {
     using namespace DataPlant;
     using namespace DataLoopNode;
     using namespace DataSizing;
-    using namespace ScheduleManager;
     using namespace SetPointManager;
 
     TEST_F(EnergyPlusFixture, PlantManager_SizePlantLoopTest)
@@ -205,7 +204,8 @@ namespace PlantManager {
         });
 
         ASSERT_TRUE(process_idf(idf_objects));
-
+        state->init_state(*state);
+        
         // get input and checks if there are two setpointmanagers
         // for a TwoWayCommonPipe and one of them setpoints can be
         // a SetpointManager:OutdoorAirReset type.
@@ -271,6 +271,8 @@ namespace UserDefinedComponents {
         });
 
         ASSERT_TRUE(process_idf(idf_objects));
+        state->init_state(*state);
+
         OutAirNodeManager::SetOutAirNodes(*state);
         EMSManager::CheckIfAnyEMS(*state);
         state->dataEMSMgr->FinishProcessingUserInput = true;

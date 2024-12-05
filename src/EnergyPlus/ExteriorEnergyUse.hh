@@ -58,6 +58,7 @@
 #include <EnergyPlus/DataGlobalConstants.hh>
 #include <EnergyPlus/DataGlobals.hh>
 #include <EnergyPlus/EnergyPlus.hh>
+#include <EnergyPlus/ScheduleManager.hh>
 
 namespace EnergyPlus {
 
@@ -78,7 +79,7 @@ namespace ExteriorEnergyUse {
     {
         // Members
         std::string Name;             // Descriptive name -- will show on reporting
-        int SchedPtr;                 // Can be scheduled
+        Sched::Schedule *sched = nullptr;                 // Can be scheduled
         Real64 DesignLevel;           // Consumption in Watts
         Real64 Power;                 // Power = DesignLevel * ScheduleValue
         Real64 CurrentUse;            // Use for this time step
@@ -92,7 +93,7 @@ namespace ExteriorEnergyUse {
 
         // Default Constructor
         ExteriorLightUsage()
-            : SchedPtr(0), DesignLevel(0.0), Power(0.0), CurrentUse(0.0), ControlMode(LightControlType::ScheduleOnly), ManageDemand(false),
+            : DesignLevel(0.0), Power(0.0), CurrentUse(0.0), ControlMode(LightControlType::ScheduleOnly), ManageDemand(false),
               DemandLimit(0.0), PowerActuatorOn(false), PowerActuatorValue(0.0), SumConsumption(0.0), SumTimeNotZeroCons(0.0)
         {
         }
@@ -103,7 +104,7 @@ namespace ExteriorEnergyUse {
         // Members
         std::string Name; // Descriptive name -- will show on reporting
         Constant::eFuel FuelType;
-        int SchedPtr;       // Can be scheduled
+        Sched::Schedule *sched = nullptr;       // Can be scheduled
         Real64 DesignLevel; // Design Consumption (Watts, except for Water Equipment)
         Real64 Power;       // Power = DesignLevel * ScheduleValue
         Real64 CurrentUse;  // Use for this time step
@@ -112,7 +113,7 @@ namespace ExteriorEnergyUse {
 
         // Default Constructor
         ExteriorEquipmentUsage()
-            : FuelType(Constant::eFuel::Invalid), SchedPtr(0), DesignLevel(0.0), Power(0.0), CurrentUse(0.0), ManageDemand(false), DemandLimit(0.0)
+            : FuelType(Constant::eFuel::Invalid), DesignLevel(0.0), Power(0.0), CurrentUse(0.0), ManageDemand(false), DemandLimit(0.0)
         {
         }
     };
@@ -135,6 +136,10 @@ struct ExteriorEnergyUseData : BaseGlobalStruct
     std::unordered_map<std::string, std::string> UniqueExteriorEquipNames;
     bool GetExteriorEnergyInputFlag = true; // First time, input is "gotten"
     Real64 sumDesignLevel = 0.0;            // for predefined report of design level total
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

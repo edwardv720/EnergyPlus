@@ -99,7 +99,6 @@ namespace SteamCoils {
 
     using PlantUtilities::MyPlantSizingIndex;
     using PlantUtilities::ScanPlantLoopsForObject;
-    using namespace ScheduleManager;
 
     static constexpr std::string_view fluidNameSteam("STEAM");
     constexpr std::array<std::string_view, static_cast<int>(CoilControlType::Num)> coilControlTypeNames = {"TEMPERATURESETPOINTCONTROL",
@@ -219,6 +218,7 @@ namespace SteamCoils {
 
         // SUBROUTINE PARAMETER DEFINITIONS:
         static constexpr std::string_view RoutineName("GetSteamCoilInput: "); // include trailing blank space
+        static constexpr std::string_view routineName = "GetSteamCoilInput"; 
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         int CoilNum; // The SteamCoil that you are currently loading input into
@@ -271,22 +271,20 @@ namespace SteamCoils {
                                                                      lAlphaBlanks,
                                                                      cAlphaFields,
                                                                      cNumericFields);
+
+            ErrorObjectHeader eoh{routineName, CurrentModuleObject, AlphArray(1)};
             Util::IsNameEmpty(state, AlphArray(1), CurrentModuleObject, ErrorsFound);
 
             // ErrorsFound will be set to True if problem was found, left untouched otherwise
             VerifyUniqueCoilName(state, CurrentModuleObject, AlphArray(1), ErrorsFound, CurrentModuleObject + " Name");
 
             state.dataSteamCoils->SteamCoil(CoilNum).Name = AlphArray(1);
-            state.dataSteamCoils->SteamCoil(CoilNum).Schedule = AlphArray(2);
+
             if (lAlphaBlanks(2)) {
-                state.dataSteamCoils->SteamCoil(CoilNum).SchedPtr = ScheduleManager::ScheduleAlwaysOn;
-            } else {
-                state.dataSteamCoils->SteamCoil(CoilNum).SchedPtr = GetScheduleIndex(state, AlphArray(2));
-                if (state.dataSteamCoils->SteamCoil(CoilNum).SchedPtr == 0) {
-                    ShowSevereError(state, format("{}{}=\"{}\", invalid data.", RoutineName, CurrentModuleObject, AlphArray(1)));
-                    ShowContinueError(state, format("{} not found={}", cAlphaFields(2), AlphArray(2)));
-                    ErrorsFound = true;
-                }
+                state.dataSteamCoils->SteamCoil(CoilNum).availSched = Sched::GetScheduleAlwaysOn(state);
+            } else if ((state.dataSteamCoils->SteamCoil(CoilNum).availSched = Sched::GetSchedule(state, AlphArray(2))) == nullptr) { 
+                ShowSevereItemNotFound(state, eoh, cAlphaFields(2), AlphArray(2));
+                ErrorsFound = true;
             }
 
             state.dataSteamCoils->SteamCoil(CoilNum).SteamCoilTypeA = "Heating";
@@ -1108,7 +1106,7 @@ namespace SteamCoils {
 
         case CoilControlType::ZoneLoadControl:
             if ((CapacitanceAir > 0.0) && ((state.dataSteamCoils->SteamCoil(CoilNum).InletSteamMassFlowRate) > 0.0) &&
-                (GetCurrentScheduleValue(state, state.dataSteamCoils->SteamCoil(CoilNum).SchedPtr) > 0.0 ||
+                (state.dataSteamCoils->SteamCoil(CoilNum).availSched->getCurrentVal() > 0.0 ||
                  state.dataSteamCoils->MySizeFlag(CoilNum)) &&
                 (QCoilReq > 0.0)) {
 
@@ -1223,7 +1221,7 @@ namespace SteamCoils {
         case CoilControlType::TemperatureSetPoint:
             // Control coil output to meet a Setpoint Temperature.
             if ((CapacitanceAir > 0.0) && ((state.dataSteamCoils->SteamCoil(CoilNum).InletSteamMassFlowRate) > 0.0) &&
-                (GetCurrentScheduleValue(state, state.dataSteamCoils->SteamCoil(CoilNum).SchedPtr) > 0.0 ||
+                (state.dataSteamCoils->SteamCoil(CoilNum).availSched->getCurrentVal() > 0.0 ||
                  state.dataSteamCoils->MySizeFlag(CoilNum)) &&
                 (std::abs(TempSetPoint - TempAirIn) > TempControlTol)) {
 
@@ -1607,7 +1605,7 @@ namespace SteamCoils {
                 ShowFatalError(state, format("CheckSteamCoilSchedule: Coil not found={}", CompName));
             }
             CompIndex = CoilNum;
-            Value = GetCurrentScheduleValue(state, state.dataSteamCoils->SteamCoil(CoilNum).SchedPtr); // not scheduled?
+            Value = state.dataSteamCoils->SteamCoil(CoilNum).availSched->getCurrentVal(); // not scheduled?
         } else {
             CoilNum = CompIndex;
             if (CoilNum > state.dataSteamCoils->NumSteamCoils || CoilNum < 1) {
@@ -1624,7 +1622,7 @@ namespace SteamCoils {
                                       CompName,
                                       state.dataSteamCoils->SteamCoil(CoilNum).Name));
             }
-            Value = GetCurrentScheduleValue(state, state.dataSteamCoils->SteamCoil(CoilNum).SchedPtr); // not scheduled?
+            Value = state.dataSteamCoils->SteamCoil(CoilNum).availSched->getCurrentVal(); // not scheduled?
         }
     }
 
@@ -2183,7 +2181,7 @@ namespace SteamCoils {
         if (Util::SameString(CoilType, "Coil:Heating:Steam")) {
             WhichCoil = Util::FindItem(CoilName, state.dataSteamCoils->SteamCoil);
             if (WhichCoil != 0) {
-                AvailSchIndex = state.dataSteamCoils->SteamCoil(WhichCoil).SchedPtr;
+                AvailSchIndex = state.dataSteamCoils->SteamCoil(WhichCoil).availSched->Num;
             }
         } else {
             WhichCoil = 0;

@@ -169,6 +169,7 @@ namespace PlantChillers {
         // required by the Electric Chiller model.
 
         static constexpr std::string_view RoutineName("GetElectricChillerInput: "); // include trailing blank space
+        static constexpr std::string_view routineName = "GetElectricChillerInput"; 
 
         int NumAlphas; // Number of elements in the alpha array
         int NumNums;   // Number of elements in the numeric array
@@ -204,6 +205,9 @@ namespace PlantChillers {
                                                                      state.dataIPShortCut->lAlphaFieldBlanks,
                                                                      state.dataIPShortCut->cAlphaFieldNames,
                                                                      state.dataIPShortCut->cNumericFieldNames);
+
+            ErrorObjectHeader eoh{routineName, state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
+            
             Util::IsNameEmpty(state, state.dataIPShortCut->cAlphaArgs(1), state.dataIPShortCut->cCurrentModuleObject, ErrorsFound);
 
             // ErrorsFound will be set to True if problem was found, left untouched otherwise
@@ -513,22 +517,10 @@ namespace PlantChillers {
                     thisChiller.HeatRecCapacityFraction = 1.0;
                 }
 
-                if (NumAlphas > 10) {
-                    if (!state.dataIPShortCut->lAlphaFieldBlanks(11)) {
-                        thisChiller.HeatRecInletLimitSchedNum = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(11));
-                        if (thisChiller.HeatRecInletLimitSchedNum == 0) {
-                            ShowSevereError(
-                                state,
-                                format("{}{}=\"{}\"", RoutineName, state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)));
-                            ShowContinueError(
-                                state, format("Invalid {}={}", state.dataIPShortCut->cAlphaFieldNames(11), state.dataIPShortCut->cAlphaArgs(11)));
-                            ErrorsFound = true;
-                        }
-                    } else {
-                        thisChiller.HeatRecInletLimitSchedNum = 0;
-                    }
-                } else {
-                    thisChiller.HeatRecInletLimitSchedNum = 0;
+                if (NumAlphas <= 10 || state.dataIPShortCut->lAlphaFieldBlanks(11)) {
+                } else if ((thisChiller.heatRecInletLimitSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(11))) == nullptr) {
+                    ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(11), state.dataIPShortCut->cAlphaArgs(11));
+                    ErrorsFound = true;
                 }
 
                 if (NumAlphas > 11) {
@@ -592,18 +584,12 @@ namespace PlantChillers {
                 }
             }
 
-            if (!state.dataIPShortCut->lAlphaFieldBlanks(10)) {
-                thisChiller.BasinHeaterSchedulePtr = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(10));
-                if (thisChiller.BasinHeaterSchedulePtr == 0) {
-                    ShowWarningError(
-                        state,
-                        format("{}, \"{}\" {} \"{}\" was not found. Basin heater operation will not be modeled and the simulation continues",
-                               state.dataIPShortCut->cCurrentModuleObject,
-                               thisChiller.Name,
-                               state.dataIPShortCut->cAlphaFieldNames(10),
-                               state.dataIPShortCut->cAlphaArgs(10)));
-                }
+            if (state.dataIPShortCut->lAlphaFieldBlanks(10)) {
+            } else if ((thisChiller.basinHeaterSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(10))) == nullptr) { 
+                ShowWarningItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(10), state.dataIPShortCut->cAlphaArgs(10),
+                                        "Basin heater operation will not be modeled and the simulation continues");
             }
+            
             if (NumAlphas > 12) {
                 thisChiller.EndUseSubcategory = state.dataIPShortCut->cAlphaArgs(13);
             } else {
@@ -1454,7 +1440,7 @@ namespace PlantChillers {
 
             if (this->CondenserType == DataPlant::CondenserType::EvapCooled) {
                 CalcBasinHeaterPower(
-                    state, this->BasinHeaterPowerFTempDiff, this->BasinHeaterSchedulePtr, this->BasinHeaterSetPointTemp, this->BasinHeaterPower);
+                    state, this->BasinHeaterPowerFTempDiff, this->basinHeaterSched, this->BasinHeaterSetPointTemp, this->BasinHeaterPower);
             }
             this->PrintMessage = false;
             return;
@@ -1707,7 +1693,7 @@ namespace PlantChillers {
                 MyLoad = 0.0;
                 if (this->CondenserType == DataPlant::CondenserType::EvapCooled) {
                     CalcBasinHeaterPower(
-                        state, this->BasinHeaterPowerFTempDiff, this->BasinHeaterSchedulePtr, this->BasinHeaterSetPointTemp, this->BasinHeaterPower);
+                        state, this->BasinHeaterPowerFTempDiff, this->basinHeaterSched, this->BasinHeaterSetPointTemp, this->BasinHeaterPower);
                 }
                 this->PrintMessage = false;
                 return;
@@ -1831,7 +1817,7 @@ namespace PlantChillers {
             }
             if (this->QEvaporator == 0.0 && this->CondenserType == DataPlant::CondenserType::EvapCooled) {
                 CalcBasinHeaterPower(
-                    state, this->BasinHeaterPowerFTempDiff, this->BasinHeaterSchedulePtr, this->BasinHeaterSetPointTemp, this->BasinHeaterPower);
+                    state, this->BasinHeaterPowerFTempDiff, this->basinHeaterSched, this->BasinHeaterSetPointTemp, this->BasinHeaterPower);
             }
         } // This is the end of the FlowLock Block
 
@@ -1981,8 +1967,8 @@ namespace PlantChillers {
             QHeatRec = min(QHeatRec, this->HeatRecMaxCapacityLimit);
         }
         // check if limit on inlet is present and exceeded.
-        if (this->HeatRecInletLimitSchedNum > 0) {
-            Real64 HeatRecHighInletLimit = ScheduleManager::GetCurrentScheduleValue(state, this->HeatRecInletLimitSchedNum);
+        if (this->heatRecInletLimitSched != nullptr) {
+            Real64 HeatRecHighInletLimit = this->heatRecInletLimitSched->getCurrentVal();
             if (this->HeatRecInletTemp > HeatRecHighInletLimit) { // shut down heat recovery
                 QHeatRec = 0.0;
             }
@@ -2231,6 +2217,7 @@ namespace PlantChillers {
         // Locals
         // PARAMETERS
         static constexpr std::string_view RoutineName("GetEngineDrivenChillerInput: "); // include trailing blank space
+        static constexpr std::string_view routineName = "GetEngineDrivenChillerInput";
 
         int NumAlphas; // Number of elements in the alpha array
         int NumNums;   // Number of elements in the numeric array
@@ -2265,6 +2252,9 @@ namespace PlantChillers {
                                                                      state.dataIPShortCut->lAlphaFieldBlanks,
                                                                      state.dataIPShortCut->cAlphaFieldNames,
                                                                      state.dataIPShortCut->cNumericFieldNames);
+
+            ErrorObjectHeader eoh{routineName, state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
+            
             Util::IsNameEmpty(state, state.dataIPShortCut->cAlphaArgs(1), state.dataIPShortCut->cCurrentModuleObject, ErrorsFound);
 
             // ErrorsFound will be set to True if problem was found, left untouched otherwise
@@ -2657,16 +2647,10 @@ namespace PlantChillers {
                 }
             }
 
-            if (!state.dataIPShortCut->lAlphaFieldBlanks(16)) {
-                thisChiller.BasinHeaterSchedulePtr = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(16));
-                if (thisChiller.BasinHeaterSchedulePtr == 0) {
-                    ShowWarningError(state,
-                                     format("{}, \"{}\" TRIM(state.dataIPShortCut->cAlphaFieldNames(16)) \"{}\" was not found. Basin heater "
-                                            "operation will not be modeled and the simulation continues",
-                                            state.dataIPShortCut->cCurrentModuleObject,
-                                            thisChiller.Name,
-                                            state.dataIPShortCut->cAlphaArgs(16)));
-                }
+            if (state.dataIPShortCut->lAlphaFieldBlanks(16)) {
+            } else if ((thisChiller.basinHeaterSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(16))) == nullptr) {
+                ShowWarningItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(16), state.dataIPShortCut->cAlphaArgs(16),
+                                        "Basin heater operation will not be modeled and the simulation continues");
             }
 
             if (NumNums > 30) {
@@ -3544,7 +3528,7 @@ namespace PlantChillers {
 
             if (this->CondenserType == DataPlant::CondenserType::EvapCooled) {
                 CalcBasinHeaterPower(
-                    state, this->BasinHeaterPowerFTempDiff, this->BasinHeaterSchedulePtr, this->BasinHeaterSetPointTemp, this->BasinHeaterPower);
+                    state, this->BasinHeaterPowerFTempDiff, this->basinHeaterSched, this->BasinHeaterSetPointTemp, this->BasinHeaterPower);
             }
             this->PrintMessage = false;
             return;
@@ -3763,7 +3747,7 @@ namespace PlantChillers {
                 MyLoad = 0.0;
                 if (this->CondenserType == DataPlant::CondenserType::EvapCooled) {
                     CalcBasinHeaterPower(
-                        state, this->BasinHeaterPowerFTempDiff, this->BasinHeaterSchedulePtr, this->BasinHeaterSetPointTemp, this->BasinHeaterPower);
+                        state, this->BasinHeaterPowerFTempDiff, this->basinHeaterSched, this->BasinHeaterSetPointTemp, this->BasinHeaterPower);
                 }
                 this->PrintMessage = false;
                 return;
@@ -3889,7 +3873,7 @@ namespace PlantChillers {
             }
             if (this->QEvaporator == 0.0 && this->CondenserType == DataPlant::CondenserType::EvapCooled) {
                 CalcBasinHeaterPower(
-                    state, this->BasinHeaterPowerFTempDiff, this->BasinHeaterSchedulePtr, this->BasinHeaterSetPointTemp, this->BasinHeaterPower);
+                    state, this->BasinHeaterPowerFTempDiff, this->basinHeaterSched, this->BasinHeaterSetPointTemp, this->BasinHeaterPower);
             }
         } // This is the end of the FlowLock Block
 
@@ -4289,6 +4273,7 @@ namespace PlantChillers {
         // EnergyPlus input processor
 
         static constexpr std::string_view RoutineName("GetGTChillerInput: "); // include trailing blank space
+        static constexpr std::string_view routineName = "GetGTChillerInput"; 
 
         int NumAlphas; // Number of elements in the alpha array
         int NumNums;   // Number of elements in the numeric array
@@ -4322,6 +4307,9 @@ namespace PlantChillers {
                                                                      state.dataIPShortCut->lAlphaFieldBlanks,
                                                                      state.dataIPShortCut->cAlphaFieldNames,
                                                                      state.dataIPShortCut->cNumericFieldNames);
+
+            ErrorObjectHeader eoh{routineName, state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
+            
             Util::IsNameEmpty(state, state.dataIPShortCut->cAlphaArgs(1), state.dataIPShortCut->cCurrentModuleObject, ErrorsFound);
 
             // ErrorsFound will be set to True if problem was found, left untouched otherwise
@@ -4678,16 +4666,10 @@ namespace PlantChillers {
                 }
             }
 
-            if (!state.dataIPShortCut->lAlphaFieldBlanks(11)) {
-                thisChiller.BasinHeaterSchedulePtr = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(11));
-                if (thisChiller.BasinHeaterSchedulePtr == 0) {
-                    ShowWarningError(state,
-                                     format("{}, \"{}\" TRIM(state.dataIPShortCut->cAlphaFieldNames(11)) \"{}\" was not found. Basin heater "
-                                            "operation will not be modeled and the simulation continues",
-                                            state.dataIPShortCut->cCurrentModuleObject,
-                                            thisChiller.Name,
-                                            state.dataIPShortCut->cAlphaArgs(11)));
-                }
+            if (state.dataIPShortCut->lAlphaFieldBlanks(11)) {
+            } else if ((thisChiller.basinHeaterSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(11))) == nullptr) { 
+                ShowWarningItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(11), state.dataIPShortCut->cAlphaArgs(11), 
+                                        "Basin heater operation will not be modeled and the simulation continues");
             }
 
             if (NumNums > 49) {
@@ -5555,7 +5537,7 @@ namespace PlantChillers {
 
             if (this->CondenserType == DataPlant::CondenserType::EvapCooled) {
                 CalcBasinHeaterPower(
-                    state, this->BasinHeaterPowerFTempDiff, this->BasinHeaterSchedulePtr, this->BasinHeaterSetPointTemp, this->BasinHeaterPower);
+                    state, this->BasinHeaterPowerFTempDiff, this->basinHeaterSched, this->BasinHeaterSetPointTemp, this->BasinHeaterPower);
             }
             this->PrintMessage = false;
             return;
@@ -5760,7 +5742,7 @@ namespace PlantChillers {
                 MyLoad = 0.0;
                 if (this->CondenserType == DataPlant::CondenserType::EvapCooled) {
                     CalcBasinHeaterPower(
-                        state, this->BasinHeaterPowerFTempDiff, this->BasinHeaterSchedulePtr, this->BasinHeaterSetPointTemp, this->BasinHeaterPower);
+                        state, this->BasinHeaterPowerFTempDiff, this->basinHeaterSched, this->BasinHeaterSetPointTemp, this->BasinHeaterPower);
                 }
                 this->PrintMessage = false;
                 return;
@@ -5878,7 +5860,7 @@ namespace PlantChillers {
             }
             if (this->QEvaporator == 0.0 && this->CondenserType == DataPlant::CondenserType::EvapCooled) {
                 CalcBasinHeaterPower(
-                    state, this->BasinHeaterPowerFTempDiff, this->BasinHeaterSchedulePtr, this->BasinHeaterSetPointTemp, this->BasinHeaterPower);
+                    state, this->BasinHeaterPowerFTempDiff, this->basinHeaterSched, this->BasinHeaterSetPointTemp, this->BasinHeaterPower);
             }
 
         } // This is the end of the FlowLock Block
@@ -6260,6 +6242,7 @@ namespace PlantChillers {
 
         // SUBROUTINE PARAMETER DEFINITIONS:
         static constexpr std::string_view RoutineName("GetConstCOPChillerInput: "); // include trailing blank space
+        static constexpr std::string_view routineName = "GetConstCOPChillerInput"; // include trailing blank space
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         int NumAlphas; // Number of elements in the alpha array
@@ -6296,6 +6279,8 @@ namespace PlantChillers {
                                                                      state.dataIPShortCut->lAlphaFieldBlanks,
                                                                      state.dataIPShortCut->cAlphaFieldNames,
                                                                      state.dataIPShortCut->cNumericFieldNames);
+
+            ErrorObjectHeader eoh{routineName, state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
             Util::IsNameEmpty(state, state.dataIPShortCut->cAlphaArgs(1), state.dataIPShortCut->cCurrentModuleObject, ErrorsFound);
 
             // ErrorsFound will be set to True if problem was found, left untouched otherwise
@@ -6539,16 +6524,10 @@ namespace PlantChillers {
                 }
             }
 
-            if (!state.dataIPShortCut->lAlphaFieldBlanks(8)) {
-                thisChiller.BasinHeaterSchedulePtr = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(8));
-                if (thisChiller.BasinHeaterSchedulePtr == 0) {
-                    ShowWarningError(state,
-                                     format("{}, \"{}\" TRIM(state.dataIPShortCut->cAlphaFieldNames(8)) \"{}\" was not found. Basin heater operation "
-                                            "will not be modeled and the simulation continues",
-                                            state.dataIPShortCut->cCurrentModuleObject,
-                                            thisChiller.Name,
-                                            state.dataIPShortCut->cAlphaArgs(8)));
-                }
+            if (state.dataIPShortCut->lAlphaFieldBlanks(8)) {
+            } else if ((thisChiller.basinHeaterSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(8))) == nullptr) { 
+                ShowWarningItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(8),  state.dataIPShortCut->cAlphaArgs(8), 
+                                        "Basin heater operation will not be modeled and the simulation continues");
             }
 
             if (!state.dataIPShortCut->lAlphaFieldBlanks(9)) {
@@ -7238,7 +7217,7 @@ namespace PlantChillers {
 
             if (this->CondenserType == DataPlant::CondenserType::EvapCooled) {
                 CalcBasinHeaterPower(
-                    state, this->BasinHeaterPowerFTempDiff, this->BasinHeaterSchedulePtr, this->BasinHeaterSetPointTemp, this->BasinHeaterPower);
+                    state, this->BasinHeaterPowerFTempDiff, this->basinHeaterSched, this->BasinHeaterSetPointTemp, this->BasinHeaterPower);
             }
             this->PrintMessage = false;
             return;
@@ -7413,7 +7392,7 @@ namespace PlantChillers {
                 MyLoad = 0.0;
                 if (this->CondenserType == DataPlant::CondenserType::EvapCooled) {
                     CalcBasinHeaterPower(
-                        state, this->BasinHeaterPowerFTempDiff, this->BasinHeaterSchedulePtr, this->BasinHeaterSetPointTemp, this->BasinHeaterPower);
+                        state, this->BasinHeaterPowerFTempDiff, this->basinHeaterSched, this->BasinHeaterSetPointTemp, this->BasinHeaterPower);
                 }
                 this->PrintMessage = false;
                 return;
@@ -7501,7 +7480,7 @@ namespace PlantChillers {
             }
             if (this->QEvaporator == 0.0 && this->CondenserType == DataPlant::CondenserType::EvapCooled) {
                 CalcBasinHeaterPower(
-                    state, this->BasinHeaterPowerFTempDiff, this->BasinHeaterSchedulePtr, this->BasinHeaterSetPointTemp, this->BasinHeaterPower);
+                    state, this->BasinHeaterPowerFTempDiff, this->basinHeaterSched, this->BasinHeaterSetPointTemp, this->BasinHeaterPower);
             }
 
         } // This is the end of the FlowLock Block

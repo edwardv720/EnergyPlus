@@ -69,7 +69,7 @@ namespace BaseboardRadiator {
         // Members
         std::string EquipID;
         std::string Schedule;
-        int SchedPtr = 0;
+        Sched::Schedule *sched = nullptr;
         DataPlant::PlantEquipmentType EquipType = DataPlant::PlantEquipmentType::Invalid;
         int ZonePtr = 0;
         int WaterInletNode = 0;
@@ -125,6 +125,10 @@ struct BaseboardRadiatorData : BaseGlobalStruct
 
     bool getInputFlag = true;
     EPVector<BaseboardRadiator::BaseboardParams> baseboards;
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

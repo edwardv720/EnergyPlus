@@ -628,22 +628,18 @@ void CalcWaterThermalTankZoneGains(EnergyPlusData &state)
         if (state.dataGlobal->DoingSizing) {
             // Initialize tank temperature to setpoint
             // (use HPWH or Desuperheater heating coil set point if applicable)
-            int SchIndex;
+            Sched::Schedule *sched = nullptr;
             if (Tank.HeatPumpNum > 0) {
-                SchIndex = state.dataWaterThermalTanks->HPWaterHeater(Tank.HeatPumpNum).SetPointTempSchedule;
+                sched = state.dataWaterThermalTanks->HPWaterHeater(Tank.HeatPumpNum).setptTempSched;
             } else if (Tank.DesuperheaterNum > 0) {
-                SchIndex = state.dataWaterThermalTanks->WaterHeaterDesuperheater(Tank.DesuperheaterNum).SetPointTempSchedule;
+                sched = state.dataWaterThermalTanks->WaterHeaterDesuperheater(Tank.DesuperheaterNum).setptTempSched;
             } else {
-                SchIndex = Tank.SetPointTempSchedule;
+                sched = Tank.setptTempSched;
             }
 
-            Real64 TankTemp;
+            Real64 TankTemp = (sched != nullptr) ? sched->getCurrentVal() : 20.0;
+
             Real64 QLossToZone = 0.0;
-            if (SchIndex > 0) {
-                TankTemp = ScheduleManager::GetCurrentScheduleValue(state, SchIndex);
-            } else {
-                TankTemp = 20.0;
-            }
             switch (Tank.WaterThermalTankType) {
             case DataPlant::PlantEquipmentType::WtrHeaterMixed: {
                 QLossToZone = max(Tank.OnCycLossCoeff * Tank.OnCycLossFracToZone, Tank.OffCycLossCoeff * Tank.OffCycLossFracToZone) *
@@ -674,7 +670,7 @@ void CalcWaterThermalTankZoneGains(EnergyPlusData &state)
 bool getDesuperHtrInput(EnergyPlusData &state)
 {
     bool ErrorsFound = false;
-    static constexpr std::string_view RoutineName = "getDesuperHtrInput";
+    static constexpr std::string_view routineName = "getDesuperHtrInput";
     // Make local copies of IPShortCut because other getinputs might overwrite the ones in state <-- need to fix this idiom
     std::string cCurrentModuleObject = state.dataIPShortCut->cCurrentModuleObject;
     Array1D<std::string> cAlphaArgs = state.dataIPShortCut->cAlphaArgs;
@@ -701,6 +697,9 @@ bool getDesuperHtrInput(EnergyPlusData &state)
                                                                  lAlphaFieldBlanks,
                                                                  cAlphaFieldNames,
                                                                  cNumericFieldNames);
+
+        ErrorObjectHeader eoh{routineName, cCurrentModuleObject, cAlphaArgs(1)};
+        
         Util::IsNameEmpty(state, cAlphaArgs(1), cCurrentModuleObject, ErrorsFound);
 
         // ErrorsFound will be set to True if problem was found, left untouched otherwise
@@ -712,22 +711,17 @@ bool getDesuperHtrInput(EnergyPlusData &state)
         DesupHtr.Type = cCurrentModuleObject;
 
         //       convert availability schedule name to pointer
-        if (!lAlphaFieldBlanks(2)) {
-            DesupHtr.AvailSchedPtr = ScheduleManager::GetScheduleIndex(state, cAlphaArgs(2));
-            if (DesupHtr.AvailSchedPtr == 0) {
-                ShowSevereError(state, format("Invalid, {} = {}", cAlphaFieldNames(2), cAlphaArgs(2)));
-                ShowContinueError(state, format("Entered in {}={}", cCurrentModuleObject, cAlphaArgs(1)));
-                ErrorsFound = true;
-            }
-        } else {
-            DesupHtr.AvailSchedPtr = ScheduleManager::ScheduleAlwaysOn;
+        if (lAlphaFieldBlanks(2)) {
+            DesupHtr.availSched = Sched::GetScheduleAlwaysOn(state);
+        } else if ((DesupHtr.availSched = Sched::GetSchedule(state, cAlphaArgs(2))) == nullptr) {
+            ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(2), cAlphaArgs(2));
+            ErrorsFound = true;
         }
 
         // convert schedule name to pointer
-        DesupHtr.SetPointTempSchedule = ScheduleManager::GetScheduleIndex(state, cAlphaArgs(3));
-        if (DesupHtr.SetPointTempSchedule == 0) {
-            ShowSevereError(state, format("Invalid, {} = {}", cAlphaFieldNames(3), cAlphaArgs(3)));
-            ShowContinueError(state, format("Entered in {}={}", cCurrentModuleObject, cAlphaArgs(1)));
+        if (lAlphaFieldBlanks(3)) {
+        } else if ((DesupHtr.setptTempSched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) { 
+            ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(3), cAlphaArgs(3));
             ErrorsFound = true;
         }
 
@@ -759,7 +753,7 @@ bool getDesuperHtrInput(EnergyPlusData &state)
                 ErrorsFound |= Curve::CheckCurveDims(state,
                                                      DesupHtr.HEffFTemp,   // Curve index
                                                      {2},                  // Valid dimensions
-                                                     RoutineName,          // Routine name
+                                                     routineName,          // Routine name
                                                      cCurrentModuleObject, // Object Type
                                                      DesupHtr.Name,        // Object Name
                                                      cAlphaFieldNames(4)); // Field Name
@@ -1220,29 +1214,20 @@ bool getHPWaterHeaterInput(EnergyPlusData &state)
 
         // Availability Schedule
         // convert schedule name to pointer
-        if (!hpwhAlphaBlank[2]) {
-            HPWH.AvailSchedPtr = ScheduleManager::GetScheduleIndex(state, hpwhAlpha[2]);
-            if (HPWH.AvailSchedPtr == 0) {
-                ShowSevereError(state, format("{}=\"{}\", not found", state.dataIPShortCut->cCurrentModuleObject, HPWH.Name));
-                ShowContinueError(state, format("{}=\"{}\".", hpwhAlphaFieldNames[2], hpwhAlpha[2]));
-                ErrorsFound = true;
-            }
-        } else {
-            HPWH.AvailSchedPtr = ScheduleManager::ScheduleAlwaysOn;
+        if (hpwhAlphaBlank[2]) {
+            HPWH.availSched = Sched::GetScheduleAlwaysOn(state);
+        } else if ((HPWH.availSched = Sched::GetSchedule(state, hpwhAlpha[2])) == nullptr) {
+            ShowSevereItemNotFound(state, eoh, hpwhAlphaFieldNames[2], hpwhAlpha[2]);
+            ErrorsFound = true;
         }
 
         // Compressor Setpoint Temperature Schedule
         // convert schedule name to pointer
-        if (!hpwhAlphaBlank[3]) {
-            HPWH.SetPointTempSchedule = ScheduleManager::GetScheduleIndex(state, hpwhAlpha[3]);
-            if (HPWH.SetPointTempSchedule == 0) {
-                ShowSevereError(state, format("{}=\"{}\", not found", state.dataIPShortCut->cCurrentModuleObject, HPWH.Name));
-                ShowContinueError(state, format("{}=\"{}\".", hpwhAlphaFieldNames[3], hpwhAlpha[3]));
-                ErrorsFound = true;
-            }
-        } else {
-            ShowSevereError(state, format("{}=\"{}\", ", state.dataIPShortCut->cCurrentModuleObject, HPWH.Name));
-            ShowContinueError(state, format("required {} is blank.", hpwhAlphaFieldNames[3]));
+        if (hpwhAlphaBlank[3]) {
+            ShowSevereEmptyField(state, eoh, hpwhAlphaFieldNames[3]);
+            ErrorsFound = true;
+        } else if ((HPWH.setptTempSched = Sched::GetSchedule(state, hpwhAlpha[3])) == nullptr) {
+            ShowSevereItemNotFound(state, eoh, hpwhAlphaFieldNames[3], hpwhAlpha[3]);
             ErrorsFound = true;
         }
 
@@ -1341,44 +1326,28 @@ bool getHPWaterHeaterInput(EnergyPlusData &state)
         case WTTAmbientTemp::Schedule: {
 
             // Inlet Air Temperature Schedule
-            if (!hpwhAlphaBlank[11 + nAlphaOffset]) {
-                HPWH.AmbientTempSchedule = ScheduleManager::GetScheduleIndex(state, hpwhAlpha[11 + nAlphaOffset]);
-                if (HPWH.AmbientTempSchedule == 0) {
-                    ShowSevereError(state, format("{}=\"{}\", not found", state.dataIPShortCut->cCurrentModuleObject, HPWH.Name));
-                    ShowContinueError(state, format("{}=\"{}\".", hpwhAlphaFieldNames[11 + nAlphaOffset], hpwhAlpha[11 + nAlphaOffset]));
-                    ErrorsFound = true;
-                }
-            } else {
-                ShowSevereError(state, format("{}=\"{}\", ", state.dataIPShortCut->cCurrentModuleObject, HPWH.Name));
-                ShowContinueError(state, format("required {} is blank.", hpwhAlphaFieldNames[11 + nAlphaOffset]));
+            if (hpwhAlphaBlank[11 + nAlphaOffset]) {
+                ShowSevereEmptyField(state, eoh, hpwhAlphaFieldNames[11 + nAlphaOffset]);
+                ErrorsFound = true;
+            } else if ((HPWH.ambientTempSched = Sched::GetSchedule(state, hpwhAlpha[11 + nAlphaOffset])) == nullptr) { 
+                ShowSevereItemNotFound(state, eoh, hpwhAlphaFieldNames[11 + nAlphaOffset], hpwhAlpha[11 + nAlphaOffset]);
                 ErrorsFound = true;
             }
 
             // Inlet Air Humidity Schedule
-            if (!hpwhAlphaBlank[12 + nAlphaOffset]) {
-                HPWH.AmbientRHSchedule = ScheduleManager::GetScheduleIndex(state, hpwhAlpha[12 + nAlphaOffset]);
-                if (HPWH.AmbientRHSchedule == 0) {
-                    ShowSevereError(state, format("{}=\"{}\", not found", state.dataIPShortCut->cCurrentModuleObject, HPWH.Name));
-                    ShowContinueError(state, format("{}=\"{}\".", hpwhAlphaFieldNames[12 + nAlphaOffset], hpwhAlpha[12 + nAlphaOffset]));
-                    ErrorsFound = true;
-                } else {
-                    if (!ScheduleManager::CheckScheduleValueMinMax(state, HPWH.AmbientRHSchedule, ">=", 0.0, "<=", 1.0)) {
-                        ShowSevereError(state, format("{}=\"{}\", invalid values", state.dataIPShortCut->cCurrentModuleObject, HPWH.Name));
-                        ShowContinueError(state,
-                                          format("{}=\"{}\", schedule values must be (>=0., <=1.)",
-                                                 hpwhAlphaFieldNames[12 + nAlphaOffset],
-                                                 hpwhAlpha[12 + nAlphaOffset]));
-                        ErrorsFound = true;
-                    }
-                }
-            } else {
-                ShowSevereError(state, format("{}=\"{}\", ", state.dataIPShortCut->cCurrentModuleObject, HPWH.Name));
-                ShowContinueError(state, format("required {} is blank.", hpwhAlphaFieldNames[12 + nAlphaOffset]));
+            if (hpwhAlphaBlank[12 + nAlphaOffset]) {
+                ShowSevereEmptyField(state, eoh, hpwhAlphaFieldNames[12 + nAlphaOffset]);
+                ErrorsFound = true;
+            } else if ((HPWH.ambientRHSched = Sched::GetSchedule(state, hpwhAlpha[12 + nAlphaOffset])) == nullptr) { 
+                ShowSevereItemNotFound(state, eoh, hpwhAlphaFieldNames[12 + nAlphaOffset], hpwhAlpha[12 + nAlphaOffset]);
+                ErrorsFound = true;
+            } else if (!HPWH.ambientRHSched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
+                Sched::ShowSevereBadMinMax(state, eoh, hpwhAlphaFieldNames[12 + nAlphaOffset], hpwhAlpha[12 + nAlphaOffset],
+                                             Clusive::In, 0.0, Clusive::In, 1.0);
                 ErrorsFound = true;
             }
-
-            break;
-        }
+        } break;
+                
         case WTTAmbientTemp::ZoneAndOA:
         case WTTAmbientTemp::TempZone: {
 
@@ -1563,24 +1532,18 @@ bool getHPWaterHeaterInput(EnergyPlusData &state)
         // Compressor Location
         HPWH.CrankcaseTempIndicator =
             static_cast<CrankcaseHeaterControlTemp>(getEnumValue(CrankcaseHeaterControlTempNamesUC, Util::makeUPPER(hpwhAlpha[20 + nAlphaOffset])));
+
         switch (HPWH.CrankcaseTempIndicator) {
         case CrankcaseHeaterControlTemp::Schedule: {
-            if (!hpwhAlphaBlank[21 + nAlphaOffset]) {
-                // Compressor Ambient Temperature Schedule
-                HPWH.CrankcaseTempSchedule = ScheduleManager::GetScheduleIndex(state, hpwhAlpha[21 + nAlphaOffset]);
-                if (HPWH.CrankcaseTempSchedule == 0) {
-                    ShowSevereError(state, format("{}=\"{}\", not found", state.dataIPShortCut->cCurrentModuleObject, HPWH.Name));
-                    ShowContinueError(state, format("{}=\"{}\".", hpwhAlphaFieldNames[21 + nAlphaOffset], hpwhAlpha[21 + nAlphaOffset]));
-                    ErrorsFound = true;
-                }
-            } else {
-                ShowSevereError(state, format("{}=\"{}\", ", state.dataIPShortCut->cCurrentModuleObject, HPWH.Name));
-                ShowContinueError(state, format("required {} is blank.", hpwhAlphaFieldNames[21 + nAlphaOffset]));
+            if (hpwhAlphaBlank[21 + nAlphaOffset]) {
+                ShowSevereEmptyField(state, eoh, hpwhAlphaFieldNames[21 + nAlphaOffset]);
+                ErrorsFound = true;
+            } else if ((HPWH.crankcaseTempSched = Sched::GetSchedule(state, hpwhAlpha[21 + nAlphaOffset])) == nullptr) { 
+                ShowSevereItemNotFound(state, eoh, hpwhAlphaFieldNames[21 + nAlphaOffset], hpwhAlpha[21 + nAlphaOffset]);
                 ErrorsFound = true;
             }
-
-            break;
-        }
+        } break;
+                
         case CrankcaseHeaterControlTemp::Zone: {
             if (HPWH.InletAirConfiguration == WTTAmbientTemp::OutsideAir || HPWH.InletAirConfiguration == WTTAmbientTemp::Schedule) {
                 ShowSevereError(state,
@@ -2030,38 +1993,30 @@ bool getHPWaterHeaterInput(EnergyPlusData &state)
         }
 
         // only get the inlet air mixer schedule if the inlet air configuration is zone and outdoor air
-        if (!hpwhAlphaBlank[28 + nAlphaOffset] && HPWH.InletAirConfiguration == WTTAmbientTemp::ZoneAndOA) {
-            HPWH.InletAirMixerSchPtr = ScheduleManager::GetScheduleIndex(state, hpwhAlpha[28 + nAlphaOffset]);
-            if (HPWH.InletAirMixerSchPtr == 0) {
-                ShowSevereError(state, format("{}=\"{}\", not found", state.dataIPShortCut->cCurrentModuleObject, HPWH.Name));
-                ShowContinueError(state, format("{}=\"{}\",", hpwhAlphaFieldNames[28 + nAlphaOffset], hpwhAlpha[28 + nAlphaOffset]));
+        if (HPWH.InletAirConfiguration == WTTAmbientTemp::ZoneAndOA) {
+            if (hpwhAlphaBlank[28 + nAlphaOffset]) {
+                ShowSevereEmptyField(state, eoh, hpwhAlphaFieldNames[28 + nAlphaOffset]);
                 ErrorsFound = true;
-            } else {
-                bool ValidScheduleValue = ScheduleManager::CheckScheduleValueMinMax(state, HPWH.InletAirMixerSchPtr, ">=", 0.0, "<=", 1.0);
-                if (!ValidScheduleValue) {
-                    ShowSevereError(state, format("{}=\"{}\", not found", state.dataIPShortCut->cCurrentModuleObject, HPWH.Name));
-                    ShowContinueError(state,
-                                      format("{} values out of range of 0 to 1, Schedule=\"{}\".",
-                                             hpwhAlphaFieldNames[28 + nAlphaOffset],
-                                             hpwhAlpha[28 + nAlphaOffset]));
-                    ErrorsFound = true;
-                }
-                //           set outlet air splitter schedule index equal to inlet air mixer schedule index
-                //           (place holder for when zone pressurization/depressurization is allowed and different schedules can be used)
-                HPWH.OutletAirSplitterSchPtr = ScheduleManager::GetScheduleIndex(state, hpwhAlpha[28 + nAlphaOffset]);
-            }
+            //           set outlet air splitter schedule index equal to inlet air mixer schedule index
+            //           (place holder for when zone pressurization/depressurization is allowed and different schedules can be used)
+            } else if ((HPWH.inletAirMixerSched = HPWH.outletAirSplitterSched = Sched::GetSchedule(state, hpwhAlpha[28 + nAlphaOffset])) == nullptr) { 
+                ShowSevereItemNotFound(state, eoh, hpwhAlphaFieldNames[28 + nAlphaOffset], hpwhAlpha[28 + nAlphaOffset]);
+                ErrorsFound = true;
+            } else if (!HPWH.inletAirMixerSched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
+                Sched::ShowSevereBadMinMax(state, eoh, hpwhAlphaFieldNames[28 + nAlphaOffset], hpwhAlpha[28 + nAlphaOffset],
+                                             Clusive::In, 0.0, Clusive::In, 1.0);
+                ErrorsFound = true;
+            }  
         }
 
         // set fan outlet node variable for use in setting Node(FanOutletNode)%MassFlowRateMax for fan object
         if (HPWH.fanPlace == HVAC::FanPlace::DrawThru) {
             if (HPWH.OutletAirSplitterNode != 0) {
                 HPWH.FanOutletNode = HPWH.OutletAirSplitterNode;
+            } else if (HPWH.InletAirConfiguration == WTTAmbientTemp::OutsideAir) {
+                HPWH.FanOutletNode = HPWH.ExhaustAirNode;
             } else {
-                if (HPWH.InletAirConfiguration == WTTAmbientTemp::OutsideAir) {
-                    HPWH.FanOutletNode = HPWH.ExhaustAirNode;
-                } else {
-                    HPWH.FanOutletNode = HPWH.HeatPumpAirOutletNode;
-                }
+                HPWH.FanOutletNode = HPWH.HeatPumpAirOutletNode;
             }
         } else if (HPWH.fanPlace == HVAC::FanPlace::BlowThru) {
             // set fan outlet node variable for use in setting Node(FanOutletNode)%MassFlowRateMax for fan object
@@ -2273,7 +2228,7 @@ bool getWaterHeaterMixedInputs(EnergyPlusData &state)
 {
     bool ErrorsFound = false;
     state.dataIPShortCut->cCurrentModuleObject = cMixedWHModuleObj;
-    static constexpr std::string_view RoutineName = "getWaterHeaterMixedInputs";
+    static constexpr std::string_view routineName = "getWaterHeaterMixedInputs";
 
     for (int WaterThermalTankNum = 1; WaterThermalTankNum <= state.dataWaterThermalTanks->numWaterHeaterMixed; ++WaterThermalTankNum) {
         int NumAlphas;
@@ -2291,6 +2246,9 @@ bool getWaterHeaterMixedInputs(EnergyPlusData &state)
                                                                  state.dataIPShortCut->lAlphaFieldBlanks,
                                                                  state.dataIPShortCut->cAlphaFieldNames,
                                                                  state.dataIPShortCut->cNumericFieldNames);
+
+        ErrorObjectHeader eoh{routineName, state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
+        
         GlobalNames::VerifyUniqueInterObjectName(state,
                                                  state.dataWaterThermalTanks->UniqueWaterThermalTankNames,
                                                  state.dataIPShortCut->cAlphaArgs(1),
@@ -2306,8 +2264,8 @@ bool getWaterHeaterMixedInputs(EnergyPlusData &state)
         Tank.FluidIndex = Tank.waterIndex;
 
         // default to always on
-        Tank.SourceSideAvailSchedNum = ScheduleManager::ScheduleAlwaysOn;
-        Tank.UseSideAvailSchedNum = ScheduleManager::ScheduleAlwaysOn;
+        Tank.sourceSideAvailSched = Sched::GetScheduleAlwaysOn(state);
+        Tank.useSideAvailSched = Sched::GetScheduleAlwaysOn(state);
 
         // A user field will be added in a later release
         Tank.EndUseSubcategoryName = "Water Heater";
@@ -2321,20 +2279,11 @@ bool getWaterHeaterMixedInputs(EnergyPlusData &state)
             Tank.Volume = 0.000001; // = 1 cm3
         }
 
-        Tank.SetPointTempSchedule = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(2));
         if (state.dataIPShortCut->lAlphaFieldBlanks(2)) {
-            ShowSevereError(
-                state,
-                format("{}{}=\"{}\", missing data.", RoutineName, state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)));
-            ShowContinueError(state, format("blank field, missing {} is required", state.dataIPShortCut->cAlphaFieldNames(2)));
+            ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaFieldNames(2));
             ErrorsFound = true;
-        } else if (Tank.SetPointTempSchedule == 0) {
-            ShowSevereError(state,
-                            format("{} = {}:  {} not found = {}",
-                                   state.dataIPShortCut->cCurrentModuleObject,
-                                   state.dataIPShortCut->cAlphaArgs(1),
-                                   state.dataIPShortCut->cAlphaFieldNames(2),
-                                   state.dataIPShortCut->cAlphaArgs(2)));
+        } else if ((Tank.setptTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(2))) == nullptr) { 
+            ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(2), state.dataIPShortCut->cAlphaArgs(2));
             ErrorsFound = true;
         }
 
@@ -2460,7 +2409,7 @@ bool getWaterHeaterMixedInputs(EnergyPlusData &state)
                 ErrorsFound |= Curve::CheckCurveDims(state,
                                                      Tank.PLFCurve,                              // Curve index
                                                      {1},                                        // Valid dimensions
-                                                     RoutineName,                                // Routine name
+                                                     routineName,                                // Routine name
                                                      state.dataIPShortCut->cCurrentModuleObject, // Object Type
                                                      Tank.Name,                                  // Object Name
                                                      state.dataIPShortCut->cAlphaFieldNames(5)); // Field Name
@@ -2520,19 +2469,17 @@ bool getWaterHeaterMixedInputs(EnergyPlusData &state)
         Tank.AmbientTempIndicator =
             static_cast<WTTAmbientTemp>(getEnumValue(TankAmbientTempNamesUC, Util::makeUPPER(state.dataIPShortCut->cAlphaArgs(8))));
         switch (Tank.AmbientTempIndicator) {
+                
         case WTTAmbientTemp::Schedule: {
-            Tank.AmbientTempSchedule = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(9));
-            if (Tank.AmbientTempSchedule == 0) {
-                ShowSevereError(state,
-                                format("{} = {}:  Ambient Temperature Schedule not found = {}",
-                                       state.dataIPShortCut->cCurrentModuleObject,
-                                       state.dataIPShortCut->cAlphaArgs(1),
-                                       state.dataIPShortCut->cAlphaArgs(9)));
+            if (state.dataIPShortCut->lAlphaFieldBlanks(9)) {
+                ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaFieldNames(9));
+                ErrorsFound = true;
+            } else if ((Tank.ambientTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(9))) == nullptr) {
+                ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(9), state.dataIPShortCut->cAlphaArgs(9));
                 ErrorsFound = true;
             }
-
-            break;
-        }
+        } break;
+                
         case WTTAmbientTemp::TempZone: {
             Tank.AmbientTempZone = Util::FindItemInList(state.dataIPShortCut->cAlphaArgs(10), state.dataHeatBal->Zone);
             if (Tank.AmbientTempZone == 0) {
@@ -2543,9 +2490,8 @@ bool getWaterHeaterMixedInputs(EnergyPlusData &state)
                                        state.dataIPShortCut->cAlphaArgs(10)));
                 ErrorsFound = true;
             }
-
-            break;
-        }
+        } break;
+                
         case WTTAmbientTemp::OutsideAir: {
             Tank.AmbientTempOutsideAirNode = NodeInputManager::GetOnlySingleNode(state,
                                                                                  state.dataIPShortCut->cAlphaArgs(11),
@@ -2590,33 +2536,21 @@ bool getWaterHeaterMixedInputs(EnergyPlusData &state)
 
         Tank.OnCycLossCoeff = state.dataIPShortCut->rNumericArgs(15);
         Tank.OnCycLossFracToZone = state.dataIPShortCut->rNumericArgs(16);
-        Real64 rho = FluidProperties::GetDensityGlycol(state, fluidNameWater, Constant::InitConvTemp, Tank.FluidIndex, RoutineName);
+        Real64 rho = FluidProperties::GetDensityGlycol(state, fluidNameWater, Constant::InitConvTemp, Tank.FluidIndex, routineName);
         Tank.MassFlowRateMax = state.dataIPShortCut->rNumericArgs(17) * rho;
 
         if ((state.dataIPShortCut->cAlphaArgs(14).empty()) && (state.dataIPShortCut->cAlphaArgs(15).empty())) {
-            if (!state.dataIPShortCut->cAlphaArgs(12).empty()) {
-                Tank.FlowRateSchedule = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(12));
-                if (Tank.FlowRateSchedule == 0) {
-                    ShowSevereError(state,
-                                    format("{} = {}:  Flow Rate Schedule not found = {}",
-                                           state.dataIPShortCut->cCurrentModuleObject,
-                                           state.dataIPShortCut->cAlphaArgs(1),
-                                           state.dataIPShortCut->cAlphaArgs(12)));
-                    ErrorsFound = true;
-                }
+            if (state.dataIPShortCut->lAlphaFieldBlanks(12)) {
+            } else if ((Tank.flowRateSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(12))) == nullptr) {
+                ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(12), state.dataIPShortCut->cAlphaArgs(12));
+                ErrorsFound = true;
             }
         }
 
-        if (!state.dataIPShortCut->cAlphaArgs(13).empty()) {
-            Tank.UseInletTempSchedule = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(13));
-            if (Tank.UseInletTempSchedule == 0) {
-                ShowSevereError(state,
-                                format("{} = {}:  Cold Water Supply Temperature Schedule not found = {}",
-                                       state.dataIPShortCut->cCurrentModuleObject,
-                                       state.dataIPShortCut->cAlphaArgs(1),
-                                       state.dataIPShortCut->cAlphaArgs(13)));
-                ErrorsFound = true;
-            }
+        if (state.dataIPShortCut->lAlphaFieldBlanks(13)) {
+        } else if ((Tank.useInletTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(13))) == nullptr) {
+            ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(13), state.dataIPShortCut->cAlphaArgs(13));
+            ErrorsFound = true;
         }
 
         if (NumNums > 17) {
@@ -2706,14 +2640,14 @@ bool getWaterHeaterMixedInputs(EnergyPlusData &state)
                                         state.dataIPShortCut->cAlphaArgs(1)));
             }
 
-            if (Tank.FlowRateSchedule > 0) {
+            if (Tank.flowRateSched != nullptr) {
                 ShowWarningError(state,
                                  format("{} = {}:  Use side nodes are specified; Use Flow Rate Fraction Schedule will not be used",
                                         state.dataIPShortCut->cCurrentModuleObject,
                                         state.dataIPShortCut->cAlphaArgs(1)));
             }
 
-            if (Tank.UseInletTempSchedule > 0) {
+            if (Tank.useInletTempSched != nullptr) {
                 ShowWarningError(state,
                                  format("{} = {}:  Use side nodes are specified; Cold Water Supply Temperature Schedule will not be used",
                                         state.dataIPShortCut->cCurrentModuleObject,
@@ -2759,18 +2693,12 @@ bool getWaterHeaterMixedInputs(EnergyPlusData &state)
             Tank.SourceSideControlMode = SourceSideControl::IndirectHeatPrimarySetpoint;
         }
 
-        if (!state.dataIPShortCut->lAlphaFieldBlanks(19)) {
-            Tank.SourceSideAltSetpointSchedNum = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(19));
-            if (Tank.SourceSideAltSetpointSchedNum == 0) {
-                ShowSevereError(state,
-                                format("{} = {}:  {} not found = {}",
-                                       state.dataIPShortCut->cCurrentModuleObject,
-                                       state.dataIPShortCut->cAlphaArgs(1),
-                                       state.dataIPShortCut->cAlphaFieldNames(19),
-                                       state.dataIPShortCut->cAlphaArgs(19)));
-                ErrorsFound = true;
-            }
+        if (state.dataIPShortCut->lAlphaFieldBlanks(19)) {
+        } else if ((Tank.sourceSideAltSetpointSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(19))) == nullptr) { 
+            ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(19), state.dataIPShortCut->cAlphaArgs(19));
+            ErrorsFound = true;
         }
+        
         if (NumAlphas > 19) {
             Tank.EndUseSubcategoryName = state.dataIPShortCut->cAlphaArgs(20);
         }
@@ -2783,7 +2711,7 @@ bool getWaterHeaterMixedInputs(EnergyPlusData &state)
 bool getWaterHeaterStratifiedInput(EnergyPlusData &state)
 {
     bool ErrorsFound = false;
-    static constexpr std::string_view RoutineName = "getWaterHeaterStratifiedInput";
+    static constexpr std::string_view routineName = "getWaterHeaterStratifiedInput";
 
     state.dataIPShortCut->cCurrentModuleObject = cStratifiedWHModuleObj; //'WaterHeater:Stratified'
 
@@ -2805,6 +2733,8 @@ bool getWaterHeaterStratifiedInput(EnergyPlusData &state)
                                                                  state.dataIPShortCut->lAlphaFieldBlanks,
                                                                  state.dataIPShortCut->cAlphaFieldNames,
                                                                  state.dataIPShortCut->cNumericFieldNames);
+
+        ErrorObjectHeader eoh{routineName, state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
         GlobalNames::VerifyUniqueInterObjectName(state,
                                                  state.dataWaterThermalTanks->UniqueWaterThermalTankNames,
                                                  state.dataIPShortCut->cAlphaArgs(1),
@@ -2820,8 +2750,8 @@ bool getWaterHeaterStratifiedInput(EnergyPlusData &state)
         Tank.FluidIndex = Tank.waterIndex;
 
         // default to always on
-        Tank.SourceSideAvailSchedNum = ScheduleManager::ScheduleAlwaysOn;
-        Tank.UseSideAvailSchedNum = ScheduleManager::ScheduleAlwaysOn;
+        Tank.sourceSideAvailSched = Sched::GetScheduleAlwaysOn(state);
+        Tank.useSideAvailSched = Sched::GetScheduleAlwaysOn(state);
 
         Tank.EndUseSubcategoryName = state.dataIPShortCut->cAlphaArgs(2);
 
@@ -2829,7 +2759,7 @@ bool getWaterHeaterStratifiedInput(EnergyPlusData &state)
         if (Tank.Volume == DataSizing::AutoSize) {
             Tank.VolumeWasAutoSized = true;
         }
-        Real64 rho = FluidProperties::GetDensityGlycol(state, fluidNameWater, Constant::InitConvTemp, Tank.FluidIndex, RoutineName);
+        Real64 rho = FluidProperties::GetDensityGlycol(state, fluidNameWater, Constant::InitConvTemp, Tank.FluidIndex, routineName);
         Tank.Mass = Tank.Volume * rho;
         Tank.Height = state.dataIPShortCut->rNumericArgs(2);
         if (Tank.Height == DataSizing::AutoSize) {
@@ -2886,20 +2816,11 @@ bool getWaterHeaterStratifiedInput(EnergyPlusData &state)
             ErrorsFound = true;
         }
 
-        Tank.SetPointTempSchedule = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(5));
         if (state.dataIPShortCut->lAlphaFieldBlanks(5)) {
-            ShowSevereError(
-                state,
-                format("{}{}=\"{}\", missing data.", RoutineName, state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)));
-            ShowContinueError(state, format("blank field, missing {} is required", state.dataIPShortCut->cAlphaFieldNames(5)));
+            ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaFieldNames(5));
             ErrorsFound = true;
-        } else if (Tank.SetPointTempSchedule == 0) {
-            ShowSevereError(state,
-                            format("{} = {}: {} not found = {}",
-                                   state.dataIPShortCut->cCurrentModuleObject,
-                                   state.dataIPShortCut->cAlphaArgs(1),
-                                   state.dataIPShortCut->cAlphaFieldNames(5),
-                                   state.dataIPShortCut->cAlphaArgs(5)));
+        } else if ((Tank.setptTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(5))) == nullptr) {
+            ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(5), state.dataIPShortCut->cAlphaArgs(5));
             ErrorsFound = true;
         }
 
@@ -2936,20 +2857,12 @@ bool getWaterHeaterStratifiedInput(EnergyPlusData &state)
             ErrorsFound = true;
         }
 
-        Tank.SetPointTempSchedule2 = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(6));
+
         if (state.dataIPShortCut->lAlphaFieldBlanks(6)) {
-            ShowSevereError(
-                state,
-                format("{}{}=\"{}\", missing data.", RoutineName, state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)));
-            ShowContinueError(state, format("blank field, missing {} is required", state.dataIPShortCut->cAlphaFieldNames(6)));
+            ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaFieldNames(6));
             ErrorsFound = true;
-        } else if (Tank.SetPointTempSchedule2 == 0) {
-            ShowSevereError(state,
-                            format("{} = {}:  {} not found = {}",
-                                   state.dataIPShortCut->cCurrentModuleObject,
-                                   state.dataIPShortCut->cAlphaArgs(1),
-                                   state.dataIPShortCut->cAlphaFieldNames(6),
-                                   state.dataIPShortCut->cAlphaArgs(6)));
+        } else if ((Tank.setptTemp2Sched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(6))) == nullptr) {
+            ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(6), state.dataIPShortCut->cAlphaArgs(6));
             ErrorsFound = true;
         }
 
@@ -3063,18 +2976,15 @@ bool getWaterHeaterStratifiedInput(EnergyPlusData &state)
         switch (Tank.AmbientTempIndicator) {
 
         case WTTAmbientTemp::Schedule: {
-            Tank.AmbientTempSchedule = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(11));
-            if (Tank.AmbientTempSchedule == 0) {
-                ShowSevereError(state,
-                                format("{} = {}:  Ambient Temperature Schedule not found = {}",
-                                       state.dataIPShortCut->cCurrentModuleObject,
-                                       state.dataIPShortCut->cAlphaArgs(1),
-                                       state.dataIPShortCut->cAlphaArgs(11)));
+            if (state.dataIPShortCut->lAlphaFieldBlanks(11)) {
+                ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaFieldNames(11));
+                ErrorsFound = true;
+            } else if ((Tank.ambientTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(11))) == nullptr) {
+                ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(11), state.dataIPShortCut->cAlphaArgs(11));
                 ErrorsFound = true;
             }
-
-            break;
-        }
+        } break;
+                
         case WTTAmbientTemp::TempZone: {
             Tank.AmbientTempZone = Util::FindItemInList(state.dataIPShortCut->cAlphaArgs(12), state.dataHeatBal->Zone);
             if (Tank.AmbientTempZone == 0) {
@@ -3133,33 +3043,21 @@ bool getWaterHeaterStratifiedInput(EnergyPlusData &state)
         Tank.OffCycFlueLossFracToZone = state.dataIPShortCut->rNumericArgs(21);
 
         // this is temporary until we know fluid type
-        rho = FluidProperties::GetDensityGlycol(state, fluidNameWater, Constant::InitConvTemp, Tank.FluidIndex, RoutineName);
+        rho = FluidProperties::GetDensityGlycol(state, fluidNameWater, Constant::InitConvTemp, Tank.FluidIndex, routineName);
         Tank.MassFlowRateMax = state.dataIPShortCut->rNumericArgs(22) * rho;
 
         if ((state.dataIPShortCut->cAlphaArgs(16).empty()) && (state.dataIPShortCut->cAlphaArgs(17).empty())) {
-            if (!state.dataIPShortCut->cAlphaArgs(14).empty()) {
-                Tank.FlowRateSchedule = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(14));
-                if (Tank.FlowRateSchedule == 0) {
-                    ShowSevereError(state,
-                                    format("{} = {}:  Flow Rate Schedule not found = {}",
-                                           state.dataIPShortCut->cCurrentModuleObject,
-                                           state.dataIPShortCut->cAlphaArgs(1),
-                                           state.dataIPShortCut->cAlphaArgs(14)));
-                    ErrorsFound = true;
-                }
+            if (state.dataIPShortCut->lAlphaFieldBlanks(14)) {
+            } else if ((Tank.flowRateSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(14))) == nullptr) { 
+                ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(14), state.dataIPShortCut->cAlphaArgs(14));
+                ErrorsFound = true;
             }
         }
 
-        if (!state.dataIPShortCut->cAlphaArgs(15).empty()) {
-            Tank.UseInletTempSchedule = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(15));
-            if (Tank.UseInletTempSchedule == 0) {
-                ShowSevereError(state,
-                                format("{} = {}:  Cold Water Supply Temperature Schedule not found = {}",
-                                       state.dataIPShortCut->cCurrentModuleObject,
-                                       state.dataIPShortCut->cAlphaArgs(1),
-                                       state.dataIPShortCut->cAlphaArgs(15)));
-                ErrorsFound = true;
-            }
+        if (state.dataIPShortCut->lAlphaFieldBlanks(15)) {
+        } else if ((Tank.useInletTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(15))) == nullptr) {
+            ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(15), state.dataIPShortCut->cAlphaArgs(15));
+            ErrorsFound = true;
         }
 
         if (NumNums > 22) {
@@ -3313,14 +3211,14 @@ bool getWaterHeaterStratifiedInput(EnergyPlusData &state)
                                         state.dataIPShortCut->cAlphaArgs(1)));
             }
 
-            if (Tank.FlowRateSchedule > 0) {
+            if (Tank.flowRateSched != nullptr) {
                 ShowWarningError(state,
                                  format("{} = {}:  Use side nodes are specified; Use Flow Rate Fraction Schedule will not be used",
                                         state.dataIPShortCut->cCurrentModuleObject,
                                         state.dataIPShortCut->cAlphaArgs(1)));
             }
 
-            if (Tank.UseInletTempSchedule > 0) {
+            if (Tank.useInletTempSched != nullptr) {
                 ShowWarningError(state,
                                  format("{} = {}:  Use side nodes are specified; Cold Water Supply Temperature Schedule will not be used",
                                         state.dataIPShortCut->cCurrentModuleObject,
@@ -3401,17 +3299,10 @@ bool getWaterHeaterStratifiedInput(EnergyPlusData &state)
             Tank.SourceSideControlMode = SourceSideControl::IndirectHeatPrimarySetpoint;
         }
 
-        if (!state.dataIPShortCut->lAlphaFieldBlanks(22)) {
-            Tank.SourceSideAltSetpointSchedNum = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(22));
-            if (Tank.SourceSideAltSetpointSchedNum == 0) {
-                ShowSevereError(state,
-                                format("{} = {}:  {} not found = {}",
-                                       state.dataIPShortCut->cCurrentModuleObject,
-                                       state.dataIPShortCut->cAlphaArgs(1),
-                                       state.dataIPShortCut->cAlphaFieldNames(22),
-                                       state.dataIPShortCut->cAlphaArgs(22)));
-                ErrorsFound = true;
-            }
+        if (state.dataIPShortCut->lAlphaFieldBlanks(22)) {
+        } else if ((Tank.sourceSideAltSetpointSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(22))) == nullptr) { 
+            ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(22), state.dataIPShortCut->cAlphaArgs(22));
+            ErrorsFound = true;
         }
     }
 
@@ -3420,6 +3311,7 @@ bool getWaterHeaterStratifiedInput(EnergyPlusData &state)
 
 bool getWaterTankMixedInput(EnergyPlusData &state)
 {
+    static constexpr std::string_view routineName = "getWaterTankMixedInput";
     bool ErrorsFound = false;
 
     state.dataIPShortCut->cCurrentModuleObject = cMixedCWTankModuleObj; // 'ThermalStorage:ChilledWater:Mixed'
@@ -3443,6 +3335,9 @@ bool getWaterTankMixedInput(EnergyPlusData &state)
             state.dataIPShortCut->lAlphaFieldBlanks,
             state.dataIPShortCut->cAlphaFieldNames,
             state.dataIPShortCut->cNumericFieldNames);
+
+        ErrorObjectHeader eoh{routineName, state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
+        
         GlobalNames::VerifyUniqueInterObjectName(state,
                                                  state.dataWaterThermalTanks->UniqueWaterThermalTankNames,
                                                  state.dataIPShortCut->cAlphaArgs(1),
@@ -3469,11 +3364,10 @@ bool getWaterTankMixedInput(EnergyPlusData &state)
             Tank.Volume = 0.000001; // = 1 cm3
         }
 
-        Tank.SetPointTempSchedule = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(2));
-        if (Tank.SetPointTempSchedule == 0) {
-            ShowSevereError(state, format("Invalid, {} = {}", state.dataIPShortCut->cAlphaFieldNames(2), state.dataIPShortCut->cAlphaArgs(2)));
-            ShowContinueError(state, format("Entered in {}={}", state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)));
-
+        if (state.dataIPShortCut->lAlphaFieldBlanks(2)) {
+            ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaFieldNames(2));
+        } else if ((Tank.setptTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(2))) == nullptr) { 
+            ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(2), state.dataIPShortCut->cAlphaArgs(2));
             ErrorsFound = true;
         }
 
@@ -3516,17 +3410,14 @@ bool getWaterTankMixedInput(EnergyPlusData &state)
         switch (Tank.AmbientTempIndicator) {
 
         case WTTAmbientTemp::Schedule: {
-            Tank.AmbientTempSchedule = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(4));
-            if (Tank.AmbientTempSchedule == 0) {
-                ShowSevereError(state, format("Invalid, {} = {}", state.dataIPShortCut->cAlphaFieldNames(4), state.dataIPShortCut->cAlphaArgs(4)));
-                ShowContinueError(state,
-                                  format("Entered in {} = {}", state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)));
-                ShowContinueError(state, "Schedule was not found.");
+            if (state.dataIPShortCut->lAlphaFieldBlanks(4)) {
+                ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaFieldNames(4));
+            } else if ((Tank.ambientTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(4))) == nullptr) {
+                ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(4), state.dataIPShortCut->cAlphaArgs(4));
                 ErrorsFound = true;
             }
-
-            break;
-        }
+        } break;
+        
         case WTTAmbientTemp::TempZone: {
             Tank.AmbientTempZone = Util::FindItemInList(state.dataIPShortCut->cAlphaArgs(5), state.dataHeatBal->Zone);
             if (Tank.AmbientTempZone == 0) {
@@ -3585,12 +3476,12 @@ bool getWaterTankMixedInput(EnergyPlusData &state)
         Tank.OnCycLossFracToZone = 1.0;
 
         Tank.MassFlowRateMax = 0.0;
-        Tank.FlowRateSchedule = 0;
-        Tank.UseInletTempSchedule = 0;
+        Tank.flowRateSched = nullptr;
+        Tank.useInletTempSched = nullptr;
 
         // default to always on
-        Tank.SourceSideAvailSchedNum = ScheduleManager::ScheduleAlwaysOn;
-        Tank.UseSideAvailSchedNum = ScheduleManager::ScheduleAlwaysOn;
+        Tank.sourceSideAvailSched = Sched::GetScheduleAlwaysOn(state);
+        Tank.useSideAvailSched = Sched::GetScheduleAlwaysOn(state);
 
         if ((state.dataIPShortCut->rNumericArgs(6) > 1) || (state.dataIPShortCut->rNumericArgs(6) < 0)) {
             ShowSevereError(state,
@@ -3622,16 +3513,10 @@ bool getWaterTankMixedInput(EnergyPlusData &state)
         Tank.UseSidePlantLoc.loopSideNum = DataPlant::LoopSideLocation::Invalid;
 
         if (state.dataIPShortCut->lAlphaFieldBlanks(9)) {
-            Tank.UseSideAvailSchedNum = ScheduleManager::ScheduleAlwaysOn;
-        } else {
-            Tank.UseSideAvailSchedNum = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(9));
-            if (Tank.UseSideAvailSchedNum == 0) {
-                ShowSevereError(state, format("Invalid, {} = {}", state.dataIPShortCut->cAlphaFieldNames(9), state.dataIPShortCut->cAlphaArgs(9)));
-                ShowContinueError(state,
-                                  format("Entered in {} = {}", state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)));
-                ShowContinueError(state, "Schedule was not found.");
-                ErrorsFound = true;
-            }
+            Tank.useSideAvailSched = Sched::GetScheduleAlwaysOn(state);
+        } else if ((Tank.useSideAvailSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(9))) == nullptr) { 
+            ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(9), state.dataIPShortCut->cAlphaArgs(9));
+            ErrorsFound = true;
         }
 
         Tank.SrcSidePlantLoc.loopSideNum = DataPlant::LoopSideLocation::Invalid;
@@ -3646,17 +3531,12 @@ bool getWaterTankMixedInput(EnergyPlusData &state)
         }
 
         if (state.dataIPShortCut->lAlphaFieldBlanks(12)) {
-            Tank.SourceSideAvailSchedNum = ScheduleManager::ScheduleAlwaysOn;
-        } else {
-            Tank.SourceSideAvailSchedNum = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(12));
-            if (Tank.SourceSideAvailSchedNum == 0) {
-                ShowSevereError(state, format("Invalid, {} = {}", state.dataIPShortCut->cAlphaFieldNames(12), state.dataIPShortCut->cAlphaArgs(12)));
-                ShowContinueError(state,
-                                  format("Entered in {} = {}", state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)));
-                ShowContinueError(state, "Schedule was not found.");
-                ErrorsFound = true;
-            }
+            Tank.sourceSideAvailSched = Sched::GetScheduleAlwaysOn(state);
+        } else if ((Tank.sourceSideAvailSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(12))) == nullptr) {
+            ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(12), state.dataIPShortCut->cAlphaArgs(12));
+            ErrorsFound = true;
         }
+        
         if (state.dataIPShortCut->lNumericFieldBlanks(10)) {
             Tank.SizingRecoveryTime = 4.0;
         } else {
@@ -3721,7 +3601,7 @@ bool getWaterTankMixedInput(EnergyPlusData &state)
 bool getWaterTankStratifiedInput(EnergyPlusData &state)
 {
     bool ErrorsFound = false;
-    static constexpr std::string_view RoutineName = "getWaterTankStratifiedInput";
+    static constexpr std::string_view routineName = "getWaterTankStratifiedInput";
 
     state.dataIPShortCut->cCurrentModuleObject = cStratifiedCWTankModuleObj; // 'ThermalStorage:ChilledWater:Stratified'
 
@@ -3747,6 +3627,9 @@ bool getWaterTankStratifiedInput(EnergyPlusData &state)
                                                                  state.dataIPShortCut->lAlphaFieldBlanks,
                                                                  state.dataIPShortCut->cAlphaFieldNames,
                                                                  state.dataIPShortCut->cNumericFieldNames);
+
+        ErrorObjectHeader eoh{routineName, state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
+        
         GlobalNames::VerifyUniqueInterObjectName(state,
                                                  state.dataWaterThermalTanks->UniqueWaterThermalTankNames,
                                                  state.dataIPShortCut->cAlphaArgs(1),
@@ -3767,7 +3650,7 @@ bool getWaterTankStratifiedInput(EnergyPlusData &state)
         if (Tank.Volume == DataSizing::AutoSize) {
             Tank.VolumeWasAutoSized = true;
         }
-        Real64 rho = FluidProperties::GetDensityGlycol(state, fluidNameWater, Constant::InitConvTemp, Tank.FluidIndex, RoutineName);
+        Real64 rho = FluidProperties::GetDensityGlycol(state, fluidNameWater, Constant::InitConvTemp, Tank.FluidIndex, routineName);
         Tank.Mass = Tank.Volume * rho;
         Tank.Height = state.dataIPShortCut->rNumericArgs(2);
         if (Tank.Height == DataSizing::AutoSize) {
@@ -3811,11 +3694,11 @@ bool getWaterTankStratifiedInput(EnergyPlusData &state)
             Tank.TankTempLimit = 1.0;
         }
 
-        Tank.SetPointTempSchedule = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(3));
-        if (Tank.SetPointTempSchedule == 0) {
-            ShowSevereError(state, format("Invalid, {} = {}", state.dataIPShortCut->cAlphaFieldNames(3), state.dataIPShortCut->cAlphaArgs(3)));
-            ShowContinueError(state, format("Entered in {} = {}", state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)));
-            ShowContinueError(state, "Schedule was not found.");
+        if (state.dataIPShortCut->lAlphaFieldBlanks(3)) {
+            ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaFieldNames(3));
+            ErrorsFound = true;
+        } else if ((Tank.setptTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(3))) == nullptr) { 
+            ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(3), state.dataIPShortCut->cAlphaArgs(3));
             ErrorsFound = true;
         }
 
@@ -3833,7 +3716,7 @@ bool getWaterTankStratifiedInput(EnergyPlusData &state)
         }
 
         Tank.Efficiency = 1.0;
-        Tank.SetPointTempSchedule2 = 0;
+        Tank.setptTemp2Sched = nullptr;
         Tank.MaxCapacity2 = 0.0;
         Tank.HeaterHeight2 = 0.0;
         Tank.FuelType = Constant::eFuel::Electricity;
@@ -3852,17 +3735,15 @@ bool getWaterTankStratifiedInput(EnergyPlusData &state)
         switch (Tank.AmbientTempIndicator) {
 
         case WTTAmbientTemp::Schedule: {
-            Tank.AmbientTempSchedule = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(5));
-            if (Tank.AmbientTempSchedule == 0) {
-                ShowSevereError(state, format("Invalid, {} = {}", state.dataIPShortCut->cAlphaFieldNames(5), state.dataIPShortCut->cAlphaArgs(5)));
-                ShowContinueError(state,
-                                  format("Entered in {} = {}", state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)));
-                ShowContinueError(state, "Schedule was not found.");
+            if (state.dataIPShortCut->lAlphaFieldBlanks(5)) {
+                ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaFieldNames(5));
+                ErrorsFound = true;
+            } else if ((Tank.ambientTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(5))) == nullptr) {
+                ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(5), state.dataIPShortCut->cAlphaArgs(5));
                 ErrorsFound = true;
             }
-
-            break;
-        }
+        } break;
+                
         case WTTAmbientTemp::TempZone: {
             Tank.AmbientTempZone = Util::FindItemInList(state.dataIPShortCut->cAlphaArgs(6), state.dataHeatBal->Zone);
             if (Tank.AmbientTempZone == 0) {
@@ -3922,14 +3803,14 @@ bool getWaterTankStratifiedInput(EnergyPlusData &state)
         Tank.OffCycFlueLossFracToZone = 0.0;
 
         Tank.MassFlowRateMax = 0.0;
-        Tank.FlowRateSchedule = 0;
-        Tank.UseInletTempSchedule = 0;
+        Tank.flowRateSched = nullptr;
+        Tank.useInletTempSched = nullptr;
         Tank.UseEffectiveness = state.dataIPShortCut->rNumericArgs(9);
         Tank.UseInletHeight = state.dataIPShortCut->rNumericArgs(10);
 
         // default to always on
-        Tank.SourceSideAvailSchedNum = ScheduleManager::ScheduleAlwaysOn;
-        Tank.UseSideAvailSchedNum = ScheduleManager::ScheduleAlwaysOn;
+        Tank.sourceSideAvailSched = Sched::GetScheduleAlwaysOn(state);
+        Tank.useSideAvailSched = Sched::GetScheduleAlwaysOn(state);
 
         if (state.dataIPShortCut->rNumericArgs(10) == Constant::AutoCalculate) {
             Tank.UseInletHeight = Tank.Height; // top of tank
@@ -4062,16 +3943,10 @@ bool getWaterTankStratifiedInput(EnergyPlusData &state)
         }
 
         if (state.dataIPShortCut->lAlphaFieldBlanks(10)) {
-            Tank.UseSideAvailSchedNum = ScheduleManager::ScheduleAlwaysOn;
-        } else {
-            Tank.UseSideAvailSchedNum = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(10));
-            if (Tank.UseSideAvailSchedNum == 0) {
-                ShowSevereError(state, format("Invalid, {} = {}", state.dataIPShortCut->cAlphaFieldNames(10), state.dataIPShortCut->cAlphaArgs(10)));
-                ShowContinueError(state,
-                                  format("Entered in {} = {}", state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)));
-                ShowContinueError(state, "Schedule was not found.");
-                ErrorsFound = true;
-            }
+             Tank.useSideAvailSched = Sched::GetScheduleAlwaysOn(state);
+        } else if ((Tank.useSideAvailSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(10))) == nullptr) {
+             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(10), state.dataIPShortCut->cAlphaArgs(10));
+             ErrorsFound = true;
         }
 
         if (Tank.UseSidePlantLoc.loopSideNum == DataPlant::LoopSideLocation::Demand && Tank.SourceInletNode != 0) {
@@ -4079,16 +3954,10 @@ bool getWaterTankStratifiedInput(EnergyPlusData &state)
         }
 
         if (state.dataIPShortCut->lAlphaFieldBlanks(13)) {
-            Tank.SourceSideAvailSchedNum = ScheduleManager::ScheduleAlwaysOn;
-        } else {
-            Tank.SourceSideAvailSchedNum = ScheduleManager::GetScheduleIndex(state, state.dataIPShortCut->cAlphaArgs(13));
-            if (Tank.SourceSideAvailSchedNum == 0) {
-                ShowSevereError(state, format("Invalid, {} = {}", state.dataIPShortCut->cAlphaFieldNames(13), state.dataIPShortCut->cAlphaArgs(13)));
-                ShowContinueError(state,
-                                  format("Entered in {} = {}", state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)));
-                ShowContinueError(state, "Schedule was not found.");
-                ErrorsFound = true;
-            }
+            Tank.sourceSideAvailSched = Sched::GetScheduleAlwaysOn(state);
+        } else if ((Tank.sourceSideAvailSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(13))) == nullptr) {
+            ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(13), state.dataIPShortCut->cAlphaArgs(13));
+            ErrorsFound = true;
         }
 
         // Validate inlet mode
@@ -6197,21 +6066,21 @@ void WaterThermalTankData::initialize(EnergyPlusData &state, bool const FirstHVA
 
         // Initialize tank temperature to setpoint of first hour of warm up period
         // (use HPWH or Desuperheater heating coil set point if applicable)
-        int SchIndex;
+        Sched::Schedule *sched = nullptr;
         if (this->HeatPumpNum > 0) {
             state.dataWaterThermalTanks->HPWaterHeater(this->HeatPumpNum).Mode = TankOperatingMode::Floating;
             state.dataWaterThermalTanks->HPWaterHeater(this->HeatPumpNum).SaveMode = TankOperatingMode::Floating;
             state.dataWaterThermalTanks->HPWaterHeater(this->HeatPumpNum).SaveWHMode = TankOperatingMode::Floating;
-            SchIndex = state.dataWaterThermalTanks->HPWaterHeater(this->HeatPumpNum).SetPointTempSchedule;
+            sched = state.dataWaterThermalTanks->HPWaterHeater(this->HeatPumpNum).setptTempSched;
         } else if (this->DesuperheaterNum > 0) {
             state.dataWaterThermalTanks->WaterHeaterDesuperheater(this->DesuperheaterNum).Mode = TankOperatingMode::Floating;
-            SchIndex = state.dataWaterThermalTanks->WaterHeaterDesuperheater(this->DesuperheaterNum).SetPointTempSchedule;
+            sched = state.dataWaterThermalTanks->WaterHeaterDesuperheater(this->DesuperheaterNum).setptTempSched;
         } else {
-            SchIndex = this->SetPointTempSchedule;
+            sched = this->setptTempSched;
         }
 
-        if (SchIndex > 0) {
-            this->TankTemp = ScheduleManager::GetCurrentScheduleValue(state, SchIndex);
+        if (sched != nullptr) {
+            this->TankTemp = sched->getCurrentVal();
             this->SavedTankTemp = this->TankTemp;
 
             if (this->Nodes > 0) {
@@ -6267,19 +6136,19 @@ void WaterThermalTankData::initialize(EnergyPlusData &state, bool const FirstHVA
         // reInitialize tank temperature to setpoint of first hour (use HPWH or Desuperheater heating coil set point if applicable)
         // BG's interpretation here is that its better to reset initial condition to setpoint once warm up is over.
         // (otherwise with a dynamic storage model it is difficult for the user to see the initial performance if it isn't periodic.)
-        int SchIndex;
+        Sched::Schedule *sched = nullptr;
         if (this->HeatPumpNum > 0) {
             state.dataWaterThermalTanks->HPWaterHeater(this->HeatPumpNum).Mode = TankOperatingMode::Floating;
-            SchIndex = state.dataWaterThermalTanks->HPWaterHeater(this->HeatPumpNum).SetPointTempSchedule;
+            sched = state.dataWaterThermalTanks->HPWaterHeater(this->HeatPumpNum).setptTempSched;
         } else if (this->DesuperheaterNum > 0) {
             state.dataWaterThermalTanks->WaterHeaterDesuperheater(this->DesuperheaterNum).Mode = TankOperatingMode::Floating;
-            SchIndex = state.dataWaterThermalTanks->WaterHeaterDesuperheater(this->DesuperheaterNum).SetPointTempSchedule;
+            sched = state.dataWaterThermalTanks->WaterHeaterDesuperheater(this->DesuperheaterNum).setptTempSched;
         } else {
-            SchIndex = this->SetPointTempSchedule;
+            sched = this->setptTempSched;
         }
 
-        if (SchIndex > 0) {
-            this->TankTemp = ScheduleManager::GetCurrentScheduleValue(state, SchIndex);
+        if (sched != nullptr) {
+            this->TankTemp = sched->getCurrentVal();
             this->SavedTankTemp = this->TankTemp;
 
             if (this->Nodes > 0) {
@@ -6311,8 +6180,7 @@ void WaterThermalTankData::initialize(EnergyPlusData &state, bool const FirstHVA
 
     if (FirstHVACIteration) {
         // Get all scheduled values
-        int SchIndex = this->SetPointTempSchedule;
-        this->SetPointTemp = ScheduleManager::GetCurrentScheduleValue(state, SchIndex);
+        this->SetPointTemp = this->setptTempSched->getCurrentVal();
 
         if (!this->IsChilledWaterTank) {
             if (this->SetPointTemp > this->TankTempLimit) {
@@ -6350,18 +6218,15 @@ void WaterThermalTankData::initialize(EnergyPlusData &state, bool const FirstHVA
             }
         }
 
-        SchIndex = this->SetPointTempSchedule2;
-        if (SchIndex > 0) {
-            this->SetPointTemp2 = ScheduleManager::GetCurrentScheduleValue(state, SchIndex);
+        if (this->setptTemp2Sched != nullptr) {
+            this->SetPointTemp2 = this->setptTemp2Sched->getCurrentVal();
         }
 
         switch (this->AmbientTempIndicator) {
         case WTTAmbientTemp::Schedule: {
-            SchIndex = this->AmbientTempSchedule;
-            this->AmbientTemp = ScheduleManager::GetCurrentScheduleValue(state, SchIndex);
-
-            break;
-        }
+            this->AmbientTemp = this->ambientTempSched->getCurrentVal();
+        } break;
+                
         case WTTAmbientTemp::TempZone: {
             this->AmbientTemp = state.dataZoneTempPredictorCorrector->zoneHeatBalance(this->AmbientTempZone).MAT;
 
@@ -6377,27 +6242,17 @@ void WaterThermalTankData::initialize(EnergyPlusData &state, bool const FirstHVA
 
         if (this->UseInletNode == 0) { // Stand-alone operation
 
-            SchIndex = this->UseInletTempSchedule;
-            if (SchIndex > 0) {
-                this->UseInletTemp = ScheduleManager::GetCurrentScheduleValue(state, SchIndex);
-            } else {
-                this->UseInletTemp = state.dataEnvrn->WaterMainsTemp;
-            }
+                
+            this->UseInletTemp = (this->useInletTempSched != nullptr) ? this->useInletTempSched->getCurrentVal() : state.dataEnvrn->WaterMainsTemp;
 
-            SchIndex = this->FlowRateSchedule;
-            if (SchIndex > 0) {
-                this->UseMassFlowRate = ScheduleManager::GetCurrentScheduleValue(state, SchIndex) * this->MassFlowRateMax;
-
-                this->VolFlowRate = this->UseMassFlowRate / Psychrometrics::RhoH2O(Constant::InitConvTemp);
-            } else {
-                this->UseMassFlowRate = this->MassFlowRateMax;
-                this->VolFlowRate = this->UseMassFlowRate / Psychrometrics::RhoH2O(Constant::InitConvTemp);
-            }
+            this->UseMassFlowRate = this->MassFlowRateMax;
+            if (this->flowRateSched != nullptr) this->UseMassFlowRate *= this->flowRateSched->getCurrentVal();
+            this->VolFlowRate = this->UseMassFlowRate / Psychrometrics::RhoH2O(Constant::InitConvTemp);
         }
 
         if (this->HeatPumpNum > 0) {
             state.dataWaterThermalTanks->HPWaterHeater(this->HeatPumpNum).SetPointTemp =
-                ScheduleManager::GetCurrentScheduleValue(state, state.dataWaterThermalTanks->HPWaterHeater(this->HeatPumpNum).SetPointTempSchedule);
+                state.dataWaterThermalTanks->HPWaterHeater(this->HeatPumpNum).setptTempSched->getCurrentVal();
             if (state.dataWaterThermalTanks->HPWaterHeater(this->HeatPumpNum).SetPointTemp >= this->TankTempLimit) {
                 // HP setpoint temperature scheduled equal to or higher than tank temperature limit
                 state.dataWaterThermalTanks->HPWaterHeater(this->HeatPumpNum).SetPointTemp = this->TankTempLimit - 1.0;
@@ -6417,8 +6272,8 @@ void WaterThermalTankData::initialize(EnergyPlusData &state, bool const FirstHVA
         }
 
         if (this->DesuperheaterNum > 0) {
-            state.dataWaterThermalTanks->WaterHeaterDesuperheater(this->DesuperheaterNum).SetPointTemp = ScheduleManager::GetCurrentScheduleValue(
-                state, state.dataWaterThermalTanks->WaterHeaterDesuperheater(this->DesuperheaterNum).SetPointTempSchedule);
+            state.dataWaterThermalTanks->WaterHeaterDesuperheater(this->DesuperheaterNum).SetPointTemp =
+                state.dataWaterThermalTanks->WaterHeaterDesuperheater(this->DesuperheaterNum).setptTempSched->getCurrentVal();
         }
 
     } // first HVAC Iteration
@@ -6539,8 +6394,7 @@ void WaterThermalTankData::initialize(EnergyPlusData &state, bool const FirstHVA
             break;
         }
         case CrankcaseHeaterControlTemp::Schedule: {
-            state.dataHVACGlobal->HPWHCrankcaseDBTemp =
-                ScheduleManager::GetCurrentScheduleValue(state, state.dataWaterThermalTanks->HPWaterHeater(HPNum).CrankcaseTempSchedule);
+            state.dataHVACGlobal->HPWHCrankcaseDBTemp = state.dataWaterThermalTanks->HPWaterHeater(HPNum).crankcaseTempSched->getCurrentVal();
             break;
         }
         default:
@@ -6566,10 +6420,10 @@ void WaterThermalTankData::initialize(EnergyPlusData &state, bool const FirstHVA
             break;
         }
         case WTTAmbientTemp::ZoneAndOA: {
-            if (state.dataWaterThermalTanks->HPWaterHeater(HPNum).InletAirMixerSchPtr > 0) {
+            if (state.dataWaterThermalTanks->HPWaterHeater(HPNum).inletAirMixerSched != nullptr) {
                 //         schedule values are checked for boundary of 0 and 1 in GetWaterThermalTankInputFlag
                 state.dataWaterThermalTanks->mixerInletAirSchedule =
-                    ScheduleManager::GetCurrentScheduleValue(state, state.dataWaterThermalTanks->HPWaterHeater(HPNum).InletAirMixerSchPtr);
+                    state.dataWaterThermalTanks->HPWaterHeater(HPNum).inletAirMixerSched->getCurrentVal();
             } else {
                 state.dataWaterThermalTanks->mixerInletAirSchedule = 0.0;
             }
@@ -6587,9 +6441,8 @@ void WaterThermalTankData::initialize(EnergyPlusData &state, bool const FirstHVA
             break;
         }
         case WTTAmbientTemp::Schedule: {
-            HPInletDryBulbTemp =
-                ScheduleManager::GetCurrentScheduleValue(state, state.dataWaterThermalTanks->HPWaterHeater(HPNum).AmbientTempSchedule);
-            HPInletRelHum = ScheduleManager::GetCurrentScheduleValue(state, state.dataWaterThermalTanks->HPWaterHeater(HPNum).AmbientRHSchedule);
+            HPInletDryBulbTemp = state.dataWaterThermalTanks->HPWaterHeater(HPNum).ambientTempSched->getCurrentVal();
+            HPInletRelHum = state.dataWaterThermalTanks->HPWaterHeater(HPNum).ambientRHSched->getCurrentVal();
             HPInletHumRat = Psychrometrics::PsyWFnTdbRhPb(state, HPInletDryBulbTemp, HPInletRelHum, state.dataEnvrn->OutBaroPress, RoutineName);
             state.dataLoopNodes->Node(HPAirInletNode).Temp = HPInletDryBulbTemp;
             state.dataLoopNodes->Node(HPAirInletNode).HumRat = HPInletHumRat;
@@ -8501,7 +8354,7 @@ void WaterThermalTankData::CalcDesuperheaterWaterHeater(EnergyPlusData &state, b
     DesupHtr.PumpEnergy = 0.0;
 
     // simulate only the water heater tank if the desuperheater coil is scheduled off
-    Real64 AvailSchedule = ScheduleManager::GetCurrentScheduleValue(state, DesupHtr.AvailSchedPtr);
+    Real64 AvailSchedule = DesupHtr.availSched->getCurrentVal();
     if (AvailSchedule == 0.0) {
         DesupHtr.Mode = TankOperatingMode::Floating;
         this->CalcWaterThermalTank(state);
@@ -8988,7 +8841,7 @@ void WaterThermalTankData::CalcHeatPumpWaterHeater(EnergyPlusData &state, bool c
     HeatPumpWaterHeaterData &HeatPump = state.dataWaterThermalTanks->HPWaterHeater(this->HeatPumpNum);
 
     // initialize local variables
-    int AvailSchedule = ScheduleManager::GetCurrentScheduleValue(state, HeatPump.AvailSchedPtr);
+    int AvailSchedule = HeatPump.availSched->getCurrentVal();
     int HPAirInletNode = HeatPump.HeatPumpAirInletNode;
     int HPAirOutletNode = HeatPump.HeatPumpAirOutletNode;
     int OutdoorAirNode = HeatPump.OutsideAirNode;
@@ -10029,8 +9882,8 @@ void WaterThermalTankData::CalcHeatPumpWaterHeater(EnergyPlusData &state, bool c
     }
 
     // Check schedule to divert air-side cooling to outdoors.
-    if (HeatPump.OutletAirSplitterSchPtr > 0) {
-        Real64 OutletAirSplitterSch = ScheduleManager::GetCurrentScheduleValue(state, HeatPump.OutletAirSplitterSchPtr);
+    if (HeatPump.outletAirSplitterSched != nullptr) {
+        Real64 OutletAirSplitterSch = HeatPump.outletAirSplitterSched->getCurrentVal();
         state.dataLoopNodes->Node(HPAirOutletNode).MassFlowRate =
             state.dataWaterThermalTanks->mdotAir * state.dataWaterThermalTanks->hpPartLoadRatio * (1.0 - OutletAirSplitterSch);
         state.dataLoopNodes->Node(ExhaustAirNode).MassFlowRate =
@@ -10340,7 +10193,7 @@ Real64 WaterThermalTankData::PLRResidualHPWH(
     return desTankTemp - NewTankTemp;
 }
 
-bool WaterThermalTankData::SourceHeatNeed(EnergyPlusData &state, Real64 const OutletTemp, Real64 const DeadBandTemp, Real64 const SetPointTemp_loc)
+bool WaterThermalTankData::SourceHeatNeed([[maybe_unused]] EnergyPlusData &state, Real64 const OutletTemp, Real64 const DeadBandTemp, Real64 const SetPointTemp_loc)
 {
     // FUNCTION INFORMATION:
     //       AUTHOR         Yueyue Zhou
@@ -10371,7 +10224,7 @@ bool WaterThermalTankData::SourceHeatNeed(EnergyPlusData &state, Real64 const Ou
             }
         } else if (this->SourceSideControlMode == SourceSideControl::IndirectHeatAltSetpoint) {
             // get alternate setpoint
-            Real64 const AltSetpointTemp = ScheduleManager::GetCurrentScheduleValue(state, this->SourceSideAltSetpointSchedNum);
+            Real64 const AltSetpointTemp = this->sourceSideAltSetpointSched->getCurrentVal();
             Real64 const AltDeadBandTemp = AltSetpointTemp - this->DeadBandDeltaTemp;
             if (OutletTemp < AltDeadBandTemp) {
                 NeedsHeatOrCool = true;
@@ -10481,11 +10334,11 @@ Real64 WaterThermalTankData::PlantMassFlowRatesFunc(EnergyPlusData &state,
     // evaluate Availability schedule,
     bool ScheduledAvail = true;
     if (WaterThermalTankSide == WaterHeaterSide::Use) {
-        if (ScheduleManager::GetCurrentScheduleValue(state, this->UseSideAvailSchedNum) == 0.0) {
+        if (this->useSideAvailSched->getCurrentVal() == 0.0) {
             ScheduledAvail = false;
         }
     } else if (WaterThermalTankSide == WaterHeaterSide::Source) {
-        if (ScheduleManager::GetCurrentScheduleValue(state, this->SourceSideAvailSchedNum) == 0.0) {
+        if (this->sourceSideAvailSched->getCurrentVal() == 0.0) {
             ScheduledAvail = false;
         }
     }
@@ -11031,7 +10884,7 @@ void WaterThermalTankData::SizeTankForDemandSide(EnergyPlusData &state)
                 Cp = FluidProperties::GetSpecificHeatGlycol(state, fluidNameWater, ((Tfinish + Tstart) / 2.0), this->waterIndex, RoutineName);
             }
 
-            tmpMaxCapacity = SumPeopleAllZones * this->Sizing.RecoveryCapacityPerPerson * (Tfinish - Tstart) * (1.0 / Constant::SecInHour) * rho *
+            tmpMaxCapacity = SumPeopleAllZones * this->Sizing.RecoveryCapacityPerPerson * (Tfinish - Tstart) * (1.0 / Constant::rSecsInHour) * rho *
                              Cp; // m3/hr/person | delta T  in K | 1 hr/ 3600 s | kg/m3 | J/Kg/k
         }
 
@@ -11081,7 +10934,7 @@ void WaterThermalTankData::SizeTankForDemandSide(EnergyPlusData &state)
                 rho = FluidProperties::GetDensityGlycol(state, fluidNameWater, ((Tfinish + Tstart) / 2.0), this->waterIndex, RoutineName);
                 Cp = FluidProperties::GetSpecificHeatGlycol(state, fluidNameWater, ((Tfinish + Tstart) / 2.0), this->waterIndex, RoutineName);
             }
-            tmpMaxCapacity = SumFloorAreaAllZones * this->Sizing.RecoveryCapacityPerArea * (Tfinish - Tstart) * (1.0 / Constant::SecInHour) * rho *
+            tmpMaxCapacity = SumFloorAreaAllZones * this->Sizing.RecoveryCapacityPerArea * (Tfinish - Tstart) * (1.0 / Constant::rSecsInHour) * rho *
                              Cp; // m2 | m3/hr/m2 | delta T  in K | 1 hr/ 3600 s | kg/m3 | J/Kg/k
         }
         if (this->VolumeWasAutoSized && state.dataPlnt->PlantFirstSizesOkayToFinalize) {
@@ -11126,7 +10979,7 @@ void WaterThermalTankData::SizeTankForDemandSide(EnergyPlusData &state)
                 rho = FluidProperties::GetDensityGlycol(state, fluidNameWater, ((Tfinish + Tstart) / 2.0), this->waterIndex, RoutineName);
                 Cp = FluidProperties::GetSpecificHeatGlycol(state, fluidNameWater, ((Tfinish + Tstart) / 2.0), this->waterIndex, RoutineName);
             }
-            tmpMaxCapacity = this->Sizing.NumberOfUnits * this->Sizing.RecoveryCapacityPerUnit * (Tfinish - Tstart) * (1.0 / Constant::SecInHour) *
+            tmpMaxCapacity = this->Sizing.NumberOfUnits * this->Sizing.RecoveryCapacityPerUnit * (Tfinish - Tstart) * (1.0 / Constant::rSecsInHour) *
                              rho * Cp; // m3/hr/ea | delta T  in K | 1 hr/ 3600 s | kg/m3 | J/Kg/k
         }
 
@@ -11207,7 +11060,7 @@ void WaterThermalTankData::SizeTankForSupplySide(EnergyPlusData &state)
 
     if (this->Sizing.DesignMode == SizingMode::PeakDraw) {
         if (this->VolumeWasAutoSized)
-            tmpTankVolume = this->Sizing.TankDrawTime * this->UseDesignVolFlowRate * Constant::SecInHour; // hours | m3/s | (3600 s/1 hour)
+            tmpTankVolume = this->Sizing.TankDrawTime * this->UseDesignVolFlowRate * Constant::rSecsInHour; // hours | m3/s | (3600 s/1 hour)
         if (this->VolumeWasAutoSized && state.dataPlnt->PlantFirstSizesOkayToFinalize) {
             this->Volume = tmpTankVolume;
             if (state.dataPlnt->PlantFinalSizesOkayToReport) {
@@ -11240,7 +11093,7 @@ void WaterThermalTankData::SizeTankForSupplySide(EnergyPlusData &state)
                     Cp = FluidProperties::GetSpecificHeatGlycol(state, fluidNameWater, ((Tfinish + Tstart) / 2.0), this->waterIndex, RoutineName);
                 }
                 tmpMaxCapacity = (this->Volume * rho * Cp * (Tfinish - Tstart)) /
-                                 (this->Sizing.RecoveryTime * Constant::SecInHour); // m3 | kg/m3 | J/Kg/K | K | seconds
+                                 (this->Sizing.RecoveryTime * Constant::rSecsInHour); // m3 | kg/m3 | J/Kg/K | K | seconds
             } else {
                 ShowFatalError(
                     state, format("{}: Tank=\"{}\", requested sizing for max capacity but entered Recovery Time is zero.", RoutineName, this->Name));
@@ -11381,18 +11234,18 @@ void WaterThermalTankData::SizeDemandSidePlantConnections(EnergyPlusData &state)
                     Real64 eff = this->UseEffectiveness;
                     if ((Tpdesign >= 58.0) && (!this->IsChilledWaterTank)) {
                         if (state.dataPlnt->PlantFirstSizesOkayToFinalize) {
-                            this->UseDesignVolFlowRate = -1.0 * (TankVolume / (tankRecoverhours * Constant::SecInHour * eff)) *
+                            this->UseDesignVolFlowRate = -1.0 * (TankVolume / (tankRecoverhours * Constant::rSecsInHour * eff)) *
                                                          std::log((Tpdesign - Tfinish) / (Tpdesign - Tstart));
                         } else {
-                            tmpUseDesignVolFlowRate = -1.0 * (TankVolume / (tankRecoverhours * Constant::SecInHour * eff)) *
+                            tmpUseDesignVolFlowRate = -1.0 * (TankVolume / (tankRecoverhours * Constant::rSecsInHour * eff)) *
                                                       std::log((Tpdesign - Tfinish) / (Tpdesign - Tstart));
                         }
                     } else if ((Tpdesign <= 8.0) && (this->IsChilledWaterTank)) {
                         if (state.dataPlnt->PlantFirstSizesOkayToFinalize) {
-                            this->UseDesignVolFlowRate = -1.0 * (TankVolume / (tankRecoverhours * Constant::SecInHour * eff)) *
+                            this->UseDesignVolFlowRate = -1.0 * (TankVolume / (tankRecoverhours * Constant::rSecsInHour * eff)) *
                                                          std::log((Tpdesign - Tfinish) / (Tpdesign - Tstart));
                         } else {
-                            tmpUseDesignVolFlowRate = -1.0 * (TankVolume / (tankRecoverhours * Constant::SecInHour * eff)) *
+                            tmpUseDesignVolFlowRate = -1.0 * (TankVolume / (tankRecoverhours * Constant::rSecsInHour * eff)) *
                                                       std::log((Tpdesign - Tfinish) / (Tpdesign - Tstart));
                         }
                     } else {
@@ -11468,18 +11321,18 @@ void WaterThermalTankData::SizeDemandSidePlantConnections(EnergyPlusData &state)
                     if ((Tpdesign >= 58.0) && (!this->IsChilledWaterTank)) {
 
                         if (state.dataPlnt->PlantFirstSizesOkayToFinalize) {
-                            this->SourceDesignVolFlowRate = -1.0 * (TankVolume / (tankRecoverhours * Constant::SecInHour * eff)) *
+                            this->SourceDesignVolFlowRate = -1.0 * (TankVolume / (tankRecoverhours * Constant::rSecsInHour * eff)) *
                                                             std::log((Tpdesign - Tfinish) / (Tpdesign - Tstart));
                         } else {
-                            tmpSourceDesignVolFlowRate = -1.0 * (TankVolume / (tankRecoverhours * Constant::SecInHour * eff)) *
+                            tmpSourceDesignVolFlowRate = -1.0 * (TankVolume / (tankRecoverhours * Constant::rSecsInHour * eff)) *
                                                          std::log((Tpdesign - Tfinish) / (Tpdesign - Tstart));
                         }
                     } else if ((Tpdesign <= 8.0) && (this->IsChilledWaterTank)) {
                         if (state.dataPlnt->PlantFirstSizesOkayToFinalize) {
-                            this->SourceDesignVolFlowRate = -1.0 * (TankVolume / (tankRecoverhours * Constant::SecInHour * eff)) *
+                            this->SourceDesignVolFlowRate = -1.0 * (TankVolume / (tankRecoverhours * Constant::rSecsInHour * eff)) *
                                                             std::log((Tpdesign - Tfinish) / (Tpdesign - Tstart));
                         } else {
-                            tmpSourceDesignVolFlowRate = -1.0 * (TankVolume / (tankRecoverhours * Constant::SecInHour * eff)) *
+                            tmpSourceDesignVolFlowRate = -1.0 * (TankVolume / (tankRecoverhours * Constant::rSecsInHour * eff)) *
                                                          std::log((Tpdesign - Tfinish) / (Tpdesign - Tstart));
                         }
                     } else {
@@ -11580,10 +11433,10 @@ void WaterThermalTankData::SizeStandAloneWaterHeater(EnergyPlusData &state)
         case SizingMode::PeakDraw: {
             // get draw rate from maximum in schedule
             Real64 rho = FluidProperties::GetDensityGlycol(state, fluidNameWater, Constant::InitConvTemp, this->waterIndex, RoutineName);
-            Real64 DrawDesignVolFlowRate = ScheduleManager::GetScheduleMaxValue(state, this->FlowRateSchedule) * this->MassFlowRateMax / rho;
+            Real64 DrawDesignVolFlowRate = this->flowRateSched->getCurrentVal() * this->MassFlowRateMax / rho;
 
             if (this->VolumeWasAutoSized) {
-                tmpTankVolume = this->Sizing.TankDrawTime * DrawDesignVolFlowRate * Constant::SecInHour; // hours | m3/s | (3600 s/1 hour)
+                tmpTankVolume = this->Sizing.TankDrawTime * DrawDesignVolFlowRate * Constant::rSecsInHour; // hours | m3/s | (3600 s/1 hour)
                 this->Volume = tmpTankVolume;
                 BaseSizer::reportSizerOutput(state, this->Type, this->Name, "Tank Volume [m3]", this->Volume);
             }
@@ -11594,7 +11447,7 @@ void WaterThermalTankData::SizeStandAloneWaterHeater(EnergyPlusData &state)
                         FluidProperties::GetSpecificHeatGlycol(state, fluidNameWater, ((Tfinish + Tstart) / 2.0), this->waterIndex, RoutineName);
 
                     tmpMaxCapacity = (this->Volume * rho * Cp * (Tfinish - Tstart)) /
-                                     (this->Sizing.RecoveryTime * Constant::SecInHour); // m3 | kg/m3 | J/Kg/K | K | seconds
+                                     (this->Sizing.RecoveryTime * Constant::rSecsInHour); // m3 | kg/m3 | J/Kg/K | K | seconds
                 } else {
                     ShowFatalError(
                         state,
@@ -11756,7 +11609,7 @@ void WaterThermalTankData::SizeStandAloneWaterHeater(EnergyPlusData &state)
             if (this->MaxCapacityWasAutoSized) {
                 Real64 rho = FluidProperties::GetDensityGlycol(state, fluidNameWater, ((Tfinish + Tstart) / 2.0), this->waterIndex, RoutineName);
                 Real64 Cp = FluidProperties::GetSpecificHeatGlycol(state, fluidNameWater, ((Tfinish + Tstart) / 2.0), this->waterIndex, RoutineName);
-                tmpMaxCapacity = SumPeopleAllZones * this->Sizing.RecoveryCapacityPerPerson * (Tfinish - Tstart) * (1.0 / Constant::SecInHour) * rho *
+                tmpMaxCapacity = SumPeopleAllZones * this->Sizing.RecoveryCapacityPerPerson * (Tfinish - Tstart) * (1.0 / Constant::rSecsInHour) * rho *
                                  Cp; // m3/hr/person | delta T  in K | 1 hr/ 3600 s | kg/m3 | J/Kg/k
             }
 
@@ -11785,7 +11638,7 @@ void WaterThermalTankData::SizeStandAloneWaterHeater(EnergyPlusData &state)
             if (this->MaxCapacityWasAutoSized) {
                 Real64 rho = FluidProperties::GetDensityGlycol(state, fluidNameWater, ((Tfinish + Tstart) / 2.0), this->waterIndex, RoutineName);
                 Real64 Cp = FluidProperties::GetSpecificHeatGlycol(state, fluidNameWater, ((Tfinish + Tstart) / 2.0), this->waterIndex, RoutineName);
-                tmpMaxCapacity = SumFloorAreaAllZones * this->Sizing.RecoveryCapacityPerArea * (Tfinish - Tstart) * (1.0 / Constant::SecInHour) *
+                tmpMaxCapacity = SumFloorAreaAllZones * this->Sizing.RecoveryCapacityPerArea * (Tfinish - Tstart) * (1.0 / Constant::rSecsInHour) *
                                  rho * Cp; // m2 | m3/hr/m2 | delta T  in K | 1 hr/ 3600 s | kg/m3 | J/Kg/k
             }
             if (this->VolumeWasAutoSized) {
@@ -11806,7 +11659,7 @@ void WaterThermalTankData::SizeStandAloneWaterHeater(EnergyPlusData &state)
                 Real64 rho = FluidProperties::GetDensityGlycol(state, fluidNameWater, ((Tfinish + Tstart) / 2.0), this->waterIndex, RoutineName);
                 Real64 Cp = FluidProperties::GetSpecificHeatGlycol(state, fluidNameWater, ((Tfinish + Tstart) / 2.0), this->waterIndex, RoutineName);
                 tmpMaxCapacity = this->Sizing.NumberOfUnits * this->Sizing.RecoveryCapacityPerUnit * (Tfinish - Tstart) *
-                                 (1.0 / Constant::SecInHour) * rho * Cp; // m3/hr/ea | delta T  in K | 1 hr/ 3600 s | kg/m3 | J/Kg/k
+                                 (1.0 / Constant::rSecsInHour) * rho * Cp; // m3/hr/ea | delta T  in K | 1 hr/ 3600 s | kg/m3 | J/Kg/k
             }
 
             if (this->VolumeWasAutoSized) {

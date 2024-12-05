@@ -80,8 +80,7 @@ namespace SteamCoils {
         std::string SteamCoilTypeA;       // Type of SteamCoil ie. Heating or Cooling
         int SteamCoilType;                // Type of SteamCoil ie. Heating or Cooling
         int SteamCoilModel;               // Type of SteamCoil ie. Simple, Detailed, etc.
-        std::string Schedule;             // SteamCoil Operation Schedule
-        int SchedPtr;                     // Pointer to the correct schedule
+        Sched::Schedule *availSched = nullptr;                     // operating schedule
         Real64 InletAirMassFlowRate;      // MassFlow through the SteamCoil being Simulated [kg/s]
         Real64 OutletAirMassFlowRate;     // MassFlow throught the SteamCoil being Simulated[kg/s]
         Real64 InletAirTemp;              // Inlet Air Temperature Operating Condition [C]
@@ -136,7 +135,7 @@ namespace SteamCoils {
 
         // Default Constructor
         SteamCoilEquipConditions()
-            : SteamCoilType(0), SteamCoilModel(0), SchedPtr(0), InletAirMassFlowRate(0.0), OutletAirMassFlowRate(0.0), InletAirTemp(0.0),
+            : SteamCoilType(0), SteamCoilModel(0), InletAirMassFlowRate(0.0), OutletAirMassFlowRate(0.0), InletAirTemp(0.0),
               OutletAirTemp(0.0), InletAirHumRat(0.0), OutletAirHumRat(0.0), InletAirEnthalpy(0.0), OutletAirEnthalpy(0.0), TotSteamCoilLoad(0.0),
               SenSteamCoilLoad(0.0), TotSteamHeatingCoilEnergy(0.0), TotSteamCoolingCoilEnergy(0.0), SenSteamCoolingCoilEnergy(0.0),
               TotSteamHeatingCoilRate(0.0), LoopLoss(0.0), TotSteamCoolingCoilRate(0.0), SenSteamCoolingCoilRate(0.0), LeavingRelHum(0.0),
@@ -258,10 +257,10 @@ namespace SteamCoils {
                                    bool &ErrorFlag              // set to true if problem
     );
 
-    int GetSteamCoilAvailScheduleIndex(EnergyPlusData &state,
-                                       std::string const &CoilType, // must match coil types in this module
-                                       std::string const &CoilName, // must match coil names for the coil type
-                                       bool &ErrorsFound            // set to true if problem
+    Sched::Schedule *GetSteamCoilAvailSchedule(EnergyPlusData &state,
+                                               std::string const &CoilType, // must match coil types in this module
+                                               std::string const &CoilName, // must match coil names for the coil type
+                                               bool &ErrorsFound            // set to true if problem
     );
 
     // sets data to a coil that is used as a regeneration air heating coil in
@@ -288,6 +287,10 @@ struct SteamCoilsData : BaseGlobalStruct
     Array1D_bool MyPlantScanFlag;
     int ErrCount = 0;
     Array1D<SteamCoils::SteamCoilEquipConditions> SteamCoil;
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {
