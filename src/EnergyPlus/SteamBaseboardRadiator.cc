@@ -286,7 +286,7 @@ namespace SteamBaseboardRadiator {
         int constexpr iHeatCapacityPerFloorAreaNumericNum(
             1); // get input index to steam baseboard Radiator system electric heating capacity per floor area sizing
         int constexpr iHeatFracOfAutosizedCapacityNumericNum(
-            2); //  get input index to steam baseboard Radiator system electric heating capacity sizing as fraction of autozized heating capacity
+            2); //  get input index to steam baseboard Radiator system electric heating capacity sizing as fraction of autosized heating capacity
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         int BaseboardNum;          // Baseboard number
@@ -317,7 +317,7 @@ namespace SteamBaseboardRadiator {
         state.dataSteamBaseboardRadiator->SteamBaseboardDesignNumericFields.allocate(state.dataSteamBaseboardRadiator->NumSteamBaseboardsDesign);
         state.dataSteamBaseboardRadiator->SteamBaseboardDesignNames.allocate(state.dataSteamBaseboardRadiator->NumSteamBaseboardsDesign);
 
-        // Get the data from the user input related to baseboard heater designobjects
+        // Get the data from the user input related to baseboard heater design objects
         for (BaseboardDesignNum = 1; BaseboardDesignNum <= state.dataSteamBaseboardRadiator->NumSteamBaseboardsDesign; ++BaseboardDesignNum) {
 
             state.dataInputProcessing->inputProcessor->getObjectItem(state,
@@ -893,7 +893,7 @@ namespace SteamBaseboardRadiator {
         // This subroutine initializes the baseboard units.
 
         // METHODOLOGY EMPLOYED:
-        // The initialization subrotines both in high temperature radiant radiator
+        // The initialization subroutines both in high temperature radiant radiator
         // and convective only baseboard radiator are combined and modified.
         // The heater is assumed to be crossflow with both fluids unmixed.
 
@@ -1224,7 +1224,7 @@ namespace SteamBaseboardRadiator {
                                                          state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID,
                                                          "Design Size Maximum Steam Flow Rate [m3/s]",
                                                          SteamVolFlowRateMaxDes,
-                                                         "User-Speicified Maximum Steam Flow Rate [m3/s]",
+                                                         "User-Specified Maximum Steam Flow Rate [m3/s]",
                                                          SteamVolFlowRateMaxUser);
                             if (state.dataGlobal->DisplayExtraWarnings) {
                                 // Report difference between design size and user-specified values
@@ -1248,7 +1248,7 @@ namespace SteamBaseboardRadiator {
             }
         } else {
             if (IsAutoSize) {
-                // if there is no heating Sizing:Plant object and autosizng was requested, issue an error message
+                // if there is no heating Sizing:Plant object and autosizing was requested, issue an error message
                 // first error will be issued by MyPlantSizingIndex
                 ShowSevereError(state, "Autosizing of steam baseboard requires a heating loop Sizing:Plant object");
                 ShowContinueError(state,
@@ -1404,7 +1404,7 @@ namespace SteamBaseboardRadiator {
         // PURPOSE OF THIS SUBROUTINE:
 
         // METHODOLOGY EMPLOYED:
-        // The update subrotines both in high temperature radiant radiator
+        // The update subroutines both in high temperature radiant radiator
         // and convective only baseboard radiator are combined and modified.
 
         using PlantUtilities::SafeCopyPlantNode;
@@ -1488,7 +1488,7 @@ namespace SteamBaseboardRadiator {
         //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
-        // To distribute the gains from the steam basebaord heater
+        // To distribute the gains from the steam baseboard heater
         // as specified in the user input file.  This includes distribution
         // of long wavelength radiant gains to surfaces and "people."
 

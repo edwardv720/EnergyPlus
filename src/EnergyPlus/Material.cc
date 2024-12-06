@@ -84,9 +84,9 @@ constexpr std::array<Material::Gas, 10> gases = {
 
 constexpr std::array<std::string_view, (int)EcoRoofCalcMethod::Num> ecoRoofCalcMethodNamesUC = {"SIMPLE", "ADVANCED"};
 
-int GetMaterialNum(EnergyPlusData &state, std::string const &matName)
+int GetMaterialNum(EnergyPlusData const &state, std::string const &matName)
 {
-    auto &s_mat = state.dataMaterial;
+    auto const &s_mat = state.dataMaterial;
     auto found = s_mat->materialMap.find(Util::makeUPPER(matName));
     return (found != s_mat->materialMap.end()) ? found->second : 0;
 }
@@ -1215,7 +1215,7 @@ void GetMaterialData(EnergyPlusData &state, bool &ErrorsFound) // set to true if
         matGas->ROnly = true;
 
         for (NumGas = 0; NumGas < NumGases; ++NumGas) {
-            GasType gasType = matGas->gases[NumGas].type;
+            gasType = matGas->gases[NumGas].type;
             if (gasType != GasType::Custom) {
                 matGas->gasFracts[NumGas] = s_ipsc->rNumericArgs(3 + NumGas);
                 matGas->gases[NumGas] = gases[(int)gasType];
@@ -2495,14 +2495,14 @@ void GetMaterialData(EnergyPlusData &state, bool &ErrorsFound) // set to true if
                 continue;
             }
 
-            auto const &instances = itInstances.value();
-            auto itObj = instances.begin();
+            auto const &instances2 = itInstances.value();
+            auto itObj = instances2.begin();
             // Can't use find here because epJSON keys are not upper-cased
-            for (; itObj != instances.end(); ++itObj) {
+            for (; itObj != instances2.end(); ++itObj) {
                 if (Util::makeUPPER(itObj.key()) == s_ipsc->cAlphaArgs(3)) break;
             }
 
-            if (itObj == instances.end()) {
+            if (itObj == instances2.end()) {
                 ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(3), s_ipsc->cAlphaArgs(3));
                 ErrorsFound = true;
                 continue;
@@ -2522,15 +2522,15 @@ void GetMaterialData(EnergyPlusData &state, bool &ErrorsFound) // set to true if
                 continue;
             }
 
-            auto const &instances = itInstances.value();
+            auto const &instances3 = itInstances.value();
 
-            auto itObj = instances.begin();
+            auto itObj = instances3.begin();
             // Can't use find here because epJSON keys are not upper-cased
-            for (; itObj != instances.end(); ++itObj) {
+            for (; itObj != instances3.end(); ++itObj) {
                 if (Util::makeUPPER(itObj.key()) == s_ipsc->cAlphaArgs(4)) break;
             }
 
-            if (itObj == instances.end()) {
+            if (itObj == instances3.end()) {
                 ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(4), s_ipsc->cAlphaArgs(4));
                 ErrorsFound = true;
                 continue;
@@ -2667,7 +2667,7 @@ void GetMaterialData(EnergyPlusData &state, bool &ErrorsFound) // set to true if
         }
 
         if ((mat->LayerType == TARCOGParams::TARCOGLayerType::VENETBLIND_HORIZ) ||
-            (mat->LayerType == TARCOGParams::TARCOGLayerType::VENETBLIND_HORIZ)) {
+            (mat->LayerType == TARCOGParams::TARCOGLayerType::VENETBLIND_VERT)) {
             if (s_ipsc->rNumericArgs(11) <= 0.0) {
                 ErrorsFound = true;
                 ShowSevereCustom(
@@ -2705,7 +2705,7 @@ void GetMaterialData(EnergyPlusData &state, bool &ErrorsFound) // set to true if
                 ErrorsFound = true;
                 ShowSevereCustom(state,
                                         eoh,
-                                        format("{} must be =0 or greater than SlatWidth/2, entered value = {:.2R}",
+                                        format("{} must be = 0 or greater than SlatWidth/2, entered value = {:.2R}",
                                                s_ipsc->cNumericFieldNames(16),
                                                s_ipsc->rNumericArgs(16)));
             }

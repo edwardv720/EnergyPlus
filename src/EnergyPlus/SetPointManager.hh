@@ -460,7 +460,7 @@ namespace SetPointManager {
         void calculate(EnergyPlusData &state) override;
     };
 
-    int GetSetPointManagerIndex(EnergyPlusData &state, std::string const &Name);
+    int GetSetPointManagerIndex(EnergyPlusData const &state, std::string const &Name);
 
     void ManageSetPoints(EnergyPlusData &state);
 

@@ -6090,6 +6090,102 @@ TEST_F(EnergyPlusFixture, AirflowNetwork_CheckNumOfFansInAirLoopTest)
     EXPECT_TRUE(compare_err_stream(error_string, true));
 }
 
+TEST_F(EnergyPlusFixture, AirflowNetwork_ValidateDistCoils)
+{
+    std::string const idf_objects = delimited_string({
+
+        "  Coil:Cooling:DX:VariableSpeed,",
+        "    Super Coil,              !- Name",
+        "    Node_1,                  !- Indoor Air Inlet Node Name",
+        "    Node_2,                  !- Indoor Air Outlet Node Name",
+        "    1,                       !- Number of Speeds {dimensionless}",
+        "    1,                       !- Nominal Speed Level {dimensionless}",
+        "    autosize,                !- Gross Rated Total Cooling Capacity At Selected Nominal Speed Level {W}",
+        "    autosize,                !- Rated Air Flow Rate At Selected Nominal Speed Level {m3/s}",
+        "    ,                        !- Nominal Time for Condensate to Begin Leaving the Coil {s}",
+        "    ,                        !- Initial Moisture Evaporation Rate Divided by Steady-State AC Latent Capacity {dimensionless}",
+        "    ,                        !- Maximum Cycling Rate {cycles/hr}",
+        "    ,                        !- Latent Capacity Time Constant {s}",
+        "    ,                        !- Fan Delay Time {s}",
+        "    HPCOOLPLFFPLR,           !- Energy Part Load Fraction Curve Name",
+        "    ,                        !- Condenser Air Inlet Node Name",
+        "    AirCooled,               !- Condenser Type",
+        "    ,                        !- Evaporative Condenser Pump Rated Power Consumption {W}",
+        "    ,                        !- Crankcase Heater Capacity {W}",
+        "    ,                        !- Crankcase Heater Capacity Function of Temperature Curve Name",
+        "    10,                      !- Maximum Outdoor Dry-Bulb Temperature for Crankcase Heater Operation {C}",
+        "    -25,                     !- Minimum Outdoor Dry-Bulb Temperature for Compressor Operation {C}",
+        "    ,                        !- Supply Water Storage Tank Name",
+        "    ,                        !- Condensate Collection Water Storage Tank Name",
+        "    ,                        !- Basin Heater Capacity {W/K}",
+        "    2,                       !- Basin Heater Setpoint Temperature {C}",
+        "    ,                        !- Basin Heater Operating Schedule Name",
+        "    15000,                   !- Speed 1 Reference Unit Gross Rated Total Cooling Capacity {W}",
+        "    0.55,                    !- Speed 1 Reference Unit Gross Rated Sensible Heat Ratio {dimensionless}",
+        "    4.3,                     !- Speed 1 Reference Unit Gross Rated Cooling COP {W/W}",
+        "    0.05,                    !- Speed 1 Reference Unit Rated Air Flow Rate {m3/s}",
+        "    ,                        !- 2017 Speed 1 Rated Evaporator Fan Power Per Volume Flow Rate {W/(m3/s)}",
+        "    ,                        !- 2023 Speed 1 Rated Evaporator Fan Power Per Volume Flow Rate {W/(m3/s)}",
+        "    ,                        !- Speed 1 Reference Unit Rated Condenser Air Flow Rate {m3/s}",
+        "    ,                        !- Speed 1 Reference Unit Rated Pad Effectiveness of Evap Precooling {dimensionless}",
+        "    HPCoolingCAPFTemp,       !- Speed 1 Total Cooling Capacity Function of Temperature Curve Name",
+        "    HPCoolingCAPFFF,         !- Speed 1 Total Cooling Capacity Function of Air Flow Fraction Curve Name",
+        "    HPCoolingEIRFTemp,       !- Speed 1 Energy Input Ratio Function of Temperature Curve Name",
+        "    HPCoolingEIRFFF;         !- Speed 1 Energy Input Ratio Function of Air Flow Fraction Curve Name",
+        "",
+        "  Coil:Heating:DX:VariableSpeed,",
+        "    Super Heating Coil,      !- Name",
+        "    Node_1,                  !- Indoor Air Inlet Node Name",
+        "    Node_2,                  !- Indoor Air Outlet Node Name",
+        "    1,                       !- Number of Speeds {dimensionless}",
+        "    1,                       !- Nominal Speed Level {dimensionless}",
+        "    autosize,                !- Rated Heating Capacity At Selected Nominal Speed Level {W}",
+        "    autosize,                !- Rated Air Flow Rate At Selected Nominal Speed Level {m3/s}",
+        "    HPHEATPLFFPLR,           !- Energy Part Load Fraction Curve Name",
+        "    ,                        !- Defrost Energy Input Ratio Function of Temperature Curve Name",
+        "    -8,                      !- Minimum Outdoor Dry-Bulb Temperature for Compressor Operation {C}",
+        "    ,                        !- Outdoor Dry-Bulb Temperature to Turn On Compressor {C}",
+        "    5,                       !- Maximum Outdoor Dry-Bulb Temperature for Defrost Operation {C}",
+        "    ,                        !- Crankcase Heater Capacity {W}",
+        "    ,                        !- Crankcase Heater Capacity Function of Temperature Curve Name",
+        "    10,                      !- Maximum Outdoor Dry-Bulb Temperature for Crankcase Heater Operation {C}",
+        "    ReverseCycle,            !- Defrost Strategy",
+        "    Timed,                   !- Defrost Control",
+        "    0.058333,                !- Defrost Time Period Fraction",
+        "    ,                        !- Resistive Defrost Heater Capacity {W}",
+        "    17500,                   !- Speed 1 Reference Unit Gross Rated Heating Capacity {W}",
+        "    4.5,                     !- Speed 1 Reference Unit Gross Rated Heating COP {W/W}",
+        "    0.05,                    !- Speed 1 Reference Unit Rated Air Flow Rate {m3/s}",
+        "    773.3,                   !- 2017 Speed 1 Rated Supply Air Fan Power Per Volume Flow Rate {W/(m3/s)}",
+        "    934.4,                   !- 2023 Speed 1 Rated Supply Air Fan Power Per Volume Flow Rate {W/(m3/s)}",
+        "    HPHeatingCAPFTemp,       !- Speed 1 Heating Capacity Function of Temperature Curve Name",
+        "    HPHeatingCAPFFF,         !- Speed 1 Total  Heating Capacity Function of Air Flow Fraction Curve Name",
+        "    HPHeatingEIRFTemp,       !- Speed 1 Energy Input Ratio Function of Temperature Curve Name",
+        "    HPHeatingEIRFFF;         !- Speed 1 Energy Input Ratio Function of Air Flow Fraction Curve Name        ",
+    });
+
+    ASSERT_TRUE(process_idf(idf_objects));
+
+    state->dataAirSystemsData->PrimaryAirSystems.allocate(1);
+    state->dataAirSystemsData->PrimaryAirSystems(1).NumBranches = 1;
+    state->dataAirSystemsData->PrimaryAirSystems(1).Branch.allocate(1);
+    state->dataAirSystemsData->PrimaryAirSystems(1).Branch(1).TotalComponents = 2;
+    state->dataAirSystemsData->PrimaryAirSystems(1).Branch(1).Comp.allocate(2);
+    state->dataAirSystemsData->PrimaryAirSystems(1).Branch(1).Comp(1).TypeOf = "Coil:Cooling:DX:VariableSpeed";
+    state->dataAirSystemsData->PrimaryAirSystems(1).Branch(1).Comp(1).Name = "VariableSpeedCoolingCoil";
+    state->dataAirSystemsData->PrimaryAirSystems(1).Branch(1).Comp(2).TypeOf = "Coil:Heating:DX:VariableSpeed";
+    state->dataAirSystemsData->PrimaryAirSystems(1).Branch(1).Comp(2).Name = "VariableSpeedHeatingCoil";
+
+    state->afn->DisSysNumOfCoils = 2;
+    state->afn->DisSysCompCoilData.allocate(2);
+    state->afn->DisSysCompCoilData(1).EPlusType = "COIL:COOLING:DX:VARIABLESPEED";
+    state->afn->DisSysCompCoilData(1).name = "Super Coil";
+    state->afn->DisSysCompCoilData(2).EPlusType = "COIL:HEATING:DX:VARIABLESPEED";
+    state->afn->DisSysCompCoilData(2).name = "Super Heating Coil";
+
+    state->afn->validate_distribution();
+}
+
 // Missing an AirflowNetwork:Distribution:Node for the Zone Air Node
 TEST_F(EnergyPlusFixture, AirflowNetwork_CheckMultiZoneNodes_NoZoneNode)
 {
@@ -19672,7 +19768,8 @@ TEST_F(EnergyPlusFixture, AirflowNetwork_ZoneOrderTest)
 
         "  NodeList,",
         "    Zone Inlet Nodes_unit1,  !- Name",
-        "    Zone Inlet Node_unit1;   !- Node 1 Name",
+        "    Dehumidifier Outlet Node,",
+        "    Zone Inlet Node_unit1;",
 
         "  ZoneHVAC:EquipmentList,",
         "    ZoneEquipment_unit1,     !- Name",
@@ -19688,13 +19785,19 @@ TEST_F(EnergyPlusFixture, AirflowNetwork_ZoneOrderTest)
         "    2,                       !- Zone Equipment 2 Cooling Sequence",
         "    2,                       !- Zone Equipment 2 Heating or No-Load Sequence",
         "    ,                        !- Zone Equipment 2 Sequential Cooling Fraction Schedule Name",
-        "    ;                        !- Zone Equipment 2 Sequential Heating Fraction Schedule Name",
+        "    ,                        !- Zone Equipment 2 Sequential Heating Fraction Schedule Name",
+        "    ZoneHVAC:Dehumidifier:DX,         !- Zone Equipment 3 Object Type",
+        "    North Zone Dehumidifier  !- Zone Equipment 3 Name",
+        "    3,                       !- Zone Equipment 3 Cooling Sequence",
+        "    3,                       !- Zone Equipment 3 Heating or No-Load Sequence",
+        "    ,                        !- Zone Equipment 3 Sequential Cooling Fraction Schedule Name",
+        "    ;                        !- Zone Equipment 3 Sequential Heating Fraction Schedule Name",
 
         "  ZoneHVAC:EquipmentConnections,",
         "    living_unit1,            !- Zone Name",
         "    ZoneEquipment_unit1,     !- Zone Conditioning Equipment List Name",
         "    zone inlet nodes_unit1,  !- Zone Air Inlet Node or NodeList Name",
-        "    Zone Exhaust Node_unit1, !- Zone Air Exhaust Node or NodeList Name",
+        "    Zone Exhaust Node_unit1 Nodes, !- Zone Air Exhaust Node or NodeList Name",
         "    Zone Node_unit1,         !- Zone Air Node Name",
         "    Zone Outlet Node_unit1;  !- Zone Return Air Node or NodeList Name",
 
@@ -19757,6 +19860,60 @@ TEST_F(EnergyPlusFixture, AirflowNetwork_ZoneOrderTest)
         "    CommaAndHTML,            !- Column Separator",
         "    InchPound;               !- Unit Conversion",
 
+        "  NodeList,",
+        "  Zone Exhaust Node_unit1 Nodes,",
+        "  Zone3DehumidifierInlet,",
+        "  Zone Exhaust Node_unit1;",
+
+        "  ZoneHVAC:Dehumidifier:DX,",
+        "    North Zone Dehumidifier, !- Name",
+        "    always_avail,            !- Availability Schedule Name",
+        "    Zone3DehumidifierInlet,  !- Air Inlet Node Name",
+        "    Dehumidifier Outlet Node,!- Air Outlet Node Name",
+        "    50.16,                   !- Rated Water Removal {L/day}",
+        "    3.412,                   !- Rated Energy Factor {L/kWh}",
+        "    0.12036,                 !- Rated Air Flow Rate {m3/s}",
+        "    ZoneDehumidWaterRemoval, !- Water Removal Curve Name",
+        "    ZoneDehumidEnergyFactor, !- Energy Factor Curve Name",
+        "    ZoneDehumidPLFFPLR,      !- Part Load Fraction Correlation Curve Name",
+        "    10.0,                    !- Minimum Dry-Bulb Temperature for Dehumidifier Operation {C}",
+        "    32.0,                    !- Maximum Dry-Bulb Temperature for Dehumidifier Operation {C}",
+        "    0.0;                     !- Off-Cycle Parasitic Electric Load {W}",
+
+        "  Curve:Biquadratic,",
+        "    ZoneDehumidWaterRemoval, !- Name",
+        "    -2.724878664080,         !- Coefficient1 Constant",
+        "    0.100711983591,          !- Coefficient2 x",
+        "    -0.000990538285,         !- Coefficient3 x**2",
+        "    0.050053043874,          !- Coefficient4 y",
+        "    -0.000203629282,         !- Coefficient5 y**2",
+        "    -0.000341750531,         !- Coefficient6 x*y",
+        "    21.0,                    !- Minimum Value of x",
+        "    32.22,                   !- Maximum Value of x",
+        "    40.0,                    !- Minimum Value of y",
+        "    80.0;                    !- Maximum Value of y",
+
+        "  Curve:Biquadratic,",
+        "    ZoneDehumidEnergyFactor, !- Name",
+        "    -2.388319068955,         !- Coefficient1 Constant",
+        "    0.093047739452,          !- Coefficient2 x",
+        "    -0.001369700327,         !- Coefficient3 x**2",
+        "    0.066533716758,          !- Coefficient4 y",
+        "    -0.000343198063,         !- Coefficient5 y**2",
+        "    -0.000562490295,         !- Coefficient6 x*y",
+        "    21.0,                    !- Minimum Value of x",
+        "    32.22,                   !- Maximum Value of x",
+        "    40.0,                    !- Minimum Value of y",
+        "    80.0;                    !- Maximum Value of y",
+
+        "  Curve:Quadratic,",
+        "    ZoneDehumidPLFFPLR,      !- Name",
+        "    0.95,                    !- Coefficient1 Constant",
+        "    0.05,                    !- Coefficient2 x",
+        "    0.0,                     !- Coefficient3 x**2",
+        "    0.0,                     !- Minimum Value of x",
+        "    1.0;                     !- Maximum Value of x",
+
     });
 
     ASSERT_TRUE(process_idf(idf_objects));
@@ -19773,6 +19930,12 @@ TEST_F(EnergyPlusFixture, AirflowNetwork_ZoneOrderTest)
     state->afn->AirflowNetworkNodeData(2).EPlusNodeNum = 4;
     // Attic_Unit1
     state->afn->AirflowNetworkNodeData(3).EPlusNodeNum = 0;
+
+    // Check that the validation fails if the AFN exhaust fan is not well setup
+    int exhaustFanInletNodeIndex = state->afn->MultizoneCompExhaustFanData(1).InletNode;
+    state->afn->MultizoneCompExhaustFanData(1).InletNode = 6;
+    state->afn->ValidateExhaustFanInputOneTimeFlag = true;
+    EXPECT_THROW(state->afn->validate_exhaust_fan_input(), std::runtime_error);
 }
 
 TEST_F(EnergyPlusFixture, AirflowNetwork_TestZoneEqpSupportZoneWindowAC)

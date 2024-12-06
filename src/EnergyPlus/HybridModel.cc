@@ -144,8 +144,8 @@ namespace HybridModel {
                     Sched::Schedule *supplyAirCO2ConcentrationSched = Sched::GetSchedule(state, cAlphaArgs(16));
 
                     //  Note: Internal thermal mass can be calculated only with measured temperature.
-                    //                  Air infiltration rate can be calculated with either measured temperature, humifity ratio, or CO2
-                    //                  concentration. People count can be calculated with either measured temperature, humifity ratio, or CO2
+                    //                  Air infiltration rate can be calculated with either measured temperature, humidity ratio, or CO2
+                    //                  concentration. People count can be calculated with either measured temperature, humidity ratio, or CO2
                     //                  concentration.
 
                     // Initially set all flags to be false
@@ -189,7 +189,7 @@ namespace HybridModel {
                         }
                         if (temperatureSched == nullptr && humidityRatioSched == nullptr && CO2ConcentrationSched == nullptr) {
                             // Show fatal error if no measurement schedule is provided
-                            ShowSevereError(state, format("No measured envrionmental parameter is provided for: {}", CurrentModuleObject));
+                            ShowSevereError(state, format("No measured environmental parameter is provided for: {}", CurrentModuleObject));
                             ShowContinueError(state,
                                               format("One of the field \"{}\", \"{}\", or {}\" must be provided for the HybridModel:Zone.",
                                                      cAlphaFieldNames(6),
@@ -228,7 +228,7 @@ namespace HybridModel {
                     if (state.dataHybridModel->FlagHybridModel_PC) {
                         if (temperatureSched == nullptr && humidityRatioSched == nullptr && CO2ConcentrationSched == nullptr) {
                             // Show fatal error if no measurement schedule is provided
-                            ShowSevereError(state, format("No measured envrionmental parameter is provided for: {}", CurrentModuleObject));
+                            ShowSevereError(state, format("No measured environmental parameter is provided for: {}", CurrentModuleObject));
                             ShowContinueError(state,
                                               format("One of the field \"{}\", \"{}\", or {}\" must be provided for the HybridModel:Zone.",
                                                      cAlphaFieldNames(6),
@@ -242,12 +242,12 @@ namespace HybridModel {
                                 if (humidityRatioSched != nullptr) {
                                     ShowWarningError(
                                         state,
-                                        "The meausured air humidity ratio schedule will not be used since measured air temperature is provided.");
+                                        "The measured air humidity ratio schedule will not be used since measured air temperature is provided.");
                                 }
                                 if (CO2ConcentrationSched != nullptr) {
                                     ShowWarningError(
                                         state,
-                                        "The meausured air CO2 concentration schedule will not be used since measured air temperature is provided.");
+                                        "The measured air CO2 concentration schedule will not be used since measured air temperature is provided.");
                                 }
                             }
                             if (humidityRatioSched != nullptr && temperatureSched == nullptr) {
@@ -255,7 +255,7 @@ namespace HybridModel {
                                 hmZone.PeopleCountCalc_H = true;
                                 if (CO2ConcentrationSched != nullptr) {
                                     ShowWarningError(state,
-                                                     "The meausured air CO2 concentration schedule will not be used since measured air humidity "
+                                                     "The measured air CO2 concentration schedule will not be used since measured air humidity "
                                                      "ratio is provided.");
                                 }
                             }
@@ -272,7 +272,7 @@ namespace HybridModel {
                             hmZone.IncludeSystemSupplyParameters = true;
                         } else {
                             ShowWarningError(state,
-                                             format("Field \"{}\", {}, and \"{}\" will not be used in the inverse balance euqation.",
+                                             format("Field \"{}\", {}, and \"{}\" will not be used in the inverse balance equation.",
                                                     cAlphaFieldNames(13),
                                                     cAlphaFieldNames(14),
                                                     cAlphaFieldNames(15)));
@@ -284,7 +284,7 @@ namespace HybridModel {
                             hmZone.IncludeSystemSupplyParameters = true;
                         } else {
                             ShowWarningError(state,
-                                             format("Field \"{}\" and \"{}\" will not be used in the inverse balance euqation.",
+                                             format("Field \"{}\" and \"{}\" will not be used in the inverse balance equation.",
                                                     cAlphaFieldNames(15),
                                                     cAlphaFieldNames(14)));
                         }
@@ -295,7 +295,7 @@ namespace HybridModel {
                             hmZone.IncludeSystemSupplyParameters = true;
                         } else {
                             ShowWarningError(state,
-                                             format("Field \"{}\" and \"{}\" will not be used in the inverse balance euqation.",
+                                             format("Field \"{}\" and \"{}\" will not be used in the inverse balance equation.",
                                                     cAlphaFieldNames(16),
                                                     cAlphaFieldNames(14)));
                         }

@@ -1177,7 +1177,6 @@ void InitZoneContSetPoints(EnergyPlusData &state)
     Real64 Pi;     // Pressue at zone i
     Real64 Pj;     // Pressue at zone j
     Real64 Sch;    // Schedule value
-    bool ErrorsFound(false);
 
     if (state.dataContaminantBalance->Contaminant.CO2Simulation) {
         state.dataContaminantBalance->OutdoorCO2 = state.dataContaminantBalance->Contaminant.CO2OutdoorSched->getCurrentVal();
@@ -1378,6 +1377,7 @@ void InitZoneContSetPoints(EnergyPlusData &state)
     }
 
     if (allocated(state.dataZoneEquip->ZoneEquipConfig) && state.dataZoneContaminantPredictorCorrector->MyConfigOneTimeFlag) {
+        bool ErrorsFound = false;
         for (int ContZoneNum = 1; ContZoneNum <= (int)state.dataContaminantBalance->ContaminantControlledZone.size(); ++ContZoneNum) {
             int ZoneNum = state.dataContaminantBalance->ContaminantControlledZone(ContZoneNum).ActualZoneNum;
             for (int zoneInNode = 1; zoneInNode <= state.dataZoneEquip->ZoneEquipConfig(ZoneNum).NumInletNodes; ++zoneInNode) {
@@ -1487,13 +1487,14 @@ void InitZoneContSetPoints(EnergyPlusData &state)
 
         // From decay model
         for (auto &con : state.dataContaminantBalance->ZoneContamGenericDecay) {
-            int Sch = con.emitRateSched->getCurrentVal();
-            if (Sch == 0 || state.dataGlobal->BeginEnvrnFlag || state.dataGlobal->WarmupFlag) {
+            int schVal = con.emitRateSched->getCurrentVal();
+            if (schVal == 0 || state.dataGlobal->BeginEnvrnFlag || state.dataGlobal->WarmupFlag) {
                 con.Time = 0.0;
             } else {
                 con.Time += state.dataGlobal->TimeStepZoneSec;
             }
-            GCGain = con.InitEmitRate * Sch * std::exp(-con.Time / con.DelayTime);
+
+            GCGain = con.InitEmitRate * schVal * std::exp(-con.Time / con.DelayTime);
             con.GenRate = GCGain;
         }
 
@@ -1720,7 +1721,6 @@ void PredictZoneContaminants(EnergyPlusData &state,
                 // Calculate the coefficients for the 3rd Order derivative for final
                 // zone CO2.  The A, B, C coefficients are analogous to the CO2 balance.
                 // Assume that the system will have flow
-                auto &thisZoneHB = state.dataZoneTempPredictorCorrector->zoneHeatBalance(ZoneNum);
                 if (state.afn->multizone_always_simulated ||
                     (state.afn->simulation_control.type == AirflowNetwork::ControlType::MultizoneWithDistributionOnlyDuringFanOperation &&
                      state.afn->AirflowNetworkFanActivated)) {
@@ -1832,7 +1832,6 @@ void PredictZoneContaminants(EnergyPlusData &state,
                 // Calculate the coefficients for the 3rd Order derivative for final
                 // zone GC.  The A, B, C coefficients are analogous to the GC balance.
                 // Assume that the system will have flow
-                auto &thisZoneHB = state.dataZoneTempPredictorCorrector->zoneHeatBalance(ZoneNum);
                 if (state.afn->multizone_always_simulated ||
                     (state.afn->simulation_control.type == AirflowNetwork::ControlType::MultizoneWithDistributionOnlyDuringFanOperation &&
                      state.afn->AirflowNetworkFanActivated)) {
@@ -2001,12 +2000,12 @@ void RevertZoneTimestepHistories(EnergyPlusData &state)
 }
 
 void InverseModelCO2(EnergyPlusData &state,
-                     int const ZoneNum,           // Zone number
-                     Real64 &CO2Gain,             // Zone total CO2 gain
-                     Real64 &CO2GainExceptPeople, // ZOne total CO2 gain from sources except for people
-                     Real64 &ZoneMassFlowRate,    // Zone air mass flow rate
-                     Real64 &CO2MassFlowRate,     // Zone air CO2 mass flow rate
-                     Real64 &RhoAir               // Air density
+                     int const ZoneNum,                // Zone number
+                     Real64 const CO2Gain,             // Zone total CO2 gain
+                     Real64 const CO2GainExceptPeople, // ZOne total CO2 gain from sources except for people
+                     Real64 const ZoneMassFlowRate,    // Zone air mass flow rate
+                     Real64 const CO2MassFlowRate,     // Zone air CO2 mass flow rate
+                     Real64 const RhoAir               // Air density
 )
 {
     // SUBROUTINE INFORMATION:
@@ -2030,7 +2029,7 @@ void InverseModelCO2(EnergyPlusData &state,
         state.dataEnvrn->DayOfYear <= hmZone.HybridEndDayOfYear) {
         state.dataContaminantBalance->ZoneAirCO2(ZoneNum) = state.dataHeatBal->Zone(ZoneNum).ZoneMeasuredCO2Concentration;
 
-        auto &thisZoneHB = state.dataZoneTempPredictorCorrector->zoneHeatBalance(ZoneNum);
+        auto const &thisZoneHB = state.dataZoneTempPredictorCorrector->zoneHeatBalance(ZoneNum);
         if (hmZone.InfiltrationCalc_C && state.dataHVACGlobal->UseZoneTimeStepHistory) {
             static constexpr std::string_view RoutineNameInfiltration("CalcAirFlowSimple:Infiltration");
             // Conditionally calculate the CO2-dependent and CO2-independent terms.
@@ -2235,7 +2234,7 @@ void CorrectZoneContaminants(EnergyPlusData &state,
 
             // Calculate moisture flow rate into each zone
             for (int NodeNum = 1; NodeNum <= state.dataZoneEquip->ZoneEquipConfig(ZoneNum).NumInletNodes; ++NodeNum) {
-                auto &node = state.dataLoopNodes->Node(state.dataZoneEquip->ZoneEquipConfig(ZoneNum).InletNode(NodeNum));
+                auto const &node = state.dataLoopNodes->Node(state.dataZoneEquip->ZoneEquipConfig(ZoneNum).InletNode(NodeNum));
                 if (state.dataContaminantBalance->Contaminant.CO2Simulation) {
                     CO2MassFlowRate += (node.MassFlowRate * node.CO2) / ZoneMult;
                 }
@@ -2248,7 +2247,7 @@ void CorrectZoneContaminants(EnergyPlusData &state,
             // Do the calculations for the plenum zone
         } else if (ZoneRetPlenumAirFlag) {
             for (int NodeNum = 1; NodeNum <= state.dataZonePlenum->ZoneRetPlenCond(ZoneRetPlenumNum).NumInletNodes; ++NodeNum) {
-                auto &node = state.dataLoopNodes->Node(state.dataZonePlenum->ZoneRetPlenCond(ZoneRetPlenumNum).InletNode(NodeNum));
+                auto const &node = state.dataLoopNodes->Node(state.dataZonePlenum->ZoneRetPlenCond(ZoneRetPlenumNum).InletNode(NodeNum));
                 if (state.dataContaminantBalance->Contaminant.CO2Simulation) {
                     CO2MassFlowRate += (node.MassFlowRate * node.CO2) / ZoneMult;
                 }
@@ -2262,7 +2261,7 @@ void CorrectZoneContaminants(EnergyPlusData &state,
                 int ADUNum = state.dataZonePlenum->ZoneRetPlenCond(ZoneRetPlenumNum).ADUIndex(ADUListIndex);
                 if (state.dataDefineEquipment->AirDistUnit(ADUNum).UpStreamLeak) {
                     auto &airDistUnit = state.dataDefineEquipment->AirDistUnit(ADUNum);
-                    auto &node = state.dataLoopNodes->Node(airDistUnit.InletNodeNum);
+                    auto const &node = state.dataLoopNodes->Node(airDistUnit.InletNodeNum);
                     if (state.dataContaminantBalance->Contaminant.CO2Simulation) {
                         CO2MassFlowRate += (airDistUnit.MassFlowRateUpStrLk * node.CO2) / ZoneMult;
                     }
@@ -2273,7 +2272,7 @@ void CorrectZoneContaminants(EnergyPlusData &state,
                 }
                 if (state.dataDefineEquipment->AirDistUnit(ADUNum).DownStreamLeak) {
                     auto &airDistUnit = state.dataDefineEquipment->AirDistUnit(ADUNum);
-                    auto &node = state.dataLoopNodes->Node(airDistUnit.OutletNodeNum);
+                    auto const &node = state.dataLoopNodes->Node(airDistUnit.OutletNodeNum);
                     if (state.dataContaminantBalance->Contaminant.CO2Simulation) {
                         CO2MassFlowRate += (airDistUnit.MassFlowRateDnStrLk * node.CO2) / ZoneMult;
                     }
@@ -2285,7 +2284,7 @@ void CorrectZoneContaminants(EnergyPlusData &state,
             }
 
         } else if (ZoneSupPlenumAirFlag) {
-            auto &node = state.dataLoopNodes->Node(state.dataZonePlenum->ZoneSupPlenCond(ZoneSupPlenumNum).InletNode);
+            auto const &node = state.dataLoopNodes->Node(state.dataZonePlenum->ZoneSupPlenCond(ZoneSupPlenumNum).InletNode);
             if (state.dataContaminantBalance->Contaminant.CO2Simulation) {
                 CO2MassFlowRate += (node.MassFlowRate * node.CO2) / ZoneMult;
             }

@@ -10482,8 +10482,6 @@ namespace AirflowNetwork {
                         } else {
                             ShowSevereError(m_state, "SetDXCoilAirLoopNumber: Could not find Coil \"Name=\"" + DisSysCompCoilData(i).name + "\"");
                         }
-                        // SetDXCoilAirLoopNumber(DisSysCompCoilData(i).name,
-                        // DisSysCompCoilData(i).AirLoopNum);
                     }
                 } else if (SELECT_CASE_var == "COIL:COOLING:DX:SINGLESPEED") {
                     ValidateComponent(
@@ -10567,6 +10565,26 @@ namespace AirflowNetwork {
                 } else if (SELECT_CASE_var == "COIL:HEATING:DX:MULTISPEED") {
                     ValidateComponent(
                         m_state, "Coil:Heating:DX:MultiSpeed", DisSysCompCoilData(i).name, IsNotOK, format(RoutineName) + CurrentModuleObject);
+                    ++MultiSpeedHPIndicator;
+                    if (IsNotOK) {
+                        ErrorsFound = true;
+                    } else {
+                        SetDXCoilAirLoopNumber(m_state, DisSysCompCoilData(i).name, DisSysCompCoilData(i).AirLoopNum);
+                    }
+
+                } else if (SELECT_CASE_var == "COIL:COOLING:DX:VARIABLESPEED") {
+                    ValidateComponent(
+                        m_state, "Coil:Cooling:DX:VariableSpeed", DisSysCompCoilData(i).name, IsNotOK, format(RoutineName) + CurrentModuleObject);
+                    ++MultiSpeedHPIndicator;
+                    if (IsNotOK) {
+                        ErrorsFound = true;
+                    } else {
+                        SetDXCoilAirLoopNumber(m_state, DisSysCompCoilData(i).name, DisSysCompCoilData(i).AirLoopNum);
+                    }
+
+                } else if (SELECT_CASE_var == "COIL:HEATING:DX:VARIABLESPEED") {
+                    ValidateComponent(
+                        m_state, "Coil:Heating:DX:VariableSpeed", DisSysCompCoilData(i).name, IsNotOK, format(RoutineName) + CurrentModuleObject);
                     ++MultiSpeedHPIndicator;
                     if (IsNotOK) {
                         ErrorsFound = true;
@@ -11180,13 +11198,15 @@ namespace AirflowNetwork {
                                     found = true;
                                 }
                             }
-                            if (!found) {
-                                ShowSevereError(m_state, format("{}Fan:ZoneExhaust is not defined in {}", RoutineName, CurrentModuleObject));
-                                ShowContinueError(m_state,
-                                                  "Zone Air Exhaust Node in ZoneHVAC:EquipmentConnections =" +
-                                                      m_state.dataLoopNodes->NodeID(m_state.dataZoneEquip->ZoneEquipConfig(j).ExhaustNode(k)));
-                                ErrorsFound = true;
-                            }
+                        }
+                        if (!found) {
+                            ShowSevereError(m_state, format("{}Fan:ZoneExhaust is not defined in {}", RoutineName, CurrentModuleObject));
+                            ShowContinueError(
+                                m_state,
+                                format("The inlet node of the {} Fan:ZoneExhaust is not defined in the {}'s ZoneHVAC:EquipmentConnections",
+                                       m_state.dataZoneEquip->ZoneEquipList(j).EquipName,
+                                       m_state.dataZoneEquip->ZoneEquipConfig(j).ZoneName));
+                            ErrorsFound = true;
                         }
                     }
                 }

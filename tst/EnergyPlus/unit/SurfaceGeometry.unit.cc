@@ -12092,6 +12092,57 @@ TEST_F(EnergyPlusFixture, SurfaceGeometry_GetKivaFoundationTest2)
                           "   **   ~~~   ** will be overridden with the Autoselected depth (40.0 m)"});
     EXPECT_TRUE(compare_err_stream(error_string, true));
 }
+TEST_F(EnergyPlusFixture, SurfaceGeometry_GetKivaFoundationTest3)
+{
+    bool ErrorsFound(false);
+
+    std::string const idf_objects = delimited_string({
+        "Material,",
+        "  exterior vertical ins,                  !- Name",
+        "  Rough,                                  !- Roughness",
+        "  0.04611624,                             !- Thickness {m}",
+        "  0.029427,                               !- Conductivity {W/m-K}",
+        "  32.04,                                  !- Density {kg/m3}",
+        "  1214.23,                                !- Specific Heat {J/kg-K}",
+        "  0.9,                                    !- Thermal Absorptance",
+        "  0.7,                                    !- Solar Absorptance",
+        "  0.7;                                    !- Visible Absorptance",
+
+        "Foundation:Kiva,",
+        "  Foundation Kiva 1,                      !- Name",
+        "  20,                                     !- Initial Indoor Air Temperature {C}",
+        "  ,                                       !- Interior Horizontal Insulation Material Name",
+        "  ,                                       !- Interior Horizontal Insulation Depth {m}",
+        "  ,                                       !- Interior Horizontal Insulation Width {m}",
+        "  ,                                       !- Interior Vertical Insulation Material Name",
+        "  ,                                       !- Interior Vertical Insulation Depth {m}",
+        "  ,                                       !- Exterior Horizontal Insulation Material Name",
+        "  ,                                       !- Exterior Horizontal Insulation Depth {m}",
+        "  ,                                       !- Exterior Horizontal Insulation Width {m}",
+        "  ,                                       !- Exterior Vertical Insulation Material Name",
+        "  ,                                       !- Exterior Vertical Insulation Depth {m}",
+        "  0.3048,                                 !- Wall Height Above Grade {m}",
+        "  0.2032,                                 !- Wall Depth Below Slab {m}",
+        "  ,                                       !- Footing Wall Construction Name",
+        "  ,                                       !- Footing Material Name",
+        "  ,                                       !- Footing Depth {m}",
+        "  exterior vertical ins,                  !- Custom Block Material Name 1",
+        "  2.4384,                                 !- Custom Block Depth 1 {m}",
+        "  0.2159,                                 !- Custom Block X Position 1 {m}",
+        "  0;                                      !- Custom Block Z Position 1 {m}",
+    });
+
+    ASSERT_TRUE(process_idf(idf_objects));
+
+    state->dataEnvrn->Elevation = 600.;
+
+    Material::GetMaterialData(*state, ErrorsFound);
+    EXPECT_FALSE(ErrorsFound);
+
+    GetFoundationData(*state, ErrorsFound);
+    EXPECT_FALSE(ErrorsFound);
+    EXPECT_TRUE(compare_err_stream(""));
+}
 TEST_F(EnergyPlusFixture, SurfaceGeometry_ZoneAndSpaceAreas)
 {
 
@@ -12247,17 +12298,14 @@ TEST_F(EnergyPlusFixture, SurfaceGeometry_ZoneAndSpaceAreas)
     // Space 2 has a floor surface of area 2.0, user-entered floor area is blank
     EXPECT_EQ(state->dataHeatBal->space(1).Name, "SPACE 1A");
     EXPECT_NEAR(state->dataHeatBal->space(1).userEnteredFloorArea, Constant::AutoCalculate, 0.001);
-    EXPECT_NEAR(state->dataHeatBal->space(1).calcFloorArea, 1.0, 0.001);
     EXPECT_NEAR(state->dataHeatBal->space(1).FloorArea, 10.0, 0.001);
 
     EXPECT_EQ(state->dataHeatBal->space(2).Name, "SPACE 1B");
     EXPECT_NEAR(state->dataHeatBal->space(2).userEnteredFloorArea, Constant::AutoCalculate, 0.001);
-    EXPECT_NEAR(state->dataHeatBal->space(2).calcFloorArea, 2.0, 0.001);
     EXPECT_NEAR(state->dataHeatBal->space(2).FloorArea, 20.0, 0.001);
 
     EXPECT_EQ(state->dataHeatBal->Zone(1).Name, "ZONE 1");
     EXPECT_NEAR(state->dataHeatBal->Zone(1).UserEnteredFloorArea, 30.0, 0.001);
-    EXPECT_NEAR(state->dataHeatBal->Zone(1).CalcFloorArea, 3.0, 0.001);
     EXPECT_NEAR(state->dataHeatBal->Zone(1).FloorArea, 30.0, 0.001);
     Real64 zone1Area = state->dataHeatBal->space(1).FloorArea + state->dataHeatBal->space(2).FloorArea;
     EXPECT_NEAR(state->dataHeatBal->Zone(1).FloorArea, zone1Area, 0.001);
@@ -12266,22 +12314,18 @@ TEST_F(EnergyPlusFixture, SurfaceGeometry_ZoneAndSpaceAreas)
     // Space 3 has a floor surface of area 1.0, user-entered floor is 5.0
     EXPECT_EQ(state->dataHeatBal->Zone(3).Name, "ZONE 3");
     EXPECT_NEAR(state->dataHeatBal->Zone(3).UserEnteredFloorArea, Constant::AutoCalculate, 0.001);
-    EXPECT_NEAR(state->dataHeatBal->Zone(3).CalcFloorArea, 5.0, 0.001);
     EXPECT_NEAR(state->dataHeatBal->Zone(3).FloorArea, 5.0, 0.001);
     EXPECT_EQ(state->dataHeatBal->space(3).Name, "SPACE 3");
     EXPECT_NEAR(state->dataHeatBal->space(3).userEnteredFloorArea, 5.0, 0.001);
-    EXPECT_NEAR(state->dataHeatBal->space(3).calcFloorArea, 1.0, 0.001);
     EXPECT_NEAR(state->dataHeatBal->space(3).FloorArea, 5.0, 0.001);
 
     // Zone 2 consists of auto-generated Space 4, user-entered floor area is 20.0
     // Space 4 has a floor surface of area 1.0, user-entered floor is blank
     EXPECT_EQ(state->dataHeatBal->Zone(2).Name, "ZONE 2");
     EXPECT_NEAR(state->dataHeatBal->Zone(2).UserEnteredFloorArea, 20.0, 0.001);
-    EXPECT_NEAR(state->dataHeatBal->Zone(2).CalcFloorArea, 1.0, 0.001);
     EXPECT_NEAR(state->dataHeatBal->Zone(2).FloorArea, 20.0, 0.001);
     EXPECT_EQ(state->dataHeatBal->space(4).Name, "ZONE 2");
     EXPECT_NEAR(state->dataHeatBal->space(4).userEnteredFloorArea, Constant::AutoCalculate, 0.001);
-    EXPECT_NEAR(state->dataHeatBal->space(4).calcFloorArea, 1.0, 0.001);
     EXPECT_NEAR(state->dataHeatBal->space(4).FloorArea, 20.0, 0.001);
 }
 
@@ -12445,7 +12489,6 @@ TEST_F(EnergyPlusFixture, ZoneFloorAreaTest)
     EXPECT_FALSE(ErrorsFound);           // expect no errors
 
     EXPECT_NEAR(state->dataHeatBal->Zone(1).FloorArea, 1.0, 0.001);
-    EXPECT_NEAR(state->dataHeatBal->Zone(1).CalcFloorArea, 1.0, 0.001);
 }
 
 TEST_F(EnergyPlusFixture, SurfaceGeometry_GetSurfaceGroundSurfsTest)
@@ -13228,7 +13271,6 @@ TEST_F(EnergyPlusFixture, CalculateZoneVolume_WithAirBoundaries)
     auto const &zone3 = state->dataHeatBal->Zone(3);
 
     EXPECT_EQ(zone1.UserEnteredFloorArea, -99999.0);
-    EXPECT_EQ(zone1.CalcFloorArea, 0.0);
     EXPECT_EQ(zone1.FloorArea, 0.0);
     EXPECT_EQ(zone1.geometricFloorArea, 1.0);
     EXPECT_FALSE(zone1.HasFloor);
@@ -13239,7 +13281,6 @@ TEST_F(EnergyPlusFixture, CalculateZoneVolume_WithAirBoundaries)
     EXPECT_EQ(zone1.Volume, 2.0);
 
     EXPECT_EQ(zone2.UserEnteredFloorArea, -99999.0);
-    EXPECT_EQ(zone2.CalcFloorArea, 1.0);
     EXPECT_EQ(zone2.FloorArea, 1.0);
     EXPECT_EQ(zone2.geometricFloorArea, 1.0);
     EXPECT_TRUE(zone2.HasFloor);
@@ -13250,7 +13291,6 @@ TEST_F(EnergyPlusFixture, CalculateZoneVolume_WithAirBoundaries)
     EXPECT_EQ(zone2.Volume, 2.0);
 
     EXPECT_EQ(zone3.UserEnteredFloorArea, -99999.0);
-    EXPECT_EQ(zone3.CalcFloorArea, 4.0);
     EXPECT_EQ(zone3.FloorArea, 4.0);
     EXPECT_EQ(zone3.geometricFloorArea, 4.0);
     EXPECT_TRUE(zone3.HasFloor);
@@ -13456,7 +13496,6 @@ TEST_F(EnergyPlusFixture, CalculatZoneVolume_WithoutAirBoundaries)
     auto const &zone3 = state->dataHeatBal->Zone(3);
 
     EXPECT_EQ(zone1.UserEnteredFloorArea, -99999.0);
-    EXPECT_EQ(zone1.CalcFloorArea, 1.0);
     EXPECT_EQ(zone1.FloorArea, 1.0);
     EXPECT_EQ(zone1.geometricFloorArea, 1.0);
     EXPECT_TRUE(zone1.HasFloor);
@@ -13467,7 +13506,6 @@ TEST_F(EnergyPlusFixture, CalculatZoneVolume_WithoutAirBoundaries)
     EXPECT_EQ(zone1.Volume, 2.0);
 
     EXPECT_EQ(zone2.UserEnteredFloorArea, -99999.0);
-    EXPECT_EQ(zone2.CalcFloorArea, 1.0);
     EXPECT_EQ(zone2.FloorArea, 1.0);
     EXPECT_EQ(zone2.geometricFloorArea, 1.0);
     EXPECT_TRUE(zone2.HasFloor);
@@ -13478,7 +13516,6 @@ TEST_F(EnergyPlusFixture, CalculatZoneVolume_WithoutAirBoundaries)
     EXPECT_EQ(zone2.Volume, 2.0);
 
     EXPECT_EQ(zone3.UserEnteredFloorArea, -99999.0);
-    EXPECT_EQ(zone3.CalcFloorArea, 4.0);
     EXPECT_EQ(zone3.FloorArea, 4.0);
     EXPECT_EQ(zone3.geometricFloorArea, 4.0);
     EXPECT_TRUE(zone3.HasFloor);

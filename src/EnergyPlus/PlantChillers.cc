@@ -1454,7 +1454,13 @@ namespace PlantChillers {
             PlantUtilities::SetComponentFlowRate(state, this->CondMassFlowRate, this->CondInletNodeNum, this->CondOutletNodeNum, this->CDPlantLoc);
             PlantUtilities::PullCompInterconnectTrigger(
                 state, this->CWPlantLoc, this->CondMassFlowIndex, this->CDPlantLoc, DataPlant::CriteriaType::MassFlowRate, this->CondMassFlowRate);
-            if (this->CondMassFlowRate < DataBranchAirLoopPlant::MassFlowTolerance) return;
+            if (this->CondMassFlowRate < DataBranchAirLoopPlant::MassFlowTolerance) {
+                MyLoad = 0.0;
+                this->EvapMassFlowRate = 0.0;
+                PlantUtilities::SetComponentFlowRate(
+                    state, this->EvapMassFlowRate, this->EvapInletNodeNum, this->EvapOutletNodeNum, this->CWPlantLoc);
+                return;
+            }
         }
 
         //  LOAD LOCAL VARIABLES FROM DATA STRUCTURE (for code readability)
@@ -3482,7 +3488,7 @@ namespace PlantChillers {
         //   calculate end time of current time step
         Real64 CurrentEndTime = state.dataGlobal->CurrentTime + state.dataHVACGlobal->SysTimeElapsed;
 
-        //   Print warning messages only when valid and only for the first ocurrance. Let summary provide statistics.
+        //   Print warning messages only when valid and only for the first occurrence. Let summary provide statistics.
         //   Wait for next time step to print warnings. If simulation iterates, print out
         //   the warning for the last iteration only. Must wait for next time step to accomplish this.
         //   If a warning occurs and the simulation down shifts, the warning is not valid.
@@ -3577,7 +3583,13 @@ namespace PlantChillers {
             PlantUtilities::SetComponentFlowRate(state, this->CondMassFlowRate, this->CondInletNodeNum, this->CondOutletNodeNum, this->CDPlantLoc);
             PlantUtilities::PullCompInterconnectTrigger(
                 state, this->CWPlantLoc, this->CondMassFlowIndex, this->CDPlantLoc, DataPlant::CriteriaType::MassFlowRate, this->CondMassFlowRate);
-            if (this->CondMassFlowRate < DataBranchAirLoopPlant::MassFlowTolerance) return;
+            if (this->CondMassFlowRate < DataBranchAirLoopPlant::MassFlowTolerance) {
+                MyLoad = 0.0;
+                this->EvapMassFlowRate = 0.0;
+                PlantUtilities::SetComponentFlowRate(
+                    state, this->EvapMassFlowRate, this->EvapInletNodeNum, this->EvapOutletNodeNum, this->CWPlantLoc);
+                return;
+            }
         }
 
         //  LOAD LOCAL VARIABLES FROM DATA STRUCTURE (for code readability)
@@ -3663,7 +3675,7 @@ namespace PlantChillers {
             }
             this->Power = FracFullLoadPower * FullLoadPowerRat * AvailChillerCap / COPLocal * FRAC;
 
-            // Either set the flow to the Constant value or caluclate the flow for the variable volume
+            // Either set the flow to the Constant value or calculate the flow for the variable volume
             if ((this->FlowMode == DataPlant::FlowMode::Constant) || (this->FlowMode == DataPlant::FlowMode::NotModulated)) {
                 // Start by assuming max (design) flow
                 this->EvapMassFlowRate = this->EvapMassFlowRateMax;
@@ -5587,7 +5599,13 @@ namespace PlantChillers {
             PlantUtilities::PullCompInterconnectTrigger(
                 state, this->CWPlantLoc, this->CondMassFlowIndex, this->CDPlantLoc, DataPlant::CriteriaType::MassFlowRate, this->CondMassFlowRate);
 
-            if (this->CondMassFlowRate < DataBranchAirLoopPlant::MassFlowTolerance) return;
+            if (this->CondMassFlowRate < DataBranchAirLoopPlant::MassFlowTolerance) {
+                MyLoad = 0.0;
+                this->EvapMassFlowRate = 0.0;
+                PlantUtilities::SetComponentFlowRate(
+                    state, this->EvapMassFlowRate, this->EvapInletNodeNum, this->EvapOutletNodeNum, this->CWPlantLoc);
+                return;
+            }
         }
 
         //  LOAD LOCAL VARIABLES FROM DATA STRUCTURE (for code readability)
@@ -5665,7 +5683,7 @@ namespace PlantChillers {
             }
             this->Power = FracFullLoadPower * FullLoadPowerRat * AvailChillerCap / COP * FRAC;
 
-            // Either set the flow to the Constant value or caluclate the flow for the variable volume
+            // Either set the flow to the Constant value or calculate the flow for the variable volume
             if ((this->FlowMode == DataPlant::FlowMode::Constant) || (this->FlowMode == DataPlant::FlowMode::NotModulated)) {
                 // Start by assuming max (design) flow
                 this->EvapMassFlowRate = this->EvapMassFlowRateMax;
@@ -7227,7 +7245,7 @@ namespace PlantChillers {
         //   calculate end time of current time step
         Real64 const CurrentEndTime = state.dataGlobal->CurrentTime + state.dataHVACGlobal->SysTimeElapsed;
 
-        //   Print warning messages only when valid and only for the first ocurrance. Let summary provide statistics.
+        //   Print warning messages only when valid and only for the first occurrence. Let summary provide statistics.
         //   Wait for next time step to print warnings. If simulation iterates, print out
         //   the warning for the last iteration only. Must wait for next time step to accomplish this.
         //   If a warning occurs and the simulation down shifts, the warning is not valid.
@@ -7292,7 +7310,13 @@ namespace PlantChillers {
             PlantUtilities::PullCompInterconnectTrigger(
                 state, this->CWPlantLoc, this->CondMassFlowIndex, this->CDPlantLoc, DataPlant::CriteriaType::MassFlowRate, this->CondMassFlowRate);
 
-            if (this->CondMassFlowRate < DataBranchAirLoopPlant::MassFlowTolerance) return;
+            if (this->CondMassFlowRate < DataBranchAirLoopPlant::MassFlowTolerance) {
+                MyLoad = 0.0;
+                this->EvapMassFlowRate = 0.0;
+                PlantUtilities::SetComponentFlowRate(
+                    state, this->EvapMassFlowRate, this->EvapInletNodeNum, this->EvapOutletNodeNum, this->CWPlantLoc);
+                return;
+            }
         }
 
         // If FlowLock is True, the new resolved mdot is used to update Power, QEvap, Qcond, and
@@ -7309,7 +7333,7 @@ namespace PlantChillers {
             this->PossibleSubcooling = false;
             this->QEvaporator = std::abs(MyLoad);
 
-            // Either set the flow to the Constant value or caluclate the flow for the variable volume
+            // Either set the flow to the Constant value or calculate the flow for the variable volume
             if ((this->FlowMode == DataPlant::FlowMode::Constant) || (this->FlowMode == DataPlant::FlowMode::NotModulated)) {
 
                 // Start by assuming max (design) flow
@@ -7398,7 +7422,7 @@ namespace PlantChillers {
                 return;
             }
 
-            // Recalculate the Delts Temp
+            // Recalculate the Delta Temp
             if (this->PossibleSubcooling) {
                 this->QEvaporator = std::abs(MyLoad);
                 EvapDeltaTemp = this->QEvaporator / this->EvapMassFlowRate / Cp;

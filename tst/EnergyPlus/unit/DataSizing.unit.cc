@@ -288,7 +288,8 @@ TEST_F(EnergyPlusFixture, OARequirements_calcDesignSpecificationOutdoorAir)
             },
             "Space 1d" : {
                  "zone_name": "Zone 1",
-                 "floor_area": 100.0
+                 "floor_area": 100.0,
+                 "volume": 300.0
             }
         },
         "DesignSpecification:OutdoorAir": {
@@ -350,7 +351,7 @@ TEST_F(EnergyPlusFixture, OARequirements_calcDesignSpecificationOutdoorAir)
     HeatBalanceManager::GetZoneData(*state, ErrorsFound);
 
     std::string const error_string = delimited_string({
-        "   ** Warning ** Version: missing in IDF, processing for EnergyPlus version=\"24.2\"",
+        format("   ** Warning ** Version: missing in IDF, processing for EnergyPlus version=\"{}\"", DataStringGlobals::MatchVersion),
         "   ** Warning ** No Timestep object found.  Number of TimeSteps in Hour defaulted to 4."});
                     
     EXPECT_TRUE(compare_err_stream(error_string, true));
@@ -399,6 +400,7 @@ TEST_F(EnergyPlusFixture, OARequirements_calcDesignSpecificationOutdoorAir)
     thisSpaceName = "SPACE 1D";
     spaceNum = Util::FindItemInList(thisSpaceName, state->dataHeatBal->space);
     state->dataHeatBal->space(spaceNum).FloorArea = 100.0;
+    state->dataHeatBal->space(spaceNum).Volume = 300.0;
 
     std::string thisZoneName = "ZONE 2";
     zoneNum = Util::FindItemInList(thisZoneName, state->dataHeatBal->Zone);

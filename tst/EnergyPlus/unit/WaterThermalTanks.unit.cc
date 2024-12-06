@@ -2401,7 +2401,7 @@ TEST_F(EnergyPlusFixture, DesuperheaterTimeAdvanceCheck)
     WaterThermalTanks::WaterThermalTankData &Tank = state->dataWaterThermalTanks->WaterThermalTank(TankNum);
     WaterThermalTanks::WaterHeaterDesuperheaterData &Desuperheater = state->dataWaterThermalTanks->WaterHeaterDesuperheater(Tank.DesuperheaterNum);
 
-    // Inititate tank conditions
+    // Initialize tank conditions
     state->dataGlobal->HourOfDay = 0;
     state->dataGlobal->TimeStep = 1;
     state->dataGlobal->TimeStepZone = 1;
@@ -2766,7 +2766,7 @@ TEST_F(EnergyPlusFixture, StratifiedTank_GSHP_DesuperheaterSourceHeat)
     EXPECT_EQ(Desuperheater.DXSysPLR, 0.8);
     // The heater rate is correctly calculated
     EXPECT_EQ(Desuperheater.HeaterRate, 1000 * 0.25 / Desuperheater.DXSysPLR * Desuperheater.DesuperheaterPLR);
-    // The source rate calculated in stratified tank calculation function is near the heater rate calcualted in desuperheater function
+    // The source rate calculated in stratified tank calculation function is near the heater rate calculated in desuperheater function
     EXPECT_NEAR(Tank.SourceRate, Desuperheater.HeaterRate, Tank.SourceRate * 0.05);
 }
 
@@ -3090,7 +3090,7 @@ TEST_F(EnergyPlusFixture, Desuperheater_Multispeed_Coil_Test)
     // Calculate multispeed DX cooling coils
     DXCoils::CalcMultiSpeedDXCoilCooling(*state, DXNum, 1, 1, 2, HVAC::FanOp::Cycling, HVAC::CompressorOp::On, 1);
 
-    // Source availably heat successfully passed to DataHeatBalance::HeatReclaimDXCoil data struct
+    // Source available heat successfully passed to DataHeatBalance::HeatReclaimDXCoil data struct
     EXPECT_EQ(state->dataHeatBal->HeatReclaimDXCoil(DXNum).AvailCapacity,
               state->dataDXCoils->DXCoil(DXNum).TotalCoolingEnergyRate + state->dataDXCoils->DXCoil(DXNum).ElecCoolingPower);
 
@@ -3098,7 +3098,7 @@ TEST_F(EnergyPlusFixture, Desuperheater_Multispeed_Coil_Test)
     WaterThermalTanks::WaterThermalTankData &Tank = state->dataWaterThermalTanks->WaterThermalTank(TankNum);
     WaterThermalTanks::WaterHeaterDesuperheaterData &Desuperheater = state->dataWaterThermalTanks->WaterHeaterDesuperheater(Tank.DesuperheaterNum);
 
-    // Inititate tank conditions
+    // Initialize tank conditions
     state->dataGlobal->HourOfDay = 0;
     state->dataGlobal->TimeStep = 1;
     state->dataGlobal->TimeStepZone = 1;

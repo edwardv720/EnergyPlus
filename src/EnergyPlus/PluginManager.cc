@@ -58,6 +58,19 @@
 #include <nlohmann/json.hpp>
 
 #if LINK_WITH_PYTHON
+
+#ifdef _DEBUG
+// We don't want to try to import a debug build of Python here
+// so if we are building a Debug build of the C++ code, we need
+// to undefine _DEBUG during the #include command for Python.h.
+// Otherwise it will fail
+#undef _DEBUG
+#include <Python.h>
+#define _DEBUG
+#else
+#include <Python.h>
+#endif
+
 #include <fmt/format.h>
 template <> struct fmt::formatter<PyStatus>
 {
@@ -448,6 +461,22 @@ void initPython(EnergyPlusData &state, fs::path const &pathToPythonPackages)
     // Py_Initialize();
     Py_InitializeFromConfig(&config);
 }
+
+// GilGrabber is an RAII helper that will ensure we release the GIL (including if we end up throwing)
+struct GilGrabber
+{
+    GilGrabber()
+    {
+        gil = PyGILState_Ensure();
+    }
+    ~GilGrabber()
+    {
+        PyGILState_Release(gil);
+    }
+
+    PyGILState_STATE gil;
+};
+
 #endif // LINK_WITH_PYTHON
 
 PluginManager::PluginManager(EnergyPlusData &state) : eplusRunningViaPythonAPI(state.dataPluginManager->eplusRunningViaPythonAPI)
@@ -467,18 +496,18 @@ PluginManager::PluginManager(EnergyPlusData &state) : eplusRunningViaPythonAPI(s
     } else {
         programDir = FileSystem::getParentDirectoryPath(FileSystem::getAbsolutePath(FileSystem::getProgramPath()));
     }
-    fs::path const pathToPythonPackages = programDir / "python_standard_lib";
+    fs::path const pathToPythonPackages = programDir / "python_lib";
 
     initPython(state, pathToPythonPackages);
 
-    // Take control of the global interpreter lock while we are here, make sure to release it...
-    PyGILState_STATE gil = PyGILState_Ensure();
+    // Take control of the global interpreter lock, which will be released via RAII
+    GilGrabber gil_grabber;
 
     // call this once to allow us to add to, and report, sys.path later as needed
     PyRun_SimpleString("import sys"); // allows us to report sys.path later
 
     // we also need to set an extra import path to find some dynamic library loading stuff, again make it relative to the binary
-    addToPythonPath(state, programDir / "python_standard_lib/lib-dynload", false);
+    addToPythonPath(state, programDir / "python_lib/lib-dynload", false);
 
     // now for additional paths:
     // we'll always want to add the program executable directory to PATH so that Python can find the installed pyenergyplus package
@@ -666,8 +695,8 @@ PluginManager::PluginManager(EnergyPlusData &state) : eplusRunningViaPythonAPI(s
         }
     }
 
-    // Release the global interpreter lock
-    PyGILState_Release(gil);
+    // Release the global interpreter lock is done via RAII
+
     // setting up output variables deferred until later in the simulation setup process
 #else
     // need to alert only if a plugin instance is found
@@ -1090,8 +1119,8 @@ bool PluginInstance::run(EnergyPlusData &state, EMSManager::EMSCallFrom iCalledF
         return false;
     }
 
-    // Get control of the global interpreter lock
-    PyGILState_STATE gil = PyGILState_Ensure();
+    // Take control of the global interpreter lock, which will be released via RAII
+    GilGrabber gil_grabber;
 
     // then call the main function
     // static const PyObject oneArgObjFormat = Py_BuildValue)("O");
@@ -1106,7 +1135,6 @@ bool PluginInstance::run(EnergyPlusData &state, EMSManager::EMSCallFrom iCalledF
         } else {
             ShowContinueError(state, "This could happen for any number of reasons, check the plugin code.");
         }
-        PyGILState_Release(gil);
         ShowFatalError(state, format("Program terminates after call to {}() on {} failed!", functionNameAsString, this->stringIdentifier));
     }
     if (PyLong_Check(pFunctionResponse)) { // NOLINT(hicpp-signed-bitwise)
@@ -1114,12 +1142,10 @@ bool PluginInstance::run(EnergyPlusData &state, EMSManager::EMSCallFrom iCalledF
         if (exitCode == 0) {
             // success
         } else if (exitCode == 1) {
-            PyGILState_Release(gil);
             ShowFatalError(state, format("Python Plugin \"{}\" returned 1 to indicate EnergyPlus should abort", this->stringIdentifier));
         }
     } else {
         std::string const functionNameAsString(functionName); // only convert to string if an error occurs
-        PyGILState_Release(gil);
         ShowFatalError(
             state,
             format("Invalid return from {}() on class \"{}, make sure it returns an integer exit code, either zero (success) or one (failure)",
@@ -1128,10 +1154,8 @@ bool PluginInstance::run(EnergyPlusData &state, EMSManager::EMSCallFrom iCalledF
     }
     Py_DECREF(pFunctionResponse); // PyObject_CallFunction returns new reference, decrement
     if (state.dataPluginManager->apiErrorFlag) {
-        PyGILState_Release(gil);
         ShowFatalError(state, "API problems encountered while running plugin cause program termination.");
     }
-    PyGILState_Release(gil);
     return true;
 }
 #else

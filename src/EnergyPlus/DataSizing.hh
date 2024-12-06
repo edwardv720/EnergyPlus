@@ -1129,13 +1129,9 @@ namespace DataSizing {
         int CO2GainErrorIndex = 0; // Index for recurring error message when CO2 generation from people is zero for SOAM_ProportionalControlSchOcc
         bool myEnvrnFlag = true;
 
-        Real64 desFlowPerZoneArea(EnergyPlusData &state,
-                                  int const actualZoneNum // Zone index
-        );
+        Real64 desFlowPerZoneArea(EnergyPlusData &state, int const zoneNum, int const spaceNum = 0);
 
-        Real64 desFlowPerZonePerson(EnergyPlusData &state,
-                                    int const actualZoneNum // Zone index
-        );
+        Real64 desFlowPerZonePerson(EnergyPlusData &state, int const actualZoneNum, int const spaceNum = 0);
 
         Real64 calcOAFlowRate(EnergyPlusData &state,
                               int ActualZoneNum,           // Zone index
@@ -1187,9 +1183,9 @@ namespace DataSizing {
                                              int const ActualZoneNum,    // Zone index
                                              bool const UseOccSchFlag,   // Zone occupancy schedule will be used instead of using total zone occupancy
                                              bool const UseMinOASchFlag, // Use min OA schedule in DesignSpecification:OutdoorAir object
-                                             bool const PerPersonNotSet = false, // when calculation should not include occupants (e.g., dual duct)
-                                             bool const MaxOAVolFlowFlag = false // TRUE when calculation uses occupancy schedule  (e.g., dual duct)
-    );
+                                             bool const PerPersonNotSet = false,  // when calculation should not include occupants (e.g., dual duct)
+                                             bool const MaxOAVolFlowFlag = false, // TRUE when calculation uses occupancy schedule  (e.g., dual duct)
+                                             int const spaceNum = 0);
 
 } // namespace DataSizing
 

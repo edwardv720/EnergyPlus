@@ -120,9 +120,6 @@ enum class PipeIndoorBoundaryType
 };
 constexpr std::array<std::string_view, static_cast<int>(PipeIndoorBoundaryType::Num)> pipeIndoorBoundaryTypeNamesUC = {"ZONE", "SCHEDULE"};
 
-// Using/Aliasing
-using namespace GroundTemperatureManager;
-
 // Functions
 
 PlantComponent *PipeHTData::factory(EnergyPlusData &state, DataPlant::PlantEquipmentType objectType, std::string const &objectName)
@@ -133,11 +130,10 @@ PlantComponent *PipeHTData::factory(EnergyPlusData &state, DataPlant::PlantEquip
         state.dataPipeHT->GetPipeInputFlag = false;
     }
     // Now look for this particular pipe in the list
-    for (auto &pipe : state.dataPipeHT->PipeHT) {
-        if (pipe.Type == objectType && pipe.Name == objectName) {
-            return &pipe;
-        }
-    }
+    auto thisObj = std::find_if(state.dataPipeHT->PipeHT.begin(),
+                                state.dataPipeHT->PipeHT.end(),
+                                [&objectType, &objectName](const PipeHTData &myObj) { return myObj.Type == objectType && myObj.Name == objectName; });
+    if (thisObj != state.dataPipeHT->PipeHT.end()) return thisObj;
     // If we didn't find it, fatal
     ShowFatalError(state, format("PipeHTFactory: Error getting inputs for pipe named: {}", objectName));
     // Shut up the compiler
@@ -661,7 +657,13 @@ void GetPipesHeatTransfer(EnergyPlusData &state)
         }
 
         // Get ground temperature model
-        state.dataPipeHT->PipeHT(Item).groundTempModel = GetGroundTempModelAndInit(state, s_ipsc->cAlphaArgs(7), s_ipsc->cAlphaArgs(8));
+        GroundTemp::ModelType gtmType = static_cast<GroundTemp::ModelType>(getEnumValue(GroundTemp::modelTypeNamesUC, s_ipsc->cAlphaArgs(7)));
+        if (gtmType == GroundTemp::ModelType::Invalid) {
+            ShowSevereInvalidKey(state, eoh, s_ipsc->cAlphaFieldNames(7), s_ipsc->cAlphaArgs(7));
+            ErrorsFound = true;
+        }
+        
+        state.dataPipeHT->PipeHT(Item).groundTempModel = GroundTemp::GetGroundTempModelAndInit(state, gtmType, s_ipsc->cAlphaArgs(8));
 
         // Select number of pipe sections.  Hanby's optimal number of 20 section is selected.
         state.dataPipeHT->PipeHT(Item).NumSections = NumPipeSections;
@@ -832,7 +834,7 @@ void PipeHTData::ValidatePipeConstruction(EnergyPlusData &state,
     Real64 Resistance = 0.0;
     Real64 TotThickness = 0.0;
 
-    auto &s_mat = state.dataMaterial;
+    auto const &s_mat = state.dataMaterial;
 
     // CTF stuff
     int TotalLayers = state.dataConstruction->Construct(ConstructionNum).TotLayers;

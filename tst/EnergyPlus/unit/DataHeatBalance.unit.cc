@@ -866,7 +866,7 @@ TEST_F(EnergyPlusFixture, DataHeatBalance_CheckConstructLayers)
     state->dataConstruction->Construct(4).LayerPoint(3) = 6; // window blind
     state->dataConstruction->Construct(4).LayerPoint(4) = 5; // air gap
     state->dataConstruction->Construct(4).LayerPoint(5) = 4; // glass
-    // updated contruction and material layers data
+    // updated construction and material layers data
     EXPECT_EQ(state->dataConstruction->Construct(4).TotLayers, 5);      // outer glass, air gap, blind, air gap, inner glass
     EXPECT_EQ(state->dataConstruction->Construct(4).TotGlassLayers, 2); // outer glass, inner glass
     EXPECT_EQ(state->dataConstruction->Construct(4).TotSolidLayers, 3); // glass, blind, glass
@@ -1045,7 +1045,7 @@ TEST_F(EnergyPlusFixture, DataHeatBalance_setThicknessPerpendicularTest)
     thisConstruct.Name = "TestThisConstruction";
 
     std::string const error_string0 =
-        delimited_string({"   ** Warning ** Version: missing in IDF, processing for EnergyPlus version=\"24.2\"",
+            delimited_string({format("   ** Warning ** Version: missing in IDF, processing for EnergyPlus version=\"{}\"", DataStringGlobals::MatchVersion),
                           "   ** Warning ** ConstructionProperty:InternalHeatSource has a tube spacing that is less than 2 mm.  This is not allowed.",
                           "   **   ~~~   ** Construction=TestThisConstruction has this problem.  The tube spacing has been reset to 0.15m (~6 "
                           "inches) for this construction.",

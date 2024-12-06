@@ -302,7 +302,6 @@ namespace Sched {
         //       AUTHOR         Linda K. Lawrie
         //       DATE WRITTEN   September 1997
         //       MODIFIED       Rui Zhang February 2010
-        //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
         // This subroutine processes the schedules input for EnergyPlus.
@@ -341,17 +340,17 @@ namespace Sched {
         int NumPointer;
         bool ErrorsFound(false);
         bool NumErrorFlag;
+
         std::string CFld; // Character field for error message
         //  CHARACTER(len=20) CFld1        ! Character field for error message
         std::array<Real64, Constant::iMinutesInDay> minuteVals;       // Temporary for processing interval schedules
         std::array<bool, Constant::iMinutesInDay> setMinuteVals;       // Temporary for processing interval schedules
         int NumFields;
         //  LOGICAL RptSchedule
+
         int RptLevel;
         int MinutesPerItem;
         int NumExpectedItems;
-        int MaxNums;
-        int MaxAlps;
         std::array<bool, (int)DayType::Num> allDays;
         std::array<bool, (int)DayType::Num> theseDays;
         bool ErrorHere;
@@ -371,8 +370,8 @@ namespace Sched {
         std::string errmsg;
         // for SCHEDULE:FILE
         int rowCnt;
+
         std::string subString;
-        std::string CurrentModuleObject; // for ease in getting objects
         int MaxNums1;
         char ColumnSep;
         bool FileIntervalInterpolated;
@@ -391,10 +390,10 @@ namespace Sched {
 
         s_sched->ScheduleInputProcessed = true;
 
-        MaxNums = 1; // Need at least 1 number because it's used as a local variable in the Schedule Types loop
-        MaxAlps = 0;
+        int MaxNums = 1; // Need at least 1 number because it's used as a local variable in the Schedule Types loop
+        int MaxAlps = 0;
 
-        CurrentModuleObject = "ScheduleTypeLimits";
+        std::string CurrentModuleObject = "ScheduleTypeLimits";
         int NumScheduleTypes = s_ip->getNumObjectsFound(state, CurrentModuleObject);
         if (NumScheduleTypes > 0) {
             s_ip->getObjectDefMaxArgs(state, CurrentModuleObject, Count, NumAlphas, NumNumbers);
@@ -1334,7 +1333,7 @@ namespace Sched {
                                 ErrorsFound = true;
                             }
                             ++NumField;
-                            Alphas(UntilFld + xxcount) = Alphas(NumField); // Incase next is "until"
+                            Alphas(UntilFld + xxcount) = Alphas(NumField); // In case next is "until"
                         } else {
                             ShowSevereCustom(state, eoh, format("Looking for \"Until\" field, found={}", Alphas(NumField)));
                             ErrorsFound = true;
@@ -1632,11 +1631,6 @@ namespace Sched {
                 if (rowCnt < rowLimitCount) {
                     ShowWarningCustom(state, eoh, format("less than {} hourly values read from file."
                                                          "..Number read={}.", numHourlyValues, (rowCnt * 60) / MinutesPerItem));
-                }
-                if (rowCnt < rowLimitCount) {
-                    ShowWarningCustom(state, eoh, format("less than specified hourly values read from file."
-                                                         "..Specified Number of Hourly Values={} Actual number of hourly values included={}",
-                                                         numHourlyValues, (rowCnt * 60) / MinutesPerItem));
                 }
 
                 // process the data into the normal schedule data structures
@@ -2064,7 +2058,6 @@ namespace Sched {
             RptLevel = 1;
             for (int Count = 1; Count <= NumFields; ++Count) {
                 s_ip->getObjectItem(state, CurrentModuleObject, Count, Alphas, NumAlphas, Numbers, NumNumbers, Status);
-                //      RptSchedule=.TRUE.
 
                 ErrorObjectHeader eoh{routineName, CurrentModuleObject, Alphas(1)};
 
@@ -2415,18 +2408,7 @@ namespace Sched {
 
     Real64 GetCurrentScheduleValue(EnergyPlusData &state, int const schedNum)
     {
-        // FUNCTION INFORMATION:
-        //       AUTHOR         Linda K. Lawrie
-        //       DATE WRITTEN   September 1997
-        //       MODIFIED       August 2011; adapt Autodesk changes (time reduction)
-
-        // PURPOSE OF THIS FUNCTION:
-        // This function returns the hourly schedule value for the current day.
-
-        // METHODOLOGY EMPLOYED:
-        // Use internal Schedule data structure to return value.  Note that missing values in
-        // input will equate to 0 indices in arrays -- which has been set up to return legally with
-        // 0.0 values.
+        // Wrapper for method
         return state.dataSched->schedules[schedNum]->getCurrentVal();
     }
 
@@ -2442,8 +2424,7 @@ namespace Sched {
 
         // METHODOLOGY EMPLOYED:
         // Use internal Schedule data structure to calculate current value.  Note that missing values in
-        // input will equate to 0 indices in arrays -- which has been set up to return legally with
-        // 0.0 values.
+
         auto const &s_sched = state.dataSched;
         auto const &s_glob = state.dataGlobal;
             
@@ -2728,13 +2709,7 @@ namespace Sched {
                                  int jDay,
                                  int dayOfWeek)
     {
-        // SUBROUTINE INFORMATION:
-        //       AUTHOR         Linda K. Lawrie
-        //       DATE WRITTEN   September 1997
-
-        // PURPOSE OF THIS SUBROUTINE:
-        // This subroutine returns an entire day's worth of schedule values.
-
+        // Just a wrapper for the method
         return state.dataSched->schedules[schedNum]->getDayVals(state, DayValues, jDay, dayOfWeek);
     }
         
@@ -2743,6 +2718,7 @@ namespace Sched {
                                     Array2S<Real64> DayValues   // Returned set of values
     )
     {
+        // Just a wrapper for the method
         state.dataSched->daySchedules[daySchedNum]->getDayVals(state, DayValues);
     }
 
@@ -2771,7 +2747,7 @@ namespace Sched {
                 daySched->tsVals[hr * s_glob->TimeStepsInHour + ts] = value;
             }
         }
-    }
+    } // ExternalInterfaceSetSchedule()
 
     void ProcessIntervalFields(EnergyPlusData &state,
                                Array1S_string const Untils,
@@ -2797,11 +2773,13 @@ namespace Sched {
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         int HHField;
         int MMField;
+
         int begHr = 0;  // starting hour
         int begMin = 0; // starting minute
         int endHr = -1;  // ending hour
         int endMin = -1; // ending minute
         std::string::size_type sFld;
+
         int totalMinutes;
         Real64 incrementPerMinute;
         Real64 curValue;
@@ -2984,22 +2962,20 @@ namespace Sched {
         //       DATE WRITTEN   January 2003
 
         // PURPOSE OF THIS SUBROUTINE:
+
         // This subroutine decodes a hhmm date field input as part of the "until" time in a schedule
         // representation.
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         Real64 rRetHH; // real Returned "hour"
-        Real64 rRetMM; // real Returned "minute"
         std::string hHour;
         std::string mMinute;
-
         
         std::string String = stripped(FieldValue);
         std::string::size_type const Pos = index(String, ':');
         bool nonIntegral = false;
 
         auto &s_glob = state.dataGlobal;
-        
         if (Pos == std::string::npos) {
             ShowSevereError(state,
                             format("ProcessScheduleInput: DecodeHHMMField, Invalid \"until\" field submitted (no : separator in hh:mm)={}",
@@ -3011,7 +2987,7 @@ namespace Sched {
             RetHH = 0;
         } else {
             bool error = false;
-            rRetHH = Util::ProcessNumber(String.substr(0, Pos), error);
+            Real64 rRetHH = Util::ProcessNumber(String.substr(0, Pos), error);
             RetHH = int(rRetHH);
             if (double(RetHH) != rRetHH || error || rRetHH < 0.0) {
                 if (double(RetHH) != rRetHH && rRetHH >= 0.0) {
@@ -3034,7 +3010,7 @@ namespace Sched {
 
         String.erase(0, Pos + 1);
         bool error = false;
-        rRetMM = Util::ProcessNumber(String, error);
+        Real64 rRetMM = Util::ProcessNumber(String, error);
         RetMM = int(rRetMM);
         if (double(RetMM) != rRetMM || error || rRetMM < 0.0) {
             if (double(RetMM) != rRetMM && rRetMM >= 0.0) {
@@ -3055,6 +3031,8 @@ namespace Sched {
         }
 
         if (nonIntegral) {
+            std::string hHour; // these haven't been initialized?
+            std::string mMinute;
             ShowContinueError(state, format("Until value to be used will be: {:2.2F}:{:2.2F}", hHour, mMinute));
         }
         if (interpolation == Interpolation::No) {
@@ -3092,6 +3070,9 @@ namespace Sched {
         // PURPOSE OF THIS SUBROUTINE:
         // This subroutine processes a field "For: day types" and returns
         // those day types (can be multiple) from field.
+        // Argument array dimensioning
+
+        // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         bool OneValid = false;
         bool DupAssignment = false;
 
@@ -3383,7 +3364,7 @@ namespace Sched {
         bool maxOk = (cluMax == Clusive::Ex) ? (this->maxVal < max) : (this->maxVal - max <= FLT_EPSILON);
 
         return (minOk && maxOk);
-    }
+    } // ScheduleBase::checkMinMaxVals()
 
     bool CheckScheduleValueMinMax(EnergyPlusData &state,
                                   int const schedNum,   // Which Schedule being tested
@@ -3401,7 +3382,7 @@ namespace Sched {
                                   Real64 const value) const
     {
         return value == this->currentVal;
-    }
+    } // ScheduleConstant::hasVal()
 
     bool ScheduleDetailed::hasVal(EnergyPlusData &state,
                                     Real64 const value) const
@@ -3429,10 +3410,8 @@ namespace Sched {
                 for (int i = 0; i < Constant::iHoursInDay * s_glob->TimeStepsInHour; ++i) {
                     if (daySched->tsVals[i] == value) return true;
                 }
-
                 daySchedChecked[iDay] = true;
             }
-
             weekSchedChecked[iWeek] = true;
         }
 
@@ -3446,7 +3425,6 @@ namespace Sched {
     {
         // Method wrapper
         return state.dataSched->schedules[schedNum]->hasVal(state, value);
-
     }
             
     bool CheckDayScheduleMinValues(EnergyPlusData &state,
@@ -3456,7 +3434,7 @@ namespace Sched {
     {
         // Method wrapper
         return state.dataSched->daySchedules[schedNum]->checkMinVal(state, cluMin, min);
-    }
+    } // CheckDayScheduleMinValues()
 
     bool ScheduleConstant::hasFractionalVal([[maybe_unused]] EnergyPlusData &state) const
     {
@@ -3488,10 +3466,8 @@ namespace Sched {
                 for (int i = 0; i < Constant::iHoursInDay * s_glob->TimeStepsInHour; ++i) {
                     if (daySched->tsVals[i] > 0.0 && daySched->tsVals[i] < 1.0) return true;
                 }
-
                 daySchedChecked[iDay] = true;
             }
-
             weekSchedChecked[iWeek] = true;
         }
 
@@ -3501,7 +3477,7 @@ namespace Sched {
     std::pair<Real64, Real64> ScheduleConstant::getMinMaxValsByDayType([[maybe_unused]] EnergyPlusData &state, [[maybe_unused]] DayTypeGroup const days)
     {
         return std::make_pair(this->currentVal, this->currentVal);
-    }
+    } // ScheduleConstant::getMinMaxValsByDayType()
         
     std::pair<Real64, Real64> ScheduleDetailed::getMinMaxValsByDayType(EnergyPlusData &state, DayTypeGroup const days)
     {
@@ -3560,7 +3536,6 @@ namespace Sched {
                 }
                 weekSchedChecked[weekSched->Num] = true;
             }
-
             this->MaxMinByDayTypeSet[(int)days] = true;
         }
         return std::make_pair(this->MinByDayType[(int)days], this->MaxByDayType[(int)days]);
@@ -3844,7 +3819,6 @@ namespace Sched {
         
         return std::make_tuple(value, countOfSame, monthName);
     } // ScheduleDetailed::getValAndCountOnDay()
-
 
     // returns the temperature value from a schedule at a certain time for the first day of the week in either January or July
     std::tuple<Real64, int, std::string>

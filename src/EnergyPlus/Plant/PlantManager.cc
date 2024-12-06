@@ -152,7 +152,7 @@ void ManagePlantLoops(EnergyPlusData &state,
                       bool &SimZoneEquipment,                     // True when zone equipment components need to be (re)simulated
                       [[maybe_unused]] bool &SimNonZoneEquipment, // True when non-zone equipment components need to be (re)simulated
                       bool &SimPlantLoops,                        // True when some part of Plant needs to be (re)simulated
-                      bool &SimElecCircuits                       // True when electic circuits need to be (re)simulated
+                      bool &SimElecCircuits                       // True when electric circuits need to be (re)simulated
 )
 {
 
@@ -2236,7 +2236,7 @@ void InitializeLoops(EnergyPlusData &state, bool const FirstHVACIteration) // tr
     // demand.  Long term, I recommend that we:
     //     1. specify the setpointmanager:plant object name (not the node name) in the plantloop/condloop objects
     //     2. write a new setpoint manager (setpointmanager:plant) that is more suitable for plant use and
-    //        accomodates AIR and GROUND setpoints...with offsets.
+    //        accommodates AIR and GROUND setpoints...with offsets.
 
     //*****************************************************************
     // ONE TIME LOOP NODE SETPOINT CHECK
@@ -2367,7 +2367,7 @@ void InitializeLoops(EnergyPlusData &state, bool const FirstHVACIteration) // tr
     // END First Pass SIZING INIT
     //*****************************************************************
     //*****************************************************************
-    // BEGIN Resizing Pass for HVAC Sizing Simultion Adjustments
+    // BEGIN Resizing Pass for HVAC Sizing Simulation Adjustments
     //*****************************************************************
     if (state.dataGlobal->RedoSizesHVACSimulation && !state.dataPlnt->PlantReSizingCompleted) {
 
@@ -2857,7 +2857,7 @@ void CheckPlantOnAbort(EnergyPlusData &state)
 
     // SUBROUTINE INFORMATION:
     //       AUTHOR         Brent Griffith
-    //       DATE WRITTEN   Septemeber 2006
+    //       DATE WRITTEN   September 2006
     //       MODIFIED       na
     //       RE-ENGINEERED  na
 
@@ -3329,7 +3329,7 @@ void SizePlantLoop(EnergyPlusData &state,
     if (state.dataPlnt->PlantLoop(LoopNum).FluidType == DataLoopNode::NodeFluidType::Water) {
         FluidDensity = FluidProperties::GetDensityGlycol(
             state, state.dataPlnt->PlantLoop(LoopNum).FluidName, Constant::InitConvTemp, state.dataPlnt->PlantLoop(LoopNum).FluidIndex, RoutineName);
-        if (PlantSizNum > 0 && allocated(state.dataSize->PlantSizData)) { // method only works if sizing delta T is avaiable
+        if (PlantSizNum > 0 && allocated(state.dataSize->PlantSizData)) { // method only works if sizing delta T is available
             Real64 cp = FluidProperties::GetSpecificHeatGlycol(state,
                                                                state.dataPlnt->PlantLoop(LoopNum).FluidName,
                                                                Constant::InitConvTemp,
@@ -3500,7 +3500,7 @@ void SetupInitialPlantCallingOrder(EnergyPlusData &state)
 
     // METHODOLOGY EMPLOYED:
     // simple rule-based allocation of which order to call the half loops
-    //  initially just mimicing historical practice until a better set of rules is
+    //  initially just mimicking historical practice until a better set of rules is
     // developed
     // 1.  first call all plant demand sides
     // 2.  second call all plant supply sides
@@ -3552,7 +3552,7 @@ void RevisePlantCallingOrder(EnergyPlusData &state)
 
     // SUBROUTINE INFORMATION:
     //       AUTHOR         Brent Griffith
-    //       DATE WRITTEN   april 2011
+    //       DATE WRITTEN   April 2011
     //       MODIFIED       na
     //       RE-ENGINEERED  na
 
@@ -4503,7 +4503,7 @@ void CheckIfAnyPlant(EnergyPlusData &state)
     // determine if any plant loops will be ever be set up
 
     // METHODOLOGY EMPLOYED:
-    // use input processor ot find number of plant loops
+    // use input processor to find number of plant loops
 
     // Using/Aliasing
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
@@ -4534,7 +4534,7 @@ void CheckOngoingPlantWarnings(EnergyPlusData &state)
             ShowWarningError(
                 state, "Plant Loop: " + state.dataPlnt->PlantLoop(LoopNum).Name + " Demand Side is storing excess heat the majority of the time.");
             ShowContinueError(state,
-                              format("Excesss Storage Time={:.2R}[hr], Total Loop Active Time={:.2R}[hr]",
+                              format("Excess Storage Time={:.2R}[hr], Total Loop Active Time={:.2R}[hr]",
                                      state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideLocation::Supply).LoopSideInlet_CapExcessStorageTime,
                                      state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideLocation::Demand).LoopSideInlet_TotalTime));
         }
@@ -4543,7 +4543,7 @@ void CheckOngoingPlantWarnings(EnergyPlusData &state)
             ShowWarningError(
                 state, "Plant Loop: " + state.dataPlnt->PlantLoop(LoopNum).Name + " Supply Side is storing excess heat the majority of the time.");
             ShowContinueError(state,
-                              format("Excesss Storage Time={:.2R}[hr], Total Loop Active Time={:.2R}[hr]",
+                              format("Excess Storage Time={:.2R}[hr], Total Loop Active Time={:.2R}[hr]",
                                      state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideLocation::Supply).LoopSideInlet_CapExcessStorageTime,
                                      state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideLocation::Demand).LoopSideInlet_TotalTime));
         }

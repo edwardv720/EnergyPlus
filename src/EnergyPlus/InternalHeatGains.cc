@@ -203,16 +203,14 @@ namespace InternalHeatGains {
         int IOStat;
 
         //   Variables for reporting nominal internal gains
-        Real64 LightTot;       // Total Lights for calculating lights per square meter
-        Real64 ElecTot;        // Total Electric Load for calculating electric per square meter
-        Real64 GasTot;         // Total Gas load for calculating gas per square meter
-        Real64 OthTot;         // Total Other load for calculating other load per square meter
-        Real64 HWETot;         // Total Hot Water Equipment for calculating HWE per square meter
-        Real64 StmTot;         // Total Steam for calculating Steam per square meter
-        std::string BBHeatInd; // Yes if BBHeat in zone, no if not.
+        Real64 LightTot; // Total Lights for calculating lights per square meter
+        Real64 ElecTot;  // Total Electric Load for calculating electric per square meter
+        Real64 GasTot;   // Total Gas load for calculating gas per square meter
+        Real64 OthTot;   // Total Other load for calculating other load per square meter
+        Real64 HWETot;   // Total Hot Water Equipment for calculating HWE per square meter
+        Real64 StmTot;   // Total Steam for calculating Steam per square meter
         Real64 SchMin;
         Real64 SchMax;
-        std::string liteName;
 
         // Formats
         static constexpr std::string_view Format_720(" Zone Internal Gains Nominal, {},{:.2R},{:.1R},");
@@ -257,7 +255,7 @@ namespace InternalHeatGains {
         const std::string bbModuleObject = "ZoneBaseboard:OutdoorTemperatureControlled";
         const std::string contamSSModuleObject = "ZoneContaminantSourceAndSink:CarbonDioxide";
 
-        // Because there are occassions where getObjectItem will be called a second time within the routine (#9680)
+        // Because there are occasions where getObjectItem will be called a second time within the routine (#9680)
         // We should use local arrays instead of state.dataIPShortCut
         int IHGNumAlphas = 0;
         int IHGNumNumbers = 0;
@@ -837,35 +835,35 @@ namespace InternalHeatGains {
                 }
             }
         
-            for (int peopleNum = 1; peopleNum <= state.dataHeatBal->TotPeople; ++peopleNum) {
+            for (int peopleNum2 = 1; peopleNum2 <= state.dataHeatBal->TotPeople; ++peopleNum2) {
                 if (state.dataGlobal->AnyEnergyManagementSystemInModel) {
                     SetupEMSActuator(state,
                                      "People",
-                                     state.dataHeatBal->People(peopleNum).Name,
+                                     state.dataHeatBal->People(peopleNum2).Name,
                                      "Number of People",
                                      "[each]",
-                                     state.dataHeatBal->People(peopleNum).EMSPeopleOn,
-                                     state.dataHeatBal->People(peopleNum).EMSNumberOfPeople);
+                                     state.dataHeatBal->People(peopleNum2).EMSPeopleOn,
+                                     state.dataHeatBal->People(peopleNum2).EMSNumberOfPeople);
                     SetupEMSInternalVariable(state,
                                              "People Count Design Level",
-                                             state.dataHeatBal->People(peopleNum).Name,
+                                             state.dataHeatBal->People(peopleNum2).Name,
                                              "[each]",
-                                             state.dataHeatBal->People(peopleNum).NumberOfPeople);
+                                             state.dataHeatBal->People(peopleNum2).NumberOfPeople);
                 }
 
                 // setup internal gains
                 if (!ErrorsFound) {
                     SetupSpaceInternalGain(state,
-                                           state.dataHeatBal->People(peopleNum).spaceIndex,
+                                           state.dataHeatBal->People(peopleNum2).spaceIndex,
                                            1.0,
-                                           state.dataHeatBal->People(peopleNum).Name,
+                                           state.dataHeatBal->People(peopleNum2).Name,
                                            DataHeatBalance::IntGainType::People,
-                                           &state.dataHeatBal->People(peopleNum).ConGainRate,
+                                           &state.dataHeatBal->People(peopleNum2).ConGainRate,
                                            nullptr,
-                                           &state.dataHeatBal->People(peopleNum).RadGainRate,
-                                           &state.dataHeatBal->People(peopleNum).LatGainRate,
+                                           &state.dataHeatBal->People(peopleNum2).RadGainRate,
+                                           &state.dataHeatBal->People(peopleNum2).LatGainRate,
                                            nullptr,
-                                           &state.dataHeatBal->People(peopleNum).CO2GainRate);
+                                           &state.dataHeatBal->People(peopleNum2).CO2GainRate);
                 }
             }
 
@@ -1238,39 +1236,39 @@ namespace InternalHeatGains {
                 }
             }
             if (state.dataGlobal->AnyEnergyManagementSystemInModel) {
-                for (int lightsNum = 1; lightsNum <= state.dataHeatBal->TotLights; ++lightsNum) {
+                for (int lightsNum2 = 1; lightsNum2 <= state.dataHeatBal->TotLights; ++lightsNum2) {
                     SetupEMSActuator(state,
                                      "Lights",
-                                     state.dataHeatBal->Lights(lightsNum).Name,
+                                     state.dataHeatBal->Lights(lightsNum2).Name,
                                      "Electricity Rate",
                                      "[W]",
-                                     state.dataHeatBal->Lights(lightsNum).EMSLightsOn,
-                                     state.dataHeatBal->Lights(lightsNum).EMSLightingPower);
+                                     state.dataHeatBal->Lights(lightsNum2).EMSLightsOn,
+                                     state.dataHeatBal->Lights(lightsNum2).EMSLightingPower);
                     SetupEMSInternalVariable(state,
                                              "Lighting Power Design Level",
-                                             state.dataHeatBal->Lights(lightsNum).Name,
+                                             state.dataHeatBal->Lights(lightsNum2).Name,
                                              "[W]",
-                                             state.dataHeatBal->Lights(lightsNum).DesignLevel);
+                                             state.dataHeatBal->Lights(lightsNum2).DesignLevel);
                 } // EMS
             }
-            for (int lightsNum = 1; lightsNum <= state.dataHeatBal->TotLights; ++lightsNum) {
-                int spaceNum = state.dataHeatBal->Lights(lightsNum).spaceIndex;
-                int zoneNum = state.dataHeatBal->Lights(lightsNum).ZonePtr;
+            for (int lightsNum2 = 1; lightsNum2 <= state.dataHeatBal->TotLights; ++lightsNum2) {
+                int spaceNum = state.dataHeatBal->Lights(lightsNum2).spaceIndex;
+                int zoneNum = state.dataHeatBal->Lights(lightsNum2).ZonePtr;
                 // setup internal gains
                 int returnNodeNum = 0;
-                if ((state.dataHeatBal->Lights(lightsNum).ZoneReturnNum > 0) &&
-                    (state.dataHeatBal->Lights(lightsNum).ZoneReturnNum <= state.dataZoneEquip->ZoneEquipConfig(zoneNum).NumReturnNodes)) {
-                    returnNodeNum = state.dataZoneEquip->ZoneEquipConfig(zoneNum).ReturnNode(state.dataHeatBal->Lights(lightsNum).ZoneReturnNum);
+                if ((state.dataHeatBal->Lights(lightsNum2).ZoneReturnNum > 0) &&
+                    (state.dataHeatBal->Lights(lightsNum2).ZoneReturnNum <= state.dataZoneEquip->ZoneEquipConfig(zoneNum).NumReturnNodes)) {
+                    returnNodeNum = state.dataZoneEquip->ZoneEquipConfig(zoneNum).ReturnNode(state.dataHeatBal->Lights(lightsNum2).ZoneReturnNum);
                 }
                 if (!ErrorsFound) {
                     SetupSpaceInternalGain(state,
-                                           state.dataHeatBal->Lights(lightsNum).spaceIndex,
+                                           state.dataHeatBal->Lights(lightsNum2).spaceIndex,
                                            1.0,
-                                           state.dataHeatBal->Lights(lightsNum).Name,
+                                           state.dataHeatBal->Lights(lightsNum2).Name,
                                            DataHeatBalance::IntGainType::Lights,
-                                           &state.dataHeatBal->Lights(lightsNum).ConGainRate,
-                                           &state.dataHeatBal->Lights(lightsNum).RetAirGainRate,
-                                           &state.dataHeatBal->Lights(lightsNum).RadGainRate,
+                                           &state.dataHeatBal->Lights(lightsNum2).ConGainRate,
+                                           &state.dataHeatBal->Lights(lightsNum2).RetAirGainRate,
+                                           &state.dataHeatBal->Lights(lightsNum2).RadGainRate,
                                            nullptr,
                                            nullptr,
                                            nullptr,
@@ -1278,30 +1276,34 @@ namespace InternalHeatGains {
                                            returnNodeNum);
                 }
 
-                if (state.dataHeatBal->Lights(lightsNum).FractionReturnAir > 0)
-                    state.dataHeatBal->Zone(state.dataHeatBal->Lights(lightsNum).ZonePtr).HasLtsRetAirGain = true;
+                if (state.dataHeatBal->Lights(lightsNum2).FractionReturnAir > 0)
+                    state.dataHeatBal->Zone(state.dataHeatBal->Lights(lightsNum2).ZonePtr).HasLtsRetAirGain = true;
                 // send values to predefined lighting summary report
-                liteName = state.dataHeatBal->Lights(lightsNum).Name;
+                std::string liteName = state.dataHeatBal->Lights(lightsNum2).Name;
                 Real64 mult = state.dataHeatBal->Zone(zoneNum).Multiplier * state.dataHeatBal->Zone(zoneNum).ListMultiplier;
                 Real64 spaceArea = state.dataHeatBal->space(spaceNum).FloorArea;
                 state.dataInternalHeatGains->sumArea += spaceArea * mult;
-                state.dataInternalHeatGains->sumPower += state.dataHeatBal->Lights(lightsNum).DesignLevel * mult;
+                state.dataInternalHeatGains->sumPower += state.dataHeatBal->Lights(lightsNum2).DesignLevel * mult;
                 PreDefTableEntry(state, state.dataOutRptPredefined->pdchInLtZone, liteName, state.dataHeatBal->Zone(zoneNum).Name);
                 PreDefTableEntry(state, state.dataOutRptPredefined->pdchInLtSpace, liteName, state.dataHeatBal->space(spaceNum).Name);
                 PreDefTableEntry(state, state.dataOutRptPredefined->pdchInLtSpaceType, liteName, state.dataHeatBal->space(spaceNum).spaceType);
                 if (spaceArea > 0.0) {
                     PreDefTableEntry(
-                        state, state.dataOutRptPredefined->pdchInLtDens, liteName, state.dataHeatBal->Lights(lightsNum).DesignLevel / spaceArea, 4);
+                        state, state.dataOutRptPredefined->pdchInLtDens, liteName, state.dataHeatBal->Lights(lightsNum2).DesignLevel / spaceArea, 4);
                 } else {
                     PreDefTableEntry(state, state.dataOutRptPredefined->pdchInLtDens, liteName, DataPrecisionGlobals::constant_zero, 4);
                 }
                 PreDefTableEntry(state, state.dataOutRptPredefined->pdchInLtArea, liteName, spaceArea * mult);
-                PreDefTableEntry(state, state.dataOutRptPredefined->pdchInLtPower, liteName, state.dataHeatBal->Lights(lightsNum).DesignLevel * mult);
-                PreDefTableEntry(state, state.dataOutRptPredefined->pdchInLtEndUse, liteName, state.dataHeatBal->Lights(lightsNum).EndUseSubcategory);
                 PreDefTableEntry(
-                    state, state.dataOutRptPredefined->pdchInLtSchd, liteName, state.dataHeatBal->Lights(lightsNum).sched->Name);
+                    state, state.dataOutRptPredefined->pdchInLtPower, liteName, state.dataHeatBal->Lights(lightsNum2).DesignLevel * mult);
                 PreDefTableEntry(
-                    state, state.dataOutRptPredefined->pdchInLtRetAir, liteName, state.dataHeatBal->Lights(lightsNum).FractionReturnAir, 4);
+                    state, state.dataOutRptPredefined->pdchInLtEndUse, liteName, state.dataHeatBal->Lights(lightsNum2).EndUseSubcategory);
+                PreDefTableEntry(state,
+                                 state.dataOutRptPredefined->pdchInLtSchd,
+                                 liteName,
+                                 state.dataHeatBal->Lights(lightsNum2).sched->Name);
+                PreDefTableEntry(
+                    state, state.dataOutRptPredefined->pdchInLtRetAir, liteName, state.dataHeatBal->Lights(lightsNum2).FractionReturnAir, 4);
             } // Item1 - Number of Lights instances
             if (CheckSharedExhaustFlag) {
                 DataZoneEquipment::CheckSharedExhaust(state);
@@ -2820,7 +2822,7 @@ namespace InternalHeatGains {
 
                         if (thisZoneITEq.FlowControlWithApproachTemps) {
                             Real64 TAirInSizing = 0.0;
-                            // Set the TAirInSizing to the maximun setpoint value to do sizing based on the maximum fan and cpu power of the ite
+                            // Set the TAirInSizing to the maximum setpoint value to do sizing based on the maximum fan and cpu power of the ite
                             // object
                             SetPointManager::GetSetPointManagerInputs(state);
                             for (auto *spm : state.dataSetPointManager->spms) {
@@ -3083,7 +3085,7 @@ namespace InternalHeatGains {
             OthTot = 0.0;
             HWETot = 0.0;
             StmTot = 0.0;
-            BBHeatInd = "No";
+            std::string BBHeatInd = "No"; // Yes if BBHeat in zone, no if not.
             for (int Loop1 = 1; Loop1 <= state.dataHeatBal->TotLights; ++Loop1) {
                 if (state.dataHeatBal->Lights(Loop1).ZonePtr != Loop) continue;
                 LightTot += state.dataHeatBal->Lights(Loop1).DesignLevel;
@@ -3793,11 +3795,11 @@ namespace InternalHeatGains {
         // inputObjects is allocated here and filled with data for further input processing.
 
         constexpr std::string_view routineName = "setupIHGZonesAndSpaces: ";
-        bool localErrFlag = false;
 
         auto &ip = state.dataInputProcessing->inputProcessor;
         auto const instances = ip->epJSON.find(objectType);
         if (instances != ip->epJSON.end()) {
+            bool localErrFlag = false;
             auto const &objectSchemaProps = ip->getObjectSchemaProps(state, objectType);
             auto &instancesValue = instances.value();
             numInputObjects = int(instancesValue.size());
@@ -3864,9 +3866,9 @@ namespace InternalHeatGains {
                         int numSpaces = 0;
                         for (int const listZoneIdx : state.dataHeatBal->ZoneList(zoneListNum).Zone) {
                             numSpaces += state.dataHeatBal->Zone(listZoneIdx).numSpaces;
-                            for (int const spaceNum : state.dataHeatBal->Zone(listZoneIdx).spaceIndexes) {
-                                inputObjects(objNum).spaceNums.emplace_back(spaceNum);
-                                inputObjects(objNum).names.emplace_back(state.dataHeatBal->space(spaceNum).Name + ' ' + inputObjects(objNum).Name);
+                            for (int const spaceNum2 : state.dataHeatBal->Zone(listZoneIdx).spaceIndexes) {
+                                inputObjects(objNum).spaceNums.emplace_back(spaceNum2);
+                                inputObjects(objNum).names.emplace_back(state.dataHeatBal->space(spaceNum2).Name + ' ' + inputObjects(objNum).Name);
                             }
                         }
                         numGainInstances += numSpaces;
@@ -3889,9 +3891,9 @@ namespace InternalHeatGains {
                         inputObjects(objNum).numOfSpaces = numSpaces;
                         inputObjects(objNum).spaceListActive = true;
                         inputObjects(objNum).spaceOrSpaceListPtr = spaceListNum;
-                        for (int const spaceNum : state.dataHeatBal->spaceList(spaceListNum).spaces) {
-                            inputObjects(objNum).spaceNums.emplace_back(spaceNum);
-                            inputObjects(objNum).names.emplace_back(state.dataHeatBal->space(spaceNum).Name + ' ' + inputObjects(objNum).Name);
+                        for (int const spaceNum2 : state.dataHeatBal->spaceList(spaceListNum).spaces) {
+                            inputObjects(objNum).spaceNums.emplace_back(spaceNum2);
+                            inputObjects(objNum).names.emplace_back(state.dataHeatBal->space(spaceNum2).Name + ' ' + inputObjects(objNum).Name);
                         }
                     }
                     continue;
@@ -6460,7 +6462,7 @@ namespace InternalHeatGains {
                                         state.dataHeatBal->space(spaceNum).Name);
                 }
 
-                // Not applicable for space until space has it's own air temeratures
+                // Not applicable for space until space has it's own air temperatures
                 // Setup Output Variable(state,
                 //                    "Space ITE Adjusted Return Air Temperature",
                 //                    Constant::Units::W,
@@ -6964,8 +6966,9 @@ namespace InternalHeatGains {
             auto &thisPeople = state.dataHeatBal->People(Loop);
             int NZ = state.dataHeatBal->People(Loop).ZonePtr;
             int spaceNum = thisPeople.spaceIndex;
-            auto &thisSpaceHB = state.dataZoneTempPredictorCorrector->spaceHeatBalance(spaceNum);
+            auto const &thisSpaceHB = state.dataZoneTempPredictorCorrector->spaceHeatBalance(spaceNum);
             NumberOccupants = thisPeople.NumberOfPeople * thisPeople.numberOfPeopleSched->getCurrentVal();
+
             if (thisPeople.EMSPeopleOn) NumberOccupants = thisPeople.EMSNumberOfPeople;
 
             TotalPeopleGain = 0.0;
@@ -7273,12 +7276,12 @@ namespace InternalHeatGains {
         }
         for (int zoneNum = 1; zoneNum <= state.dataGlobal->NumOfZones; ++zoneNum) { // Loop through all surfaces...
             for (int spaceNum : state.dataHeatBal->Zone(zoneNum).spaceIndexes) {
-                auto &thisSpace = state.dataHeatBal->space(spaceNum);
+                auto const &thisSpace = state.dataHeatBal->space(spaceNum);
                 int const firstSurf = thisSpace.HTSurfaceFirst;
                 int const lastSurf = thisSpace.HTSurfaceLast;
                 if (firstSurf <= 0) continue;
                 for (int SurfNum = firstSurf; SurfNum <= lastSurf; ++SurfNum) {
-                    auto &thisEnclosure = state.dataViewFactor->EnclRadInfo(state.dataSurface->Surface(SurfNum).RadEnclIndex);
+                    auto const &thisEnclosure = state.dataViewFactor->EnclRadInfo(state.dataSurface->Surface(SurfNum).RadEnclIndex);
 
                     if (!state.dataGlobal->doLoadComponentPulseNow) {
                         state.dataHeatBal->SurfQdotRadIntGainsInPerArea(SurfNum) =
@@ -7364,9 +7367,6 @@ namespace InternalHeatGains {
             99.0, 80.0, 80.0, 85.0, 90.0, 80.0, 80.0, 80.0}; // Maximum relative humidity [%]
 
         static constexpr std::string_view RoutineName("CalcZoneITEq");
-        int Loop;
-        int NZ;
-        int SupplyNodeNum;                // Supply air node number (if zero, then not specified)
         Real64 OperSchedFrac;             // Operating schedule fraction
         Real64 CPULoadSchedFrac;          // CPU loading schedule fraction
         ITEInletConnection AirConnection; // Air connection type
@@ -7396,7 +7396,7 @@ namespace InternalHeatGains {
 
         //  Zero out time step variables
         // Object report variables
-        for (Loop = 1; Loop <= state.dataHeatBal->TotITEquip; ++Loop) {
+        for (int Loop = 1; Loop <= state.dataHeatBal->TotITEquip; ++Loop) {
 
             for (int i = 0; i < (int)PERptVars::Num; ++i) {
                 state.dataHeatBal->ZoneITEq(Loop).PowerRpt[i] = 0.0;
@@ -7427,7 +7427,7 @@ namespace InternalHeatGains {
         } // ZoneITEq init loop
 
         // Zone total report variables
-        for (Loop = 1; Loop <= state.dataGlobal->NumOfZones; ++Loop) {
+        for (int Loop = 1; Loop <= state.dataGlobal->NumOfZones; ++Loop) {
 
             for (int i = 0; i < (int)PERptVars::Num; ++i) {
                 state.dataHeatBal->ZoneRpt(Loop).PowerRpt[i] = 0.0;
@@ -7476,9 +7476,9 @@ namespace InternalHeatGains {
             state.dataHeatBal->spaceRpt(spaceNum).SumToutMinusTSup = 0.0;
         } // Space init spaceNum
 
-        for (Loop = 1; Loop <= state.dataHeatBal->TotITEquip; ++Loop) {
+        for (int Loop = 1; Loop <= state.dataHeatBal->TotITEquip; ++Loop) {
             // Get schedules
-            NZ = state.dataHeatBal->ZoneITEq(Loop).ZonePtr;
+            int NZ = state.dataHeatBal->ZoneITEq(Loop).ZonePtr;
             auto &thisZoneHB = state.dataZoneTempPredictorCorrector->zoneHeatBalance(NZ);
             int spaceNum = state.dataHeatBal->ZoneITEq(Loop).spaceIndex;
             OperSchedFrac = state.dataHeatBal->ZoneITEq(Loop).operSched->getCurrentVal();
@@ -7487,7 +7487,7 @@ namespace InternalHeatGains {
             // Determine inlet air temperature and humidity
             AirConnection = state.dataHeatBal->ZoneITEq(Loop).AirConnectionType;
             RecircFrac = 0.0;
-            SupplyNodeNum = state.dataHeatBal->ZoneITEq(Loop).SupplyAirNodeNum;
+            int SupplyNodeNum = state.dataHeatBal->ZoneITEq(Loop).SupplyAirNodeNum;
             if (state.dataHeatBal->ZoneITEq(Loop).FlowControlWithApproachTemps) {
                 TSupply = state.dataLoopNodes->Node(SupplyNodeNum).Temp;
                 WSupply = state.dataLoopNodes->Node(SupplyNodeNum).HumRat;
@@ -7723,7 +7723,7 @@ namespace InternalHeatGains {
         } // ZoneITEq calc loop
 
         // Zone and space-level sensible heat index
-        for (Loop = 1; Loop <= state.dataHeatBal->TotITEquip; ++Loop) {
+        for (int Loop = 1; Loop <= state.dataHeatBal->TotITEquip; ++Loop) {
             int ZN = state.dataHeatBal->ZoneITEq(Loop).ZonePtr;
             int spaceNum = state.dataHeatBal->ZoneITEq(Loop).spaceIndex;
             if (state.dataHeatBal->ZoneRpt(ZN).SumToutMinusTSup != 0.0) {
@@ -8892,7 +8892,7 @@ namespace InternalHeatGains {
         //       DATE WRITTEN   Feb. 2012
 
         // PURPOSE OF THIS SUBROUTINE:
-        // worker routine for summing all the internal gain types based on the existing subrotine SumAllInternalCO2Gains
+        // worker routine for summing all the internal gain types based on the existing subroutine SumAllInternalCO2Gains
 
         // Return value
         Real64 SumGCGainRate(0.0);

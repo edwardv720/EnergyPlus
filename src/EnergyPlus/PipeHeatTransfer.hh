@@ -61,7 +61,7 @@
 #include <EnergyPlus/DataGlobals.hh>
 #include <EnergyPlus/DataSurfaces.hh>
 #include <EnergyPlus/EnergyPlus.hh>
-#include <EnergyPlus/GroundTemperatureModeling/GroundTemperatureModelManager.hh>
+#include <EnergyPlus/GroundTemperatureModeling/BaseGroundTemperatureModel.hh>
 #include <EnergyPlus/Plant/Enums.hh>
 #include <EnergyPlus/Plant/PlantLocation.hh>
 #include <EnergyPlus/PlantComponent.hh>
@@ -72,9 +72,6 @@ namespace EnergyPlus {
 struct EnergyPlusData;
 
 namespace PipeHeatTransfer {
-
-    // Using/Aliasing
-    using namespace GroundTemperatureManager;
 
     enum class EnvrnPtr
     {
@@ -181,7 +178,7 @@ namespace PipeHeatTransfer {
         Real64 ZoneHeatGainRate; // Lagged energy summation for zone heat gain {W}
         PlantLocation plantLoc;
         bool CheckEquipName;
-        std::shared_ptr<BaseGroundTempsModel> groundTempModel;
+        GroundTemp::BaseGroundTempsModel *groundTempModel; // non-owning pointer
 
         // Report data
         Real64 FluidInletTemp;          // inlet temperature [C]

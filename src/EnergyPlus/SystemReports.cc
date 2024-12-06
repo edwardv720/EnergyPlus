@@ -160,6 +160,7 @@ void InitEnergyReports(EnergyPlusData &state)
                                                  ++OutNum) {
                                                 if (state.dataAirLoop->AirToZoneNodeInfo(AirLoopNum).ZoneEquipSupplyNodeNum(OutNum) ==
                                                     state.dataZoneEquip->SupplyAirPath(SAPNum).InletNodeNum) {
+                                                    thisZoneEquipConfig.AirDistUnitCool(ZoneInletNodeNum).AirLoopNum = AirLoopNum;
                                                     thisZoneEquipConfig.AirDistUnitCool(ZoneInletNodeNum).SupplyBranchIndex =
                                                         state.dataAirSystemsData->PrimaryAirSystems(AirLoopNum).OutletBranchNum[OutNum - 1];
                                                     if (state.dataAirSystemsData->PrimaryAirSystems(AirLoopNum).Splitter.Exists) {
@@ -192,6 +193,7 @@ void InitEnergyReports(EnergyPlusData &state)
                                                  ++BranchNum) {
                                                 if (state.dataAirSystemsData->PrimaryAirSystems(AirLoopNum).Branch(BranchNum).NodeNumOut ==
                                                     state.dataAirLoop->AirToZoneNodeInfo(AirLoopNum).AirLoopSupplyNodeNum(NodeIndex)) {
+                                                    thisZoneEquipConfig.AirDistUnitCool(ZoneInletNodeNum).AirLoopNum = AirLoopNum;
                                                     thisZoneEquipConfig.AirDistUnitCool(ZoneInletNodeNum).SupplyBranchIndex = BranchNum;
                                                     if (state.dataAirSystemsData->PrimaryAirSystems(AirLoopNum).Splitter.Exists) {
                                                         for (int MainBranchNum = 1;
@@ -229,6 +231,7 @@ void InitEnergyReports(EnergyPlusData &state)
                                                  ++OutNum) {
                                                 if (state.dataAirLoop->AirToZoneNodeInfo(AirLoopNum).ZoneEquipSupplyNodeNum(OutNum) ==
                                                     state.dataZoneEquip->SupplyAirPath(SAPNum).InletNodeNum) {
+                                                    thisZoneEquipConfig.AirDistUnitHeat(ZoneInletNodeNum).AirLoopNum = AirLoopNum;
                                                     thisZoneEquipConfig.AirDistUnitHeat(ZoneInletNodeNum).SupplyBranchIndex =
                                                         state.dataAirSystemsData->PrimaryAirSystems(AirLoopNum).OutletBranchNum[OutNum - 1];
                                                     if (state.dataAirSystemsData->PrimaryAirSystems(AirLoopNum).Splitter.Exists) {
@@ -261,6 +264,7 @@ void InitEnergyReports(EnergyPlusData &state)
                                                  ++BranchNum) {
                                                 if (state.dataAirSystemsData->PrimaryAirSystems(AirLoopNum).Branch(BranchNum).NodeNumOut ==
                                                     state.dataAirLoop->AirToZoneNodeInfo(AirLoopNum).AirLoopSupplyNodeNum(NodeIndex)) {
+                                                    thisZoneEquipConfig.AirDistUnitHeat(ZoneInletNodeNum).AirLoopNum = AirLoopNum;
                                                     thisZoneEquipConfig.AirDistUnitHeat(ZoneInletNodeNum).SupplyBranchIndex = BranchNum;
                                                     if (state.dataAirSystemsData->PrimaryAirSystems(AirLoopNum).Splitter.Exists) {
                                                         for (int MainBranchNum = 1;
@@ -3825,7 +3829,7 @@ void ReportVentilationLoads(EnergyPlusData &state)
         if (!thisZoneEquipConfig.IsControlled) continue;
 
         Real64 ZAirSysZoneVentLoad = 0.0; // ventilation load attributed to a particular zone from all primary air systems serving the zone [J]
-        Real64 ZAirSysOutAirFlow = 0.0;   // outside air flow rate for zone from all primary air systems serving thezone [kg/s]
+        Real64 ZAirSysOutAirFlow = 0.0;   // outside air flow rate for zone from all primary air systems serving the zone [kg/s]
         Real64 ZFAUFlowRate = 0.0;        // Zone forced Air unit air mass flow rate [kg/s]
         Real64 ZFAUZoneVentLoad = 0.0;    // ventilation load attributed to a particular zone from zone forced air units [J]
         Real64 ZFAUOutAirFlow = 0.0;      // outside air flow rate for zone from zone forced air units. [kg/s]
@@ -4040,11 +4044,14 @@ void ReportVentilationLoads(EnergyPlusData &state)
             case DataZoneEquipment::ZoneEquipType::BaseboardConvectiveElectric:
             case DataZoneEquipment::ZoneEquipType::HighTemperatureRadiant:
                 //    not sure how HeatExchanger:* could be used as zone equipment ?????
-            case DataZoneEquipment::ZoneEquipType::LowTemperatureRadiant:
+            case DataZoneEquipment::ZoneEquipType::LowTemperatureRadiantConstFlow:
+            case DataZoneEquipment::ZoneEquipType::LowTemperatureRadiantVarFlow:
+            case DataZoneEquipment::ZoneEquipType::LowTemperatureRadiantElectric:
             case DataZoneEquipment::ZoneEquipType::ExhaustFan:
             case DataZoneEquipment::ZoneEquipType::HeatExchanger:
                 // HPWaterHeater can be used as zone equipment
-            case DataZoneEquipment::ZoneEquipType::HeatPumpWaterHeater:
+            case DataZoneEquipment::ZoneEquipType::HeatPumpWaterHeaterPumpedCondenser:
+            case DataZoneEquipment::ZoneEquipType::HeatPumpWaterHeaterWrappedCondenser:
             case DataZoneEquipment::ZoneEquipType::BaseboardWater:
             case DataZoneEquipment::ZoneEquipType::DehumidifierDX:
             case DataZoneEquipment::ZoneEquipType::BaseboardSteam:
@@ -4131,7 +4138,7 @@ void ReportVentilationLoads(EnergyPlusData &state)
                 AirSysZoneVentLoad = 0.0;
                 AirSysOutAirFlow = 0.0;
             } else {
-                // Calculate return and mixed air ethalpies
+                // Calculate return and mixed air enthalpies
                 AirSysEnthReturnAir = Psychrometrics::PsyHFnTdbW(Node(ReturnAirNode).Temp, Node(ReturnAirNode).HumRat);
                 AirSysEnthMixedAir = Psychrometrics::PsyHFnTdbW(Node(MixedAirNode).Temp, Node(MixedAirNode).HumRat);
 
@@ -4466,7 +4473,7 @@ void FindDemandSideMatch(EnergyPlusData &state,
     //       DATE WRITTEN   September 2004
 
     // PURPOSE OF THIS SUBROUTINE:
-    // This subroutine intializes the connections between various loops.
+    // This subroutine initializes the connections between various loops.
     // Due to the fact that this requires numerous string compares, it
     // is much more efficient to find this information once and then
     // store it in module level variables (LoopConnect derived type).
@@ -4868,6 +4875,7 @@ void reportAirLoopToplogy(EnergyPlusData &state)
                         auto &thisZoneEquipConfig = state.dataZoneEquip->ZoneEquipConfig(zoneNum);
                         auto &zel = state.dataZoneEquip->ZoneEquipList(zoneNum);
                         for (auto &thisCoolADU : thisZoneEquipConfig.AirDistUnitCool) {
+                            if (thisCoolADU.AirLoopNum != airLoopNum) continue;
                             if (thisCoolADU.SupplyBranchIndex != thisAtoZInfo.SupplyDuctBranchNum(ductNum)) continue;
                             if (thisCoolADU.SupplyAirPathExists) {
                                 int spCompNum = thisSupplyPath.OutletNodeSupplyPathCompNum(thisCoolADU.SupplyAirPathOutNodeIndex);
@@ -4920,6 +4928,7 @@ void reportAirLoopToplogy(EnergyPlusData &state)
                         auto &thisZoneEquipConfig = state.dataZoneEquip->ZoneEquipConfig(zoneNum);
                         auto &zel = state.dataZoneEquip->ZoneEquipList(zoneNum);
                         for (auto &thisHeatADU : thisZoneEquipConfig.AirDistUnitHeat) {
+                            if (thisHeatADU.AirLoopNum != airLoopNum) continue;
                             if (thisHeatADU.SupplyBranchIndex != thisAtoZInfo.SupplyDuctBranchNum(ductNum)) continue;
                             if (thisHeatADU.SupplyAirPathExists) {
                                 int spCompNum = thisSupplyPath.OutletNodeSupplyPathCompNum(thisHeatADU.SupplyAirPathOutNodeIndex);
