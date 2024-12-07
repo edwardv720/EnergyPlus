@@ -207,6 +207,7 @@ struct EMSManagerData : BaseGlobalStruct
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {
+        EMSManager::CheckIfAnyEMS(state);
     }
 
     void clear_state() override

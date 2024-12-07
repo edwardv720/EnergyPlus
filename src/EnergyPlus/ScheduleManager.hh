@@ -197,8 +197,17 @@ namespace Sched {
         bool checkMinVal(EnergyPlusData &state, Clusive cluMin, Real64 const min);
         bool checkMaxVal(EnergyPlusData &state, Clusive cluMax, Real64 const max);
     };
+
+    struct DayOrYearSchedule : ScheduleBase
+    {
+        DayOrYearSchedule() {};
+        virtual ~DayOrYearSchedule() {};
+
+        // virtual void getDayVals(EnergyPlusData &state, Array2S<Real64> DayVals, int jDay = -1, int dayOfWeek = -1) = 0;
+        virtual std::vector<Real64> const &getDayVals([[maybe_unused]] EnergyPlusData &state, int jDay = -1, int dayOfWeek = -1) = 0;
+    };
         
-    struct DaySchedule : ScheduleBase
+    struct DaySchedule : DayOrYearSchedule
     {
         int schedTypeNum = SchedNum_Invalid;                // Index of Schedule Type
             
@@ -213,8 +222,8 @@ namespace Sched {
         bool checkValsForLimitViolations(EnergyPlusData &state) const;
         bool checkValsForBadIntegers(EnergyPlusData &state) const;
         void populateFromMinuteVals(EnergyPlusData &state, std::array<Real64, Constant::iMinutesInDay> const &minVals);
-        void getDayVals(EnergyPlusData &state, Array2S<Real64> DayVals) const;
-        std::vector<Real64> const &getDayVals([[maybe_unused]] EnergyPlusData &state) const { return tsVals; }
+        // void getDayVals(EnergyPlusData &state, Array2S<Real64> DayVals, int jDay = -1, int dayOfWeek = -1);
+        std::vector<Real64> const &getDayVals([[maybe_unused]] EnergyPlusData &state, int jDay = -1, int dayOfWeek = -1) { return tsVals; }
         void setMinMaxVals(EnergyPlusData &state);
     };
 
@@ -230,7 +239,7 @@ namespace Sched {
         void setMinMaxVals(EnergyPlusData &state);
     };
 
-    struct Schedule : public ScheduleBase
+    struct Schedule : public DayOrYearSchedule
     {
         SchedType type = SchedType::Invalid;
             
@@ -248,10 +257,7 @@ namespace Sched {
 
         // Looks up a given Schedule value for an hour & timestep, minding whether DST is enabled or not
         // Negative ts => unspecified, will use TimeStepsInHour
-        virtual Real64 getHrTsVal(EnergyPlusData &state, int hr, int ts = -1) const = 0;
-        virtual void getDayVals(EnergyPlusData &state, Array2S<Real64> DayVals, int jDay = -1, int dayofWeek = -1) = 0;
-        virtual std::vector<Real64> const &getDayVals(EnergyPlusData &state, int jDay = -1, int dayOfWeek = -1) = 0;
-            
+        virtual Real64 getHrTsVal(EnergyPlusData &state, int hr, int ts = -1) const = 0;            
         virtual bool hasVal(EnergyPlusData &state, Real64 const val) const = 0;
         virtual bool hasFractionalVal(EnergyPlusData &state) const = 0;
             
@@ -277,7 +283,7 @@ namespace Sched {
         // Negative ts => unspecified, will use TimeStepsInHour
         Real64 getHrTsVal(EnergyPlusData &state, int hr, int ts = -1) const;
             
-        void getDayVals(EnergyPlusData &state, Array2S<Real64> DayValues, int jDay = -1, int dayofWeek = -1);
+        // void getDayVals(EnergyPlusData &state, Array2S<Real64> DayValues, int jDay = -1, int dayofWeek = -1);
         std::vector<Real64> const &getDayVals(EnergyPlusData &state, int jDay = -1, int dayOfWeek = -1); 
             
         bool hasVal(EnergyPlusData &state, Real64 const val) const;
@@ -308,7 +314,7 @@ namespace Sched {
             
         void can_instantiate() { assert(false); } // makes class concrete, but don't call this
             
-        void getDayVals(EnergyPlusData &state, Array2S<Real64> DayVals, int jDay = -1, int dayofWeek = -1);
+        // void getDayVals(EnergyPlusData &state, Array2S<Real64> DayVals, int jDay = -1, int dayofWeek = -1);
         std::vector<Real64> const &getDayVals(EnergyPlusData &state, int jDay = -1, int dayOfWeek = -1);
             
         bool hasVal(EnergyPlusData &state, Real64 const val) const;

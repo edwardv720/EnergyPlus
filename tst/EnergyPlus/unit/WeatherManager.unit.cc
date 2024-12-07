@@ -133,30 +133,22 @@ TEST_F(EnergyPlusFixture, SkyTempTest)
 
     state->init_state(*state);
     
-    Array2D<Real64> TomorrowSkyTemp; // Sky temperature
-    TomorrowSkyTemp.allocate(state->dataGlobal->TimeStepsInHour, 24);
-    TomorrowSkyTemp = 0.0;
-
     auto *tSkySched = Sched::GetSchedule(*state, "TSKYSCHEDULE");
     // Febuary 27
-    tSkySched->getDayVals(*state, TomorrowSkyTemp, 58, 3);
-    EXPECT_NEAR(2.27, TomorrowSkyTemp(1, 1), .001);
+    
+    EXPECT_NEAR(2.27, tSkySched->getDayVals(*state, 58, 3)[0 * state->dataGlobal->TimeStepsInHour + 0], .001);
 
     // Febuary 28
-    tSkySched->getDayVals(*state, TomorrowSkyTemp, 59, 4);
-    EXPECT_NEAR(2.28, TomorrowSkyTemp(1, 1), .001);
+    EXPECT_NEAR(2.28, tSkySched->getDayVals(*state, 59, 4)[0 * state->dataGlobal->TimeStepsInHour + 0], .001);
 
     // March 1
-    tSkySched->getDayVals(*state, TomorrowSkyTemp, 60, 5);
-    EXPECT_NEAR(3.01, TomorrowSkyTemp(1, 1), .001);
+    EXPECT_NEAR(3.01, tSkySched->getDayVals(*state, 60, 5)[0 * state->dataGlobal->TimeStepsInHour + 0], .001);
 
     // Not March 2, this "Day" is ignored unless its a leap year, otherwise same data as March 1
-    tSkySched->getDayVals(*state, TomorrowSkyTemp, 61, 6);
-    EXPECT_NEAR(3.01, TomorrowSkyTemp(1, 1), .001);
+    EXPECT_NEAR(3.01, tSkySched->getDayVals(*state, 61, 6)[0 * state->dataGlobal->TimeStepsInHour + 0], .001);
 
     // March 2
-    tSkySched->getDayVals(*state, TomorrowSkyTemp, 62, 6);
-    EXPECT_NEAR(3.02, TomorrowSkyTemp(1, 1), .001);
+    EXPECT_NEAR(3.02, tSkySched->getDayVals(*state, 62, 6)[0 * state->dataGlobal->TimeStepsInHour + 0], .001);
 }
 
 TEST_F(EnergyPlusFixture, SkyEmissivityTest)

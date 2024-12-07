@@ -166,12 +166,12 @@ static constexpr std::array<std::string_view, (int)HVAC::SetptType::Num> comfort
     "ThermostatSetpoint:ThermalComfort:Fanger:SingleHeatingOrCooling",
     "ThermostatSetpoint:ThermalComfort:Fanger:DualSetpoint"};
 
-// static constexpr std::array<std::string_view, (int)HVAC::SetptType::Num> comfortSetptTypeNamesUC = {
-//    "UNCONTROLLED",
-//    "THERMOSTATSETPOINT:THERMALCOMFORT:FANGER:SINGLEHEATING",
-//    "THERMOSTATSETPOINT:THERMALCOMFORT:FANGER:SINGLECOOLING",
-//    "THERMOSTATSETPOINT:THERMALCOMFORT:FANGER:SINGLEHEATINGORCOOLING",
-//    "THERMOSTATSETPOINT:THERMALCOMFORT:FANGER:DUALSETPOINT"};
+static constexpr std::array<std::string_view, (int)HVAC::SetptType::Num> comfortSetptTypeNamesUC = {
+    "UNCONTROLLED",
+    "THERMOSTATSETPOINT:THERMALCOMFORT:FANGER:SINGLEHEATING",
+    "THERMOSTATSETPOINT:THERMALCOMFORT:FANGER:SINGLECOOLING",
+    "THERMOSTATSETPOINT:THERMALCOMFORT:FANGER:SINGLEHEATINGORCOOLING",
+    "THERMOSTATSETPOINT:THERMALCOMFORT:FANGER:DUALSETPOINT"};
 
 Array1D_string const cZControlTypes(6,
                                     {"ZoneControl:Thermostat",
@@ -1064,7 +1064,7 @@ void GetZoneAirSetPoints(EnergyPlusData &state)
                         ShowSevereEmptyField(state, eoh, s_ipsc->cAlphaFieldNames(ctIdx));
                         ErrorsFound = true;
                         continue;
-                    } else if ((setptType = static_cast<HVAC::SetptType>(getEnumValue(setptTypeNamesUC, s_ipsc->cAlphaArgs(ctIdx))))
+                    } else if ((setptType = static_cast<HVAC::SetptType>(getEnumValue(comfortSetptTypeNamesUC, s_ipsc->cAlphaArgs(ctIdx))))
                                == HVAC::SetptType::Invalid) {
                         ShowSevereInvalidKey(state, eoh, s_ipsc->cAlphaFieldNames(ctIdx), s_ipsc->cAlphaFieldNames(ctIdx));
                         ErrorsFound = true;
@@ -1259,11 +1259,11 @@ void GetZoneAirSetPoints(EnergyPlusData &state)
             int setptIdx = Util::FindItem(setpt.Name, s_ztpc->comfortSetptScheds[(int)setptType]);
             
             if (setptType == HVAC::SetptType::SingleHeat || setptType == HVAC::SetptType::SingleHeatCool || setptType == HVAC::SetptType::DualHeatCool) {
-                setpt.heatSetptSched = s_ztpc->tempSetptScheds[(int)setptType](setptIdx).heatSched;
+                setpt.heatSetptSched = s_ztpc->comfortSetptScheds[(int)setptType](setptIdx).heatSched;
             }
 
             if (setptType == HVAC::SetptType::SingleCool || setptType == HVAC::SetptType::SingleHeatCool || setptType == HVAC::SetptType::DualHeatCool) {
-                setpt.coolSetptSched = s_ztpc->tempSetptScheds[(int)setptType](setptIdx).coolSched;
+                setpt.coolSetptSched = s_ztpc->comfortSetptScheds[(int)setptType](setptIdx).coolSched;
             }
             
             TComfortControlTypes(ComfortControlledZoneNum).MustHave[(int)setptType] = true;
@@ -3133,7 +3133,6 @@ void CalcZoneAirTempSetPoints(EnergyPlusData &state)
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
     int RelativeZoneNum;
     int ActualZoneNum;
-    Array2D<Real64> DaySPValues; // Day room temp setpoint values - for optimum start
     int OccStartTime;            // Occupancy start time - for optimum start
     Real64 DeltaT;               // Temperature difference between cutout and setpoint
 
@@ -3215,13 +3214,10 @@ void CalcZoneAirTempSetPoints(EnergyPlusData &state)
             // Change the room set point to occupied set point during optimum start period--------------
 
             if (allocated(state.dataAvail->OptStart)) {
-                if (!allocated(DaySPValues)) {
-                    DaySPValues.allocate(state.dataGlobal->TimeStepsInHour, Constant::iHoursInDay);
-                }
                 if (state.dataAvail->OptStart(ActualZoneNum).ActualZoneNum == ActualZoneNum) {
-                    tempZone.setpts[(int)HVAC::SetptType::SingleHeat].heatSetptSched->getDayVals(state, DaySPValues);
+
                     OccStartTime = CEILING(state.dataAvail->OptStart(ActualZoneNum).OccStartTime) + 1;
-                    zoneTstatSetpt.setpt = DaySPValues(1, OccStartTime);
+                    zoneTstatSetpt.setpt = tempZone.setpts[(int)HVAC::SetptType::SingleHeat].heatSetptSched->getDayVals(state)[OccStartTime * state.dataGlobal->TimeStepsInHour];
                 }
 
                 if (state.dataAvail->OptStart(ActualZoneNum).OptStartFlag) {
@@ -3251,16 +3247,13 @@ void CalcZoneAirTempSetPoints(EnergyPlusData &state)
             // Change the room set point to occupied set point during optimum start period--------------
 
             if (allocated(state.dataAvail->OptStart)) {
-                if (!allocated(DaySPValues)) {
-                    DaySPValues.allocate(state.dataGlobal->TimeStepsInHour, Constant::iHoursInDay);
-                }
                 if (state.dataAvail->OptStart(ActualZoneNum).ActualZoneNum == ActualZoneNum) {
                     // TODO: Why are we getting all day values if all we want is the value at (1, OccStartTime);
-                    tempZone.setpts[(int)HVAC::SetptType::DualHeatCool].coolSetptSched->getDayVals(state, DaySPValues);
                     OccStartTime = CEILING(state.dataAvail->OptStart(ActualZoneNum).OccStartTime) + 1;
-                    state.dataZoneCtrls->OccRoomTSetPointCool(ActualZoneNum) = DaySPValues(1, OccStartTime);
-                    tempZone.setpts[(int)HVAC::SetptType::DualHeatCool].heatSetptSched->getDayVals(state, DaySPValues);
-                    state.dataZoneCtrls->OccRoomTSetPointHeat(ActualZoneNum) = DaySPValues(1, OccStartTime);
+                    state.dataZoneCtrls->OccRoomTSetPointCool(ActualZoneNum) =
+                        tempZone.setpts[(int)HVAC::SetptType::DualHeatCool].coolSetptSched->getDayVals(state)[OccStartTime * state.dataGlobal->TimeStepsInHour];
+                    state.dataZoneCtrls->OccRoomTSetPointHeat(ActualZoneNum) =
+                        tempZone.setpts[(int)HVAC::SetptType::DualHeatCool].heatSetptSched->getDayVals(state)[OccStartTime * state.dataGlobal->TimeStepsInHour];
                 }
 
                 if (state.dataAvail->OptStart(ActualZoneNum).OptStartFlag) {

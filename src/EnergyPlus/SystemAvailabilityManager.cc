@@ -2299,16 +2299,16 @@ namespace Avail {
             }
             if (!state.dataGlobal->BeginDayFlag) state.dataAvail->BeginOfDayResetFlag = true;
 
-            OptStartMgr.fanSched->getDayVals(state, DayValues);
-            OptStartMgr.fanSched->getDayVals(state, DayValuesTmr, TmrJDay, TmrDayOfWeek);
+            std::vector<Real64> const &dayVals = OptStartMgr.fanSched->getDayVals(state);
+            std::vector<Real64> const &tmwDayVals = OptStartMgr.fanSched->getDayVals(state, TmrJDay, TmrDayOfWeek);
 
             FanStartTime = 0.0;
             FanStartTimeTmr = 0.0;
             exitLoop = false;
-            for (int I = 1; I <= 24; ++I) {
-                for (int J = 1; J <= state.dataGlobal->TimeStepsInHour; ++J) {
-                    if (DayValues(J, I) <= 0.0) continue;
-                    FanStartTime = I - 1 + 1.0 / state.dataGlobal->TimeStepsInHour * J - 0.01;
+            for (int hr = 0; hr < Constant::iHoursInDay; ++hr) {
+                for (int ts = 0; ts <= state.dataGlobal->TimeStepsInHour; ++ts) {
+                    if (dayVals[hr * state.dataGlobal->TimeStepsInHour + ts] <= 0.0) continue;
+                    FanStartTime = hr + (1.0 / state.dataGlobal->TimeStepsInHour) * (ts + 1) - 0.01;
                     exitLoop = true;
                     break;
                 }
@@ -2316,10 +2316,10 @@ namespace Avail {
             }
 
             exitLoop = false;
-            for (int I = 1; I <= 24; ++I) {
-                for (int J = 1; J <= state.dataGlobal->TimeStepsInHour; ++J) {
-                    if (DayValuesTmr(J, I) <= 0.0) continue;
-                    FanStartTimeTmr = I - 1 + 1.0 / state.dataGlobal->TimeStepsInHour * J - 0.01;
+            for (int hr = 0; hr < Constant::iHoursInDay; ++hr) {
+                for (int ts = 0; ts < state.dataGlobal->TimeStepsInHour; ++ts) {
+                    if (tmwDayVals[hr * state.dataGlobal->TimeStepsInHour + ts] <= 0.0) continue;
+                    FanStartTimeTmr = hr + (1.0 / state.dataGlobal->TimeStepsInHour) * (ts + 1) - 0.01;
                     exitLoop = true;
                     break;
                 }

@@ -1059,18 +1059,13 @@ void GetRefrigerationInput(EnergyPlusData &state)
             // Flag for counting defrost cycles
             bool StartCycle = false;
             int NumDefCycles = 0;
-            DayValues = 0.0;
-            RefrigCase(CaseNum).defrostSched->getDayVals(state, DayValues, 1);
-            for (int HRNum = 1; HRNum <= 24; ++HRNum) {
-                for (int TSNum = 1; TSNum <= state.dataGlobal->TimeStepsInHour; ++TSNum) {
-                    if (DayValues(TSNum, HRNum) > 0.0) {
-                        if (!StartCycle) {
-                            ++NumDefCycles;
-                            StartCycle = true;
-                        }
-                    } else {
-                        StartCycle = false;
-                    }
+            std::vector<Real64> const &dayVals = RefrigCase(CaseNum).defrostSched->getDayVals(state, 1);
+            for (int i = 0; i < Constant::iHoursInDay * state.dataGlobal->TimeStepsInHour; ++i) {
+                if (dayVals[i] == 0.0) {
+                    StartCycle = false;
+                } else if (!StartCycle) {
+                    ++NumDefCycles;
+                    StartCycle = true;
                 }
             }
 

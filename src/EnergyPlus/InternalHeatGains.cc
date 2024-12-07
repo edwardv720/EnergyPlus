@@ -329,6 +329,12 @@ namespace InternalHeatGains {
                     thisPeople.spaceIndex = spaceNum;
                     thisPeople.ZonePtr = zoneNum;
 
+                    // These are Constant-1.0 by default
+                    thisPeople.workEffSched = Sched::GetScheduleAlwaysOn(state);
+                    thisPeople.clothingSched = Sched::GetScheduleAlwaysOn(state);
+                    thisPeople.clothingMethodSched = Sched::GetScheduleAlwaysOn(state);
+                    thisPeople.airVelocitySched = Sched::GetScheduleAlwaysOn(state);
+                    
                     thisPeople.numberOfPeopleSched = Sched::GetSchedule(state, IHGAlphas(3));
                     SchMin = 0.0;
                     SchMax = 0.0;
@@ -711,8 +717,8 @@ namespace InternalHeatGains {
                             } // switch (thisPeople.MRTCalcType)
 
                             if (!IHGAlphaFieldBlanks(9)) {
-                               thisPeople.workEffSched = Sched::GetSchedule(state, IHGAlphas(9));
-                            }
+                                thisPeople.workEffSched = Sched::GetSchedule(state, IHGAlphas(9));
+                            }                                    
                             
                             if (Item1 == 1) {
                                 if (IHGAlphaFieldBlanks(9)) {
@@ -737,6 +743,7 @@ namespace InternalHeatGains {
                                        ClothingType::Invalid) {
                                 ShowSevereInvalidKey(state, eoh, IHGAlphaFieldNames(10), IHGAlphas(10));
                                 ErrorsFound = true;
+
                             } else {
                                     
                                 switch (thisPeople.clothingType) {
@@ -789,8 +796,10 @@ namespace InternalHeatGains {
                             }
 
                         
-                            if (!IHGAlphaFieldBlanks(13)) {
-                               thisPeople.airVelocitySched = Sched::GetSchedule(state, IHGAlphas(13));
+                            if (IHGAlphaFieldBlanks(13)) {
+                                thisPeople.airVelocitySched = Sched::GetScheduleAlwaysOn(state);
+                            } else {
+                                thisPeople.airVelocitySched = Sched::GetSchedule(state, IHGAlphas(13));
                             }
                             
                             if (Item1 == 1) {
@@ -810,7 +819,9 @@ namespace InternalHeatGains {
                                 }
                             }
                             
-                            if (!IHGAlphaFieldBlanks(21)) {
+                            if (IHGAlphaFieldBlanks(21)) {
+                                thisPeople.ankleAirVelocitySched = Sched::GetScheduleAlwaysOn(state);
+                            } else {
                                 thisPeople.ankleAirVelocitySched = Sched::GetSchedule(state, IHGAlphas(21));
                             }
 

@@ -578,9 +578,11 @@ void EnergyPlusData::init_constant_state(EnergyPlusData &state)
     
     this->init_constant_state_called = true;
 
-    this->dataSimulationManager->init_constant_state(state); // GetProjectData
-    this->dataFluidProps->init_constant_state(state);        // GetFluidPropertiesData
-    this->dataPsychrometrics->init_constant_state(state);    // InitializePsychRoutines
+    // The order of these should not matter, but we are mirroring init_state() order which does matter.
+    this->dataSimulationManager->init_constant_state(state); 
+    this->dataEMSMgr->init_constant_state(state);            
+    this->dataFluidProps->init_constant_state(state);        
+    this->dataPsychrometrics->init_constant_state(state);    
     this->dataSched->init_constant_state(state);
 
     this->dataAirLoop->init_constant_state(state);
@@ -629,7 +631,6 @@ void EnergyPlusData::init_constant_state(EnergyPlusData &state)
     this->dataDualDuct->init_constant_state(state);
     this->dataEIRFuelFiredHeatPump->init_constant_state(state);
     this->dataEIRPlantLoopHeatPump->init_constant_state(state);
-    this->dataEMSMgr->init_constant_state(state);
     this->dataEarthTube->init_constant_state(state);
     this->dataEcoRoofMgr->init_constant_state(state);
     this->dataEconLifeCycleCost->init_constant_state(state);
@@ -842,9 +843,10 @@ void EnergyPlusData::init_state(EnergyPlusData &state)
     // objects that do not reference any other objects, like fluids,
     // schedules, curves, etc.
     this->dataSimulationManager->init_state(state); // GetProjectData
+    this->dataEMSMgr->init_state(state);            // CheckIfAnyEMS
     this->dataFluidProps->init_state(state);        // GetFluidPropertiesData
     this->dataPsychrometrics->init_state(state);    // InitializePsychRoutines
-    this->dataSched->init_state(state);
+    this->dataSched->init_state(state);             // GetScheduleData
 
     this->dataAirLoop->init_state(state);
     this->dataAirLoopHVACDOAS->init_state(state);
@@ -892,7 +894,6 @@ void EnergyPlusData::init_state(EnergyPlusData &state)
     this->dataDualDuct->init_state(state);
     this->dataEIRFuelFiredHeatPump->init_state(state);
     this->dataEIRPlantLoopHeatPump->init_state(state);
-    this->dataEMSMgr->init_state(state);
     this->dataEarthTube->init_state(state);
     this->dataEcoRoofMgr->init_state(state);
     this->dataEconLifeCycleCost->init_state(state);

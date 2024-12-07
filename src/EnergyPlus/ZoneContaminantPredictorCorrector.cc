@@ -1106,8 +1106,7 @@ void GetZoneContaminanSetPoints(EnergyPlusData &state)
         }
 
         if (state.dataIPShortCut->lAlphaFieldBlanks(5)) {
-            ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaFieldNames(5));
-            ErrorsFound = true;
+            controlledZone.zoneMinCO2Sched = Sched::GetScheduleAlwaysOff(state);
         } else if ((controlledZone.zoneMinCO2Sched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(5))) == nullptr) {
             ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaFieldNames(5), state.dataIPShortCut->cAlphaArgs(5));
             ErrorsFound = true;
@@ -1120,8 +1119,7 @@ void GetZoneContaminanSetPoints(EnergyPlusData &state)
         }
 
         if (state.dataIPShortCut->lAlphaFieldBlanks(6)) {
-            ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaFieldNames(6));
-            ErrorsFound = true;
+            controlledZone.zoneMaxCO2Sched = Sched::GetScheduleAlwaysOff(state);
         } else if ((controlledZone.zoneMaxCO2Sched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(6))) == nullptr) {
             ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaFieldNames(6), state.dataIPShortCut->cAlphaArgs(6));
             ErrorsFound = true;
@@ -1133,7 +1131,12 @@ void GetZoneContaminanSetPoints(EnergyPlusData &state)
             state.dataHeatBal->Zone(controlledZone.ActualZoneNum).zoneMaxCO2Sched = controlledZone.zoneMaxCO2Sched;
         }
         
-        if (NumAlphas <= 6 || state.dataIPShortCut->lAlphaFieldBlanks(7)) {
+        if (NumAlphas <= 6) {
+            controlledZone.availSched = Sched::GetScheduleAlwaysOn(state);
+            continue;
+        }
+        
+        if (state.dataIPShortCut->lAlphaFieldBlanks(7)) {
             controlledZone.availSched = Sched::GetScheduleAlwaysOn(state);
         } else if ((controlledZone.availSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(7))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(7), state.dataIPShortCut->cAlphaArgs(7));

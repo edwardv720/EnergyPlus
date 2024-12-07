@@ -3283,7 +3283,7 @@ namespace AirflowNetwork {
                 case VentControlType::CEN15251:
                 case VentControlType::NoVent:
                 case VentControlType::ZoneLevel: {
-                    MultizoneSurfaceData(i).ventSched = nullptr;
+                    MultizoneSurfaceData(i).ventSched = Sched::GetScheduleAlwaysOff(m_state);
                     MultizoneSurfaceData(i).VentSchName = "";
                 } break;
                 default:

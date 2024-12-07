@@ -1881,6 +1881,8 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
 
                 thisVentilation.ModelType = DataHeatBalance::VentilationModelType::WindAndStack;
 
+                thisVentilation.sched = Sched::GetScheduleAlwaysOff(state);
+
                 thisVentilation.OpenArea = rNumericArgs(1);
                 if (thisVentilation.OpenArea < 0.0) {
                     ShowSevereError(

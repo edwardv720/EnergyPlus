@@ -5844,10 +5844,7 @@ TEST_F(EnergyPlusFixture, VRFTest_SysCurve_WaterCooled)
     state->dataZoneEnergyDemand->ZoneSysEnergyDemand.allocate(1);
     state->dataZoneTempPredictorCorrector->zoneHeatBalance.allocate(1);
 
-    Array2D<Real64> DummyArray; // Sky temperature
-    DummyArray.allocate(state->dataGlobal->TimeStepsInHour, Constant::iHoursInDay);
-    DummyArray = 0.0;
-    Sched::GetSchedule(*state, "MAIN LOOP TEMP SCH")->getDayVals(*state, DummyArray, 58, 3);
+    Sched::GetSchedule(*state, "MAIN LOOP TEMP SCH")->getDayVals(*state, 58, 3);
 
     Curve::GetCurveInput(*state);                         // read curves
     HeatBalanceManager::GetZoneData(*state, ErrorsFound); // read zone data

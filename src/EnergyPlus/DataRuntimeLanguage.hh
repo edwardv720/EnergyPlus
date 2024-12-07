@@ -806,9 +806,7 @@ struct RuntimeLanguageData : BaseGlobalStruct
     DataRuntimeLanguage::ErlValueType True = DataRuntimeLanguage::ErlValueType(
         DataRuntimeLanguage::Value::Null, 0.0, "", 0, 0, false, 0, "", true); // special "True" Erl variable value instance, gets reset
 
-    // EMS Actuator fast duplicate check lookup support
-    std::unordered_set<std::tuple<std::string, std::string, std::string>, DataRuntimeLanguage::EMSActuatorKey_hash>
-        EMSActuator_lookup; // Fast duplicate lookup structure
+    std::map<std::tuple<std::string_view, std::string_view, std::string_view>, int> EMSActuatorAvailableMap;
 
     void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
     {
@@ -865,10 +863,11 @@ struct RuntimeLanguageData : BaseGlobalStruct
         this->EMSInternalVarsAvailable.deallocate();
         this->EMSInternalVarsUsed.deallocate();
         this->EMSProgramCallManager.deallocate();
-        this->EMSActuator_lookup.clear();
         this->Null = DataRuntimeLanguage::ErlValueType(DataRuntimeLanguage::Value::Null, 0.0, "", 0, 0, false, 0, "", true);
         this->False = DataRuntimeLanguage::ErlValueType(DataRuntimeLanguage::Value::Null, 0.0, "", 0, 0, false, 0, "", true);
         this->True = DataRuntimeLanguage::ErlValueType(DataRuntimeLanguage::Value::Null, 0.0, "", 0, 0, false, 0, "", true);
+
+        this->EMSActuatorAvailableMap.clear();
     }
 };
 

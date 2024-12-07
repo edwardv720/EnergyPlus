@@ -420,7 +420,7 @@ namespace Weather {
         std::string Name = "";         // Reference Name
         bool IsSchedule = true;        // Default is using Schedule
         SkyTempModel skyTempModel = SkyTempModel::ClarkAllen;
-        Sched::Schedule *sched = nullptr; // schedule when used
+        Sched::DayOrYearSchedule *sched = nullptr; // schedule when used
         bool UsedForEnvrn = false;
         bool UseWeatherFileHorizontalIR = true; // If false, horizontal IR and sky temperature are calculated with WP models
     };
@@ -760,8 +760,6 @@ namespace Weather {
         Real64 SkyTemp = 0.0;
     };
 
-    // Here's a fun little function
-    void ForAllHrTs(EnergyPlusData const &state, std::function<void(int, int)> f);
 } // namespace Weather
 
 struct WeatherManagerData : BaseGlobalStruct
