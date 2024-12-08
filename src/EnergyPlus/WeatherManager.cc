@@ -6005,7 +6005,7 @@ namespace Weather {
                 std::vector<Real64> const &dayVals = desDayInput.tempRangeSched->getDayVals(state);
                 auto &desDayModEnvrn = state.dataWeather->desDayMods(EnvrnNum);
                 for (int hr = 0; hr < Constant::iHoursInDay; ++hr) {
-                    for (int ts = 0; ts <= state.dataGlobal->TimeStepsInHour; ++ts) {
+                    for (int ts = 0; ts < state.dataGlobal->TimeStepsInHour; ++ts) {
                         desDayModEnvrn(ts+1, hr+1).OutDryBulbTemp = dayVals[hr * state.dataGlobal->TimeStepsInHour + ts];
                     }
                 }

@@ -198,16 +198,15 @@ namespace Sched {
        auto &s_glob = state.dataGlobal;
        if (this->interpolation == Interpolation::Average) {
            for (int hr = 0; hr < Constant::iHoursInDay; ++hr) {
-               int begMinute = 0;
-               int endMinute = s_glob->MinutesInTimeStep - 1;
+               int begMin = 0;
+               int endMin = s_glob->MinutesInTimeStep - 1;
                for (int ts = 0; ts < s_glob->TimeStepsInHour; ++ts) {
                    this->tsVals[hr * s_glob->TimeStepsInHour + ts] = 
-                      std::accumulate(minuteVals.begin() + (hr * Constant::iMinutesInHour + begMinute),
-                                      minuteVals.begin() + (hr * Constant::iMinutesInHour + endMinute),
-                                      0) / double(s_glob->MinutesInTimeStep);
+                      std::accumulate(&minuteVals[hr * Constant::iMinutesInHour + begMin], &minuteVals[hr * Constant::iMinutesInHour + endMin + 1], 0) /
+                           double(s_glob->MinutesInTimeStep);
                    this->sumTsVals += this->tsVals[hr * s_glob->TimeStepsInHour + ts];
-                   begMinute = endMinute + 1;
-                   endMinute += s_glob->MinutesInTimeStep;
+                   begMin = endMin + 1;
+                   endMin += s_glob->MinutesInTimeStep;
                }
            }
        } else {
@@ -230,7 +229,7 @@ namespace Sched {
         sched->Name = name;
         sched->Num = (int)s_sched->schedules.size();
         s_sched->schedules.push_back(sched);
-        s_sched->scheduleMap.insert_or_assign(Util::makeUPPER(sched->Name), sched->Num);
+        s_sched->scheduleMap.insert_or_assign(std::move(Util::makeUPPER(sched->Name)), sched->Num);
         
         sched->type = SchedType::Constant;
         return sched;
@@ -245,7 +244,7 @@ namespace Sched {
         
         sched->Num = (int)s_sched->schedules.size();
         s_sched->schedules.push_back(sched);
-        s_sched->scheduleMap.insert_or_assign(Util::makeUPPER(sched->Name), sched->Num);
+        s_sched->scheduleMap.insert_or_assign(std::move(Util::makeUPPER(sched->Name)), sched->Num);
         
         sched->type = SchedType::Year;
         return sched;
@@ -261,7 +260,7 @@ namespace Sched {
         
         daySched->Num = (int)s_sched->daySchedules.size();
         s_sched->daySchedules.push_back(daySched);
-        s_sched->dayScheduleMap.insert_or_assign(Util::makeUPPER(daySched->Name), daySched->Num);
+        s_sched->dayScheduleMap.insert_or_assign(std::move(Util::makeUPPER(daySched->Name)), daySched->Num);
         
         daySched->tsVals.resize(Constant::iHoursInDay * s_glob->TimeStepsInHour);
         
@@ -277,7 +276,7 @@ namespace Sched {
         
         weekSched->Num = (int)s_sched->weekSchedules.size();
         s_sched->weekSchedules.push_back(weekSched);
-        s_sched->weekScheduleMap.insert_or_assign(Util::makeUPPER(weekSched->Name), weekSched->Num);
+        s_sched->weekScheduleMap.insert_or_assign(std::move(Util::makeUPPER(weekSched->Name)), weekSched->Num);
         
         return weekSched;
     } // AddWeekSchedule()
@@ -1375,16 +1374,16 @@ namespace Sched {
                             }
                         } else {
                            for (int hr = 0; hr < Constant::iHoursInDay; ++hr) {
-                                int begMinute = 0;
-                                int endMinute = s_glob->MinutesInTimeStep - 1;
+                                int begMin = 0;
+                                int endMin = s_glob->MinutesInTimeStep - 1;
                                 for (int ts = 0; ts < s_glob->TimeStepsInHour; ++ts) {
                                     daySched->tsVals[hr * s_glob->TimeStepsInHour + ts] =
-                                        std::accumulate(minuteVals.begin() + (hr * Constant::iMinutesInHour + begMinute),
-                                                        minuteVals.begin() + (hr * Constant::iMinutesInHour + endMinute),
+                                        std::accumulate(&minuteVals[hr * Constant::iMinutesInHour + begMin],
+                                                        &minuteVals[hr * Constant::iMinutesInHour + endMin + 1],
                                                         0) / double(s_glob->MinutesInTimeStep);
                                     daySched->sumTsVals += daySched->tsVals[hr * s_glob->TimeStepsInHour + ts];
-                                    begMinute = endMinute + 1;
-                                    endMinute += s_glob->MinutesInTimeStep;
+                                    begMin = endMin + 1;
+                                    endMin += s_glob->MinutesInTimeStep;
                                 }
                             }
                         }
@@ -1499,7 +1498,7 @@ namespace Sched {
                                 cNumericFields);
 
             ErrorObjectHeader eoh{routineName, CurrentModuleObject, Alphas(1)};
-            
+
             if (s_sched->scheduleMap.find(Alphas(1)) != s_sched->scheduleMap.end()) {
                 ShowSevereDuplicateName(state, eoh);
                 ErrorsFound = true;
@@ -1564,11 +1563,11 @@ namespace Sched {
             }
 
             // is it a sub-hourly schedule or not?
-            int MinutesPerItem = 60;
+            int MinutesPerItem = Constant::iMinutesInHour;
             if (NumNumbers > 3) {
                 MinutesPerItem = int(Numbers(4));
                 // int NumExpectedItems = 1440 / MinutesPerItem;
-                if (mod(60, MinutesPerItem) != 0) {
+                if (mod(Constant::iMinutesInHour, MinutesPerItem) != 0) {
                     ShowSevereCustom(state, eoh, format("Requested {} field value ({}) not evenly divisible into 60", cNumericFields(4), MinutesPerItem));
                     ErrorsFound = true;
                     continue;
@@ -1576,8 +1575,8 @@ namespace Sched {
             }
 
             int numHourlyValues = Numbers(3);
-            int rowLimitCount = (Numbers(3) * 60.0) / MinutesPerItem;
-            int hrLimitCount = 60 / MinutesPerItem;
+            int rowLimitCount = (Numbers(3) * Constant::rMinutesInHour) / MinutesPerItem;
+            int hrLimitCount = Constant::iMinutesInHour / MinutesPerItem;
 
             std::string contextString = format("{}=\"{}\", {}: ", CurrentModuleObject, Alphas(1), cAlphaFields(3));
 
@@ -1630,7 +1629,7 @@ namespace Sched {
                 
                 if (rowCnt < rowLimitCount) {
                     ShowWarningCustom(state, eoh, format("less than {} hourly values read from file."
-                                                         "..Number read={}.", numHourlyValues, (rowCnt * 60) / MinutesPerItem));
+                                                         "..Number read={}.", numHourlyValues, (rowCnt * Constant::iMinutesInHour) / MinutesPerItem));
                 }
 
                 // process the data into the normal schedule data structures
@@ -1672,38 +1671,38 @@ namespace Sched {
                         }
                     } else { // Minutes Per Item < 60
                        for (int hr = 0; hr < Constant::iHoursInDay; ++hr) {
-                            int endMinute = MinutesPerItem - 1;
-                            int begMinute = 0;
+                            int endMin = MinutesPerItem - 1;
+                            int begMin = 0;
                             for (int NumFields = 1; NumFields <= hrLimitCount; ++NumFields) {
-                                std::fill(&minuteVals[hr * Constant::iMinutesInHour + begMinute],
-                                          &minuteVals[hr * Constant::iMinutesInHour + endMinute],
+                                std::fill(&minuteVals[hr * Constant::iMinutesInHour + begMin],
+                                          &minuteVals[hr * Constant::iMinutesInHour + endMin + 1],
                                           column_values[ifld]);
                                 ++ifld;
-                                begMinute = endMinute + 1;
-                                endMinute += MinutesPerItem;
+                                begMin = endMin + 1;
+                                endMin += MinutesPerItem;
                             }
                         }
                         if (FileIntervalInterpolated) {
                             for (int hr = 0; hr < Constant::iHoursInDay; ++hr) {
-                                int begMinute = 0;
-                                int endMinute = s_glob->MinutesInTimeStep - 1;
+                                int begMin = 0;
+                                int endMin = s_glob->MinutesInTimeStep - 1;
                                 for (int ts = 0; ts < s_glob->TimeStepsInHour; ++ts) {
                                     daySched->tsVals[hr * s_glob->TimeStepsInHour + ts] =
-                                        std::accumulate(minuteVals.begin() + (hr * Constant::iMinutesInHour + begMinute),
-                                                        minuteVals.begin() + (hr * Constant::iMinutesInHour + endMinute),
+                                        std::accumulate(&minuteVals[hr * Constant::iMinutesInHour + begMin],
+                                                        &minuteVals[hr * Constant::iMinutesInHour + endMin + 1],
                                                         0) / double(s_glob->MinutesInTimeStep);
                                     daySched->sumTsVals += daySched->tsVals[hr * s_glob->TimeStepsInHour + ts];
-                                    begMinute = endMinute + 1;
-                                    endMinute += s_glob->MinutesInTimeStep;
+                                    begMin = endMin + 1;
+                                    endMin += s_glob->MinutesInTimeStep;
                                 }
                             }
                         } else {
                             for (int hr = 0; hr < Constant::iHoursInDay; ++hr) {
-                                int curMinute = s_glob->MinutesInTimeStep - 1;
+                                int curMin = s_glob->MinutesInTimeStep - 1;
                                 for (int ts = 0; ts < s_glob->TimeStepsInHour; ++ts) {
-                                    daySched->tsVals[hr * s_glob->TimeStepsInHour + ts] = minuteVals[hr * Constant::iMinutesInHour + curMinute];
+                                    daySched->tsVals[hr * s_glob->TimeStepsInHour + ts] = minuteVals[hr * Constant::iMinutesInHour + curMin];
                                     daySched->sumTsVals += daySched->tsVals[hr * s_glob->TimeStepsInHour + ts];
-                                    curMinute += s_glob->MinutesInTimeStep;
+                                    curMin += s_glob->MinutesInTimeStep;
                                 }
                             }
                         }
@@ -2777,7 +2776,19 @@ namespace Sched {
                 curValue = StartValue + incrementPerMinute;
             }
 
-            if (begHr == endHr) {
+            if (begHr > endHr) {
+                if (begHr == endHr + 1 && begMin == 0 && endMin == Constant::iMinutesInHour - 1) {
+                    ShowWarningError(state, format("ProcessScheduleInput: ProcessIntervalFields, Processing time fields, zero time interval detected, {}={}",
+                                                   ErrContext, DayScheduleName));
+                } else {
+                    ShowSevereError(state,
+                                    format("ProcessScheduleInput: ProcessIntervalFields, Processing time fields, overlapping times detected, {}={}",
+                                           ErrContext,
+                                           DayScheduleName));
+                    ErrorsFound = true;
+                }
+                
+            } else if (begHr == endHr) {
                 if (std::find(&setMinuteVals[begHr * Constant::iMinutesInHour + begMin],
                               &setMinuteVals[begHr * Constant::iMinutesInHour + endMin + 1],
                               true) != &setMinuteVals[begHr * Constant::iMinutesInHour + endMin + 1]) {
@@ -2809,13 +2820,6 @@ namespace Sched {
                     begMin = 0;
                 }
                 
-            } else if (endHr < begHr) {
-                ShowSevereError(state,
-                                format("ProcessScheduleInput: ProcessIntervalFields, Processing time fields, overlapping times detected, {}={}",
-                                       ErrContext,
-                                       DayScheduleName));
-                ErrorsFound = true;
-
             } else { // begHr < endHr
                 if (interpolation == Interpolation::Linear) {
                     for (int iMin = begMin; iMin < Constant::iMinutesInHour; ++iMin) { // for portion of starting hour

@@ -806,7 +806,7 @@ struct RuntimeLanguageData : BaseGlobalStruct
     DataRuntimeLanguage::ErlValueType True = DataRuntimeLanguage::ErlValueType(
         DataRuntimeLanguage::Value::Null, 0.0, "", 0, 0, false, 0, "", true); // special "True" Erl variable value instance, gets reset
 
-    std::map<std::tuple<std::string_view, std::string_view, std::string_view>, int> EMSActuatorAvailableMap;
+    std::map<std::tuple<std::string, std::string, std::string>, int> EMSActuatorAvailableMap;
 
     void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
     {

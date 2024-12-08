@@ -1108,7 +1108,7 @@ void GetZoneContaminanSetPoints(EnergyPlusData &state)
         if (state.dataIPShortCut->lAlphaFieldBlanks(5)) {
             controlledZone.zoneMinCO2Sched = Sched::GetScheduleAlwaysOff(state);
         } else if ((controlledZone.zoneMinCO2Sched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(5))) == nullptr) {
-            ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaFieldNames(5), state.dataIPShortCut->cAlphaArgs(5));
+            ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(5), state.dataIPShortCut->cAlphaArgs(5));
             ErrorsFound = true;
         } else if (!controlledZone.zoneMinCO2Sched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 2000.0)) {
             Sched::ShowSevereBadMinMax(state, eoh, state.dataIPShortCut->cAlphaFieldNames(5), state.dataIPShortCut->cAlphaArgs(5),
@@ -1121,7 +1121,7 @@ void GetZoneContaminanSetPoints(EnergyPlusData &state)
         if (state.dataIPShortCut->lAlphaFieldBlanks(6)) {
             controlledZone.zoneMaxCO2Sched = Sched::GetScheduleAlwaysOff(state);
         } else if ((controlledZone.zoneMaxCO2Sched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(6))) == nullptr) {
-            ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaFieldNames(6), state.dataIPShortCut->cAlphaArgs(6));
+            ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(6), state.dataIPShortCut->cAlphaArgs(6));
             ErrorsFound = true;
         } else if (!controlledZone.zoneMaxCO2Sched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 2000.0)) {
             Sched::ShowSevereBadMinMax(state, eoh, state.dataIPShortCut->cAlphaFieldNames(6), state.dataIPShortCut->cAlphaArgs(6),

@@ -855,7 +855,9 @@ TEST_F(EnergyPlusFixture, DataHeatBalance_CheckConstructLayers)
     GetEMSInput(*state);
     // check if EMS actuator is not setup because there is no blind/shade layer
     SetupWindowShadingControlActuators(*state);
-    EXPECT_EQ(state->dataRuntimeLang->numEMSActuatorsAvailable, 0); // no EMS actuator because there is shade/blind layer
+
+    // init_state() checks for EMS so there will be actuators for schedules and materials already
+    EXPECT_EQ(state->dataRuntimeLang->numEMSActuatorsAvailable, 19); 
 
     // add a blind layer in between glass
     state->dataConstruction->Construct(4).TotLayers = 5;
@@ -884,13 +886,13 @@ TEST_F(EnergyPlusFixture, DataHeatBalance_CheckConstructLayers)
     state->dataSurface->surfShades(windowSurfNum).blind.movableSlats = true;
     // check if EMS actuator is available when blind layer is added
     SetupWindowShadingControlActuators(*state);
-    EXPECT_EQ(state->dataRuntimeLang->numEMSActuatorsAvailable, 2);
-    EXPECT_EQ(state->dataRuntimeLang->EMSActuatorAvailable(1).ComponentTypeName, "Window Shading Control");
-    EXPECT_EQ(state->dataRuntimeLang->EMSActuatorAvailable(1).ControlTypeName, "Control Status");
-    EXPECT_EQ(state->dataRuntimeLang->EMSActuatorAvailable(1).Units, "[ShadeStatus]");
-    EXPECT_EQ(state->dataRuntimeLang->EMSActuatorAvailable(2).ComponentTypeName, "Window Shading Control");
-    EXPECT_EQ(state->dataRuntimeLang->EMSActuatorAvailable(2).ControlTypeName, "Slat Angle");
-    EXPECT_EQ(state->dataRuntimeLang->EMSActuatorAvailable(2).Units, "[degrees]");
+    EXPECT_EQ(state->dataRuntimeLang->numEMSActuatorsAvailable, 21);
+    EXPECT_EQ(state->dataRuntimeLang->EMSActuatorAvailable(20).ComponentTypeName, "Window Shading Control");
+    EXPECT_EQ(state->dataRuntimeLang->EMSActuatorAvailable(20).ControlTypeName, "Control Status");
+    EXPECT_EQ(state->dataRuntimeLang->EMSActuatorAvailable(20).Units, "[ShadeStatus]");
+    EXPECT_EQ(state->dataRuntimeLang->EMSActuatorAvailable(21).ComponentTypeName, "Window Shading Control");
+    EXPECT_EQ(state->dataRuntimeLang->EMSActuatorAvailable(21).ControlTypeName, "Slat Angle");
+    EXPECT_EQ(state->dataRuntimeLang->EMSActuatorAvailable(21).Units, "[degrees]");
 }
 
 TEST_F(EnergyPlusFixture, DataHeatBalance_setUserTemperatureLocationPerpendicular)

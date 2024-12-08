@@ -1958,9 +1958,9 @@ namespace EMSManager {
 //  ScheduleManager and OutputProcessor. Followed pattern used for SetupOutputVariable
 
 void SetupEMSActuator(EnergyPlusData &state,
-                      std::string_view cComponentTypeName,
-                      std::string_view cUniqueIDName,
-                      std::string_view cControlTypeName,
+                      std::string_view objType,
+                      std::string_view objName,
+                      std::string_view controlTypeName,
                       std::string_view cUnits,
                       bool &lEMSActuated,
                       Real64 &rValue)
@@ -1981,34 +1981,32 @@ void SetupEMSActuator(EnergyPlusData &state,
 
     auto &s_lang = state.dataRuntimeLang;
         
-    std::string const objType = Util::makeUPPER(cComponentTypeName);
-    std::string const objName = Util::makeUPPER(cUniqueIDName);
-    std::string const actuatorName = Util::makeUPPER(cControlTypeName);
+    auto tup = std::make_tuple(std::move(Util::makeUPPER(objType)), std::move(Util::makeUPPER(objName)), std::move(Util::makeUPPER(controlTypeName)));
 
     // DataRuntimeLanguage::EMSActuatorKey const key(UpperCaseObjectType, UpperCaseObjectName, UpperCaseActuatorName);
-    auto found = s_lang->EMSActuatorAvailableMap.find(std::make_tuple(objType, objName, actuatorName));
-    if (found == s_lang->EMSActuatorAvailableMap.end()) {
-        if (s_lang->numEMSActuatorsAvailable == 0) {
-            s_lang->EMSActuatorAvailable.allocate(s_lang->varsAvailableAllocInc);
-            s_lang->numEMSActuatorsAvailable = 1;
-            s_lang->maxEMSActuatorsAvailable = s_lang->varsAvailableAllocInc;
-        } else {
-            if (s_lang->numEMSActuatorsAvailable + 1 > s_lang->maxEMSActuatorsAvailable) {
-                s_lang->EMSActuatorAvailable.redimension(s_lang->maxEMSActuatorsAvailable *= 2);
-            }
-            ++s_lang->numEMSActuatorsAvailable;
+    if (s_lang->EMSActuatorAvailableMap.find(tup) != s_lang->EMSActuatorAvailableMap.end())
+        return;
+    
+    if (s_lang->numEMSActuatorsAvailable == 0) {
+        s_lang->EMSActuatorAvailable.allocate(s_lang->varsAvailableAllocInc);
+        s_lang->numEMSActuatorsAvailable = 1;
+        s_lang->maxEMSActuatorsAvailable = s_lang->varsAvailableAllocInc;
+    } else {
+        if (s_lang->numEMSActuatorsAvailable + 1 > s_lang->maxEMSActuatorsAvailable) {
+            s_lang->EMSActuatorAvailable.redimension(s_lang->maxEMSActuatorsAvailable *= 2);
         }
-
-        auto &actuator = s_lang->EMSActuatorAvailable(s_lang->numEMSActuatorsAvailable);
-        actuator.ComponentTypeName = cComponentTypeName;
-        actuator.UniqueIDName = cUniqueIDName;
-        actuator.ControlTypeName = cControlTypeName;
-        actuator.Units = cUnits;
-        actuator.Actuated = &lEMSActuated; // Pointer assigment
-        actuator.RealValue = &rValue;      // Pointer assigment
-        actuator.PntrVarTypeUsed = DataRuntimeLanguage::PtrDataType::Real;
-        s_lang->EMSActuatorAvailableMap.insert_or_assign(std::make_tuple(objType, objName, actuatorName), s_lang->numEMSActuatorsAvailable);
+        ++s_lang->numEMSActuatorsAvailable;
     }
+
+    auto &actuator = s_lang->EMSActuatorAvailable(s_lang->numEMSActuatorsAvailable);
+    actuator.ComponentTypeName = objType;
+    actuator.UniqueIDName = objName;
+    actuator.ControlTypeName = controlTypeName;
+    actuator.Units = cUnits;
+    actuator.Actuated = &lEMSActuated; // Pointer assigment
+    actuator.RealValue = &rValue;      // Pointer assigment
+    actuator.PntrVarTypeUsed = DataRuntimeLanguage::PtrDataType::Real;
+    s_lang->EMSActuatorAvailableMap.insert_or_assign(std::move(tup), s_lang->numEMSActuatorsAvailable);
 }
 
 void SetupEMSActuator(EnergyPlusData &state,

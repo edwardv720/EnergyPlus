@@ -681,6 +681,7 @@ void GetWrapperInput(EnergyPlusData &state)
 
         state.dataPlantCentralGSHP->Wrapper(WrapperNum).AncillaryPower = state.dataIPShortCut->rNumericArgs(1);
         if (state.dataIPShortCut->lAlphaFieldBlanks(9)) {
+            state.dataPlantCentralGSHP->Wrapper(WrapperNum).ancillaryPowerSched = Sched::GetScheduleAlwaysOff(state);                
         } else if ((state.dataPlantCentralGSHP->Wrapper(WrapperNum).ancillaryPowerSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(9))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(9), state.dataIPShortCut->cAlphaArgs(9));
         }
