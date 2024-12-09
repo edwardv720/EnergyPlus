@@ -996,7 +996,7 @@ TEST_F(EnergyPlusFixture, ThermalComfort_CalcThermalComfortASH55)
     state->dataHeatBalFanSys->ZoneQElecBaseboardToPerson.allocate(state->dataGlobal->NumOfZones);
 
     state->dataHeatBal->People(1).ZonePtr = 1;
-    state->dataHeatBal->People(1).numberOfPeopleSched = Sched::GetScheduleAlwaysOn(*state);
+    state->dataHeatBal->People(1).sched = Sched::GetScheduleAlwaysOn(*state);
     state->dataHeatBal->People(1).NumberOfPeople = 5.0;
     state->dataHeatBal->People(1).NomMinNumberPeople = 5.0;
     state->dataHeatBal->People(1).NomMaxNumberPeople = 5.0;

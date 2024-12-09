@@ -2366,7 +2366,7 @@ TEST_F(EnergyPlusFixture, AirflowNetwork_TestZoneVentingSchWithAdaptiveCtrl)
     state->dataHeatBal->People.allocate(state->dataHeatBal->TotPeople);
     state->dataHeatBal->People(1).ZonePtr = 1;
     state->dataHeatBal->People(1).NumberOfPeople = 100.0;
-    state->dataHeatBal->People(1).numberOfPeopleSched = Sched::GetScheduleAlwaysOn(*state); // From dataglobals, always returns a 1 for schedule value
+    state->dataHeatBal->People(1).sched = Sched::GetScheduleAlwaysOn(*state); // From dataglobals, always returns a 1 for schedule value
     state->dataHeatBal->People(1).AdaptiveCEN15251 = true;
 
     state->afn->get_input();

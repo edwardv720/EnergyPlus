@@ -510,10 +510,8 @@ TEST_F(EnergyPlusFixture, SurfaceTest_HashMap)
     state->dataSurface->surfExtConv.allocate(numSurfs);
     std::fill(state->dataSurface->surfExtConv.begin(), state->dataSurface->surfExtConv.end(), SurfExtConv());
     state->dataSurface->SurfWinStormWinConstr.dimension(numSurfs, 0);
-    state->dataSurface->SurfMaterialMovInsulExt.dimension(numSurfs, 0);
-    state->dataSurface->SurfMaterialMovInsulInt.dimension(numSurfs, 0);
-    state->dataSurface->SurfMovInsulExtScheds.dimension(numSurfs, nullptr);
-    state->dataSurface->SurfMovInsulIntScheds.dimension(numSurfs, nullptr);
+    state->dataSurface->intMovInsuls.allocate(numSurfs);
+    state->dataSurface->extMovInsuls.allocate(numSurfs);
 
     for (int SurfNum = 1; SurfNum <= numSurfs; SurfNum++) {
         state->dataSurface->Surface(SurfNum).set_representative_surface(*state, SurfNum);

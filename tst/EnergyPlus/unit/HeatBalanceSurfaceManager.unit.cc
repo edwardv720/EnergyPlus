@@ -147,7 +147,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_CalcOutsideSurfTemp)
     state->dataHeatBalSurf->SurfQRadSWOutMvIns(SurfNum) = 1.0;
     state->dataHeatBalSurf->SurfQRadLWOutSrdSurfs(SurfNum) = 1.0;
     state->dataHeatBalSurf->SurfQAdditionalHeatSourceOutside(SurfNum) = 0.0;
-    state->dataSurface->SurfMaterialMovInsulExt(SurfNum) = 1;
+    state->dataSurface->extMovInsuls(SurfNum).matNum = 1;
     state->dataSurface->Surface(SurfNum).SurfHasSurroundingSurfProperty = false;
 
     state->dataSurface->SurfOutDryBulbTemp = 0;
@@ -3072,19 +3072,19 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestReportIntMovInsInsideSur
     state->dataHeatBalSurf->SurfTempIn.allocate(state->dataSurface->TotSurfaces);
     state->dataHeatBalSurf->SurfTempInTmp.allocate(state->dataSurface->TotSurfaces);
     state->dataHeatBalSurf->SurfTempInMovInsRep.allocate(state->dataSurface->TotSurfaces);
-    state->dataHeatBalSurf->SurfMovInsulIntPresent.allocate(state->dataSurface->TotSurfaces);
+    state->dataSurface->intMovInsuls.allocate(state->dataSurface->TotSurfaces);
     state->dataSurface->AnyMovableInsulation = true;
-    state->dataHeatBalSurf->SurfMovInsulIndexList.push_back(1);
-    state->dataHeatBalSurf->SurfMovInsulIndexList.push_back(2);
+    state->dataSurface->intMovInsulSurfNums.push_back(1);
+    state->dataSurface->intMovInsulSurfNums.push_back(2);
     // Test 1 Data: Surface does NOT have movable insulation
-    state->dataHeatBalSurf->SurfMovInsulIntPresent(1) = false; // No movable insulation
+    state->dataSurface->intMovInsuls(1).present = false; // No movable insulation
     state->dataHeatBalSurf->SurfTempIn(1) = 23.0;
     state->dataHeatBalSurf->SurfTempInTmp(1) = 12.3;
     state->dataHeatBalSurf->SurfTempInMovInsRep(1) = 1.23;
     ExpectedResult1 = 23.0; // SurfTempInMovInsRep should be set to SurfTempIn
 
     // Test 2 Data: Surface has movable insulation
-    state->dataHeatBalSurf->SurfMovInsulIntPresent(2) = true;
+    state->dataSurface->intMovInsuls(2).present = true;
     state->dataHeatBalSurf->SurfTempIn(2) = 123.0;
     state->dataHeatBalSurf->SurfTempInTmp(2) = 12.3;
     state->dataHeatBalSurf->SurfTempInMovInsRep(2) = 1.23;
@@ -3222,7 +3222,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestResilienceMetricReport)
     state->dataHeatBal->People(1).ZonePtr = 1;
     state->dataHeatBal->People(1).Pierce = true;
     state->dataHeatBal->People(1).NumberOfPeople = 2;
-    state->dataHeatBal->People(1).numberOfPeopleSched = Sched::AddScheduleConstant(*state, "Occupancy");
+    state->dataHeatBal->People(1).sched = Sched::AddScheduleConstant(*state, "Occupancy");
     state->dataHeatBal->People(1).ColdStressTempThresh = 15.0;
     state->dataHeatBal->People(1).HeatStressTempThresh = 29.5;
     state->dataHeatBalFanSys->zoneTstatSetpts(1).setptHi = 27.5;
@@ -3231,7 +3231,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestResilienceMetricReport)
     state->dataThermalComforts->ThermalComfortData.allocate(state->dataHeatBal->TotPeople);
 
     state->dataThermalComforts->ThermalComfortData(1).PierceSET = 31;
-    state->dataHeatBal->People(1).numberOfPeopleSched->currentVal = 0;
+    state->dataHeatBal->People(1).sched->currentVal = 0;
 
     // Heat Index Case 1: Zone T < 80 F;
     state->dataGlobal->HourOfDay = 1;
@@ -3427,7 +3427,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestResilienceMetricReport)
     EXPECT_NEAR(0.0, state->dataHeatBal->Resilience(1).ZoneDiscomfortWtExceedOccupiedHourBins[3], 1e-8); // Very-hot Exceedance OccupiedHours
 
     state->dataThermalComforts->ThermalComfortData(1).PierceSET = 11.2;
-    state->dataHeatBal->People(1).numberOfPeopleSched->currentVal = 0.4;
+    state->dataHeatBal->People(1).sched->currentVal = 0.4;
     state->dataZoneTempPredictorCorrector->zoneHeatBalance(1).ZTAV = 31;
     state->dataThermalComforts->ThermalComfortData(1).FangerPMV = -3.5;
     for (int hour = 5; hour <= 7; hour++) {
@@ -3478,7 +3478,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestResilienceMetricReport)
 
     state->dataThermalComforts->ThermalComfortData(1).PierceSET = 32;
     state->dataZoneTempPredictorCorrector->zoneHeatBalance(1).ZTAV = 28;
-    state->dataHeatBal->People(1).numberOfPeopleSched->currentVal = 1.0;
+    state->dataHeatBal->People(1).sched->currentVal = 1.0;
     state->dataThermalComforts->ThermalComfortData(1).FangerPMV = -1.2;
     for (int hour = 8; hour <= 10; hour++) {
         state->dataGlobal->HourOfDay = hour;
@@ -3574,7 +3574,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestResilienceMetricReport)
 
     state->dataThermalComforts->ThermalComfortData(1).PierceSET = 11.2;
     state->dataZoneTempPredictorCorrector->zoneHeatBalance(1).ZTAV = 30;
-    state->dataHeatBal->People(1).numberOfPeopleSched->currentVal = 0.4;
+    state->dataHeatBal->People(1).sched->currentVal = 0.4;
     state->dataThermalComforts->ThermalComfortData(1).FangerPMV = 1.2;
     for (int hour = 13; hour <= 18; hour++) {
         state->dataGlobal->HourOfDay = hour;
@@ -3621,7 +3621,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestResilienceMetricReport)
     EXPECT_NEAR(3.0, state->dataHeatBal->Resilience(1).ZoneDiscomfortWtExceedOccupiedHourBins[2], 1e-8); // Warm Exceedance OccupiedHours
     EXPECT_NEAR(0.0, state->dataHeatBal->Resilience(1).ZoneDiscomfortWtExceedOccupiedHourBins[3], 1e-8); // Very-hot Exceedance OccupiedHours
 
-    state->dataHeatBal->People(1).numberOfPeopleSched->currentVal = 0;
+    state->dataHeatBal->People(1).sched->currentVal = 0;
     state->dataZoneTempPredictorCorrector->zoneHeatBalance(1).ZTAV = 12;
     state->dataThermalComforts->ThermalComfortData(1).FangerPMV = 1.2;
     for (int hour = 19; hour <= 20; hour++) {
@@ -3674,7 +3674,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestResilienceMetricReport)
 
     state->dataContaminantBalance->ZoneAirCO2Avg.allocate(state->dataGlobal->NumOfZones);
     state->dataContaminantBalance->Contaminant.CO2Simulation = true;
-    state->dataHeatBal->People(1).numberOfPeopleSched->currentVal = 1;
+    state->dataHeatBal->People(1).sched->currentVal = 1;
     state->dataOutRptTab->displayCO2ResilienceSummary = true;
     state->dataContaminantBalance->ZoneAirCO2Avg(1) = 1100;
     ReportCO2Resilience(*state);
@@ -3795,7 +3795,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestThermalResilienceReportR
     state->dataHeatBal->People(1).ZonePtr = 1;
     state->dataHeatBal->People(1).Pierce = true;
     state->dataHeatBal->People(1).NumberOfPeople = 2;
-    state->dataHeatBal->People(1).numberOfPeopleSched = Sched::AddScheduleConstant(*state, "Occupancy");
+    state->dataHeatBal->People(1).sched = Sched::AddScheduleConstant(*state, "Occupancy");
     state->dataHeatBal->People(1).ColdStressTempThresh = 15.0;
     state->dataHeatBal->People(1).HeatStressTempThresh = 29.5;
     state->dataHeatBalFanSys->zoneTstatSetpts(1).setptHi = 27.5;
@@ -3809,7 +3809,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestThermalResilienceReportR
     state->dataHeatBalFanSys->lowSETLongestStartRepPeriod.allocate(state->dataGlobal->NumOfZones, state->dataWeather->TotThermalReportPers);
     state->dataHeatBalFanSys->highSETLongestStartRepPeriod.allocate(state->dataGlobal->NumOfZones, state->dataWeather->TotThermalReportPers);
     state->dataThermalComforts->ThermalComfortData(1).PierceSET = 31;
-    state->dataHeatBal->People(1).numberOfPeopleSched->currentVal = 0;
+    state->dataHeatBal->People(1).sched->currentVal = 0;
 
     // ---------------------------------------------------------------------
     // Report Period I start
@@ -3971,7 +3971,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestThermalResilienceReportR
     EXPECT_NEAR(0.0, state->dataHeatBalFanSys->ZoneDiscomfortWtExceedOccupiedHourBinsRepPeriod(1, 1)[3], 1e-8); // Very-hot Exceedance OccupiedHours
 
     state->dataThermalComforts->ThermalComfortData(1).PierceSET = 11.2;
-    state->dataHeatBal->People(1).numberOfPeopleSched->currentVal = 0.4;
+    state->dataHeatBal->People(1).sched->currentVal = 0.4;
     state->dataZoneTempPredictorCorrector->zoneHeatBalance(1).ZTAV = 31;
     state->dataThermalComforts->ThermalComfortData(1).FangerPMV = -3.5;
     for (int hour = 5; hour <= 7; hour++) {
@@ -4024,7 +4024,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestThermalResilienceReportR
 
     state->dataThermalComforts->ThermalComfortData(1).PierceSET = 32;
     state->dataZoneTempPredictorCorrector->zoneHeatBalance(1).ZTAV = 28;
-    state->dataHeatBal->People(1).numberOfPeopleSched->currentVal = 1.0;
+    state->dataHeatBal->People(1).sched->currentVal = 1.0;
     state->dataThermalComforts->ThermalComfortData(1).FangerPMV = -1.2;
     for (int hour = 8; hour <= 10; hour++) {
         state->dataGlobal->HourOfDay = hour;
@@ -4091,7 +4091,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestThermalResilienceReportR
 
     state->dataThermalComforts->ThermalComfortData(1).PierceSET = 11.2;
     state->dataZoneTempPredictorCorrector->zoneHeatBalance(1).ZTAV = 30;
-    state->dataHeatBal->People(1).numberOfPeopleSched->currentVal = 0.4;
+    state->dataHeatBal->People(1).sched->currentVal = 0.4;
     state->dataThermalComforts->ThermalComfortData(1).FangerPMV = 1.2;
     for (int hour = 13; hour <= 18; hour++) {
         state->dataGlobal->HourOfDay = hour;
@@ -4140,7 +4140,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestThermalResilienceReportR
     EXPECT_NEAR(3.0, state->dataHeatBalFanSys->ZoneDiscomfortWtExceedOccupiedHourBinsRepPeriod(1, 2)[2], 1e-8); // Warm Exceedance OccupiedHours
     EXPECT_NEAR(0.0, state->dataHeatBalFanSys->ZoneDiscomfortWtExceedOccupiedHourBinsRepPeriod(1, 2)[3], 1e-8); // Very-hot Exceedance OccupiedHours
 
-    state->dataHeatBal->People(1).numberOfPeopleSched->currentVal = 0;
+    state->dataHeatBal->People(1).sched->currentVal = 0;
     state->dataZoneTempPredictorCorrector->zoneHeatBalance(1).ZTAV = 12;
     state->dataThermalComforts->ThermalComfortData(1).FangerPMV = 1.2;
     for (int hour = 19; hour <= 20; hour++) {
@@ -4254,7 +4254,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestCO2ResilienceReportRepPe
     state->dataHeatBal->People.allocate(state->dataHeatBal->TotPeople);
     state->dataHeatBal->People(1).ZonePtr = 1;
     state->dataHeatBal->People(1).NumberOfPeople = 2;
-    state->dataHeatBal->People(1).numberOfPeopleSched = Sched::AddScheduleConstant(*state, "Occupancy");
+    state->dataHeatBal->People(1).sched = Sched::AddScheduleConstant(*state, "Occupancy");
 
     int NoBins = 3;
 
@@ -4268,7 +4268,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestCO2ResilienceReportRepPe
     state->dataContaminantBalance->Contaminant.CO2Simulation = true;
     state->dataOutRptTab->displayCO2ResilienceSummary = true;
 
-    state->dataHeatBal->People(1).numberOfPeopleSched->currentVal = 0;
+    state->dataHeatBal->People(1).sched->currentVal = 0;
     state->dataContaminantBalance->ZoneAirCO2Avg(1) = 900;
     for (int hour = 1; hour <= 4; hour++) {
         state->dataGlobal->HourOfDay = hour;
@@ -4284,7 +4284,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestCO2ResilienceReportRepPe
     EXPECT_NEAR(0.0, state->dataHeatBalFanSys->ZoneCO2LevelOccupiedHourBinsRepPeriod(1, 1)[1], 1e-8);
     EXPECT_NEAR(0.0, state->dataHeatBalFanSys->ZoneCO2LevelOccupiedHourBinsRepPeriod(1, 1)[2], 1e-8);
 
-    state->dataHeatBal->People(1).numberOfPeopleSched->currentVal = 0.4;
+    state->dataHeatBal->People(1).sched->currentVal = 0.4;
     state->dataContaminantBalance->ZoneAirCO2Avg(1) = 1100;
     for (int hour = 5; hour <= 7; hour++) {
         state->dataGlobal->HourOfDay = hour;
@@ -4300,7 +4300,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestCO2ResilienceReportRepPe
     EXPECT_NEAR(3.0, state->dataHeatBalFanSys->ZoneCO2LevelOccupiedHourBinsRepPeriod(1, 1)[1], 1e-8);
     EXPECT_NEAR(0.0, state->dataHeatBalFanSys->ZoneCO2LevelOccupiedHourBinsRepPeriod(1, 1)[2], 1e-8);
 
-    state->dataHeatBal->People(1).numberOfPeopleSched->currentVal = 1.0;
+    state->dataHeatBal->People(1).sched->currentVal = 1.0;
     state->dataContaminantBalance->ZoneAirCO2Avg(1) = 5500;
     state->dataGlobal->HourOfDay = 8;
     ReportCO2Resilience(*state);
@@ -4315,7 +4315,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestCO2ResilienceReportRepPe
     EXPECT_NEAR(3.0, state->dataHeatBalFanSys->ZoneCO2LevelOccupiedHourBinsRepPeriod(1, 1)[1], 1e-8);
     EXPECT_NEAR(1.0, state->dataHeatBalFanSys->ZoneCO2LevelOccupiedHourBinsRepPeriod(1, 1)[2], 1e-8);
 
-    state->dataHeatBal->People(1).numberOfPeopleSched->currentVal = 1.0;
+    state->dataHeatBal->People(1).sched->currentVal = 1.0;
     state->dataContaminantBalance->ZoneAirCO2Avg(1) = 2000;
     for (int hour = 9; hour <= 10; hour++) {
         state->dataGlobal->HourOfDay = hour;
@@ -4331,7 +4331,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestCO2ResilienceReportRepPe
     EXPECT_NEAR(5.0, state->dataHeatBalFanSys->ZoneCO2LevelOccupiedHourBinsRepPeriod(1, 1)[1], 1e-8);
     EXPECT_NEAR(1.0, state->dataHeatBalFanSys->ZoneCO2LevelOccupiedHourBinsRepPeriod(1, 1)[2], 1e-8);
 
-    state->dataHeatBal->People(1).numberOfPeopleSched->currentVal = 1.0;
+    state->dataHeatBal->People(1).sched->currentVal = 1.0;
     state->dataContaminantBalance->ZoneAirCO2Avg(1) = 1500;
     for (int hour = 13; hour <= 18; hour++) {
         state->dataGlobal->HourOfDay = hour;
@@ -4407,7 +4407,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestVisualResilienceReportRe
     state->dataHeatBal->People.allocate(state->dataHeatBal->TotPeople);
     state->dataHeatBal->People(1).ZonePtr = 1;
     state->dataHeatBal->People(1).NumberOfPeople = 2;
-    state->dataHeatBal->People(1).numberOfPeopleSched = Sched::AddScheduleConstant(*state, "Occupancy");
+    state->dataHeatBal->People(1).sched = Sched::AddScheduleConstant(*state, "Occupancy");
 
     state->dataDayltg->ZoneDaylight.allocate(state->dataGlobal->NumOfZones);
     int totDaylightingControls = state->dataGlobal->NumOfZones;
@@ -4432,7 +4432,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestVisualResilienceReportRe
 
     state->dataOutRptTab->displayVisualResilienceSummary = true;
 
-    state->dataHeatBal->People(1).numberOfPeopleSched->currentVal = 0;
+    state->dataHeatBal->People(1).sched->currentVal = 0;
     state->dataDayltg->daylightControl(1).refPts(1).illumSetPoint = 250;
     for (int hour = 1; hour <= 4; hour++) {
         state->dataGlobal->HourOfDay = hour;
@@ -4452,7 +4452,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestVisualResilienceReportRe
     EXPECT_NEAR(0.0, state->dataHeatBalFanSys->ZoneLightingLevelOccupiedHourBinsRepPeriod(1, 1)[2], 1e-8);
     EXPECT_NEAR(0.0, state->dataHeatBalFanSys->ZoneLightingLevelOccupiedHourBinsRepPeriod(1, 1)[3], 1e-8);
 
-    state->dataHeatBal->People(1).numberOfPeopleSched->currentVal = 0.4;
+    state->dataHeatBal->People(1).sched->currentVal = 0.4;
     state->dataDayltg->daylightControl(1).refPts(1).illumSetPoint = 600;
     for (int hour = 5; hour <= 7; hour++) {
         state->dataGlobal->HourOfDay = hour;
@@ -4472,7 +4472,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestVisualResilienceReportRe
     EXPECT_NEAR(0.0, state->dataHeatBalFanSys->ZoneLightingLevelOccupiedHourBinsRepPeriod(1, 1)[2], 1e-8);
     EXPECT_NEAR(3.0, state->dataHeatBalFanSys->ZoneLightingLevelOccupiedHourBinsRepPeriod(1, 1)[3], 1e-8);
 
-    state->dataHeatBal->People(1).numberOfPeopleSched->currentVal = 1.0;
+    state->dataHeatBal->People(1).sched->currentVal = 1.0;
     state->dataDayltg->daylightControl(1).refPts(1).illumSetPoint = 70;
     for (int hour = 8; hour <= 10; hour++) {
         state->dataGlobal->HourOfDay = hour;
@@ -4492,7 +4492,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestVisualResilienceReportRe
     EXPECT_NEAR(0.0, state->dataHeatBalFanSys->ZoneLightingLevelOccupiedHourBinsRepPeriod(1, 1)[2], 1e-8);
     EXPECT_NEAR(3.0, state->dataHeatBalFanSys->ZoneLightingLevelOccupiedHourBinsRepPeriod(1, 1)[3], 1e-8);
 
-    state->dataHeatBal->People(1).numberOfPeopleSched->currentVal = 1.0;
+    state->dataHeatBal->People(1).sched->currentVal = 1.0;
     state->dataDayltg->daylightControl(1).refPts(1).illumSetPoint = 600;
     for (int hour = 13; hour <= 15; hour++) {
         state->dataGlobal->HourOfDay = hour;
@@ -4512,7 +4512,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestVisualResilienceReportRe
     EXPECT_NEAR(0.0, state->dataHeatBalFanSys->ZoneLightingLevelOccupiedHourBinsRepPeriod(1, 2)[2], 1e-8);
     EXPECT_NEAR(3.0, state->dataHeatBalFanSys->ZoneLightingLevelOccupiedHourBinsRepPeriod(1, 2)[3], 1e-8);
 
-    state->dataHeatBal->People(1).numberOfPeopleSched->currentVal = 1.0;
+    state->dataHeatBal->People(1).sched->currentVal = 1.0;
     state->dataDayltg->daylightControl(1).refPts(1).illumSetPoint = 70;
     for (int hour = 16; hour <= 18; hour++) {
         state->dataGlobal->HourOfDay = hour;

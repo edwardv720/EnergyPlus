@@ -756,7 +756,7 @@ TEST_F(SQLiteFixture, SQLiteProcedures_createZoneExtendedOutput)
 
     auto const peopleData0 = std::make_unique<DataHeatBalance::PeopleData>();
     peopleData0->Name = "test people 1";
-    peopleData0->numberOfPeopleSched = Sched::GetScheduleAlwaysOff(*state);
+    peopleData0->sched = Sched::GetScheduleAlwaysOff(*state);
     peopleData0->activityLevelSched = Sched::GetScheduleAlwaysOff(*state);
     peopleData0->workEffSched = Sched::GetScheduleAlwaysOff(*state);
     peopleData0->clothingSched = Sched::GetScheduleAlwaysOff(*state);
@@ -766,7 +766,7 @@ TEST_F(SQLiteFixture, SQLiteProcedures_createZoneExtendedOutput)
     peopleData1->Name = "test people 2";
     peopleData1->ZonePtr = 1;
     peopleData1->NumberOfPeople = 2;
-    peopleData1->numberOfPeopleSched = Sched::GetSchedule(*state, "SCHED-1");
+    peopleData1->sched = Sched::GetSchedule(*state, "SCHED-1");
     peopleData1->activityLevelSched = Sched::GetSchedule(*state, "SCHED-1");
     peopleData1->FractionRadiant = 2;
     peopleData1->FractionConvected = 2;

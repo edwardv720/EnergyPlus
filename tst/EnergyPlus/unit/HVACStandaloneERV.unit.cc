@@ -121,10 +121,10 @@ TEST_F(EnergyPlusFixture, HVACStandAloneERV_Test1)
     state->dataHeatBal->People.allocate(state->dataHeatBal->TotPeople);
     state->dataHeatBal->People(1).ZonePtr = 1;
     state->dataHeatBal->People(1).NumberOfPeople = 100.0;
-    state->dataHeatBal->People(1).numberOfPeopleSched = Sched::GetScheduleAlwaysOn(*state); 
+    state->dataHeatBal->People(1).sched = Sched::GetScheduleAlwaysOn(*state); 
     state->dataHeatBal->People(2).ZonePtr = 1;
     state->dataHeatBal->People(2).NumberOfPeople = 200.0;
-    state->dataHeatBal->People(2).numberOfPeopleSched = Sched::GetScheduleAlwaysOn(*state);
+    state->dataHeatBal->People(2).sched = Sched::GetScheduleAlwaysOn(*state);
 
     state->dataHVACStandAloneERV->StandAloneERV.allocate(1);
 
@@ -238,10 +238,10 @@ TEST_F(EnergyPlusFixture, HVACStandAloneERV_Test2)
     state->dataHeatBal->People.allocate(state->dataHeatBal->TotPeople);
     state->dataHeatBal->People(1).ZonePtr = 1;
     state->dataHeatBal->People(1).NumberOfPeople = 10.0;
-    state->dataHeatBal->People(1).numberOfPeopleSched = Sched::GetScheduleAlwaysOn(*state);
+    state->dataHeatBal->People(1).sched = Sched::GetScheduleAlwaysOn(*state);
     state->dataHeatBal->People(2).ZonePtr = 1;
     state->dataHeatBal->People(2).NumberOfPeople = 20.0;
-    state->dataHeatBal->People(2).numberOfPeopleSched = Sched::GetScheduleAlwaysOn(*state);
+    state->dataHeatBal->People(2).sched = Sched::GetScheduleAlwaysOn(*state);
 
     state->dataHVACStandAloneERV->StandAloneERV.allocate(1);
     auto &erv = state->dataHVACStandAloneERV->StandAloneERV(1);

@@ -216,7 +216,7 @@ TEST_F(EnergyPlusFixture, AirflowNetworkSimulationControl_DefaultSolver)
     state->dataHeatBal->People.allocate(state->dataHeatBal->TotPeople);
     state->dataHeatBal->People(1).ZonePtr = 1;
     state->dataHeatBal->People(1).NumberOfPeople = 100.0;
-    state->dataHeatBal->People(1).numberOfPeopleSched = Sched::GetScheduleAlwaysOn(*state); // From dataglobals, always returns a 1 for schedule value
+    state->dataHeatBal->People(1).sched = Sched::GetScheduleAlwaysOn(*state); // From dataglobals, always returns a 1 for schedule value
     state->dataHeatBal->People(1).AdaptiveCEN15251 = true;
 
     std::string const idf_objects = delimited_string({
@@ -312,7 +312,7 @@ TEST_F(EnergyPlusFixture, AirflowNetworkSimulationControl_SetSolver)
     state->dataHeatBal->People.allocate(state->dataHeatBal->TotPeople);
     state->dataHeatBal->People(1).ZonePtr = 1;
     state->dataHeatBal->People(1).NumberOfPeople = 100.0;
-    state->dataHeatBal->People(1).numberOfPeopleSched = Sched::GetScheduleAlwaysOn(*state); // From dataglobals, always returns a 1 for schedule value
+    state->dataHeatBal->People(1).sched = Sched::GetScheduleAlwaysOn(*state); // From dataglobals, always returns a 1 for schedule value
     state->dataHeatBal->People(1).AdaptiveCEN15251 = true;
 
     std::string const idf_objects = delimited_string({
