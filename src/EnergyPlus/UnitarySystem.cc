@@ -11548,10 +11548,10 @@ namespace UnitarySystems {
                     CoilPLR = this->m_CoolingSpeedRatio;
                 } else {
                     if (state.dataUnitarySystems->CoolingLoad) {
-                        if (CompressorOn == HVAC::CompressorOp::Off &&
-                            this->m_CoolingSpeedNum > 1) { // NOTE: Cooling speed 0 should behave the same as speed 1, but doesn't, and must be
-                                                           // allowed to pass into the simulation code
-                            this->m_CoolingSpeedNum = 1;   // Bypass mixed-speed calculations in called functions
+                        if (CompressorOn == HVAC::CompressorOp::Off) {
+                            if (this->m_CoolingSpeedNum > 1) // NOTE: Cooling speed 0 should behave the same as speed 1, but doesn't, and must be
+                                                             // allowed to pass into the simulation code
+                                this->m_CoolingSpeedNum = 1; // Bypass mixed-speed calculations in called functions
                         } else {
                             if (singleMode) {
                                 CoilPLR = (this->m_CoolingSpeedNum == 1)
