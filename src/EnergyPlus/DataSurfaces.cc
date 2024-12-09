@@ -552,10 +552,11 @@ void SurfaceData::make_hash_key(EnergyPlusData &state, const int SurfNum)
     calcHashKey.FrameDivider = FrameDivider;
     calcHashKey.SurfWinStormWinConstr = s_surf->SurfWinStormWinConstr(SurfNum);
 
-    calcHashKey.MaterialMovInsulExt = s_surf->SurfMaterialMovInsulExt(SurfNum);
-    calcHashKey.MaterialMovInsulInt = s_surf->SurfMaterialMovInsulInt(SurfNum);
-    calcHashKey.movInsulExtSchedNum = (s_surf->SurfMovInsulExtScheds(SurfNum) != nullptr) ? s_surf->SurfMovInsulExtScheds(SurfNum)->Num : -1;
-    calcHashKey.movInsulIntSchedNum = (s_surf->SurfMovInsulIntScheds(SurfNum) != nullptr) ? s_surf->SurfMovInsulIntScheds(SurfNum)->Num : -1;
+    calcHashKey.MaterialMovInsulExt = s_surf->extMovInsuls(SurfNum).matNum;
+    calcHashKey.MaterialMovInsulInt = s_surf->intMovInsuls(SurfNum).matNum;
+    calcHashKey.movInsulExtSchedNum = s_surf->extMovInsuls(SurfNum).sched->Num;
+    calcHashKey.movInsulIntSchedNum = s_surf->intMovInsuls(SurfNum).sched->Num;
+    
     calcHashKey.externalShadingSchedNum = (s_surf->Surface(SurfNum).surfExternalShadingSched != nullptr) ? s_surf->Surface(SurfNum).surfExternalShadingSched->Num : -1;
     calcHashKey.SurroundingSurfacesNum = s_surf->Surface(SurfNum).SurfSurroundingSurfacesNum;
     calcHashKey.LinkedOutAirNode = s_surf->Surface(SurfNum).SurfLinkedOutAirNode;

@@ -1479,14 +1479,7 @@ void AllocateSurfaceHeatBalArrays(EnergyPlusData &state)
 
     state.dataSurface->SurfSkySolarInc.dimension(state.dataSurface->TotSurfaces, 0);
     state.dataSurface->SurfGndSolarInc.dimension(state.dataSurface->TotSurfaces, 0);
-    // allocate movable insulation arrays
-    if (state.dataSurface->AnyMovableInsulation) {
-        state.dataHeatBalSurf->SurfMovInsulExtPresent.dimension(state.dataSurface->TotSurfaces, false);
-        state.dataHeatBalSurf->SurfMovInsulIntPresent.dimension(state.dataSurface->TotSurfaces, false);
-        state.dataHeatBalSurf->SurfMovInsulIntPresentPrevTS.dimension(state.dataSurface->TotSurfaces, false);
-        state.dataHeatBalSurf->SurfMovInsulHExt.dimension(state.dataSurface->TotSurfaces, 0.0);
-        state.dataHeatBalSurf->SurfMovInsulHInt.dimension(state.dataSurface->TotSurfaces, 0.0);
-    }
+
     state.dataHeatBalSurf->SurfAbsSolarExt.dimension(state.dataSurface->TotSurfaces, 0.0);
     state.dataHeatBalSurf->SurfAbsThermalExt.dimension(state.dataSurface->TotSurfaces, 0.0);
     state.dataHeatBalSurf->SurfRoughnessExt.dimension(state.dataSurface->TotSurfaces, Material::SurfaceRoughness::Invalid);
@@ -2336,21 +2329,24 @@ void EvalOutsideMovableInsulation(EnergyPlusData &state)
 {
     // This subroutine determines whether or not outside movable insulation on opaque surfaces is present at the current time.
     auto &s_mat = state.dataMaterial;
-    for (int SurfNum : state.dataHeatBalSurf->SurfMovInsulIndexList) {
-        Real64 MovInsulSchedVal = state.dataSurface->SurfMovInsulExtScheds(SurfNum)->getCurrentVal();
+    auto &s_surf = state.dataSurface;
+    
+    for (int SurfNum : s_surf->extMovInsulSurfNums) {
+        auto &movInsul = s_surf->extMovInsuls(SurfNum);
+        Real64 MovInsulSchedVal = movInsul.sched->getCurrentVal();
         if (MovInsulSchedVal <= 0) { // Movable insulation not present at current time
-            state.dataHeatBalSurf->SurfMovInsulExtPresent(SurfNum) = false;
-            int ConstrNum = state.dataSurface->SurfActiveConstruction(SurfNum);
+            movInsul.present = false;
+            int ConstrNum = s_surf->SurfActiveConstruction(SurfNum);
             auto const *thisMaterial = s_mat->materials(state.dataConstruction->Construct(ConstrNum).LayerPoint(1));
             state.dataHeatBalSurf->SurfAbsSolarExt(SurfNum) = thisMaterial->AbsorpSolar;
             state.dataHeatBalSurf->SurfAbsThermalExt(SurfNum) = thisMaterial->AbsorpThermal;
             state.dataHeatBalSurf->SurfRoughnessExt(SurfNum) = thisMaterial->Roughness;
             continue;
         }
-        int const matNum = state.dataSurface->SurfMaterialMovInsulExt(SurfNum);
-        auto const *mat = s_mat->materials(matNum);
-        state.dataHeatBalSurf->SurfMovInsulExtPresent(SurfNum) = true;
-        state.dataHeatBalSurf->SurfMovInsulHExt(SurfNum) = 1.0 / (MovInsulSchedVal * mat->Resistance);
+        
+        auto const *mat = s_mat->materials(movInsul.matNum);
+        movInsul.present = true;
+        movInsul.H = 1.0 / (MovInsulSchedVal * mat->Resistance);
         if (mat->group == Material::Group::Glass || mat->group == Material::Group::GlassEQL) {
             auto const *matGlass = dynamic_cast<Material::MaterialFen const *>(mat);
             assert(matGlass != nullptr);
@@ -2366,23 +2362,24 @@ void EvalOutsideMovableInsulation(EnergyPlusData &state)
 void EvalInsideMovableInsulation(EnergyPlusData &state)
 {
     auto &s_mat = state.dataMaterial;
+    auto &s_surf = state.dataSurface;
     // This subroutine determines whether or not inside movable insulation is present at the current time.
-    for (int SurfNum : state.dataHeatBalSurf->SurfMovInsulIndexList) {
-        Real64 MovInsulSchedVal = state.dataSurface->SurfMovInsulIntScheds(SurfNum)->getCurrentVal();
+    for (int SurfNum : s_surf->intMovInsulSurfNums) {
+        auto &movInsul = s_surf->intMovInsuls(SurfNum);
+        Real64 MovInsulSchedVal = movInsul.sched->getCurrentVal();
         if (MovInsulSchedVal <= 0.0) { // Movable insulation not present at current time
-            state.dataHeatBalSurf->SurfMovInsulIntPresent(SurfNum) = false;
-            int ConstrNum = state.dataSurface->SurfActiveConstruction(SurfNum);
+            movInsul.present = false;
+            int ConstrNum = s_surf->SurfActiveConstruction(SurfNum);
             auto const &thisConstruct = state.dataConstruction->Construct(ConstrNum);
             state.dataHeatBalSurf->SurfAbsSolarInt(SurfNum) = thisConstruct.InsideAbsorpSolar;
             state.dataHeatBalSurf->SurfAbsThermalInt(SurfNum) = thisConstruct.InsideAbsorpThermal;
             continue;
         }
 
-        int const matNum = state.dataSurface->SurfMaterialMovInsulInt(SurfNum);
-        auto const *mat = s_mat->materials(matNum);
+        auto const *mat = s_mat->materials(movInsul.matNum);
 
-        state.dataHeatBalSurf->SurfMovInsulIntPresent(SurfNum) = true;
-        state.dataHeatBalSurf->SurfMovInsulHInt(SurfNum) = 1.0 / (MovInsulSchedVal * mat->Resistance);
+        movInsul.present = true;
+        movInsul.H = 1.0 / (MovInsulSchedVal * mat->Resistance);
         if (mat->group == Material::Group::Glass || mat->group == Material::Group::GlassEQL) { // Glass is insulating?
             auto const *matGlass = dynamic_cast<Material::MaterialFen const *>(mat);
             assert(matGlass != nullptr);
@@ -3774,22 +3771,24 @@ void InitIntSolarDistribution(EnergyPlusData &state)
                 state.dataHeatBalSurf->SurfQdotRadLightsInPerArea(SurfNum) += state.dataHeatBal->EnclSolQSWRadLights(solEnclosureNum) * AbsIntSurfVis;
 
                 // Calculate absorbed solar on outside if movable exterior insulation in place
-                if (state.dataSurface->AnyMovableInsulation &&
-                    state.dataHeatBalSurf->SurfMovInsulExtPresent(SurfNum)) { // Movable outside insulation in place
-                    Real64 AbsExt = state.dataHeatBalSurf->SurfAbsSolarExt(SurfNum);
-                    auto const *thisMaterial = s_mat->materials(thisConstruct.LayerPoint(1));
-                    state.dataHeatBalSurf->SurfQRadSWOutMvIns(SurfNum) =
-                        state.dataHeatBalSurf->SurfOpaqQRadSWOutAbs(SurfNum) * AbsExt / thisMaterial->AbsorpSolar;
-                    // For transparent insulation, allow some sunlight to get through the movable insulation.
-                    // The equation below is derived by taking what is transmitted through the layer and applying
-                    // the fraction that is absorbed plus the back reflected portion (first order reflection only)
-                    // to the plane between the transparent insulation and the exterior surface face.
-                    auto const *matMovInsul = s_mat->materials(state.dataSurface->SurfMaterialMovInsulExt(SurfNum));
-                    auto const *matFenMovInsul = dynamic_cast<Material::MaterialFen const *>(matMovInsul);
-                    Real64 transMovInsul = (matFenMovInsul != nullptr) ? matFenMovInsul->Trans : 0.0;
+                if (state.dataSurface->AnyMovableInsulation) {
+                    auto &movInsul = state.dataSurface->extMovInsuls(SurfNum);
+                    if (movInsul.present) {
+                        Real64 AbsExt = state.dataHeatBalSurf->SurfAbsSolarExt(SurfNum);
+                        auto const *thisMaterial = s_mat->materials(thisConstruct.LayerPoint(1));
+                        state.dataHeatBalSurf->SurfQRadSWOutMvIns(SurfNum) =
+                                state.dataHeatBalSurf->SurfOpaqQRadSWOutAbs(SurfNum) * AbsExt / thisMaterial->AbsorpSolar;
+                        // For transparent insulation, allow some sunlight to get through the movable insulation.
+                        // The equation below is derived by taking what is transmitted through the layer and applying
+                        // the fraction that is absorbed plus the back reflected portion (first order reflection only)
+                        // to the plane between the transparent insulation and the exterior surface face.
+                        auto const *matMovInsul = s_mat->materials(movInsul.matNum);
+                        auto const *matFenMovInsul = dynamic_cast<Material::MaterialFen const *>(matMovInsul);
+                        Real64 transMovInsul = (matFenMovInsul != nullptr) ? matFenMovInsul->Trans : 0.0;
 
-                    state.dataHeatBalSurf->SurfOpaqQRadSWOutAbs(SurfNum) = transMovInsul * state.dataHeatBalSurf->SurfQRadSWOutMvIns(SurfNum) *
-                                                                           ((thisMaterial->AbsorpSolar / AbsExt) + (1 - thisMaterial->AbsorpSolar));
+                        state.dataHeatBalSurf->SurfOpaqQRadSWOutAbs(SurfNum) = transMovInsul * state.dataHeatBalSurf->SurfQRadSWOutMvIns(SurfNum) *
+                                ((thisMaterial->AbsorpSolar / AbsExt) + (1 - thisMaterial->AbsorpSolar));
+                    }
                 }
                 // RJH 08/30/07 - Add SurfWinInitialDifSolInAbs, SurfWinInitialDifSolwinAbs, and SurfWinInitialDifSolAbsByShade
                 // calced in CalcWinTransDifSolInitialDistribution to SurfOpaqQRadSWInAbs, SurfWinQRadSWwinAbs, and SurfWinIntSWAbsByShade here
@@ -5643,7 +5642,7 @@ void ReportThermalResilience(EnergyPlusData &state)
             int ZoneNum = state.dataHeatBal->People(iPeople).ZonePtr;
             state.dataHeatBal->Resilience(ZoneNum).ZoneNumOcc =
                 state.dataHeatBal->People(iPeople).NumberOfPeople *
-                state.dataHeatBal->People(iPeople).numberOfPeopleSched->getCurrentVal();
+                state.dataHeatBal->People(iPeople).sched->getCurrentVal();
             state.dataHeatBal->Resilience(ZoneNum).ZonePierceSETLastStep = state.dataHeatBal->Resilience(ZoneNum).ZonePierceSET;
             if (state.dataHeatBal->People(iPeople).Pierce) {
                 state.dataHeatBal->Resilience(ZoneNum).ZonePierceSET = state.dataThermalComforts->ThermalComfortData(iPeople).PierceSET;
@@ -6160,11 +6159,8 @@ void ReportCO2Resilience(EnergyPlusData &state)
     }
 
     if (Constant::KindOfSim::RunPeriodWeather == state.dataGlobal->KindOfSim && !state.dataGlobal->WarmupFlag) {
-        for (int iPeople = 1; iPeople <= state.dataHeatBal->TotPeople; ++iPeople) {
-            int ZoneNum = state.dataHeatBal->People(iPeople).ZonePtr;
-            state.dataHeatBal->Resilience(ZoneNum).ZoneNumOcc =
-                state.dataHeatBal->People(iPeople).NumberOfPeople *
-                state.dataHeatBal->People(iPeople).numberOfPeopleSched->getCurrentVal();
+        for (auto const &people : state.dataHeatBal->People) { 
+            state.dataHeatBal->Resilience(people.ZonePtr).ZoneNumOcc = people.NumberOfPeople * people.sched->getCurrentVal();
         }
 
         Array1D_bool reportPeriodFlags;
@@ -6251,11 +6247,8 @@ void ReportVisualResilience(EnergyPlusData &state)
     }
 
     if (Constant::KindOfSim::RunPeriodWeather == state.dataGlobal->KindOfSim && !state.dataGlobal->WarmupFlag) {
-        for (int iPeople = 1; iPeople <= state.dataHeatBal->TotPeople; ++iPeople) {
-            int ZoneNum = state.dataHeatBal->People(iPeople).ZonePtr;
-            state.dataHeatBal->Resilience(ZoneNum).ZoneNumOcc =
-                state.dataHeatBal->People(iPeople).NumberOfPeople *
-                state.dataHeatBal->People(iPeople).numberOfPeopleSched->getCurrentVal();
+        for (auto const &people : state.dataHeatBal->People) { 
+            state.dataHeatBal->Resilience(people.ZonePtr).ZoneNumOcc = people.NumberOfPeople * people.sched->getCurrentVal();
         }
         // Accumulate across daylighting controls first
         for (int ZoneNum = 1; ZoneNum <= state.dataGlobal->NumOfZones; ++ZoneNum) {
@@ -6678,8 +6671,8 @@ void ReportNonRepresentativeSurfaceResults(EnergyPlusData &state)
 void ReportIntMovInsInsideSurfTemp(EnergyPlusData &state)
 {
     state.dataHeatBalSurf->SurfTempInMovInsRep = state.dataHeatBalSurf->SurfTempIn;
-    for (int SurfNum : state.dataHeatBalSurf->SurfMovInsulIndexList) {
-        if (state.dataHeatBalSurf->SurfMovInsulIntPresent(SurfNum)) {
+    for (int SurfNum : state.dataSurface->intMovInsulSurfNums) {
+        if (state.dataSurface->intMovInsuls(SurfNum).present) {
             state.dataHeatBalSurf->SurfTempInMovInsRep(SurfNum) = state.dataHeatBalSurf->SurfTempInTmp(SurfNum);
         }
     }
@@ -7168,8 +7161,8 @@ void CalcHeatBalanceOutsideSurf(EnergyPlusData &state,
                     Real64 AbsThermSurf = state.dataHeatBalSurf->SurfAbsThermalExt(SurfNum);
                     HMovInsul = 0;
                     // Check for outside movable insulation
-                    if (state.dataSurface->AnyMovableInsulation && state.dataHeatBalSurf->SurfMovInsulExtPresent(SurfNum)) {
-                        HMovInsul = state.dataHeatBalSurf->SurfMovInsulHExt(SurfNum);
+                    if (state.dataSurface->AnyMovableInsulation && state.dataSurface->extMovInsuls(SurfNum).present) {
+                        HMovInsul = state.dataSurface->extMovInsuls(SurfNum).H;
                     }
 
                     // Check for exposure to wind (exterior environment)
@@ -7821,7 +7814,7 @@ void CalcHeatBalanceInsideSurf2(EnergyPlusData &state,
                 state.dataHeatBalSurf->SurfTempIn(SurfNum) = state.dataHeatBalSurf->SurfTempInTmp(SurfNum);
 
             } else { // Standard surface or interzone surface
-                bool movableInsulPresent = state.dataSurface->AnyMovableInsulation && state.dataHeatBalSurf->SurfMovInsulIntPresent(SurfNum);
+                bool movableInsulPresent = state.dataSurface->AnyMovableInsulation && state.dataSurface->intMovInsuls(SurfNum).present;
                 if (!movableInsulPresent) { // No movable insulation present, normal heat balance equation
 
                     if (surface.HeatTransferAlgorithm == DataSurfaces::HeatTransferModel::CTF ||
@@ -7970,14 +7963,14 @@ void CalcHeatBalanceInsideSurf2(EnergyPlusData &state,
                     state.dataHeatBalSurf->SurfTempIn(SurfNum) = state.dataHeatBalSurf->SurfTempInTmp(SurfNum);
 
                 } else { // Movable insulation present
-                    Real64 HMovInsul = state.dataHeatBalSurf->SurfMovInsulHInt(SurfNum);
+                    Real64 HMovInsul = state.dataSurface->intMovInsuls(SurfNum).H;
                     if (construct.SourceSinkPresent) {
 
                         ShowSevereError(state, "Interior movable insulation is not valid with embedded sources/sinks");
                         ShowContinueError(state, format("Construction {} contains an internal source or sink but also uses", construct.Name));
                         ShowContinueError(state,
                                           format("interior movable insulation {} for a surface with that construction.",
-                                                 s_mat->materials(state.dataSurface->SurfMaterialMovInsulInt(SurfNum))->Name));
+                                                 s_mat->materials(state.dataSurface->intMovInsuls(SurfNum).matNum)->Name));
                         ShowContinueError(state,
                                           "This is not currently allowed because the heat balance equations do not currently accommodate "
                                           "this combination.");
@@ -8617,9 +8610,11 @@ void CalcHeatBalanceInsideSurf2CTFOnly(EnergyPlusData &state,
 
                 // Loop over non-window surfaces (includes TubularDaylightingDomes)
                 for (int surfNum = firstNonWinSurf; surfNum <= lastNonWinSurf; ++surfNum) {
-                    bool movableInsulPresent = state.dataSurface->AnyMovableInsulation && state.dataHeatBalSurf->SurfMovInsulIntPresent(surfNum);
+                    auto &movInsul = state.dataSurface->intMovInsuls(surfNum);
+                        
+                    bool movableInsulPresent = state.dataSurface->AnyMovableInsulation && movInsul.present;
                     if (movableInsulPresent) { // Movable insulation present, recalc surface temps
-                        Real64 HMovInsul = state.dataHeatBalSurf->SurfMovInsulHInt(surfNum);
+                        Real64 HMovInsul = movInsul.H;
                         Real64 F1 = HMovInsul / (HMovInsul + state.dataHeatBalSurf->SurfHConvInt(surfNum) + DataHeatBalSurface::IterDampConst);
                         state.dataHeatBalSurf->SurfTempIn(surfNum) =
                             (state.dataHeatBalSurf->SurfCTFConstInPart(surfNum) + state.dataHeatBalSurf->SurfOpaqQRadSWInAbs(surfNum) +
@@ -9399,7 +9394,7 @@ void CalcOutsideSurfTemp(EnergyPlusData &state,
             ShowContinueError(state, format("Construction {} contains an internal source or sink but also uses", construct.Name));
             ShowContinueError(state,
                               format("exterior movable insulation {} for a surface with that construction.",
-                                     s_mat->materials(state.dataSurface->SurfMaterialMovInsulExt(SurfNum))->Name));
+                                     s_mat->materials(state.dataSurface->extMovInsuls(SurfNum).matNum)->Name));
             ShowContinueError(state,
                               "This is not currently allowed because the heat balance equations do not currently accommodate this combination.");
             ErrorFlag = true;

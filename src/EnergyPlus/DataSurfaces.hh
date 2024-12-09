@@ -1461,6 +1461,16 @@ namespace DataSurfaces {
 
     std::string cSurfaceClass(SurfaceClass ClassNo);
 
+
+    struct MovInsul
+    {
+        bool present = false;
+        bool presentPrevTS = false;
+        Real64 H = 0.0;
+        int matNum = 0; // Material number
+        Sched::Schedule *sched = nullptr; 
+    };
+        
 } // namespace DataSurfaces
 
 struct SurfacesData : BaseGlobalStruct
@@ -1524,7 +1534,9 @@ struct SurfacesData : BaseGlobalStruct
     std::vector<int> allInsideSourceSurfaceList;       // List of all surfaces with SurfaceProperty:HeatBalanceSourceTerm for inside face
     std::vector<int> allOutsideSourceSurfaceList;      // List of all surfaces with SurfaceProperty:HeatBalanceSourceTerm for outside face
     std::vector<int> allGetsRadiantHeatSurfaceList;    // List of all surfaces that receive radiant HVAC output
-
+    std::vector<int> intMovInsulSurfNums;
+    std::vector<int> extMovInsulSurfNums;
+        
     std::array<std::vector<int>, static_cast<int>(DataSurfaces::SurfaceFilter::Num)> SurfaceFilterLists;
 
     // Surface HB arrays
@@ -1571,12 +1583,6 @@ struct SurfacesData : BaseGlobalStruct
     Array1D<int> SurfShadowRecSurfNum;        // Receiving surface number
     Array1D<std::vector<int>>
         SurfShadowDisabledZoneList; // Array of all disabled shadowing zone number to the current surface the surface diffusion model
-
-    // Surface movable insulation properties
-    Array1D<int> SurfMaterialMovInsulExt; // Pointer to the material used for exterior movable insulation
-    Array1D<int> SurfMaterialMovInsulInt; // Pointer to the material used for interior movable insulation
-    Array1D<Sched::Schedule *> SurfMovInsulExtScheds;    // Schedule for exterior movable insulation
-    Array1D<Sched::Schedule *> SurfMovInsulIntScheds;    // Schedule for interior movable insulation
 
     // Surface EMS
     Array1D<bool> SurfEMSConstructionOverrideON;          // if true, EMS is calling to override the construction value
@@ -1805,6 +1811,9 @@ struct SurfacesData : BaseGlobalStruct
     Array1D<int> SurfWinStormWinConstr;                        // Construction with storm window (windows only)
     Array1D<int> SurfActiveConstruction;                       // The currently active construction with or without storm window
     Array1D<int> SurfWinActiveShadedConstruction;              // The currently active shaded construction with or without storm window (windows only)
+
+    Array1D<DataSurfaces::MovInsul> intMovInsuls;
+    Array1D<DataSurfaces::MovInsul> extMovInsuls;
 
     EPVector<DataSurfaces::SurfaceData> Surface;
     EPVector<DataSurfaces::SurfaceWindowCalc> SurfaceWindow;

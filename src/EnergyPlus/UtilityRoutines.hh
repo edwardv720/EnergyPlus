@@ -766,6 +766,7 @@ constexpr int getEnumValue(const gsl::span<const std::string_view> sList, const 
     return -1;
 }
 
+constexpr std::array<std::string_view, 2> yesNoNames = {"No", "Yes"};
 constexpr std::array<std::string_view, 2> yesNoNamesUC = {"NO", "YES"};
 
 constexpr BooleanSwitch getYesNoValue(const std::string_view s)

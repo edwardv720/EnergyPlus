@@ -209,8 +209,6 @@ namespace InternalHeatGains {
         Real64 OthTot;   // Total Other load for calculating other load per square meter
         Real64 HWETot;   // Total Hot Water Equipment for calculating HWE per square meter
         Real64 StmTot;   // Total Steam for calculating Steam per square meter
-        Real64 SchMin;
-        Real64 SchMax;
 
         // Formats
         static constexpr std::string_view Format_720(" Zone Internal Gains Nominal, {},{:.2R},{:.1R},");
@@ -335,18 +333,16 @@ namespace InternalHeatGains {
                     thisPeople.clothingMethodSched = Sched::GetScheduleAlwaysOn(state);
                     thisPeople.airVelocitySched = Sched::GetScheduleAlwaysOn(state);
                     
-                    thisPeople.numberOfPeopleSched = Sched::GetSchedule(state, IHGAlphas(3));
-                    SchMin = 0.0;
-                    SchMax = 0.0;
+                    thisPeople.sched = Sched::GetSchedule(state, IHGAlphas(3));
 
                     if (Item1 == 1) { // only show error on first one
                         if (IHGAlphaFieldBlanks(3)) {
                             ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(3));
                             ErrorsFound = true;
-                        } else if (thisPeople.numberOfPeopleSched == nullptr) {
+                        } else if (thisPeople.sched == nullptr) {
                             ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3));
                             ErrorsFound = true;
-                        } else if (!thisPeople.numberOfPeopleSched->checkMinVal(state, Clusive::In, 0.0)) {
+                        } else if (!thisPeople.sched->checkMinVal(state, Clusive::In, 0.0)) {
                             Sched::ShowSevereBadMin(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3), Clusive::In, 0.0);
                             ErrorsFound = true;
                         }
@@ -463,8 +459,8 @@ namespace InternalHeatGains {
                     }
 
                     // Calculate nominal min/max people
-                    thisPeople.NomMinNumberPeople = thisPeople.NumberOfPeople * SchMin;
-                    thisPeople.NomMaxNumberPeople = thisPeople.NumberOfPeople * SchMax;
+                    thisPeople.NomMinNumberPeople = thisPeople.NumberOfPeople * thisPeople.sched->getMinVal(state);
+                    thisPeople.NomMaxNumberPeople = thisPeople.NumberOfPeople * thisPeople.sched->getMaxVal(state);
 
                     if (zoneNum > 0) {
                         state.dataHeatBal->Zone(zoneNum).TotOccupants += thisPeople.NumberOfPeople;
@@ -897,11 +893,10 @@ namespace InternalHeatGains {
                     Real64 maxOccupLoad = 0.0;
                     int OptionNum = 0;
                     for (int Loop1 = 1; Loop1 <= state.dataHeatBal->TotPeople; ++Loop1) {
-                        if (state.dataHeatBal->People(Loop1).ZonePtr != Loop) continue;
-                        if (maxOccupLoad < state.dataHeatBal->People(Loop1).numberOfPeopleSched->getCurrentVal() *
-                                               state.dataHeatBal->People(Loop1).NumberOfPeople) {
-                            maxOccupLoad = state.dataHeatBal->People(Loop1).numberOfPeopleSched->getCurrentVal() *
-                                           state.dataHeatBal->People(Loop1).NumberOfPeople;
+                        auto const &people = state.dataHeatBal->People(Loop1);
+                        if (people.ZonePtr != Loop) continue;
+                        if (maxOccupLoad < people.sched->getCurrentVal() * people.NumberOfPeople) {
+                            maxOccupLoad = people.sched->getCurrentVal() * people.NumberOfPeople;
                             OptionNum = Loop1;
                         }
                     }
@@ -921,7 +916,7 @@ namespace InternalHeatGains {
                             ShowContinueError(state,
                                               format("Check values in People={}, Number of People Schedule={}",
                                                      state.dataHeatBal->People(OptionNum).Name,
-                                                     state.dataHeatBal->People(OptionNum).numberOfPeopleSched->getCurrentVal()));
+                                                     state.dataHeatBal->People(OptionNum).sched->getCurrentVal()));
                         }
                     }
                 }
@@ -998,6 +993,7 @@ namespace InternalHeatGains {
                         }
                     }
 
+                    
                     // Lights Design Level calculation method.
                     {
                         // Set space load fraction
@@ -1105,8 +1101,8 @@ namespace InternalHeatGains {
                     }
 
                     // Calculate nominal min/max lighting level
-                    thisLights.NomMinDesignLevel = thisLights.DesignLevel * SchMin;
-                    thisLights.NomMaxDesignLevel = thisLights.DesignLevel * SchMax;
+                    thisLights.NomMinDesignLevel = thisLights.DesignLevel * thisLights.sched->getMinVal(state);
+                    thisLights.NomMaxDesignLevel = thisLights.DesignLevel * thisLights.sched->getMaxVal(state);
 
                     thisLights.FractionReturnAir = IHGNumbers(4);
                     thisLights.FractionRadiant = IHGNumbers(5);
@@ -1525,8 +1521,8 @@ namespace InternalHeatGains {
                     }
 
                     // Calculate nominal min/max equipment level
-                    thisZoneElectric.NomMinDesignLevel = thisZoneElectric.DesignLevel * SchMin;
-                    thisZoneElectric.NomMaxDesignLevel = thisZoneElectric.DesignLevel * SchMax;
+                    thisZoneElectric.NomMinDesignLevel = thisZoneElectric.DesignLevel * thisZoneElectric.sched->getMinVal(state);
+                    thisZoneElectric.NomMaxDesignLevel = thisZoneElectric.DesignLevel * thisZoneElectric.sched->getMaxVal(state);
 
                     thisZoneElectric.FractionLatent = IHGNumbers(4);
                     thisZoneElectric.FractionRadiant = IHGNumbers(5);
@@ -1726,8 +1722,8 @@ namespace InternalHeatGains {
                     }
 
                     // Calculate nominal min/max equipment level
-                    thisZoneGas.NomMinDesignLevel = thisZoneGas.DesignLevel * SchMin;
-                    thisZoneGas.NomMaxDesignLevel = thisZoneGas.DesignLevel * SchMax;
+                    thisZoneGas.NomMinDesignLevel = thisZoneGas.DesignLevel * thisZoneGas.sched->getMinVal(state);
+                    thisZoneGas.NomMaxDesignLevel = thisZoneGas.DesignLevel * thisZoneGas.sched->getMaxVal(state);
 
                     thisZoneGas.FractionLatent = IHGNumbers(4);
                     thisZoneGas.FractionRadiant = IHGNumbers(5);
@@ -1958,8 +1954,8 @@ namespace InternalHeatGains {
                     }
 
                     // Calculate nominal min/max equipment level
-                    thisZoneHWEq.NomMinDesignLevel = thisZoneHWEq.DesignLevel * SchMin;
-                    thisZoneHWEq.NomMaxDesignLevel = thisZoneHWEq.DesignLevel * SchMax;
+                    thisZoneHWEq.NomMinDesignLevel = thisZoneHWEq.DesignLevel * thisZoneHWEq.sched->getMinVal(state);
+                    thisZoneHWEq.NomMaxDesignLevel = thisZoneHWEq.DesignLevel * thisZoneHWEq.sched->getMaxVal(state);
 
                     thisZoneHWEq.FractionLatent = IHGNumbers(4);
                     thisZoneHWEq.FractionRadiant = IHGNumbers(5);
@@ -2159,8 +2155,8 @@ namespace InternalHeatGains {
                     }
 
                     // Calculate nominal min/max equipment level
-                    thisZoneStmEq.NomMinDesignLevel = thisZoneStmEq.DesignLevel * SchMin;
-                    thisZoneStmEq.NomMaxDesignLevel = thisZoneStmEq.DesignLevel * SchMax;
+                    thisZoneStmEq.NomMinDesignLevel = thisZoneStmEq.DesignLevel * thisZoneStmEq.sched->getMinVal(state);
+                    thisZoneStmEq.NomMaxDesignLevel = thisZoneStmEq.DesignLevel * thisZoneStmEq.sched->getMaxVal(state);
 
                     thisZoneStmEq.FractionLatent = IHGNumbers(4);
                     thisZoneStmEq.FractionRadiant = IHGNumbers(5);
@@ -2403,8 +2399,8 @@ namespace InternalHeatGains {
                     }
 
                     // Calculate nominal min/max equipment level
-                    thisZoneOthEq.NomMinDesignLevel = thisZoneOthEq.DesignLevel * SchMin;
-                    thisZoneOthEq.NomMaxDesignLevel = thisZoneOthEq.DesignLevel * SchMax;
+                    thisZoneOthEq.NomMinDesignLevel = thisZoneOthEq.DesignLevel * thisZoneOthEq.sched->getMinVal(state);
+                    thisZoneOthEq.NomMaxDesignLevel = thisZoneOthEq.DesignLevel * thisZoneOthEq.sched->getMaxVal(state);
 
                     thisZoneOthEq.FractionLatent = IHGNumbers(4);
                     thisZoneOthEq.FractionRadiant = IHGNumbers(5);
@@ -2638,8 +2634,8 @@ namespace InternalHeatGains {
                         }
 
                         // Calculate nominal min/max equipment level
-                        thisZoneITEq.NomMinDesignLevel = thisZoneITEq.DesignTotalPower * SchMin;
-                        thisZoneITEq.NomMaxDesignLevel = thisZoneITEq.DesignTotalPower * SchMax;
+                        thisZoneITEq.NomMinDesignLevel = thisZoneITEq.DesignTotalPower * thisZoneITEq.operSched->getMinVal(state);
+                        thisZoneITEq.NomMaxDesignLevel = thisZoneITEq.DesignTotalPower * thisZoneITEq.operSched->getMaxVal(state);
 
                         thisZoneITEq.DesignFanPowerFrac = IHGNumbers(4);
                         thisZoneITEq.DesignFanPower = thisZoneITEq.DesignFanPowerFrac * thisZoneITEq.DesignTotalPower;
@@ -3089,75 +3085,64 @@ namespace InternalHeatGains {
             "Heat\n");
 
         print(state.files.eio, Format_721);
+
         for (int Loop = 1; Loop <= state.dataGlobal->NumOfZones; ++Loop) {
-            LightTot = 0.0;
-            ElecTot = 0.0;
-            GasTot = 0.0;
-            OthTot = 0.0;
-            HWETot = 0.0;
-            StmTot = 0.0;
+            auto &zone = state.dataHeatBal->Zone(Loop);
+                
+            Real64 LightTot = 0.0;
+            Real64 ElecTot = 0.0;
+            Real64 GasTot = 0.0;
+            Real64 OthTot = 0.0;
+            Real64 HWETot = 0.0;
+            Real64 StmTot = 0.0;
             std::string BBHeatInd = "No"; // Yes if BBHeat in zone, no if not.
-            for (int Loop1 = 1; Loop1 <= state.dataHeatBal->TotLights; ++Loop1) {
-                if (state.dataHeatBal->Lights(Loop1).ZonePtr != Loop) continue;
-                LightTot += state.dataHeatBal->Lights(Loop1).DesignLevel;
+            
+            for (auto const &lights : state.dataHeatBal->Lights) {
+                if (lights.ZonePtr == Loop) LightTot += lights.DesignLevel;
             }
-            for (int Loop1 = 1; Loop1 <= state.dataHeatBal->TotElecEquip; ++Loop1) {
-                if (state.dataHeatBal->ZoneElectric(Loop1).ZonePtr != Loop) continue;
-                ElecTot += state.dataHeatBal->ZoneElectric(Loop1).DesignLevel;
+            for (auto const &elecEq : state.dataHeatBal->ZoneElectric) {
+                if (elecEq.ZonePtr == Loop) ElecTot += elecEq.DesignLevel;
             }
-            for (int Loop1 = 1; Loop1 <= state.dataHeatBal->TotITEquip; ++Loop1) {
-                if (state.dataHeatBal->ZoneITEq(Loop1).ZonePtr != Loop) continue;
-                ElecTot += state.dataHeatBal->ZoneITEq(Loop1).DesignTotalPower;
+            for (auto const &itEq : state.dataHeatBal->ZoneITEq) {
+                if (itEq.ZonePtr == Loop) ElecTot += itEq.DesignTotalPower; // Should this not be itTot?
             }
-            for (int Loop1 = 1; Loop1 <= state.dataHeatBal->TotGasEquip; ++Loop1) {
-                if (state.dataHeatBal->ZoneGas(Loop1).ZonePtr != Loop) continue;
-                GasTot += state.dataHeatBal->ZoneGas(Loop1).DesignLevel;
+            for (auto const &gasEq : state.dataHeatBal->ZoneGas) {
+                if (gasEq.ZonePtr == Loop) GasTot += gasEq.DesignLevel;
             }
-            for (int Loop1 = 1; Loop1 <= state.dataHeatBal->TotOthEquip; ++Loop1) {
-                if (state.dataHeatBal->ZoneOtherEq(Loop1).ZonePtr != Loop) continue;
-                OthTot += state.dataHeatBal->ZoneOtherEq(Loop1).DesignLevel;
+            for (auto const &otherEq : state.dataHeatBal->ZoneOtherEq) {
+                if (otherEq.ZonePtr == Loop) OthTot += otherEq.DesignLevel;
             }
-            for (int Loop1 = 1; Loop1 <= state.dataHeatBal->TotStmEquip; ++Loop1) {
-                if (state.dataHeatBal->ZoneSteamEq(Loop1).ZonePtr != Loop) continue;
-                StmTot += state.dataHeatBal->ZoneSteamEq(Loop1).DesignLevel;
+            for (auto const &steamEq : state.dataHeatBal->ZoneSteamEq) {
+                if (steamEq.ZonePtr == Loop) StmTot += steamEq.DesignLevel;
             }
-            for (int Loop1 = 1; Loop1 <= state.dataHeatBal->TotHWEquip; ++Loop1) {
-                if (state.dataHeatBal->ZoneHWEq(Loop1).ZonePtr != Loop) continue;
-                HWETot += state.dataHeatBal->ZoneHWEq(Loop1).DesignLevel;
+            for (auto const &hotWaterEq : state.dataHeatBal->ZoneHWEq) {
+                if (hotWaterEq.ZonePtr == Loop) HWETot += hotWaterEq.DesignLevel;
             }
-            for (int Loop1 = 1; Loop1 <= state.dataHeatBal->TotBBHeat; ++Loop1) {
-                if (state.dataHeatBal->ZoneBBHeat(Loop1).ZonePtr != Loop) continue;
-                BBHeatInd = "Yes";
+            for (auto const &bbHeat : state.dataHeatBal->ZoneBBHeat) {
+                if (bbHeat.ZonePtr == Loop) BBHeatInd = "Yes";
             }
-            state.dataHeatBal->Zone(Loop).InternalHeatGains = LightTot + ElecTot + GasTot + OthTot + HWETot + StmTot;
-            if (state.dataHeatBal->Zone(Loop).FloorArea > 0.0) {
-                print(state.files.eio,
-                      Format_720,
-                      state.dataHeatBal->Zone(Loop).Name,
-                      state.dataHeatBal->Zone(Loop).FloorArea,
-                      state.dataHeatBal->Zone(Loop).TotOccupants);
-                print_and_divide_if_greater_than_zero(state.dataHeatBal->Zone(Loop).FloorArea, state.dataHeatBal->Zone(Loop).TotOccupants);
-                print(state.files.eio, "{:.3R},", state.dataHeatBal->Zone(Loop).TotOccupants / state.dataHeatBal->Zone(Loop).FloorArea);
-                print(state.files.eio, "{:.3R},", LightTot / state.dataHeatBal->Zone(Loop).FloorArea);
-                print(state.files.eio, "{:.3R},", ElecTot / state.dataHeatBal->Zone(Loop).FloorArea);
-                print(state.files.eio, "{:.3R},", GasTot / state.dataHeatBal->Zone(Loop).FloorArea);
-                print(state.files.eio, "{:.3R},", OthTot / state.dataHeatBal->Zone(Loop).FloorArea);
-                print(state.files.eio, "{:.3R},", HWETot / state.dataHeatBal->Zone(Loop).FloorArea);
-                print(state.files.eio, "{:.3R},", StmTot / state.dataHeatBal->Zone(Loop).FloorArea);
-                print(state.files.eio,
-                      "{:.3R},{}\n",
-                      state.dataHeatBal->Zone(Loop).InternalHeatGains / state.dataHeatBal->Zone(Loop).FloorArea,
-                      BBHeatInd);
+
+            zone.InternalHeatGains = LightTot + ElecTot + GasTot + OthTot + HWETot + StmTot;
+            if (zone.FloorArea > 0.0) {
+                print(state.files.eio, Format_720, zone.Name, zone.FloorArea, zone.TotOccupants);
+                print_and_divide_if_greater_than_zero(zone.FloorArea, zone.TotOccupants);
+                print(state.files.eio, "{:.3R},", zone.TotOccupants / zone.FloorArea);
+                print(state.files.eio, "{:.3R},", LightTot / zone.FloorArea);
+                print(state.files.eio, "{:.3R},", ElecTot / zone.FloorArea);
+                print(state.files.eio, "{:.3R},", GasTot / zone.FloorArea);
+                print(state.files.eio, "{:.3R},", OthTot / zone.FloorArea);
+                print(state.files.eio, "{:.3R},", HWETot / zone.FloorArea);
+                print(state.files.eio, "{:.3R},", StmTot / zone.FloorArea);
+                print(state.files.eio, "{:.3R},{}\n", zone.InternalHeatGains / zone.FloorArea, BBHeatInd);
             } else {
-                print(state.files.eio,
-                      Format_720,
-                      state.dataHeatBal->Zone(Loop).Name,
-                      state.dataHeatBal->Zone(Loop).FloorArea,
-                      state.dataHeatBal->Zone(Loop).TotOccupants);
+                print(state.files.eio, Format_720, zone.Name, zone.FloorArea, zone.TotOccupants);
                 print(state.files.eio, "0.0,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,{}\n", BBHeatInd);
             }
         }
+        
         for (int Loop = 1; Loop <= state.dataHeatBal->TotPeople; ++Loop) {
+            auto &people = state.dataHeatBal->People(Loop);
+                
             if (Loop == 1) {
                 print(state.files.eio,
                       Format_723,
@@ -3169,8 +3154,7 @@ namespace InternalHeatGains {
                       "Minimum Number of People for Weekends/Holidays, Maximum Number of People for Weekends /Holidays,"
                       "Minimum Number of People for Summer Design Days, Maximum Number of People for Summer Design Days,"
                       "Minimum Number of People for Winter Design Days, Maximum Number of People for Winter Design Days");
-                if (state.dataHeatBal->People(Loop).Fanger || state.dataHeatBal->People(Loop).Pierce || state.dataHeatBal->People(Loop).KSU ||
-                    state.dataHeatBal->People(Loop).CoolingEffectASH55 || state.dataHeatBal->People(Loop).AnkleDraftASH55) {
+                if (people.Fanger || people.Pierce || people.KSU || people.CoolingEffectASH55 || people.AnkleDraftASH55) {
                     print(state.files.eio,
                           ",MRT Calculation Type,Work Efficiency, Clothing Insulation Calculation Method,Clothing "
                           "Insulation Calculation Method Schedule,Clothing,Air Velocity,Fanger Calculation,Pierce "
@@ -3180,127 +3164,97 @@ namespace InternalHeatGains {
                 }
             }
 
-            int ZoneNum = state.dataHeatBal->People(Loop).ZonePtr;
-
-            if (ZoneNum == 0) {
-                print(state.files.eio, Format_724, "People-Illegal Zone specified", state.dataHeatBal->People(Loop).Name);
+            if (people.ZonePtr == 0) {
+                print(state.files.eio, Format_724, "People-Illegal Zone specified", people.Name);
                 continue;
             }
 
-            print(state.files.eio,
-                  Format_722,
-                  "People",
-                  state.dataHeatBal->People(Loop).Name,
-                  state.dataHeatBal->People(Loop).numberOfPeopleSched->Name,
-                  state.dataHeatBal->Zone(ZoneNum).Name,
-                  state.dataHeatBal->Zone(ZoneNum).FloorArea,
-                  state.dataHeatBal->Zone(ZoneNum).TotOccupants);
+            auto const &zone = state.dataHeatBal->Zone(people.ZonePtr);
+            
+            print(state.files.eio, Format_722, "People", people.Name, people.sched->Name, zone.Name, zone.FloorArea, zone.TotOccupants);
+            print(state.files.eio, "{:.1R},", people.NumberOfPeople);
 
-            print(state.files.eio, "{:.1R},", state.dataHeatBal->People(Loop).NumberOfPeople);
+            print_and_divide_if_greater_than_zero(people.NumberOfPeople, zone.FloorArea);
 
-            print_and_divide_if_greater_than_zero(state.dataHeatBal->People(Loop).NumberOfPeople, state.dataHeatBal->Zone(ZoneNum).FloorArea);
-
-            if (state.dataHeatBal->People(Loop).NumberOfPeople > 0.0) {
-                print_and_divide_if_greater_than_zero(state.dataHeatBal->Zone(ZoneNum).FloorArea, state.dataHeatBal->People(Loop).NumberOfPeople);
+            if (people.NumberOfPeople > 0.0) {
+                print_and_divide_if_greater_than_zero(zone.FloorArea, people.NumberOfPeople);
             } else {
                 print(state.files.eio, "N/A,");
             }
 
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->People(Loop).FractionRadiant);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->People(Loop).FractionConvected);
-            if (state.dataHeatBal->People(Loop).UserSpecSensFrac == Constant::AutoCalculate) {
+            print(state.files.eio, "{:.3R},", people.FractionRadiant);
+            print(state.files.eio, "{:.3R},", people.FractionConvected);
+            if (people.UserSpecSensFrac == Constant::AutoCalculate) {
                 print(state.files.eio, "AutoCalculate,");
             } else {
-                print(state.files.eio, "{:.3R},", state.dataHeatBal->People(Loop).UserSpecSensFrac);
+                print(state.files.eio, "{:.3R},", people.UserSpecSensFrac);
             }
-            print(state.files.eio, "{},", state.dataHeatBal->People(Loop).activityLevelSched->Name);
+            print(state.files.eio, "{},", people.activityLevelSched->Name);
 
-            if (state.dataHeatBal->People(Loop).Show55Warning) {
-                print(state.files.eio, "Yes,");
-            } else {
-                print(state.files.eio, "No,");
-            }
-            print(state.files.eio, "{:.4R},", state.dataHeatBal->People(Loop).CO2RateFactor);
-            print(state.files.eio, "{:.1R},", state.dataHeatBal->People(Loop).NomMinNumberPeople);
-            print(state.files.eio, "{:.1R},", state.dataHeatBal->People(Loop).NomMaxNumberPeople);
+            print(state.files.eio, "{},", yesNoNames[(int)people.Show55Warning]);
+            print(state.files.eio, "{:.4R},", people.CO2RateFactor);
+            print(state.files.eio, "{:.1R},", people.NomMinNumberPeople);
+            print(state.files.eio, "{:.1R},", people.NomMaxNumberPeople);
 
-            auto &thisPeople = state.dataHeatBal->People(Loop);
+            Real64 SchMin, SchMax;
+            
             // weekdays
-            std::tie(SchMin, SchMax) = thisPeople.numberOfPeopleSched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
-            print(state.files.eio, "{:.1R},", thisPeople.NumberOfPeople * SchMin);
-            print(state.files.eio, "{:.1R},", thisPeople.NumberOfPeople * SchMax);
+            std::tie(SchMin, SchMax) = people.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
+            print(state.files.eio, "{:.1R},", people.NumberOfPeople * SchMin);
+            print(state.files.eio, "{:.1R},", people.NumberOfPeople * SchMax);
 
             // weekends/holidays
-            std::tie(SchMin, SchMax) = thisPeople.numberOfPeopleSched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WeekEndHoliday);
-            print(state.files.eio, "{:.1R},", thisPeople.NumberOfPeople * SchMin);
-            print(state.files.eio, "{:.1R},", thisPeople.NumberOfPeople * SchMax);
+            std::tie(SchMin, SchMax) = people.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WeekEndHoliday);
+            print(state.files.eio, "{:.1R},", people.NumberOfPeople * SchMin);
+            print(state.files.eio, "{:.1R},", people.NumberOfPeople * SchMax);
 
             // summer design days
-            std::tie(SchMin, SchMax) = thisPeople.numberOfPeopleSched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::SummerDesignDay);
-            print(state.files.eio, "{:.1R},", thisPeople.NumberOfPeople * SchMin);
-            print(state.files.eio, "{:.1R},", thisPeople.NumberOfPeople * SchMax);
+            std::tie(SchMin, SchMax) = people.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::SummerDesignDay);
+            print(state.files.eio, "{:.1R},", people.NumberOfPeople * SchMin);
+            print(state.files.eio, "{:.1R},", people.NumberOfPeople * SchMax);
 
             // winter design days
-            std::tie(SchMin, SchMax) = thisPeople.numberOfPeopleSched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WinterDesignDay);
-            print(state.files.eio, "{:.1R},", thisPeople.NumberOfPeople * SchMin);
-            print(state.files.eio, "{:.1R},", thisPeople.NumberOfPeople * SchMax);
+            std::tie(SchMin, SchMax) = people.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WinterDesignDay);
+            print(state.files.eio, "{:.1R},", people.NumberOfPeople * SchMin);
+            print(state.files.eio, "{:.1R},", people.NumberOfPeople * SchMax);
 
-            if (state.dataHeatBal->People(Loop).Fanger || state.dataHeatBal->People(Loop).Pierce || state.dataHeatBal->People(Loop).KSU ||
-                state.dataHeatBal->People(Loop).CoolingEffectASH55 || state.dataHeatBal->People(Loop).AnkleDraftASH55) {
+            if (people.Fanger || people.Pierce || people.KSU || people.CoolingEffectASH55 || people.AnkleDraftASH55) {
 
-                if (state.dataHeatBal->People(Loop).MRTCalcType == DataHeatBalance::CalcMRT::EnclosureAveraged) {
+                if (people.MRTCalcType == DataHeatBalance::CalcMRT::EnclosureAveraged) {
                     print(state.files.eio, "Zone Averaged,");
-                } else if (state.dataHeatBal->People(Loop).MRTCalcType == DataHeatBalance::CalcMRT::SurfaceWeighted) {
+                } else if (people.MRTCalcType == DataHeatBalance::CalcMRT::SurfaceWeighted) {
                     print(state.files.eio, "Surface Weighted,");
-                } else if (state.dataHeatBal->People(Loop).MRTCalcType == DataHeatBalance::CalcMRT::AngleFactor) {
+                } else if (people.MRTCalcType == DataHeatBalance::CalcMRT::AngleFactor) {
                     print(state.files.eio, "Angle Factor,");
                 } else {
                     print(state.files.eio, "N/A,");
                 }
-                print(state.files.eio, "{},", state.dataHeatBal->People(Loop).workEffSched->Name);
+                print(state.files.eio, "{},", people.workEffSched->Name);
 
-                print(state.files.eio, clothingTypeEIOStrings[static_cast<int>(state.dataHeatBal->People(Loop).clothingType)]);
+                print(state.files.eio, clothingTypeEIOStrings[static_cast<int>(people.clothingType)]);
 
-                if (state.dataHeatBal->People(Loop).clothingType == ClothingType::CalculationSchedule) {
-                    print(state.files.eio, "{},", state.dataHeatBal->People(Loop).clothingMethodSched->Name);
+                if (people.clothingType == ClothingType::CalculationSchedule) {
+                    print(state.files.eio, "{},", people.clothingMethodSched->Name);
                 } else {
                     print(state.files.eio, "N/A,");
                 }
 
-                print(state.files.eio, "{},", state.dataHeatBal->People(Loop).clothingSched->Name);
-                print(state.files.eio, "{},", state.dataHeatBal->People(Loop).airVelocitySched->Name);
+                print(state.files.eio, "{},", people.clothingSched->Name);
+                print(state.files.eio, "{},", people.airVelocitySched->Name);
 
-                if (state.dataHeatBal->People(Loop).Fanger) {
-                    print(state.files.eio, "Yes,");
-                } else {
-                    print(state.files.eio, "No,");
-                }
-                if (state.dataHeatBal->People(Loop).Pierce) {
-                    print(state.files.eio, "Yes,");
-                } else {
-                    print(state.files.eio, "No,");
-                }
-                if (state.dataHeatBal->People(Loop).KSU) {
-                    print(state.files.eio, "Yes,");
-                } else {
-                    print(state.files.eio, "No,");
-                }
-                if (state.dataHeatBal->People(Loop).CoolingEffectASH55) {
-                    print(state.files.eio, "Yes,");
-                } else {
-                    print(state.files.eio, "No,");
-                }
-                if (state.dataHeatBal->People(Loop).AnkleDraftASH55) {
-                    print(state.files.eio, "Yes\n");
-                } else {
-                    print(state.files.eio, "No\n");
-                }
+                print(state.files.eio, "{},", yesNoNames[(int)people.Fanger]);
+                print(state.files.eio, "{},", yesNoNames[(int)people.Pierce]);
+                print(state.files.eio, "{},", yesNoNames[(int)people.KSU]);
+                print(state.files.eio, "{},", yesNoNames[(int)people.CoolingEffectASH55]);
+                print(state.files.eio, "{},", yesNoNames[(int)people.AnkleDraftASH55]);
             } else {
                 print(state.files.eio, "\n");
             }
         }
 
         for (int Loop = 1; Loop <= state.dataHeatBal->TotLights; ++Loop) {
+            auto &lights = state.dataHeatBal->Lights(Loop);
+                
             if (Loop == 1) {
                 print(state.files.eio,
                       Format_723,
@@ -3314,36 +3268,33 @@ namespace InternalHeatGains {
                       "Minimum Lighting Level for Winter Design Days {W}, Maximum Lighting Level for Winter Design Days {W}\n");
             }
 
-            int ZoneNum = state.dataHeatBal->Lights(Loop).ZonePtr;
-
-            if (ZoneNum == 0) {
-                print(state.files.eio, "Lights-Illegal Zone specified", state.dataHeatBal->Lights(Loop).Name);
+            if (lights.ZonePtr == 0) {
+                print(state.files.eio, "Lights-Illegal Zone specified", lights.Name);
                 continue;
             }
-            print(state.files.eio,
-                  Format_722,
-                  "Lights",
-                  state.dataHeatBal->Lights(Loop).Name,
-                  state.dataHeatBal->Lights(Loop).sched->Name,
-                  state.dataHeatBal->Zone(ZoneNum).Name,
-                  state.dataHeatBal->Zone(ZoneNum).FloorArea,
-                  state.dataHeatBal->Zone(ZoneNum).TotOccupants);
 
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->Lights(Loop).DesignLevel);
+            auto const &zone = state.dataHeatBal->Zone(lights.ZonePtr);
+            
+            print(state.files.eio, Format_722, "Lights", lights.Name, lights.sched->Name, zone.Name, zone.FloorArea,
+                  zone.TotOccupants);
 
-            print_and_divide_if_greater_than_zero(state.dataHeatBal->Lights(Loop).DesignLevel, state.dataHeatBal->Zone(ZoneNum).FloorArea);
-            print_and_divide_if_greater_than_zero(state.dataHeatBal->Lights(Loop).DesignLevel, state.dataHeatBal->Zone(ZoneNum).TotOccupants);
+            print(state.files.eio, "{:.3R},", lights.DesignLevel);
 
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->Lights(Loop).FractionReturnAir);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->Lights(Loop).FractionRadiant);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->Lights(Loop).FractionShortWave);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->Lights(Loop).FractionConvected);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->Lights(Loop).FractionReplaceable);
-            print(state.files.eio, "{},", state.dataHeatBal->Lights(Loop).EndUseSubcategory);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->Lights(Loop).NomMinDesignLevel);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->Lights(Loop).NomMaxDesignLevel);
+            print_and_divide_if_greater_than_zero(lights.DesignLevel, zone.FloorArea);
+            print_and_divide_if_greater_than_zero(lights.DesignLevel, zone.TotOccupants);
+
+            print(state.files.eio, "{:.3R},", lights.FractionReturnAir);
+            print(state.files.eio, "{:.3R},", lights.FractionRadiant);
+            print(state.files.eio, "{:.3R},", lights.FractionShortWave);
+            print(state.files.eio, "{:.3R},", lights.FractionConvected);
+            print(state.files.eio, "{:.3R},", lights.FractionReplaceable);
+            print(state.files.eio, "{},", lights.EndUseSubcategory);
+            print(state.files.eio, "{:.3R},", lights.NomMinDesignLevel);
+            print(state.files.eio, "{:.3R},", lights.NomMaxDesignLevel);
 
             auto &light = state.dataHeatBal->Lights(Loop);
+
+            Real64 SchMin, SchMax;
             // weekdays
             std::tie(SchMin, SchMax) = light.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
             print(state.files.eio, "{:.3R},", light.DesignLevel * SchMin);
@@ -3366,6 +3317,8 @@ namespace InternalHeatGains {
         }
 
         for (int Loop = 1; Loop <= state.dataHeatBal->TotElecEquip; ++Loop) {
+            auto &elecEq = state.dataHeatBal->ZoneElectric(Loop);
+                
             if (Loop == 1) {
                 print(state.files.eio,
                       Format_723,
@@ -3379,56 +3332,53 @@ namespace InternalHeatGains {
                       "Minimum Equipment Level for Winter Design Days {W}, Maximum Equipment Level for Winter Design Days {W}\n");
             }
 
-            int ZoneNum = state.dataHeatBal->ZoneElectric(Loop).ZonePtr;
-
-            if (ZoneNum == 0) {
-                print(state.files.eio, Format_724, "Electric Equipment-Illegal Zone specified", state.dataHeatBal->ZoneElectric(Loop).Name);
+            if (elecEq.ZonePtr == 0) {
+                print(state.files.eio, Format_724, "Electric Equipment-Illegal Zone specified", elecEq.Name);
                 continue;
             }
-            print(state.files.eio,
-                  Format_722,
-                  "ElectricEquipment",
-                  state.dataHeatBal->ZoneElectric(Loop).Name,
-                  state.dataHeatBal->ZoneElectric(Loop).sched->Name,
-                  state.dataHeatBal->Zone(ZoneNum).Name,
-                  state.dataHeatBal->Zone(ZoneNum).FloorArea,
-                  state.dataHeatBal->Zone(ZoneNum).TotOccupants);
 
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneElectric(Loop).DesignLevel);
+            auto &zone = state.dataHeatBal->Zone(elecEq.ZonePtr);
+            
+            print(state.files.eio, Format_722, "ElectricEquipment", elecEq.Name, elecEq.sched->Name, zone.Name, zone.FloorArea, zone.TotOccupants);
+            print(state.files.eio, "{:.3R},", elecEq.DesignLevel);
 
-            print_and_divide_if_greater_than_zero(state.dataHeatBal->ZoneElectric(Loop).DesignLevel, state.dataHeatBal->Zone(ZoneNum).FloorArea);
-            print_and_divide_if_greater_than_zero(state.dataHeatBal->ZoneElectric(Loop).DesignLevel, state.dataHeatBal->Zone(ZoneNum).TotOccupants);
+            print_and_divide_if_greater_than_zero(elecEq.DesignLevel, zone.FloorArea);
+            print_and_divide_if_greater_than_zero(elecEq.DesignLevel, zone.TotOccupants);
 
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneElectric(Loop).FractionLatent);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneElectric(Loop).FractionRadiant);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneElectric(Loop).FractionLost);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneElectric(Loop).FractionConvected);
-            print(state.files.eio, "{},", state.dataHeatBal->ZoneElectric(Loop).EndUseSubcategory);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneElectric(Loop).NomMinDesignLevel);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneElectric(Loop).NomMaxDesignLevel);
+            print(state.files.eio, "{:.3R},", elecEq.FractionLatent);
+            print(state.files.eio, "{:.3R},", elecEq.FractionRadiant);
+            print(state.files.eio, "{:.3R},", elecEq.FractionLost);
+            print(state.files.eio, "{:.3R},", elecEq.FractionConvected);
+            print(state.files.eio, "{},", elecEq.EndUseSubcategory);
+            print(state.files.eio, "{:.3R},", elecEq.NomMinDesignLevel);
+            print(state.files.eio, "{:.3R},", elecEq.NomMaxDesignLevel);
 
-            auto &electric = state.dataHeatBal->ZoneElectric(Loop);
+            Real64 SchMin, SchMax;
+            
             // weekdays
-            std::tie(SchMin, SchMax) = electric.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
-            print(state.files.eio, "{:.3R},", electric.DesignLevel * SchMin);
-            print(state.files.eio, "{:.3R},", electric.DesignLevel * SchMax);
+            std::tie(SchMin, SchMax) = elecEq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
+            print(state.files.eio, "{:.3R},", elecEq.DesignLevel * SchMin);
+            print(state.files.eio, "{:.3R},", elecEq.DesignLevel * SchMax);
 
             // weekends/holidays
-            std::tie(SchMin, SchMax) = electric.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WeekEndHoliday);
-            print(state.files.eio, "{:.3R},", electric.DesignLevel * SchMin);
-            print(state.files.eio, "{:.3R},", electric.DesignLevel * SchMax);
+            std::tie(SchMin, SchMax) = elecEq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WeekEndHoliday);
+            print(state.files.eio, "{:.3R},", elecEq.DesignLevel * SchMin);
+            print(state.files.eio, "{:.3R},", elecEq.DesignLevel * SchMax);
 
             // summer design days
-            std::tie(SchMin, SchMax) = electric.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::SummerDesignDay);
-            print(state.files.eio, "{:.3R},", electric.DesignLevel * SchMin);
-            print(state.files.eio, "{:.3R},", electric.DesignLevel * SchMax);
+            std::tie(SchMin, SchMax) = elecEq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::SummerDesignDay);
+            print(state.files.eio, "{:.3R},", elecEq.DesignLevel * SchMin);
+            print(state.files.eio, "{:.3R},", elecEq.DesignLevel * SchMax);
 
             // winter design days
-            std::tie(SchMin, SchMax) = electric.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WinterDesignDay);
-            print(state.files.eio, "{:.3R},", electric.DesignLevel * SchMin);
-            print(state.files.eio, "{:.3R}\n", electric.DesignLevel * SchMax);
+            std::tie(SchMin, SchMax) = elecEq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WinterDesignDay);
+            print(state.files.eio, "{:.3R},", elecEq.DesignLevel * SchMin);
+            print(state.files.eio, "{:.3R}\n", elecEq.DesignLevel * SchMax);
         }
+        
         for (int Loop = 1; Loop <= state.dataHeatBal->TotGasEquip; ++Loop) {
+            auto &gasEq = state.dataHeatBal->ZoneGas(Loop);
+                
             if (Loop == 1) {
                 print(state.files.eio,
                       Format_723,
@@ -3442,58 +3392,52 @@ namespace InternalHeatGains {
                       "Minimum Equipment Level for Winter Design Days {W}, Maximum Equipment Level for Winter Design Days {W}\n");
             }
 
-            int ZoneNum = state.dataHeatBal->ZoneGas(Loop).ZonePtr;
-
-            if (ZoneNum == 0) {
-                print(state.files.eio, Format_724, "Gas Equipment-Illegal Zone specified", state.dataHeatBal->ZoneGas(Loop).Name);
+            if (gasEq.ZonePtr == 0) {
+                print(state.files.eio, Format_724, "Gas Equipment-Illegal Zone specified", gasEq.Name);
                 continue;
             }
 
-            print(state.files.eio,
-                  Format_722,
-                  "GasEquipment",
-                  state.dataHeatBal->ZoneGas(Loop).Name,
-                  state.dataHeatBal->ZoneGas(Loop).sched->Name,
-                  state.dataHeatBal->Zone(ZoneNum).Name,
-                  state.dataHeatBal->Zone(ZoneNum).FloorArea,
-                  state.dataHeatBal->Zone(ZoneNum).TotOccupants);
+            auto &zone = state.dataHeatBal->Zone(gasEq.ZonePtr);
+            
+            print(state.files.eio, Format_722, "GasEquipment", gasEq.Name, gasEq.sched->Name, zone.Name, zone.FloorArea, zone.TotOccupants);
+            print(state.files.eio, "{:.3R},", gasEq.DesignLevel);
 
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneGas(Loop).DesignLevel);
+            print_and_divide_if_greater_than_zero(gasEq.DesignLevel, zone.FloorArea);
+            print_and_divide_if_greater_than_zero(gasEq.DesignLevel, zone.TotOccupants);
 
-            print_and_divide_if_greater_than_zero(state.dataHeatBal->ZoneGas(Loop).DesignLevel, state.dataHeatBal->Zone(ZoneNum).FloorArea);
-            print_and_divide_if_greater_than_zero(state.dataHeatBal->ZoneGas(Loop).DesignLevel, state.dataHeatBal->Zone(ZoneNum).TotOccupants);
+            print(state.files.eio, "{:.3R},", gasEq.FractionLatent);
+            print(state.files.eio, "{:.3R},", gasEq.FractionRadiant);
+            print(state.files.eio, "{:.3R},", gasEq.FractionLost);
+            print(state.files.eio, "{:.3R},", gasEq.FractionConvected);
+            print(state.files.eio, "{},", gasEq.EndUseSubcategory);
+            print(state.files.eio, "{:.3R},", gasEq.NomMinDesignLevel);
+            print(state.files.eio, "{:.3R},", gasEq.NomMaxDesignLevel);
 
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneGas(Loop).FractionLatent);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneGas(Loop).FractionRadiant);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneGas(Loop).FractionLost);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneGas(Loop).FractionConvected);
-            print(state.files.eio, "{},", state.dataHeatBal->ZoneGas(Loop).EndUseSubcategory);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneGas(Loop).NomMinDesignLevel);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneGas(Loop).NomMaxDesignLevel);
-
-            auto &gas = state.dataHeatBal->ZoneGas(Loop);
+            Real64 SchMin, SchMax;
             // weekdays
-            std::tie(SchMin, SchMax) = gas.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
-            print(state.files.eio, "{:.3R},", gas.DesignLevel * SchMin);
-            print(state.files.eio, "{:.3R},", gas.DesignLevel * SchMax);
+            std::tie(SchMin, SchMax) = gasEq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
+            print(state.files.eio, "{:.3R},", gasEq.DesignLevel * SchMin);
+            print(state.files.eio, "{:.3R},", gasEq.DesignLevel * SchMax);
 
             // weekends/holidays
-            std::tie(SchMin, SchMax) = gas.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WeekEndHoliday);
-            print(state.files.eio, "{:.3R},", gas.DesignLevel * SchMin);
-            print(state.files.eio, "{:.3R},", gas.DesignLevel * SchMax);
+            std::tie(SchMin, SchMax) = gasEq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WeekEndHoliday);
+            print(state.files.eio, "{:.3R},", gasEq.DesignLevel * SchMin);
+            print(state.files.eio, "{:.3R},", gasEq.DesignLevel * SchMax);
 
             // summer design days
-            std::tie(SchMin, SchMax) = gas.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::SummerDesignDay);
-            print(state.files.eio, "{:.3R},", gas.DesignLevel * SchMin);
-            print(state.files.eio, "{:.3R},", gas.DesignLevel * SchMax);
+            std::tie(SchMin, SchMax) = gasEq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::SummerDesignDay);
+            print(state.files.eio, "{:.3R},", gasEq.DesignLevel * SchMin);
+            print(state.files.eio, "{:.3R},", gasEq.DesignLevel * SchMax);
 
             // winter design days
-            std::tie(SchMin, SchMax) = gas.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WinterDesignDay);
-            print(state.files.eio, "{:.3R},", gas.DesignLevel * SchMin);
-            print(state.files.eio, "{:.3R}\n", gas.DesignLevel * SchMax);
+            std::tie(SchMin, SchMax) = gasEq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WinterDesignDay);
+            print(state.files.eio, "{:.3R},", gasEq.DesignLevel * SchMin);
+            print(state.files.eio, "{:.3R}\n", gasEq.DesignLevel * SchMax);
         }
 
         for (int Loop = 1; Loop <= state.dataHeatBal->TotHWEquip; ++Loop) {
+            auto &hotWaterEq = state.dataHeatBal->ZoneHWEq(Loop);
+                
             if (Loop == 1) {
                 print(state.files.eio,
                       Format_723,
@@ -3507,58 +3451,53 @@ namespace InternalHeatGains {
                       "Minimum Equipment Level for Winter Design Days {W}, Maximum Equipment Level for Winter Design Days {W}\n");
             }
 
-            int ZoneNum = state.dataHeatBal->ZoneHWEq(Loop).ZonePtr;
-
-            if (ZoneNum == 0) {
-                print(state.files.eio, Format_724, "Hot Water Equipment-Illegal Zone specified", state.dataHeatBal->ZoneHWEq(Loop).Name);
+            if (hotWaterEq.ZonePtr == 0) {
+                print(state.files.eio, Format_724, "Hot Water Equipment-Illegal Zone specified", hotWaterEq.Name);
                 continue;
             }
 
-            print(state.files.eio,
-                  Format_722,
-                  "HotWaterEquipment",
-                  state.dataHeatBal->ZoneHWEq(Loop).Name,
-                  state.dataHeatBal->ZoneHWEq(Loop).sched->Name,
-                  state.dataHeatBal->Zone(ZoneNum).Name,
-                  state.dataHeatBal->Zone(ZoneNum).FloorArea,
-                  state.dataHeatBal->Zone(ZoneNum).TotOccupants);
+            auto const &zone = state.dataHeatBal->Zone(hotWaterEq.ZonePtr);
 
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneHWEq(Loop).DesignLevel);
+            print(state.files.eio, Format_722, "HotWaterEquipment", hotWaterEq.Name, hotWaterEq.sched->Name, zone.Name, zone.FloorArea, zone.TotOccupants);
 
-            print_and_divide_if_greater_than_zero(state.dataHeatBal->ZoneHWEq(Loop).DesignLevel, state.dataHeatBal->Zone(ZoneNum).FloorArea);
-            print_and_divide_if_greater_than_zero(state.dataHeatBal->ZoneHWEq(Loop).DesignLevel, state.dataHeatBal->Zone(ZoneNum).TotOccupants);
+            print(state.files.eio, "{:.3R},", hotWaterEq.DesignLevel);
 
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneHWEq(Loop).FractionLatent);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneHWEq(Loop).FractionRadiant);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneHWEq(Loop).FractionLost);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneHWEq(Loop).FractionConvected);
-            print(state.files.eio, "{},", state.dataHeatBal->ZoneHWEq(Loop).EndUseSubcategory);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneHWEq(Loop).NomMinDesignLevel);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneHWEq(Loop).NomMaxDesignLevel);
+            print_and_divide_if_greater_than_zero(hotWaterEq.DesignLevel, zone.FloorArea);
+            print_and_divide_if_greater_than_zero(hotWaterEq.DesignLevel, zone.TotOccupants);
 
-            auto &hweq = state.dataHeatBal->ZoneHWEq(Loop);
+            print(state.files.eio, "{:.3R},", hotWaterEq.FractionLatent);
+            print(state.files.eio, "{:.3R},", hotWaterEq.FractionRadiant);
+            print(state.files.eio, "{:.3R},", hotWaterEq.FractionLost);
+            print(state.files.eio, "{:.3R},", hotWaterEq.FractionConvected);
+            print(state.files.eio, "{},", hotWaterEq.EndUseSubcategory);
+            print(state.files.eio, "{:.3R},", hotWaterEq.NomMinDesignLevel);
+            print(state.files.eio, "{:.3R},", hotWaterEq.NomMaxDesignLevel);
+
+            Real64 SchMin, SchMax;
             // weekdays
-            std::tie(SchMin, SchMax) = hweq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
-            print(state.files.eio, "{:.3R},", hweq.DesignLevel * SchMin);
-            print(state.files.eio, "{:.3R},", hweq.DesignLevel * SchMax);
+            std::tie(SchMin, SchMax) = hotWaterEq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
+            print(state.files.eio, "{:.3R},", hotWaterEq.DesignLevel * SchMin);
+            print(state.files.eio, "{:.3R},", hotWaterEq.DesignLevel * SchMax);
 
             // weekends/holidays
-            std::tie(SchMin, SchMax) = hweq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WeekEndHoliday);
-            print(state.files.eio, "{:.3R},", hweq.DesignLevel * SchMin);
-            print(state.files.eio, "{:.3R},", hweq.DesignLevel * SchMax);
+            std::tie(SchMin, SchMax) = hotWaterEq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WeekEndHoliday);
+            print(state.files.eio, "{:.3R},", hotWaterEq.DesignLevel * SchMin);
+            print(state.files.eio, "{:.3R},", hotWaterEq.DesignLevel * SchMax);
 
             // summer design days
-            std::tie(SchMin, SchMax) = hweq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::SummerDesignDay);
-            print(state.files.eio, "{:.3R},", hweq.DesignLevel * SchMin);
-            print(state.files.eio, "{:.3R},", hweq.DesignLevel * SchMax);
+            std::tie(SchMin, SchMax) = hotWaterEq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::SummerDesignDay);
+            print(state.files.eio, "{:.3R},", hotWaterEq.DesignLevel * SchMin);
+            print(state.files.eio, "{:.3R},", hotWaterEq.DesignLevel * SchMax);
 
             // winter design days
-            std::tie(SchMin, SchMax) = hweq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WinterDesignDay);
-            print(state.files.eio, "{:.3R},", hweq.DesignLevel * SchMin);
-            print(state.files.eio, "{:.3R}\n", hweq.DesignLevel * SchMax);
+            std::tie(SchMin, SchMax) = hotWaterEq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WinterDesignDay);
+            print(state.files.eio, "{:.3R},", hotWaterEq.DesignLevel * SchMin);
+            print(state.files.eio, "{:.3R}\n", hotWaterEq.DesignLevel * SchMax);
         }
 
         for (int Loop = 1; Loop <= state.dataHeatBal->TotStmEquip; ++Loop) {
+            auto &steamEq = state.dataHeatBal->ZoneSteamEq(Loop);
+                
             if (Loop == 1) {
                 print(state.files.eio,
                       Format_723,
@@ -3572,55 +3511,47 @@ namespace InternalHeatGains {
                       "Minimum Equipment Level for Winter Design Days {W}, Maximum Equipment Level for Winter Design Days {W}\n");
             }
 
-            int ZoneNum = state.dataHeatBal->ZoneSteamEq(Loop).ZonePtr;
-
-            if (ZoneNum == 0) {
-                print(state.files.eio, Format_724, "Steam Equipment-Illegal Zone specified", state.dataHeatBal->ZoneSteamEq(Loop).Name);
+            if (steamEq.ZonePtr == 0) {
+                print(state.files.eio, Format_724, "Steam Equipment-Illegal Zone specified", steamEq.Name);
                 continue;
             }
 
-            print(state.files.eio,
-                  Format_722,
-                  "SteamEquipment",
-                  state.dataHeatBal->ZoneSteamEq(Loop).Name,
-                  state.dataHeatBal->ZoneSteamEq(Loop).sched->Name,
-                  state.dataHeatBal->Zone(ZoneNum).Name,
-                  state.dataHeatBal->Zone(ZoneNum).FloorArea,
-                  state.dataHeatBal->Zone(ZoneNum).TotOccupants);
+            auto &zone = state.dataHeatBal->Zone(steamEq.ZonePtr);
+            
+            print(state.files.eio, Format_722, "SteamEquipment", steamEq.Name, steamEq.sched->Name, zone.Name, zone.FloorArea, zone.TotOccupants);
+            print(state.files.eio, "{:.3R},", steamEq.DesignLevel);
 
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneSteamEq(Loop).DesignLevel);
+            print_and_divide_if_greater_than_zero(steamEq.DesignLevel, zone.FloorArea);
+            print_and_divide_if_greater_than_zero(steamEq.DesignLevel, zone.TotOccupants);
 
-            print_and_divide_if_greater_than_zero(state.dataHeatBal->ZoneSteamEq(Loop).DesignLevel, state.dataHeatBal->Zone(ZoneNum).FloorArea);
-            print_and_divide_if_greater_than_zero(state.dataHeatBal->ZoneSteamEq(Loop).DesignLevel, state.dataHeatBal->Zone(ZoneNum).TotOccupants);
+            print(state.files.eio, "{:.3R},", steamEq.FractionLatent);
+            print(state.files.eio, "{:.3R},", steamEq.FractionRadiant);
+            print(state.files.eio, "{:.3R},", steamEq.FractionLost);
+            print(state.files.eio, "{:.3R},", steamEq.FractionConvected);
+            print(state.files.eio, "{},", steamEq.EndUseSubcategory);
+            print(state.files.eio, "{:.3R},", steamEq.NomMinDesignLevel);
+            print(state.files.eio, "{:.3R},", steamEq.NomMaxDesignLevel);
 
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneSteamEq(Loop).FractionLatent);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneSteamEq(Loop).FractionRadiant);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneSteamEq(Loop).FractionLost);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneSteamEq(Loop).FractionConvected);
-            print(state.files.eio, "{},", state.dataHeatBal->ZoneSteamEq(Loop).EndUseSubcategory);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneSteamEq(Loop).NomMinDesignLevel);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneSteamEq(Loop).NomMaxDesignLevel);
-
-            auto &stmeq = state.dataHeatBal->ZoneSteamEq(Loop);
+            Real64 SchMin, SchMax;
             // weekdays
-            std::tie(SchMin, SchMax) = stmeq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
-            print(state.files.eio, "{:.3R},", stmeq.DesignLevel * SchMin);
-            print(state.files.eio, "{:.3R},", stmeq.DesignLevel * SchMax);
+            std::tie(SchMin, SchMax) = steamEq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
+            print(state.files.eio, "{:.3R},", steamEq.DesignLevel * SchMin);
+            print(state.files.eio, "{:.3R},", steamEq.DesignLevel * SchMax);
 
             // weekends/holidays
-            std::tie(SchMin, SchMax) = stmeq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WeekEndHoliday);
-            print(state.files.eio, "{:.3R},", stmeq.DesignLevel * SchMin);
-            print(state.files.eio, "{:.3R},", stmeq.DesignLevel * SchMax);
+            std::tie(SchMin, SchMax) = steamEq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WeekEndHoliday);
+            print(state.files.eio, "{:.3R},", steamEq.DesignLevel * SchMin);
+            print(state.files.eio, "{:.3R},", steamEq.DesignLevel * SchMax);
 
             // summer design days
-            std::tie(SchMin, SchMax) = stmeq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::SummerDesignDay);
-            print(state.files.eio, "{:.3R},", stmeq.DesignLevel * SchMin);
-            print(state.files.eio, "{:.3R},", stmeq.DesignLevel * SchMax);
+            std::tie(SchMin, SchMax) = steamEq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::SummerDesignDay);
+            print(state.files.eio, "{:.3R},", steamEq.DesignLevel * SchMin);
+            print(state.files.eio, "{:.3R},", steamEq.DesignLevel * SchMax);
 
             // winter design days
-            std::tie(SchMin, SchMax) = stmeq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WinterDesignDay);
-            print(state.files.eio, "{:.3R},", stmeq.DesignLevel * SchMin);
-            print(state.files.eio, "{:.3R}\n", stmeq.DesignLevel * SchMax);
+            std::tie(SchMin, SchMax) = steamEq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WinterDesignDay);
+            print(state.files.eio, "{:.3R},", steamEq.DesignLevel * SchMin);
+            print(state.files.eio, "{:.3R}\n", steamEq.DesignLevel * SchMax);
         }
 
         for (int Loop = 1; Loop <= state.dataHeatBal->TotOthEquip; ++Loop) {
@@ -3637,57 +3568,54 @@ namespace InternalHeatGains {
                       "Minimum Equipment Level for Winter Design Days {W}, Maximum Equipment Level for Winter Design Days {W}\n");
             }
 
-            int ZoneNum = state.dataHeatBal->ZoneOtherEq(Loop).ZonePtr;
+            auto &otherEq = state.dataHeatBal->ZoneOtherEq(Loop);
 
-            if (ZoneNum == 0) {
-                print(state.files.eio, Format_724, "Other Equipment-Illegal Zone specified", state.dataHeatBal->ZoneOtherEq(Loop).Name);
+            if (otherEq.ZonePtr == 0) {
+                print(state.files.eio, Format_724, "Other Equipment-Illegal Zone specified", otherEq.Name);
                 continue;
             }
 
-            print(state.files.eio,
-                  Format_722,
-                  "OtherEquipment",
-                  state.dataHeatBal->ZoneOtherEq(Loop).Name,
-                  state.dataHeatBal->ZoneOtherEq(Loop).sched->Name,
-                  state.dataHeatBal->Zone(ZoneNum).Name,
-                  state.dataHeatBal->Zone(ZoneNum).FloorArea,
-                  state.dataHeatBal->Zone(ZoneNum).TotOccupants);
+            auto const &zone = state.dataHeatBal->Zone(otherEq.ZonePtr);
+            
+            print(state.files.eio, Format_722, "OtherEquipment", otherEq.Name, otherEq.sched->Name, zone.Name, zone.FloorArea, zone.TotOccupants);
+            print(state.files.eio, "{:.3R},", otherEq.DesignLevel);
 
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneOtherEq(Loop).DesignLevel);
+            print_and_divide_if_greater_than_zero(otherEq.DesignLevel, zone.FloorArea);
+            print_and_divide_if_greater_than_zero(otherEq.DesignLevel, zone.TotOccupants);
 
-            print_and_divide_if_greater_than_zero(state.dataHeatBal->ZoneOtherEq(Loop).DesignLevel, state.dataHeatBal->Zone(ZoneNum).FloorArea);
-            print_and_divide_if_greater_than_zero(state.dataHeatBal->ZoneOtherEq(Loop).DesignLevel, state.dataHeatBal->Zone(ZoneNum).TotOccupants);
+            print(state.files.eio, "{:.3R},", otherEq.FractionLatent);
+            print(state.files.eio, "{:.3R},", otherEq.FractionRadiant);
+            print(state.files.eio, "{:.3R},", otherEq.FractionLost);
+            print(state.files.eio, "{:.3R},", otherEq.FractionConvected);
+            print(state.files.eio, "{:.3R},", otherEq.NomMinDesignLevel);
+            print(state.files.eio, "{:.3R},", otherEq.NomMaxDesignLevel);
 
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneOtherEq(Loop).FractionLatent);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneOtherEq(Loop).FractionRadiant);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneOtherEq(Loop).FractionLost);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneOtherEq(Loop).FractionConvected);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneOtherEq(Loop).NomMinDesignLevel);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneOtherEq(Loop).NomMaxDesignLevel);
-
-            auto &other = state.dataHeatBal->ZoneOtherEq(Loop);
+            Real64 SchMin, SchMax;
+            
             // weekdays
-            std::tie(SchMin, SchMax) = other.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
-            print(state.files.eio, "{:.3R},", other.DesignLevel * SchMin);
-            print(state.files.eio, "{:.3R},", other.DesignLevel * SchMax);
+            std::tie(SchMin, SchMax) = otherEq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
+            print(state.files.eio, "{:.3R},", otherEq.DesignLevel * SchMin);
+            print(state.files.eio, "{:.3R},", otherEq.DesignLevel * SchMax);
 
             // weekends/holidays
-            std::tie(SchMin, SchMax) = other.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WeekEndHoliday);
-            print(state.files.eio, "{:.3R},", other.DesignLevel * SchMin);
-            print(state.files.eio, "{:.3R},", other.DesignLevel * SchMax);
+            std::tie(SchMin, SchMax) = otherEq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WeekEndHoliday);
+            print(state.files.eio, "{:.3R},", otherEq.DesignLevel * SchMin);
+            print(state.files.eio, "{:.3R},", otherEq.DesignLevel * SchMax);
 
             // summer design days
-            std::tie(SchMin, SchMax) = other.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::SummerDesignDay);
-            print(state.files.eio, "{:.3R},", other.DesignLevel * SchMin);
-            print(state.files.eio, "{:.3R},", other.DesignLevel * SchMax);
+            std::tie(SchMin, SchMax) = otherEq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::SummerDesignDay);
+            print(state.files.eio, "{:.3R},", otherEq.DesignLevel * SchMin);
+            print(state.files.eio, "{:.3R},", otherEq.DesignLevel * SchMax);
 
             // winter design days
-            std::tie(SchMin, SchMax) = other.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WinterDesignDay);
-            print(state.files.eio, "{:.3R},", other.DesignLevel * SchMin);
-            print(state.files.eio, "{:.3R}\n", other.DesignLevel * SchMax);
+            std::tie(SchMin, SchMax) = otherEq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WinterDesignDay);
+            print(state.files.eio, "{:.3R},", otherEq.DesignLevel * SchMin);
+            print(state.files.eio, "{:.3R}\n", otherEq.DesignLevel * SchMax);
         }
 
         for (int Loop = 1; Loop <= state.dataHeatBal->TotITEquip; ++Loop) {
+            auto &itEq = state.dataHeatBal->ZoneITEq(Loop);
+                
             if (Loop == 1) {
                 print(state.files.eio,
                       Format_723,
@@ -3703,60 +3631,54 @@ namespace InternalHeatGains {
                       "Design Air Volume Flow Rate {m3/s}\n");
             }
 
-            int ZoneNum = state.dataHeatBal->ZoneITEq(Loop).ZonePtr;
-
-            if (ZoneNum == 0) {
-                print(state.files.eio, Format_724, "ElectricEquipment:ITE:AirCooled-Illegal Zone specified", state.dataHeatBal->ZoneITEq(Loop).Name);
+            if (itEq.ZonePtr == 0) {
+                print(state.files.eio, Format_724, "ElectricEquipment:ITE:AirCooled-Illegal Zone specified", itEq.Name);
                 continue;
             }
-            print(state.files.eio,
-                  Format_722,
-                  "ElectricEquipment:ITE:AirCooled",
-                  state.dataHeatBal->ZoneITEq(Loop).Name,
-                  state.dataHeatBal->ZoneITEq(Loop).operSched->Name,
-                  state.dataHeatBal->Zone(ZoneNum).Name,
-                  state.dataHeatBal->Zone(ZoneNum).FloorArea,
-                  state.dataHeatBal->Zone(ZoneNum).TotOccupants);
 
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneITEq(Loop).DesignTotalPower);
+            auto const &zone = state.dataHeatBal->Zone(itEq.ZonePtr);
+            print(state.files.eio, Format_722, "ElectricEquipment:ITE:AirCooled", itEq.Name, itEq.operSched->Name, zone.Name, zone.FloorArea, zone.TotOccupants);
 
-            print_and_divide_if_greater_than_zero(state.dataHeatBal->ZoneITEq(Loop).DesignTotalPower, state.dataHeatBal->Zone(ZoneNum).FloorArea);
-            print_and_divide_if_greater_than_zero(state.dataHeatBal->ZoneITEq(Loop).DesignTotalPower, state.dataHeatBal->Zone(ZoneNum).TotOccupants);
+            print(state.files.eio, "{:.3R},", itEq.DesignTotalPower);
+
+            print_and_divide_if_greater_than_zero(itEq.DesignTotalPower, zone.FloorArea);
+            print_and_divide_if_greater_than_zero(itEq.DesignTotalPower, zone.TotOccupants);
 
             // ElectricEquipment:ITE:AirCooled is 100% convective
             print(state.files.eio, "1.0,");
 
-            print(state.files.eio, "{},", state.dataHeatBal->ZoneITEq(Loop).EndUseSubcategoryCPU);
-            print(state.files.eio, "{},", state.dataHeatBal->ZoneITEq(Loop).EndUseSubcategoryFan);
-            print(state.files.eio, "{},", state.dataHeatBal->ZoneITEq(Loop).EndUseSubcategoryUPS);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneITEq(Loop).NomMinDesignLevel);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneITEq(Loop).NomMaxDesignLevel);
+            print(state.files.eio, "{},", itEq.EndUseSubcategoryCPU);
+            print(state.files.eio, "{},", itEq.EndUseSubcategoryFan);
+            print(state.files.eio, "{},", itEq.EndUseSubcategoryUPS);
+            print(state.files.eio, "{:.3R},", itEq.NomMinDesignLevel);
+            print(state.files.eio, "{:.3R},", itEq.NomMaxDesignLevel);
 
-            auto &iteq = state.dataHeatBal->ZoneITEq(Loop);
+            Real64 SchMin, SchMax;
             // weekdays
-            std::tie(SchMin, SchMax) = iteq.operSched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
-            print(state.files.eio, "{:.3R},", iteq.DesignTotalPower * SchMin);
-            print(state.files.eio, "{:.3R},", iteq.DesignTotalPower * SchMax);
+            std::tie(SchMin, SchMax) = itEq.operSched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
+            print(state.files.eio, "{:.3R},", itEq.DesignTotalPower * SchMin);
+            print(state.files.eio, "{:.3R},", itEq.DesignTotalPower * SchMax);
 
             // weekends/holidays
-            std::tie(SchMin, SchMax) = iteq.operSched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WeekEndHoliday);
-            print(state.files.eio, "{:.3R},", iteq.DesignTotalPower * SchMin);
-            print(state.files.eio, "{:.3R},", iteq.DesignTotalPower * SchMax);
+            std::tie(SchMin, SchMax) = itEq.operSched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WeekEndHoliday);
+            print(state.files.eio, "{:.3R},", itEq.DesignTotalPower * SchMin);
+            print(state.files.eio, "{:.3R},", itEq.DesignTotalPower * SchMax);
 
             // summer design days
-            std::tie(SchMin, SchMax) = iteq.operSched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::SummerDesignDay);
-            print(state.files.eio, "{:.3R},", iteq.DesignTotalPower * SchMin);
-            print(state.files.eio, "{:.3R},", iteq.DesignTotalPower * SchMax);
+            std::tie(SchMin, SchMax) = itEq.operSched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::SummerDesignDay);
+            print(state.files.eio, "{:.3R},", itEq.DesignTotalPower * SchMin);
+            print(state.files.eio, "{:.3R},", itEq.DesignTotalPower * SchMax);
 
             // winter design days
-            std::tie(SchMin, SchMax) = iteq.operSched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WinterDesignDay);
-            print(state.files.eio, "{:.3R},", iteq.DesignTotalPower * SchMin);
-            print(state.files.eio, "{:.3R},", iteq.DesignTotalPower * SchMax);
+            std::tie(SchMin, SchMax) = itEq.operSched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::WinterDesignDay);
+            print(state.files.eio, "{:.3R},", itEq.DesignTotalPower * SchMin);
+            print(state.files.eio, "{:.3R},", itEq.DesignTotalPower * SchMax);
 
-            print(state.files.eio, "{:.10R}\n", state.dataHeatBal->ZoneITEq(Loop).DesignAirVolFlowRate);
+            print(state.files.eio, "{:.10R}\n", itEq.DesignAirVolFlowRate);
         }
 
         for (int Loop = 1; Loop <= state.dataHeatBal->TotBBHeat; ++Loop) {
+            auto &bbHeat = state.dataHeatBal->ZoneBBHeat(Loop);
             if (Loop == 1) {
                 print(state.files.eio,
                       Format_723,
@@ -3765,31 +3687,22 @@ namespace InternalHeatGains {
                       "{W},High Temperature {C},Fraction Radiant,Fraction Convected,End-Use Subcategory\n");
             }
 
-            int ZoneNum = state.dataHeatBal->ZoneBBHeat(Loop).ZonePtr;
-
-            if (ZoneNum == 0) {
-                print(state.files.eio,
-                      Format_724,
-                      "Outdoor Controlled Baseboard Heat-Illegal Zone specified",
-                      state.dataHeatBal->ZoneBBHeat(Loop).Name);
+            if (bbHeat.ZonePtr == 0) {
+                print(state.files.eio, Format_724, "Outdoor Controlled Baseboard Heat-Illegal Zone specified", bbHeat.Name);
                 continue;
             }
-            print(state.files.eio,
-                  Format_722,
-                  "Outdoor Controlled Baseboard Heat",
-                  state.dataHeatBal->ZoneBBHeat(Loop).Name,
-                  state.dataHeatBal->ZoneBBHeat(Loop).sched->Name,
-                  state.dataHeatBal->Zone(ZoneNum).Name,
-                  state.dataHeatBal->Zone(ZoneNum).FloorArea,
-                  state.dataHeatBal->Zone(ZoneNum).TotOccupants);
 
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneBBHeat(Loop).CapatLowTemperature);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneBBHeat(Loop).LowTemperature);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneBBHeat(Loop).CapatHighTemperature);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneBBHeat(Loop).HighTemperature);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneBBHeat(Loop).FractionRadiant);
-            print(state.files.eio, "{:.3R},", state.dataHeatBal->ZoneBBHeat(Loop).FractionConvected);
-            print(state.files.eio, "{}\n", state.dataHeatBal->ZoneBBHeat(Loop).EndUseSubcategory);
+            auto const &zone = state.dataHeatBal->Zone(bbHeat.ZonePtr);
+            
+            print(state.files.eio, Format_722, "Outdoor Controlled Baseboard Heat", bbHeat.Name, bbHeat.sched->Name, zone.Name, zone.FloorArea, zone.TotOccupants);
+
+            print(state.files.eio, "{:.3R},", bbHeat.CapatLowTemperature);
+            print(state.files.eio, "{:.3R},", bbHeat.LowTemperature);
+            print(state.files.eio, "{:.3R},", bbHeat.CapatHighTemperature);
+            print(state.files.eio, "{:.3R},", bbHeat.HighTemperature);
+            print(state.files.eio, "{:.3R},", bbHeat.FractionRadiant);
+            print(state.files.eio, "{:.3R},", bbHeat.FractionConvected);
+            print(state.files.eio, "{}\n", bbHeat.EndUseSubcategory);
         }
     }
 
@@ -6978,7 +6891,7 @@ namespace InternalHeatGains {
             int NZ = state.dataHeatBal->People(Loop).ZonePtr;
             int spaceNum = thisPeople.spaceIndex;
             auto const &thisSpaceHB = state.dataZoneTempPredictorCorrector->spaceHeatBalance(spaceNum);
-            NumberOccupants = thisPeople.NumberOfPeople * thisPeople.numberOfPeopleSched->getCurrentVal();
+            NumberOccupants = thisPeople.NumberOfPeople * thisPeople.sched->getCurrentVal();
 
             if (thisPeople.EMSPeopleOn) NumberOccupants = thisPeople.EMSNumberOfPeople;
 
@@ -7328,16 +7241,13 @@ namespace InternalHeatGains {
         // PURPOSE OF THIS SUBROUTINE:
         // This subroutine currently creates the values for standard "zone loads" reporting
         // from the heat balance module.
-
-        // Using/Aliasing
-
-        for (int ZoneNum = 1; ZoneNum <= state.dataGlobal->NumOfZones; ++ZoneNum) {
-            if (state.dataHeatBal->Zone(ZoneNum).HasAdjustedReturnTempByITE && state.dataHeatBal->Zone(ZoneNum).HasLtsRetAirGain) {
+        for (auto const &zone : state.dataHeatBal->Zone) {
+            if (zone.HasAdjustedReturnTempByITE && zone.HasLtsRetAirGain) {
                 ShowFatalError(state,
                                "Return air heat gains from lights are not allowed when Air Flow Calculation Method = "
                                "FlowControlWithApproachTemperatures in zones with ITE objects.");
             }
-            if (state.dataHeatBal->Zone(ZoneNum).HasAdjustedReturnTempByITE && state.dataHeatBal->Zone(ZoneNum).HasAirFlowWindowReturn) {
+            if (zone.HasAdjustedReturnTempByITE && zone.HasAirFlowWindowReturn) {
                 ShowFatalError(state,
                                "Return air heat gains from windows are not allowed when Air Flow Calculation Method = "
                                "FlowControlWithApproachTemperatures in zones with ITE objects.");

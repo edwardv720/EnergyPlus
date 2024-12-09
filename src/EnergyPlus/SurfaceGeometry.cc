@@ -852,20 +852,12 @@ namespace SurfaceGeometry {
         state.dataSurface->SurfShadowDiffuseVisRefl.allocate(state.dataSurface->TotSurfaces);
         state.dataSurface->SurfShadowGlazingFrac.allocate(state.dataSurface->TotSurfaces);
         state.dataSurface->SurfShadowGlazingConstruct.allocate(state.dataSurface->TotSurfaces);
-        state.dataSurface->SurfMaterialMovInsulExt.allocate(state.dataSurface->TotSurfaces);
-        state.dataSurface->SurfMaterialMovInsulInt.allocate(state.dataSurface->TotSurfaces);
-        state.dataSurface->SurfMovInsulExtScheds.allocate(state.dataSurface->TotSurfaces);
-        state.dataSurface->SurfMovInsulIntScheds.allocate(state.dataSurface->TotSurfaces);
         for (int SurfNum = 1; SurfNum <= state.dataSurface->TotSurfaces; ++SurfNum) {
             state.dataSurface->SurfShadowRecSurfNum(SurfNum) = 0;
             state.dataSurface->SurfShadowDiffuseSolRefl(SurfNum) = 0.0;
             state.dataSurface->SurfShadowDiffuseVisRefl(SurfNum) = 0.0;
             state.dataSurface->SurfShadowGlazingFrac(SurfNum) = 0.0;
             state.dataSurface->SurfShadowGlazingConstruct(SurfNum) = 0;
-            state.dataSurface->SurfMaterialMovInsulExt(SurfNum) = 0;
-            state.dataSurface->SurfMaterialMovInsulInt(SurfNum) = 0;
-            state.dataSurface->SurfMovInsulExtScheds(SurfNum) = nullptr;
-            state.dataSurface->SurfMovInsulIntScheds(SurfNum) = nullptr;
         }
         state.dataSurface->SurfExtEcoRoof.allocate(state.dataSurface->TotSurfaces);
         state.dataSurface->SurfExtCavityPresent.allocate(state.dataSurface->TotSurfaces);
@@ -901,6 +893,10 @@ namespace SurfaceGeometry {
             state.dataSurface->SurfTAirRef(SurfNum) = DataSurfaces::RefAirTemp::Invalid;
             state.dataSurface->SurfTAirRefRpt(SurfNum) = static_cast<int>(DataSurfaces::RefAirTemp::Invalid);
         }
+
+        state.dataSurface->intMovInsuls.allocate(state.dataSurface->TotSurfaces);
+        state.dataSurface->extMovInsuls.allocate(state.dataSurface->TotSurfaces);
+        
     }
 
     void GetSurfaceData(EnergyPlusData &state, bool &ErrorsFound) // If errors found in input
@@ -2705,13 +2701,6 @@ namespace SurfaceGeometry {
                         }
                     }
                 }
-            }
-        }
-
-        // Initialize surface with movable insulation index list
-        for (int SurfNum = 1; SurfNum <= state.dataSurface->TotSurfaces; SurfNum++) {
-            if (state.dataSurface->SurfMaterialMovInsulExt(SurfNum) > 0 || state.dataSurface->SurfMaterialMovInsulInt(SurfNum) > 0) {
-                state.dataHeatBalSurf->SurfMovInsulIndexList.push_back(SurfNum);
             }
         }
 
@@ -11621,22 +11610,17 @@ namespace SurfaceGeometry {
 
             switch (insulationType) {
             case InsulationType::Outside: {
-                if (state.dataSurface->SurfMaterialMovInsulExt(SurfNum) > 0) {
-                    ShowSevereError(state,
-                                    format("{}, {}=\"{}\", already assigned.",
-                                           s_ipsc->cCurrentModuleObject,
-                                           s_ipsc->cAlphaFieldNames(2),
-                                           s_ipsc->cAlphaArgs(2)));
-                    ShowContinueError(state,
-                                      format("\"Outside\", was already assigned Material=\"{}\".",
-                                                             s_mat->materials(state.dataSurface->SurfMaterialMovInsulExt(SurfNum))->Name));
-                    ShowContinueError(state, format("attempting to assign Material=\"{}\".", thisMaterial->Name));
+                auto &movInsul = state.dataSurface->extMovInsuls(SurfNum);
+                if (movInsul.matNum > 0) {
+                    ShowSevereDuplicateAssignment(state, eoh, s_ipsc->cAlphaFieldNames(2), s_ipsc->cAlphaArgs(2), s_mat->materials(movInsul.matNum)->Name);
                     ErrorsFound = true;
                 }
 
-                state.dataSurface->SurfMaterialMovInsulExt(SurfNum) = MaterNum;
-                state.dataSurface->SurfMovInsulExtScheds(SurfNum) = sched;
+                movInsul.matNum = MaterNum;
+                movInsul.sched = sched;
                 state.dataSurface->AnyMovableInsulation = true;
+                state.dataSurface->extMovInsulSurfNums.push_back(SurfNum);
+                
                 if (thisMaterial->Resistance <= 0.0) {
                     if (thisMaterial->Conductivity <= 0.0 || thisMaterial->Thickness <= 0.0) {
                         ShowSevereError(state,
@@ -11673,20 +11657,16 @@ namespace SurfaceGeometry {
             } break;
 
             case InsulationType::Inside: {
-                if (state.dataSurface->SurfMaterialMovInsulInt(SurfNum) > 0) {
-                    ShowSevereError(state,
-                                    s_ipsc->cCurrentModuleObject + ", " + s_ipsc->cAlphaFieldNames(2) + "=\"" +
-                                    s_ipsc->cAlphaArgs(2) + "\", already assigned.");
-                    ShowContinueError(state,
-                                      "\"Inside\", was already assigned Material=\"" +
-                                      s_mat->materials(state.dataSurface->SurfMaterialMovInsulInt(SurfNum))->Name + "\".");
-                    ShowContinueError(state, "attempting to assign Material=\"" + thisMaterial->Name + "\".");
+                auto &movInsul = state.dataSurface->intMovInsuls(SurfNum);
+                if (movInsul.matNum > 0) {
+                    ShowSevereDuplicateAssignment(state, eoh, s_ipsc->cAlphaFieldNames(2), s_ipsc->cAlphaArgs(2), s_mat->materials(movInsul.matNum)->Name);
                     ErrorsFound = true;
                 }
 
-                state.dataSurface->SurfMaterialMovInsulInt(SurfNum) = MaterNum;
-                state.dataSurface->SurfMovInsulIntScheds(SurfNum) = sched;
+                movInsul.matNum = MaterNum;
+                movInsul.sched = sched;
                 state.dataSurface->AnyMovableInsulation = true;
+                state.dataSurface->intMovInsulSurfNums.push_back(SurfNum);
                 if (thisMaterial->Resistance <= 0.0) {
                     if (thisMaterial->Conductivity <= 0.0 || thisMaterial->Thickness <= 0.0) {
                         ShowSevereError(state,

@@ -1087,13 +1087,13 @@ void calcSizingOA(EnergyPlusData &state,
         if (((spaceNum == 0) && (people.ZonePtr == zoneNum)) || ((spaceNum > 0) && (people.spaceIndex == spaceNum))) {
             Real64 numPeople = people.NumberOfPeople * zoneMult;
             TotPeopleInZone += numPeople;
-            Real64 SchMax = people.numberOfPeopleSched->getMaxVal(state);
+            Real64 SchMax = people.sched->getMaxVal(state);
             if (SchMax > 0) {
                 zsFinalSizing.ZonePeakOccupancy += numPeople * SchMax;
             } else {
                 zsFinalSizing.ZonePeakOccupancy += numPeople;
             }
-            ZoneMinOccupancy += numPeople * people.numberOfPeopleSched->getMinVal(state);
+            ZoneMinOccupancy += numPeople * people.sched->getMinVal(state);
         }
     }
     zsFinalSizing.TotalZoneFloorArea = (floorArea * zoneMult);

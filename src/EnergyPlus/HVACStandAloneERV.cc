@@ -1256,7 +1256,7 @@ void SizeStandAloneERV(EnergyPlusData &state, int const StandAloneERVNum)
         Real64 MaxPeopleSch = 0.0;
         for (int PeopleNum = 1; PeopleNum <= state.dataHeatBal->TotPeople; ++PeopleNum) {
             if (ZoneNum != state.dataHeatBal->People(PeopleNum).ZonePtr) continue;
-            MaxPeopleSch = state.dataHeatBal->People(PeopleNum).numberOfPeopleSched->getMaxVal(state);
+            MaxPeopleSch = state.dataHeatBal->People(PeopleNum).sched->getMaxVal(state);
             NumberOfPeople = NumberOfPeople + (state.dataHeatBal->People(PeopleNum).NumberOfPeople * MaxPeopleSch);
         }
         SupplyAirVolFlowDes = FloorArea * state.dataHVACStandAloneERV->StandAloneERV(StandAloneERVNum).AirVolFlowPerFloorArea +

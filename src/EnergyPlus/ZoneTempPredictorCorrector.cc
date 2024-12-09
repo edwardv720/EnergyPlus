@@ -5878,9 +5878,9 @@ void CalcZoneAirComfortSetPoints(EnergyPlusData &state)
             SetPointHi = 0.0;
 
             for (int PeopleNum = 1; PeopleNum <= state.dataHeatBal->TotPeople; ++PeopleNum) {
-                if (ActualZoneNum == state.dataHeatBal->People(PeopleNum).ZonePtr) {
-                    int NumberOccupants = state.dataHeatBal->People(PeopleNum).NumberOfPeople *
-                            state.dataHeatBal->People(PeopleNum).numberOfPeopleSched->getCurrentVal();
+                auto &people = state.dataHeatBal->People(PeopleNum);    
+                if (ActualZoneNum == people.ZonePtr) {
+                    int NumberOccupants = people.NumberOfPeople * people.sched->getCurrentVal();
                     PeopleCount += NumberOccupants;
                     GetComfortSetPoints(state, PeopleNum, RelativeZoneNum, zoneComfortControlsFanger.LowPMV, Tset);
                     SetPointLo += Tset * NumberOccupants;

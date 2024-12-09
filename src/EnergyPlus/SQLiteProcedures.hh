@@ -699,7 +699,7 @@ private:
                       int const nominalPeopleNumber,
                       DataHeatBalance::PeopleData const &nominalPeopleData)
             : SQLiteData(errorStream, db), number(nominalPeopleNumber), name(nominalPeopleData.Name), zonePtr(nominalPeopleData.ZonePtr),
-              numberOfPeople(nominalPeopleData.NumberOfPeople), numberOfPeopleSched(nominalPeopleData.numberOfPeopleSched),
+              numberOfPeople(nominalPeopleData.NumberOfPeople), numberOfPeopleSched(nominalPeopleData.sched),
               activityLevelSched(nominalPeopleData.activityLevelSched), fractionRadiant(nominalPeopleData.FractionRadiant),
               fractionConvected(nominalPeopleData.FractionConvected), workEffSched(nominalPeopleData.workEffSched),
               clothingSched(nominalPeopleData.clothingSched), airVelocitySched(nominalPeopleData.airVelocitySched), fanger(nominalPeopleData.Fanger),

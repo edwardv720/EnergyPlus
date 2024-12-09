@@ -732,7 +732,7 @@ namespace DataHeatBalance {
         int ZonePtr = 0;                // Zone index for this people statement
         int spaceIndex = 0;             // Space index for this people statement
         Real64 NumberOfPeople = 0.0;    // Maximum number of people for this statement
-        Sched::Schedule *numberOfPeopleSched = nullptr;     // schedule for number of people
+        Sched::Schedule *sched = nullptr;     // schedule for number of people
         bool EMSPeopleOn = false;       // EMS actuating number of people if .TRUE.
         Real64 EMSNumberOfPeople = 0.0; // Value EMS is directing to use for override
         // Note that the schedule and maximum number was kept for people since it seemed likely that

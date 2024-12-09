@@ -49,9 +49,6 @@
 #include <map>
 
 // ObjexxFCL Headers
-// #include <ObjexxFCL/Array.functions.hh>
-// #include <ObjexxFCL/ArrayS.functions.hh>
-// #include <ObjexxFCL/Fmath.hh>
 #include <ObjexxFCL/string.functions.hh>
 
 // EnergyPlus Headers
@@ -63,7 +60,7 @@
 #include <EnergyPlus/EMSManager.hh>
 #include <EnergyPlus/FileSystem.hh>
 #include <EnergyPlus/General.hh>
-#include <EnergyPlus/GlobalNames.hh>
+// #include <EnergyPlus/GlobalNames.hh>
 #include <EnergyPlus/InputProcessing/CsvParser.hh>
 #include <EnergyPlus/InputProcessing/InputProcessor.hh>
 #include <EnergyPlus/OutputProcessor.hh>
@@ -289,10 +286,12 @@ namespace Sched {
         auto *schedOff = AddScheduleConstant(state, "Constant-0.0");
         assert(schedOff->Num == SchedNum_AlwaysOff);
         schedOff->currentVal = 0.0;
+        schedOff->isUsed = true; // Suppress unused warnings
         
         auto *schedOn = AddScheduleConstant(state, "Constant-1.0");
         assert(schedOn->Num == SchedNum_AlwaysOn);
         schedOn->currentVal = 1.0;
+        schedOn->isUsed = true; // Suppress unused warnings 
     }
         
     void ProcessScheduleInput(EnergyPlusData &state)
@@ -2520,19 +2519,24 @@ namespace Sched {
 
         auto *sched = s_sched->schedules[schedNum];
 
-        if (sched->type != SchedType::Constant && !sched->isUsed) {
-            auto *schedDetailed = dynamic_cast<ScheduleDetailed *>(sched);
-            assert(schedDetailed != nullptr);
+        if (!sched->isUsed) {
+            sched->isUsed = true;
+            
+            if (sched->type != SchedType::Constant) {
+
+                auto *schedDetailed = dynamic_cast<ScheduleDetailed *>(sched);
+                assert(schedDetailed != nullptr);
                 
-            schedDetailed->isUsed = true;
-            for (int iWeek = 1; iWeek <= 366; ++iWeek) {
-                if (auto *weekSched = schedDetailed->weekScheds[iWeek]; weekSched != nullptr) {
-                    if (weekSched->isUsed) continue;
+                schedDetailed->isUsed = true;
+                for (int iWeek = 1; iWeek <= 366; ++iWeek) {
+                    if (auto *weekSched = schedDetailed->weekScheds[iWeek]; weekSched != nullptr) {
+                        if (weekSched->isUsed) continue;
                    
-                    weekSched->isUsed = true;
-                    for (int iDayType = 1; iDayType < (int)DayType::Num; ++iDayType) {
-                        auto *daySched = weekSched->dayScheds[iDayType];
-                        daySched->isUsed = true;
+                        weekSched->isUsed = true;
+                        for (int iDayType = 1; iDayType < (int)DayType::Num; ++iDayType) {
+                            auto *daySched = weekSched->dayScheds[iDayType];
+                            daySched->isUsed = true;
+                        }
                     }
                 }
             }

@@ -430,7 +430,7 @@ void SwimmingPoolData::ErrorCheckSetupPoolSurface(
                         format("{} is a pool and is defined as a window.  This is not allowed.  A pool must be a floor that is NOT a window.",
                                state.dataSurface->Surface(this->SurfacePtr).Name));
         ErrorsFound = true;
-    } else if (state.dataSurface->SurfMaterialMovInsulInt(this->SurfacePtr) > 0) {
+    } else if (state.dataSurface->intMovInsuls(this->SurfacePtr).matNum > 0) {
         ShowSevereError(state,
                         format("{} is a pool and has movable insulation.  This is not allowed.  Remove the movable insulation for this surface.",
                                state.dataSurface->Surface(this->SurfacePtr).Name));

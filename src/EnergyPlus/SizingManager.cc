@@ -2084,7 +2084,7 @@ void DetermineSystemPopulationDiversity(EnergyPlusData &state)
                                         (state.dataHeatBal->People(PeopleNum).NumberOfPeople *
                                          state.dataHeatBal->Zone(state.dataSize->FinalZoneSizing(CtrlZoneNum).ZoneNum).Multiplier *
                                          state.dataHeatBal->Zone(state.dataSize->FinalZoneSizing(CtrlZoneNum).ZoneNum).ListMultiplier);
-                                    Real64 schMultiplier = state.dataHeatBal->People(PeopleNum).numberOfPeopleSched->getHrTsVal(state, hrOfDay, TS);
+                                    Real64 schMultiplier = state.dataHeatBal->People(PeopleNum).sched->getHrTsVal(state, hrOfDay, TS);
                                     PeopleInZone = PeopleInZone * schMultiplier;
                                     TotConcurrentPeopleOnSys += PeopleInZone;
                                 }

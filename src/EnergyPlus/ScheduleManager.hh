@@ -51,8 +51,6 @@
 // ObjexxFCL Headers
 #include <ObjexxFCL/Array1D.hh>
 #include <ObjexxFCL/Array1S.hh>
-#include <ObjexxFCL/Array2S.hh>
-#include <ObjexxFCL/Optional.hh>
 
 // EnergyPlus Headers
 #include <EnergyPlus/Data/BaseData.hh>
@@ -203,7 +201,6 @@ namespace Sched {
         DayOrYearSchedule() {};
         virtual ~DayOrYearSchedule() {};
 
-        // virtual void getDayVals(EnergyPlusData &state, Array2S<Real64> DayVals, int jDay = -1, int dayOfWeek = -1) = 0;
         virtual std::vector<Real64> const &getDayVals([[maybe_unused]] EnergyPlusData &state, int jDay = -1, int dayOfWeek = -1) = 0;
     };
         
@@ -222,7 +219,6 @@ namespace Sched {
         bool checkValsForLimitViolations(EnergyPlusData &state) const;
         bool checkValsForBadIntegers(EnergyPlusData &state) const;
         void populateFromMinuteVals(EnergyPlusData &state, std::array<Real64, Constant::iMinutesInDay> const &minVals);
-        // void getDayVals(EnergyPlusData &state, Array2S<Real64> DayVals, int jDay = -1, int dayOfWeek = -1);
         std::vector<Real64> const &getDayVals([[maybe_unused]] EnergyPlusData &state, int jDay = -1, int dayOfWeek = -1) { return tsVals; }
         void setMinMaxVals(EnergyPlusData &state);
     };
@@ -283,7 +279,6 @@ namespace Sched {
         // Negative ts => unspecified, will use TimeStepsInHour
         Real64 getHrTsVal(EnergyPlusData &state, int hr, int ts = -1) const;
             
-        // void getDayVals(EnergyPlusData &state, Array2S<Real64> DayValues, int jDay = -1, int dayofWeek = -1);
         std::vector<Real64> const &getDayVals(EnergyPlusData &state, int jDay = -1, int dayOfWeek = -1); 
             
         bool hasVal(EnergyPlusData &state, Real64 const val) const;
@@ -314,7 +309,6 @@ namespace Sched {
             
         void can_instantiate() { assert(false); } // makes class concrete, but don't call this
             
-        // void getDayVals(EnergyPlusData &state, Array2S<Real64> DayVals, int jDay = -1, int dayofWeek = -1);
         std::vector<Real64> const &getDayVals(EnergyPlusData &state, int jDay = -1, int dayOfWeek = -1);
             
         bool hasVal(EnergyPlusData &state, Real64 const val) const;
