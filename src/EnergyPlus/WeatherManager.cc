@@ -6665,7 +6665,7 @@ namespace Weather {
                         ErrorsFound = true;
                     } else {
                         if (envFound != 0) {
-                            if (std::find(state.dataWeather->spSiteSchedNums.begin(), state.dataWeather->spSiteSchedNums.end(), Found) ==
+                            if (std::find(state.dataWeather->spSiteSchedNums.begin(), state.dataWeather->spSiteSchedNums.end(), wpSkyTemp.sched->Num) ==
                                 state.dataWeather->spSiteSchedNums.end()) {
                                 state.dataWeather->spSiteSchedNums.emplace_back(wpSkyTemp.sched->Num);
                                 SetupOutputVariable(state,

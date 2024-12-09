@@ -402,6 +402,7 @@ void GetPumpInput(EnergyPlusData &state)
             thisPump.HasVFD = true;
             thisPump.VFD.VFDControlType =
                 static_cast<ControlTypeVFD>(getEnumValue(controlTypeVFDNamesUC, Util::makeUPPER(state.dataIPShortCut->cAlphaArgs(7))));
+
             switch (thisPump.VFD.VFDControlType) {
                     
             case ControlTypeVFD::VFDManual: {
@@ -412,11 +413,14 @@ void GetPumpInput(EnergyPlusData &state)
                     Sched::ShowSevereBadMin(state, eoh, thisInput->cAlphaFieldNames(8), thisInput->cAlphaArgs(8), Clusive::Ex, 0.0);
                     ErrorsFound = true;
                 }
+
+                thisPump.VFD.minRPMSched = Sched::GetScheduleAlwaysOff(state);
+                thisPump.VFD.maxRPMSched = Sched::GetScheduleAlwaysOff(state);
             } break;
                     
             case ControlTypeVFD::VFDAutomatic: {
                 if (thisInput->lAlphaFieldBlanks(9)) {
-                    ShowSevereEmptyField(state, eoh, thisInput->cAlphaFieldNames(9));
+                    ShowSevereEmptyField(state, eoh, thisInput->cAlphaFieldNames(9));                        
                     ErrorsFound = true;
                 } else if ((thisPump.VFD.lowerPsetSched = Sched::GetSchedule(state, thisInput->cAlphaArgs(9))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, thisInput->cAlphaFieldNames(9), thisInput->cAlphaArgs(9));
@@ -432,8 +436,7 @@ void GetPumpInput(EnergyPlusData &state)
                 }
 
                 if (thisInput->lAlphaFieldBlanks(11)) {
-                    ShowSevereEmptyField(state, eoh, thisInput->cAlphaFieldNames(11));
-                    ErrorsFound = true;
+                    thisPump.VFD.minRPMSched = Sched::GetScheduleAlwaysOff(state);
                 } else if ((thisPump.VFD.minRPMSched = Sched::GetSchedule(state, thisInput->cAlphaArgs(11))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, thisInput->cAlphaFieldNames(11), thisInput->cAlphaArgs(11));
                     ErrorsFound = true;
@@ -443,8 +446,7 @@ void GetPumpInput(EnergyPlusData &state)
                 }
                         
                 if (thisInput->lAlphaFieldBlanks(12)) {
-                    ShowSevereEmptyField(state, eoh, thisInput->cAlphaFieldNames(12));
-                    ErrorsFound = true;
+                    thisPump.VFD.maxRPMSched = Sched::GetScheduleAlwaysOff(state);
                 } else if ((thisPump.VFD.maxRPMSched = Sched::GetSchedule(state, thisInput->cAlphaArgs(12))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, thisInput->cAlphaFieldNames(12), thisInput->cAlphaArgs(12));
                     ErrorsFound = true;
@@ -599,7 +601,8 @@ void GetPumpInput(EnergyPlusData &state)
         }
 
         // Input the optional schedule for the pump
-        if (thisInput->lAlphaFieldBlanks(5)) { // Initialized to zero, don't get a schedule for an empty
+        if (thisInput->lAlphaFieldBlanks(5)) {
+            thisPump.sched = Sched::GetScheduleAlwaysOff(state);
         } else if ((thisPump.sched = Sched::GetSchedule(state, thisInput->cAlphaArgs(5))) == nullptr) {
             ShowWarningItemNotFound(state, eoh, thisInput->cAlphaFieldNames(5), thisInput->cAlphaArgs(5), "");
         }

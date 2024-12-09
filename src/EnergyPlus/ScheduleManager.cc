@@ -2136,7 +2136,7 @@ namespace Sched {
                         ++NumF;
                     }
                 }
-                TimeHHMM(NumF) = format("{}:{}", HrField[hr], ShowMinute(s_glob->TimeStepsInHour));
+                TimeHHMM(NumF) = format("{}:{}", HrField[hr+1], ShowMinute(s_glob->TimeStepsInHour));
                 ++NumF;
             }
             --NumF;
@@ -2213,7 +2213,7 @@ namespace Sched {
                 } break;
 
                 case ReportLevel::TimeStep: {
-                    for (int hr = 1; hr < Constant::iHoursInDay; ++hr) {
+                    for (int hr = 0; hr < Constant::iHoursInDay; ++hr) {
                         for (int ts = 0; ts < s_glob->TimeStepsInHour; ++ts) {
                             print(state.files.eio, SchDFmtdata, RoundTSValue(ts+1, hr+1));
                         }
@@ -3500,7 +3500,10 @@ namespace Sched {
         auto const &s_sched = state.dataSched;
             
         if (s_sched->DoScheduleReportingSetup) { // CurrentModuleObject='Any Schedule'
-           for (auto *sched : s_sched->schedules) {
+            for (auto *sched : s_sched->schedules) {
+                // No variables for the built-in AlwaysOn and AlwaysOff schedules 
+                if (sched->Num == SchedNum_AlwaysOff || sched->Num == SchedNum_AlwaysOn) continue;
+                   
                 // Set Up Reporting
                 SetupOutputVariable(state,
                                     "Schedule Value",
