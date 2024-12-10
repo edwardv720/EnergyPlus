@@ -198,9 +198,10 @@ namespace Sched {
                int begMin = 0;
                int endMin = s_glob->MinutesInTimeStep - 1;
                for (int ts = 0; ts < s_glob->TimeStepsInHour; ++ts) {
-                   this->tsVals[hr * s_glob->TimeStepsInHour + ts] = 
-                      std::accumulate(&minuteVals[hr * Constant::iMinutesInHour + begMin], &minuteVals[hr * Constant::iMinutesInHour + endMin + 1], 0) /
-                           double(s_glob->MinutesInTimeStep);
+                   Real64 accum = std::accumulate(&minuteVals[hr * Constant::iMinutesInHour + begMin],
+                                                  &minuteVals[hr * Constant::iMinutesInHour + endMin + 1],
+                                                  0.0);
+                   this->tsVals[hr * s_glob->TimeStepsInHour + ts] = accum / double(s_glob->MinutesInTimeStep);
                    this->sumTsVals += this->tsVals[hr * s_glob->TimeStepsInHour + ts];
                    begMin = endMin + 1;
                    endMin += s_glob->MinutesInTimeStep;
@@ -916,17 +917,15 @@ namespace Sched {
 
             // Number of numbers in the Numbers list okay to process
             int hr = 0;
-            int begMinute = 0;
-            int endMinute = MinutesPerItem - 1;
+            int begMin = 0;
+            int endMin = MinutesPerItem - 1;
             for (int NumFields = 2; NumFields <= NumNumbers; ++NumFields) {
-                std::fill(&minuteVals[hr * Constant::iMinutesInHour + begMinute],
-                          &minuteVals[hr * Constant::iMinutesInHour + endMinute],
-                          Numbers(NumFields));
-                begMinute = endMinute + 1;
-                endMinute += MinutesPerItem;
-                if (endMinute >= Constant::iMinutesInHour) {
-                    endMinute = MinutesPerItem - 1;
-                    begMinute = 0;
+                std::fill(&minuteVals[hr * Constant::iMinutesInHour + begMin], &minuteVals[hr * Constant::iMinutesInHour + endMin + 1], Numbers(NumFields));
+                begMin = endMin + 1;
+                endMin += MinutesPerItem;
+                if (endMin >= Constant::iMinutesInHour) {
+                    endMin = MinutesPerItem - 1;
+                    begMin = 0;
                     ++hr;
                 }
             }
@@ -1361,31 +1360,7 @@ namespace Sched {
                             ErrorsFound = true;
                         }
                         
-                        // No validation done on the value of the interpolation field
-                        if (daySched->interpolation == Interpolation::No) { 
-                           for (int hr = 0; hr < Constant::iHoursInDay; ++hr) {
-                                int curMinute = s_glob->MinutesInTimeStep - 1;
-                                for (int ts = 0; ts < s_glob->TimeStepsInHour; ++ts) {
-                                    daySched->tsVals[hr * s_glob->TimeStepsInHour + ts] = minuteVals[hr * Constant::iMinutesInHour + curMinute];
-                                    daySched->sumTsVals += daySched->tsVals[hr * s_glob->TimeStepsInHour + ts];
-                                    curMinute += s_glob->MinutesInTimeStep;
-                                }
-                            }
-                        } else {
-                           for (int hr = 0; hr < Constant::iHoursInDay; ++hr) {
-                                int begMin = 0;
-                                int endMin = s_glob->MinutesInTimeStep - 1;
-                                for (int ts = 0; ts < s_glob->TimeStepsInHour; ++ts) {
-                                    daySched->tsVals[hr * s_glob->TimeStepsInHour + ts] =
-                                        std::accumulate(&minuteVals[hr * Constant::iMinutesInHour + begMin],
-                                                        &minuteVals[hr * Constant::iMinutesInHour + endMin + 1],
-                                                        0) / double(s_glob->MinutesInTimeStep);
-                                    daySched->sumTsVals += daySched->tsVals[hr * s_glob->TimeStepsInHour + ts];
-                                    begMin = endMin + 1;
-                                    endMin += s_glob->MinutesInTimeStep;
-                                }
-                            }
-                        }
+                        daySched->populateFromMinuteVals(state, minuteVals);
                     }
                 }
                 
@@ -1544,12 +1519,12 @@ namespace Sched {
             }
 
             // Depending on value of "Interpolate" field, the value for each time step in each hour gets processed:
-            FileIntervalInterpolated = false;
+            Interpolation interp = Interpolation::No;
             
 
             if (!lAlphaBlanks(5)) {
                 if (BooleanSwitch bs = getYesNoValue(Alphas(5)); bs != BooleanSwitch::Invalid) {
-                    FileIntervalInterpolated = static_cast<bool>(bs);
+                    interp = static_cast<bool>(bs) ? Interpolation::Average : Interpolation::Linear;
                 } else {
                     ShowSevereInvalidKey(state, eoh, cAlphaFields(5), Alphas(5));
                     ErrorsFound = true;
@@ -1659,7 +1634,7 @@ namespace Sched {
                     // schedule is pointing to the week schedule
                     sched->weekScheds[iDay] = weekSched;
                     
-                    if (MinutesPerItem == 60) {
+                    if (MinutesPerItem == Constant::iMinutesInHour) {
                         for (int hr = 0; hr < Constant::iHoursInDay; ++hr) {
                             Real64 curHrVal = column_values[ifld]; // hourlyFileValues((hDay - 1) * 24 + jHour)
                             ++ifld;
@@ -1681,30 +1656,9 @@ namespace Sched {
                                 endMin += MinutesPerItem;
                             }
                         }
-                        if (FileIntervalInterpolated) {
-                            for (int hr = 0; hr < Constant::iHoursInDay; ++hr) {
-                                int begMin = 0;
-                                int endMin = s_glob->MinutesInTimeStep - 1;
-                                for (int ts = 0; ts < s_glob->TimeStepsInHour; ++ts) {
-                                    daySched->tsVals[hr * s_glob->TimeStepsInHour + ts] =
-                                        std::accumulate(&minuteVals[hr * Constant::iMinutesInHour + begMin],
-                                                        &minuteVals[hr * Constant::iMinutesInHour + endMin + 1],
-                                                        0) / double(s_glob->MinutesInTimeStep);
-                                    daySched->sumTsVals += daySched->tsVals[hr * s_glob->TimeStepsInHour + ts];
-                                    begMin = endMin + 1;
-                                    endMin += s_glob->MinutesInTimeStep;
-                                }
-                            }
-                        } else {
-                            for (int hr = 0; hr < Constant::iHoursInDay; ++hr) {
-                                int curMin = s_glob->MinutesInTimeStep - 1;
-                                for (int ts = 0; ts < s_glob->TimeStepsInHour; ++ts) {
-                                    daySched->tsVals[hr * s_glob->TimeStepsInHour + ts] = minuteVals[hr * Constant::iMinutesInHour + curMin];
-                                    daySched->sumTsVals += daySched->tsVals[hr * s_glob->TimeStepsInHour + ts];
-                                    curMin += s_glob->MinutesInTimeStep;
-                                }
-                            }
-                        }
+
+                       daySched->interpolation = interp;
+                       daySched->populateFromMinuteVals(state, minuteVals);
                     }
                     if (iDay == 59 && rowCnt < 8784 * hrLimitCount) { // 28 Feb
                         // Dup 28 Feb to 29 Feb (60)

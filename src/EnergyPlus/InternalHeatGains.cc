@@ -546,14 +546,11 @@ namespace InternalHeatGains {
 
                     // Following is an optional parameter (ASHRAE 55 warnings
                     if (IHGNumAlphas >= 6) {
-                        BooleanSwitch bs = getYesNoValue(IHGAlphas(6));
-                        if (bs == BooleanSwitch::Invalid) {
-                            if (Item1 == 1) {
-                                ShowSevereInvalidKey(state, eoh, IHGAlphaFieldNames(6), IHGAlphas(6));
-                                ErrorsFound = true;
-                            }
-                        } else {
-                            thisPeople.Show55Warning = true;
+                        if (BooleanSwitch bs = getYesNoValue(IHGAlphas(6)); bs != BooleanSwitch::Invalid) {
+                            thisPeople.Show55Warning = static_cast<bool>(bs);
+                        } else if (Item1 == 1) {
+                            ShowSevereInvalidKey(state, eoh, IHGAlphaFieldNames(6), IHGAlphas(6));
+                            ErrorsFound = true;
                         }
                     }
 
@@ -3246,10 +3243,9 @@ namespace InternalHeatGains {
                 print(state.files.eio, "{},", yesNoNames[(int)people.Pierce]);
                 print(state.files.eio, "{},", yesNoNames[(int)people.KSU]);
                 print(state.files.eio, "{},", yesNoNames[(int)people.CoolingEffectASH55]);
-                print(state.files.eio, "{},", yesNoNames[(int)people.AnkleDraftASH55]);
-            } else {
-                print(state.files.eio, "\n");
+                print(state.files.eio, "{}", yesNoNames[(int)people.AnkleDraftASH55]);
             }
+            print(state.files.eio, "\n");
         }
 
         for (int Loop = 1; Loop <= state.dataHeatBal->TotLights; ++Loop) {
