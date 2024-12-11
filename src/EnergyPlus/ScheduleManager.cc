@@ -198,9 +198,8 @@ namespace Sched {
                int begMin = 0;
                int endMin = s_glob->MinutesInTimeStep - 1;
                for (int ts = 0; ts < s_glob->TimeStepsInHour; ++ts) {
-                   Real64 accum = std::accumulate(&minuteVals[hr * Constant::iMinutesInHour + begMin],
-                                                  &minuteVals[hr * Constant::iMinutesInHour + endMin + 1],
-                                                  0.0);
+                   Real64 accum = 0.0;
+                   for (int iMin = begMin; iMin <= endMin; ++iMin) { accum += minuteVals[hr * Constant::iMinutesInHour + iMin]; }
                    this->tsVals[hr * s_glob->TimeStepsInHour + ts] = accum / double(s_glob->MinutesInTimeStep);
                    this->sumTsVals += this->tsVals[hr * s_glob->TimeStepsInHour + ts];
                    begMin = endMin + 1;
@@ -925,7 +924,7 @@ namespace Sched {
             int begMin = 0;
             int endMin = MinutesPerItem - 1;
             for (int NumFields = 2; NumFields <= NumNumbers; ++NumFields) {
-                std::fill(&minuteVals[hr * Constant::iMinutesInHour + begMin], &minuteVals[hr * Constant::iMinutesInHour + endMin + 1], Numbers(NumFields));
+                for (int iMin = begMin; iMin <= endMin; ++iMin) { minuteVals[hr * Constant::iMinutesInHour + iMin] = Numbers(NumFields); }
                 begMin = endMin + 1;
                 endMin += MinutesPerItem;
                 if (endMin >= Constant::iMinutesInHour) {
@@ -1653,9 +1652,8 @@ namespace Sched {
                             int endMin = MinutesPerItem - 1;
                             int begMin = 0;
                             for (int NumFields = 1; NumFields <= hrLimitCount; ++NumFields) {
-                                std::fill(&minuteVals[hr * Constant::iMinutesInHour + begMin],
-                                          &minuteVals[hr * Constant::iMinutesInHour + endMin + 1],
-                                          column_values[ifld]);
+                                for (int iMin = begMin; iMin <= endMin; ++iMin) { minuteVals[hr * Constant::iMinutesInHour + iMin] = column_values[ifld]; }
+                                
                                 ++ifld;
                                 begMin = endMin + 1;
                                 endMin += MinutesPerItem;
@@ -2753,29 +2751,28 @@ namespace Sched {
                 }
                 
             } else if (begHr == endHr) {
-                if (std::find(&setMinuteVals[begHr * Constant::iMinutesInHour + begMin],
-                              &setMinuteVals[begHr * Constant::iMinutesInHour + endMin + 1],
-                              true) != &setMinuteVals[begHr * Constant::iMinutesInHour + endMin + 1]) {
-                    ShowSevereError(state,
-                                    format("ProcessScheduleInput: ProcessIntervalFields, Processing time fields, overlapping times detected, {}={}",
-                                           ErrContext,
-                                           DayScheduleName));
-                    ErrorsFound = true;
-                    goto UntilLoop_exit;
-                    
-                } else if (interpolation == Interpolation::Linear) {
+                for (int iMin = begMin; iMin <= endMin; ++iMin) {
+                    if (setMinuteVals[begHr * Constant::iMinutesInHour + iMin] == true) {
+                        ShowSevereError(state,
+                                        format("ProcessScheduleInput: ProcessIntervalFields, Processing time fields, overlapping times detected, {}={}",
+                                               ErrContext,
+                                               DayScheduleName));
+                        ErrorsFound = true;
+                        goto UntilLoop_exit;
+                    }
+                }
+
+                if (interpolation == Interpolation::Linear) {
                     for (int iMin = begMin; iMin <= endMin; ++iMin) {
                         minuteVals[begHr * Constant::iMinutesInHour + iMin] = curValue;
                         curValue += incrementPerMinute;
                         setMinuteVals[begHr * Constant::iMinutesInHour + iMin] = true;
                     }
                 } else {
-                    std::fill(&minuteVals[begHr * Constant::iMinutesInHour + begMin],
-                              &minuteVals[begHr * Constant::iMinutesInHour + endMin + 1],
-                              Numbers(Count));
-                    std::fill(&setMinuteVals[begHr * Constant::iMinutesInHour + begMin],
-                              &setMinuteVals[begHr * Constant::iMinutesInHour + endMin + 1],
-                              true);
+                    for (int iMin = begMin; iMin <= endMin; ++iMin) {
+                        minuteVals[begHr * Constant::iMinutesInHour + iMin] = Numbers(Count);
+                        setMinuteVals[begHr * Constant::iMinutesInHour + iMin] = true;
+                    }
                 }
                 
                 begMin = endMin + 1;
@@ -2786,14 +2783,14 @@ namespace Sched {
                 
             } else { // begHr < endHr
                 if (interpolation == Interpolation::Linear) {
-                    for (int iMin = begMin; iMin < Constant::iMinutesInHour; ++iMin) { // for portion of starting hour
+                    for (int iMin = begMin; iMin <= Constant::iMinutesInHour - 1; ++iMin) { // for portion of starting hour
                         minuteVals[begHr * Constant::iMinutesInHour + iMin] = curValue;
                         curValue += incrementPerMinute;
                         setMinuteVals[begHr * Constant::iMinutesInHour + iMin] = true;
                     }
                     
                     for (int iHr = begHr + 1; iHr <= endHr - 1; ++iHr) { // for intermediate hours
-                        for (int iMin = 0; iMin < Constant::iMinutesInHour; ++iMin) {
+                        for (int iMin = 0; iMin <= Constant::iMinutesInHour - 1; ++iMin) {
                             minuteVals[iHr * Constant::iMinutesInHour + iMin] = curValue;
                             curValue += incrementPerMinute;
                             setMinuteVals[iHr * Constant::iMinutesInHour + iMin] = true;
@@ -2809,30 +2806,26 @@ namespace Sched {
                 } else { // either no interpolation or "average" interpolation (average just is when the interval does not match the timestep)
                     // Fill values for first hour (which may not start at minute 0)
                     // For std::fill the end marker has to be 1 past the last position you want to fill
-                    std::fill(&minuteVals[begHr * Constant::iMinutesInHour + begMin],
-                              &minuteVals[begHr * Constant::iMinutesInHour + Constant::iMinutesInHour],
-                              Numbers(Count));
-                    std::fill(&setMinuteVals[begHr * Constant::iMinutesInHour + begMin],
-                              &setMinuteVals[begHr * Constant::iMinutesInHour + Constant::iMinutesInHour],
-                              true);
+                        for (int iMin = begMin; iMin <= Constant::iMinutesInHour; ++iMin) {
+                            minuteVals[begHr * Constant::iMinutesInHour + iMin] = Numbers(Count);
+                            setMinuteVals[begHr * Constant::iMinutesInHour + iMin] = true;
+                        }
 
                     // Fill values for middle hours (which start at minute 0 and end in minute 59)
                     if ((begHr + 1) <= (endHr - 1)) {
-                        std::fill(&minuteVals[(begHr + 1) * Constant::iMinutesInHour + 0],
-                                  &minuteVals[(endHr - 1) * Constant::iMinutesInHour + Constant::iMinutesInHour],
-                                  Numbers(Count));
-                        std::fill(&setMinuteVals[(begHr + 1) * Constant::iMinutesInHour + 0],
-                                  &setMinuteVals[(endHr - 1) * Constant::iMinutesInHour + Constant::iMinutesInHour],
-                                  true);
+                        for (int iHr = begHr + 1; iHr <= endHr - 1; ++iHr) {
+                            for (int iMin = 0; iMin <= Constant::iMinutesInHour - 1; ++iMin) {
+                                minuteVals[iHr * Constant::iMinutesInHour + iMin] = Numbers(Count);
+                                setMinuteVals[iHr * Constant::iMinutesInHour + iMin] = true;
+                            }
+                        }
                     }
 
                     // Fill values for last hour (which starts at minute 0 but may end on minute that isn't 59)
-                    std::fill(&minuteVals[endHr * Constant::iMinutesInHour + 0],
-                              &minuteVals[endHr * Constant::iMinutesInHour + endMin + 1],
-                              Numbers(Count));
-                    std::fill(&setMinuteVals[endHr * Constant::iMinutesInHour + 0],
-                              &setMinuteVals[endHr * Constant::iMinutesInHour + endMin + 1],
-                              true);
+                    for (int iMin = 0; iMin <= endMin; ++iMin) {
+                        minuteVals[endHr * Constant::iMinutesInHour + iMin] = Numbers(Count);
+                        setMinuteVals[endHr * Constant::iMinutesInHour + iMin] = true;
+                    }
                 }
                 
                 begHr = endHr;
@@ -2845,12 +2838,14 @@ namespace Sched {
         }
     UntilLoop_exit:;
 
-        if (std::find(setMinuteVals.begin(), setMinuteVals.end(), false) != setMinuteVals.end()) {
-            ShowSevereError(state,
-                            format("ProcessScheduleInput: ProcessIntervalFields, Processing time fields, incomplete day detected, {}={}",
-                                   ErrContext,
-                                   DayScheduleName));
-            ErrorsFound = true;
+        for (int iMin = 0; iMin < Constant::iMinutesInDay; ++iMin) {
+            if (setMinuteVals[iMin] == false) {
+                ShowSevereError(state,
+                                format("ProcessScheduleInput: ProcessIntervalFields, Processing time fields, incomplete day detected, {}={}",
+                                       ErrContext,
+                                       DayScheduleName));
+                ErrorsFound = true;
+            }
         }
     }
 
