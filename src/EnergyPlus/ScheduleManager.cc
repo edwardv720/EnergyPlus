@@ -1035,9 +1035,11 @@ namespace Sched {
             }
             
             //  Have processed all named days, check to make sure all given
-            if (std::find(allDays.begin(), allDays.end(), false) != allDays.end()) {
+            for (int iDayType = iDayType_Sun; iDayType < (int)DayType::Num; ++iDayType) {
+                if (allDays[iDayType] == true) continue;
                 ShowSevereError(state, format("{}: {}=\"{}\", Missing some day assignments", routineName, CurrentModuleObject, Alphas(1)));
                 ErrorsFound = true;
+                break;
             }
         }
         NumRegWeekSchedules = Count;
@@ -1369,18 +1371,21 @@ namespace Sched {
                 }
                 
             For_exit:;
-                if (std::find(&allDays[iDayType_Sun], &allDays[(int)DayType::Num], false) != &allDays[(int)DayType::Num]) {
+                for (int iDayType = iDayType_Sun; iDayType < (int)DayType::Num; ++iDayType) {
+                    if (allDays[iDayType] == true)  continue;
+                        
                     ShowWarningCustom(state, eoh, format("has missing day types in Through={}", CurrentThrough));
                     ShowContinueError(state, format("Last \"For\" field={}", LastFor));
                     std::string errmsg = "Missing day types=,";
-                    for (int kDayType = 1; kDayType < (int)DayType::Num; ++kDayType) {
-                        if (allDays[kDayType]) continue;
-                        errmsg.erase(errmsg.length() - 1);
-                        errmsg = format("{} \"{}\",-", errmsg, dayTypeNames[kDayType]);
+                    for (int kDayType = iDayType_Sun; kDayType < (int)DayType::Num; ++kDayType) {
+                         if (allDays[kDayType]) continue;
+                         errmsg.erase(errmsg.length() - 1);
+                         errmsg = format("{} \"{}\",-", errmsg, dayTypeNames[kDayType]);
                     }
                     errmsg.erase(errmsg.length() - 2);
                     ShowContinueError(state, errmsg);
                     ShowContinueError(state, "Missing day types will have 0.0 as Schedule Values");
+                    break;
                 }
             }
                 
