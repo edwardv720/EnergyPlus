@@ -56,7 +56,9 @@
 // ObjexxFCL Headers
 #include <ObjexxFCL/Array1D.hh>
 #include <ObjexxFCL/Array2D.hh>
-#include <ObjexxFCL/Vector4.hh>
+#include <ObjexxFCL/Vector4.fwd.hh>
+
+using ObjexxFCL::Vector4;
 
 // EnergyPlus Headers
 #include <EnergyPlus/ConvectionConstants.hh>

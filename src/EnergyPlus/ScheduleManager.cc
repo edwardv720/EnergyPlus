@@ -190,7 +190,7 @@ namespace Sched {
         return false;
     } // ScheduleDay::checkValsForBadIntegers()
         
-    void DaySchedule::populateFromMinuteVals(EnergyPlusData &state, std::array<Real64, Constant::iMinutesInDay> const &minuteVals)
+    void DaySchedule::populateFromMinuteVals(EnergyPlusData &state, std::vector<Real64> const &minuteVals)
     {
        auto &s_glob = state.dataGlobal;
        if (this->interpolation == Interpolation::Average) {
@@ -342,8 +342,13 @@ namespace Sched {
 
         std::string CFld; // Character field for error message
         //  CHARACTER(len=20) CFld1        ! Character field for error message
-        std::array<Real64, Constant::iMinutesInDay> minuteVals;       // Temporary for processing interval schedules
-        std::array<bool, Constant::iMinutesInDay> setMinuteVals;       // Temporary for processing interval schedules
+        
+        std::vector<Real64> minuteVals;
+        std::vector<bool> setMinuteVals;
+
+        minuteVals.resize(Constant::iMinutesInDay);
+        setMinuteVals.resize(Constant::iMinutesInDay);
+        
         int NumFields;
         //  LOGICAL RptSchedule
 
@@ -2633,8 +2638,8 @@ namespace Sched {
                                Array1S<Real64> const Numbers,
                                int const NumUntils,
                                int const NumNumbers,
-                               std::array<Real64, Constant::iMinutesInDay> &minuteVals,
-                               std::array<bool, Constant::iMinutesInDay> &setMinuteVals,
+                               std::vector<Real64> &minuteVals,
+                               std::vector<bool> &setMinuteVals,
                                bool &ErrorsFound,
                                std::string const &DayScheduleName,     // Name (used for errors)
                                std::string const &ErrContext,          // Context (used for errors)
@@ -2665,6 +2670,7 @@ namespace Sched {
 
         std::fill(minuteVals.begin(), minuteVals.end(), 0.0);
         std::fill(setMinuteVals.begin(), setMinuteVals.end(), false);
+
         sFld = 0;
 
         Real64 StartValue = 0;
