@@ -105,5 +105,6 @@ if(BUILD_TESTING)
 
   basement_test(AutoGriddingDepthIsHigh)
   basement_test(AutoGriddingDepthIsLowish)
-
+  basement_test(AutoGriddingDepthIsTooHigh)
+  set_tests_properties(Basement.AutoGriddingDepthIsTooHigh PROPERTIES WILL_FAIL TRUE)
 endif()

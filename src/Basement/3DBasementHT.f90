@@ -11432,6 +11432,8 @@ END SUBROUTINE InitializeTemps
 !********************************   AUTOGRIDDING  ***************************************
 SUBROUTINE AutoGridding
 USE BasementSimData
+USE DataGlobals, ONLY: ShowSevereError,ShowContinueError,ShowFatalError
+USE General, ONLY: RoundSigDigits
 IMPLICIT NONE
 ! THIS PROGRAM WILL ESTABLISH THE SIMULATION GRID FOR A BASEMENT FOUNDATION
 ! WHOSE DIMENSIONS ARE INPUT BY THE USER
@@ -11773,6 +11775,13 @@ IMPLICIT NONE
      NZ5=2          ! For the next meter, cells are spaced at 0.5m
      NZ6=7          ! To the edge of the domain, cells are spaced at 2m
      NZBG=NZ1+NZ2+NZ3+NZ4+NZ5+NZ6
+
+     IF(NZBG.GT.100) THEN
+      CALL ShowSevereError('AutoGrid BaseDepth is too high, reduce it below 17.0 meters')
+      CALL ShowContinueError('BaseDepth=['//trim(RoundSigDigits(BaseDepth,4))//'], '&
+        'resulting  NZBG=['//trim(RoundSigDigits(NZBG,0))//'] (max 100).')
+      CALL ShowFatalError('Program terminates due to preceding condition(s).')
+     END IF
 
      ZFACEINIT(-NZAG+3)=-ConcAGHeight
      ZFACEINIT(-NZAG+2)=ZFACEINIT(-NZAG+3)-SillPlateHeight
