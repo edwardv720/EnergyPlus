@@ -798,8 +798,8 @@ namespace Curve {
                 }
             }
             if (NumAlphas >= 4) {
-                if (!IsCurveOutputTypeValid(Alphas(4))) {
-                    ShowWarningError(state, format("In {} named {} the OInput Unit Type for Z is invalid.", CurrentModuleObject, Alphas(1)));
+                if (!IsCurveInputTypeValid(Alphas(4))) {
+                    ShowWarningError(state, format("In {} named {} the Input Unit Type for Z is invalid.", CurrentModuleObject, Alphas(1)));
                 }
             }
             if (NumAlphas >= 5) {
