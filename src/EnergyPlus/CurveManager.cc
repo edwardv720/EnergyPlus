@@ -2297,7 +2297,7 @@ namespace Curve {
                         // TODO: Actually use this to define output variable units
                         if (indVarInstance.count("unit_type")) {
                             std::string unitType = indVarInstance.at("unit_type").get<std::string>();
-                            if (!IsCurveOutputTypeValid(unitType)) {
+                            if (!IsCurveInputTypeValid(unitType)) {
                                 ShowSevereError(state, format("{}: Unit Type [{}] is invalid", contextString, unitType));
                             }
                         }
