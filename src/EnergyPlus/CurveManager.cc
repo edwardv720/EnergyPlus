@@ -2953,10 +2953,21 @@ namespace Curve {
             Distance,
             Wavelength,
             Angle,
+            VolumetricFlowPerPower,
             Num
         };
         constexpr std::array<std::string_view, static_cast<int>(CurveInputType::Num)> inputTypes = {
-            "DIMENSIONLESS", "TEMPERATURE", "PRESSURE", "VOLUMETRICFLOW", "MASSFLOW", "POWER", "DISTANCE", "WAVELENGTH", "ANGLE"};
+            "DIMENSIONLESS",
+            "TEMPERATURE",
+            "PRESSURE",
+            "VOLUMETRICFLOW",
+            "MASSFLOW",
+            "POWER",
+            "DISTANCE",
+            "WAVELENGTH",
+            "ANGLE",
+            "VOLUMETRICFLOWPERPOWER",
+        };
 
         if (InInputType.empty()) {
             return true; // if not used it is valid
