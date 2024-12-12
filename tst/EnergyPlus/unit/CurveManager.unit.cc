@@ -55,6 +55,8 @@
 #include <EnergyPlus/DataGlobals.hh>
 #include <EnergyPlus/DataIPShortCuts.hh>
 #include <EnergyPlus/FileSystem.hh>
+#include <embedded/EmbeddedEpJSONSchema.hh>
+#include <nlohmann/json.hpp>
 
 #include "Fixtures/EnergyPlusFixture.hh"
 
@@ -742,3 +744,176 @@ TEST_F(EnergyPlusFixture, CSV_CarriageReturns_Handling)
         EXPECT_FALSE(std::isnan(TestArray[i]));
     }
 }
+
+std::vector<std::string> getPossibleChoicesFromSchema(const std::string &objectType, const std::string &fieldName)
+{
+    // Should consider making this public, at least to the EnergyPlusFixture, but maybe in the InputProcessor directly
+    // At which point, should handle the "anyOf" case, here I don't need it, so not bothering
+    static const auto json_schema = nlohmann::json::from_cbor(EmbeddedEpJSONSchema::embeddedEpJSONSchema());
+    auto const &schema_properties = json_schema.at("properties");
+    const auto &object_schema = schema_properties.at(objectType);
+    auto const &pattern_properties = object_schema["patternProperties"];
+    int dot_star_present = pattern_properties.count(".*");
+    std::string pattern_property;
+    if (dot_star_present) {
+        pattern_property = ".*";
+    } else {
+        int no_whitespace_present = pattern_properties.count(R"(^.*\S.*$)");
+        if (no_whitespace_present) {
+            pattern_property = R"(^.*\S.*$)";
+        } else {
+            throw std::runtime_error(R"(The patternProperties value is not a valid choice (".*", "^.*\S.*$"))");
+        }
+    }
+    auto const &schema_obj_props = pattern_properties[pattern_property]["properties"];
+    auto const &schema_field_obj = schema_obj_props.at(fieldName);
+    std::vector<std::string> choices;
+    for (const auto &e : schema_field_obj.at("enum")) {
+        choices.push_back(e);
+    }
+
+    return choices;
+}
+
+TEST_F(EnergyPlusFixture, TableIndependentVariableUnitType_IsValid)
+{
+    std::vector<std::string> unit_type_choices = getPossibleChoicesFromSchema("Table:IndependentVariable", "unit_type");
+    for (const auto &input_unit_type : unit_type_choices) {
+        EXPECT_TRUE(Curve::IsCurveInputTypeValid(input_unit_type)) << input_unit_type << " is rejected by IsCurveInputTypeValid";
+    }
+    EXPECT_EQ(8, unit_type_choices.size());
+}
+
+TEST_F(EnergyPlusFixture, TableLookupUnitType_IsValid)
+{
+    std::vector<std::string> unit_type_choices = getPossibleChoicesFromSchema("Table:Lookup", "output_unit_type");
+    for (const auto &output_unit_type : unit_type_choices) {
+        if (output_unit_type.empty()) {
+            continue;
+        }
+        EXPECT_TRUE(Curve::IsCurveOutputTypeValid(output_unit_type)) << output_unit_type << " is rejected by IsCurveOutputTypeValid";
+    }
+    EXPECT_EQ(6, unit_type_choices.size());
+}
+
+class InputUnitTypeIsValid : public EnergyPlusFixture, public ::testing::WithParamInterface<std::string_view>
+{
+};
+TEST_P(InputUnitTypeIsValid, IndepentVariable)
+{
+    const auto &unit_type = GetParam();
+
+    std::string const idf_objects = delimited_string({
+        "Table:IndependentVariable,",
+        "  SAFlow,                    !- Name",
+        "  Cubic,                     !- Interpolation Method",
+        "  Constant,                  !- Extrapolation Method",
+        "  0.714,                     !- Minimum Value",
+        "  1.2857,                    !- Maximum Value",
+        "  ,                          !- Normalization Reference Value",
+        fmt::format("  {},             !-  Unit Type", unit_type),
+        "  ,                          !- External File Name",
+        "  ,                          !- External File Column Number",
+        "  ,                          !- External File Starting Row Number",
+        "  0.714286,                  !- Value 1",
+        "  1.0,",
+        "  1.2857;",
+
+        "Table:IndependentVariableList,",
+        "  SAFlow_Variables,          !- Name",
+        "  SAFlow;                    !- Independent Variable 1 Name",
+
+        "Table:Lookup,",
+        "  CoolCapModFuncOfSAFlow,    !- Name",
+        "  SAFlow_Variables,          !- Independent Variable List Name",
+        "  ,                          !- Normalization Method",
+        "  ,                          !- Normalization Divisor",
+        "  0.8234,                    !- Minimum Output",
+        "  1.1256,                    !- Maximum Output",
+        "  Dimensionless,             !- Output Unit Type",
+        "  ,                          !- External File Name",
+        "  ,                          !- External File Column Number",
+        "  ,                          !- External File Starting Row Number",
+        "  0.823403,                  !- Output Value 1",
+        "  1.0,",
+        "  1.1256;",
+    });
+
+    ASSERT_TRUE(process_idf(idf_objects));
+    EXPECT_EQ(0, state->dataCurveManager->NumCurves);
+
+    Curve::GetCurveInput(*state);
+    state->dataCurveManager->GetCurvesInputFlag = false;
+    EXPECT_TRUE(compare_err_stream("", true));
+}
+
+INSTANTIATE_TEST_SUITE_P(CurveManager,
+                         InputUnitTypeIsValid,
+                         testing::Values("", "Angle", "Dimensionless", "Distance", "MassFlow", "Power", "Temperature", "VolumetricFlow"),
+                         [](const testing::TestParamInfo<InputUnitTypeIsValid::ParamType> &info) -> std::string {
+                             if (info.param.empty()) {
+                                 return "Blank";
+                             }
+                             return std::string{info.param};
+                         });
+
+class OutputUnitTypeIsValid : public EnergyPlusFixture, public ::testing::WithParamInterface<std::string_view>
+{
+};
+TEST_P(OutputUnitTypeIsValid, TableLookup)
+{
+    const auto &unit_type = GetParam();
+
+    std::string const idf_objects = delimited_string({
+        "Table:IndependentVariable,",
+        "  SAFlow,                    !- Name",
+        "  Cubic,                     !- Interpolation Method",
+        "  Constant,                  !- Extrapolation Method",
+        "  0.714,                     !- Minimum Value",
+        "  1.2857,                    !- Maximum Value",
+        "  ,                          !- Normalization Reference Value",
+        "  Dimensionless,             !- Unit Type",
+        "  ,                          !- External File Name",
+        "  ,                          !- External File Column Number",
+        "  ,                          !- External File Starting Row Number",
+        "  0.714286,                  !- Value 1",
+        "  1.0,",
+        "  1.2857;",
+
+        "Table:IndependentVariableList,",
+        "  SAFlow_Variables,          !- Name",
+        "  SAFlow;                    !- Independent Variable 1 Name",
+
+        "Table:Lookup,",
+        "  CoolCapModFuncOfSAFlow,    !- Name",
+        "  SAFlow_Variables,          !- Independent Variable List Name",
+        "  ,                          !- Normalization Method",
+        "  ,                          !- Normalization Divisor",
+        "  0.8234,                    !- Minimum Output",
+        "  1.1256,                    !- Maximum Output",
+        fmt::format("  {},             !- Output Unit Type", unit_type),
+        "  ,                          !- External File Name",
+        "  ,                          !- External File Column Number",
+        "  ,                          !- External File Starting Row Number",
+        "  0.823403,                  !- Output Value 1",
+        "  1.0,",
+        "  1.1256;",
+    });
+
+    ASSERT_TRUE(process_idf(idf_objects));
+    EXPECT_EQ(0, state->dataCurveManager->NumCurves);
+
+    Curve::GetCurveInput(*state);
+    state->dataCurveManager->GetCurvesInputFlag = false;
+    EXPECT_TRUE(compare_err_stream("", true));
+}
+
+INSTANTIATE_TEST_SUITE_P(CurveManager,
+                         OutputUnitTypeIsValid,
+                         testing::Values("", "Capacity", "Dimensionless", "Power", "Pressure", "Temperature"),
+                         [](const testing::TestParamInfo<InputUnitTypeIsValid::ParamType> &info) -> std::string {
+                             if (info.param.empty()) {
+                                 return "Blank";
+                             }
+                             return std::string{info.param};
+                         });
