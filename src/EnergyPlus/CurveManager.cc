@@ -47,9 +47,11 @@
 
 // C++ Headers
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <limits>
 #include <string>
+#include <string_view>
 
 // ObjexxFCL Headers
 #include <ObjexxFCL/Array.functions.hh>
@@ -1480,7 +1482,7 @@ namespace Curve {
             }
 
             constexpr int NumVar = 4;
-            std::string VarNames[NumVar] = {"w", "x", "y", "z"};
+            constexpr std::array<std::string_view, NumVar> VarNames{"w", "x", "y", "z"};
             for (int i = 1; i <= NumVar; ++i) {
                 int MinIndex = 2 * i + 4;
                 int MaxIndex = MinIndex + 1;
@@ -1560,7 +1562,7 @@ namespace Curve {
             }
 
             constexpr int NumVar = 5;
-            std::string VarNames[NumVar] = {"v", "w", "x", "y", "z"};
+            constexpr std::array<std::string_view, NumVar> VarNames{"v", "w", "x", "y", "z"};
             for (int i = 1; i <= NumVar; ++i) {
                 int MinIndex = 2 * i + 5;
                 int MaxIndex = MinIndex + 1;
