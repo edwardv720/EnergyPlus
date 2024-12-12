@@ -3317,9 +3317,9 @@ namespace Sched {
                 for (int i = 0; i < Constant::iHoursInDay * s_glob->TimeStepsInHour; ++i) {
                     if (daySched->tsVals[i] == value) return true;
                 }
-                daySchedChecked[iDay] = true;
+                daySchedChecked[daySched->Num] = true;
             }
-            weekSchedChecked[iWeek] = true;
+            weekSchedChecked[weekSched->Num] = true;
         }
 
         return false;
@@ -3363,19 +3363,19 @@ namespace Sched {
         std::fill(daySchedChecked.begin(), daySchedChecked.end(), false);
         
         for (int iWeek = 1; iWeek <= 366; ++iWeek) {
-            if (weekSchedChecked[iWeek]) continue;
-
             auto const *weekSched = this->weekScheds[iWeek];
-            for (int iDay = 1; iDay < (int)DayType::Num; ++iDay) {
-                if (daySchedChecked[iDay]) continue;
+            if (weekSchedChecked[weekSched->Num]) continue;
 
+            for (int iDay = 1; iDay < (int)DayType::Num; ++iDay) {
                 auto const *daySched = weekSched->dayScheds[iDay];
+                if (daySchedChecked[daySched->Num]) continue;
+
                 for (int i = 0; i < Constant::iHoursInDay * s_glob->TimeStepsInHour; ++i) {
                     if (daySched->tsVals[i] > 0.0 && daySched->tsVals[i] < 1.0) return true;
                 }
-                daySchedChecked[iDay] = true;
+                daySchedChecked[daySched->Num] = true;
             }
-            weekSchedChecked[iWeek] = true;
+            weekSchedChecked[weekSched->Num] = true;
         }
 
         return false;
