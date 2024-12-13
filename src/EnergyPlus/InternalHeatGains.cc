@@ -731,7 +731,7 @@ namespace InternalHeatGains {
                                 }
                             }
 
-                            if (IHGAlphaFieldBlanks(10)) {
+                            if (IHGAlphas(10).empty()) { // Using IHGAlphaFieldBlanks(10) doesn't work because this value is defaulted
                             } else if ((thisPeople.clothingType = static_cast<ClothingType>(getEnumValue(clothingTypeNamesUC, IHGAlphas(10)))) ==
                                        ClothingType::Invalid) {
                                 ShowSevereInvalidKey(state, eoh, IHGAlphaFieldNames(10), IHGAlphas(10));
@@ -812,7 +812,7 @@ namespace InternalHeatGains {
                                 }
                             }
                             
-                            if (IHGAlphaFieldBlanks(21)) {
+                            if (IHGAlphas(21).empty()) { // Using IHGAlphaFieldBlanks(21) doesn't work because this field has a default
                                 thisPeople.ankleAirVelocitySched = Sched::GetScheduleAlwaysOn(state);
                             } else {
                                 thisPeople.ankleAirVelocitySched = Sched::GetSchedule(state, IHGAlphas(21));
