@@ -7532,6 +7532,7 @@ namespace SurfaceGeometry {
     void ExposedFoundationPerimeter::getData(EnergyPlusData &state, bool &ErrorsFound)
     {
 
+        static constexpr std::string_view routineName = "ExposedFoundationPerimeter::getData";    
         int IOStatus; // Used in GetObjectItem
         int NumAlphas;
         int NumNumbers;
@@ -7558,6 +7559,9 @@ namespace SurfaceGeometry {
                                                                      s_ipsc->lAlphaFieldBlanks,
                                                                      s_ipsc->cAlphaFieldNames,
                                                                      s_ipsc->cNumericFieldNames);
+
+            ErrorObjectHeader eoh {routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(alpF)};
+            
             int Found = Util::FindItemInList(s_ipsc->cAlphaArgs(alpF), state.dataSurface->Surface, state.dataSurface->TotSurfaces);
             if (Found == 0) {
                 ShowSevereError(state, format("{}=\"{}\", did not find matching surface", s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
@@ -7688,26 +7692,13 @@ namespace SurfaceGeometry {
                         ErrorsFound = true;
                     }
                     for (int segNum = 0; segNum < numRemainingFields; segNum++) {
-                        if (Util::SameString(s_ipsc->cAlphaArgs(alpF), "YES")) {
-                            data.isExposedPerimeter.push_back(true);
-                        } else if (Util::SameString(s_ipsc->cAlphaArgs(alpF), "NO")) {
-                            data.isExposedPerimeter.push_back(false);
-                        } else if (s_ipsc->lAlphaFieldBlanks(alpF)) {
-                            ShowSevereError(
-                                state,
-                                format("{}: {}, {} set as calculation method, but no value has been set for {}. Must be \"Yes\" or \"No\".",
-                                       s_ipsc->cCurrentModuleObject,
-                                       state.dataSurface->Surface(Found).Name,
-                                       calculationMethod,
-                                       s_ipsc->cAlphaFieldNames(alpF)));
+                        if (s_ipsc->lAlphaFieldBlanks(alpF)) {
+                            ShowSevereEmptyField(state, eoh, s_ipsc->cAlphaFieldNames(alpF), "Calculation Method", CalculationMethodUC[(int)calculationMethod]);
                             ErrorsFound = true;
+                        } else if (BooleanSwitch bs = getYesNoValue(s_ipsc->cAlphaArgs(alpF)); bs != BooleanSwitch::Invalid) {
+                            data.isExposedPerimeter.push_back(static_cast<bool>(bs));
                         } else {
-                            ShowSevereError(state,
-                                            format("{}: {}, {} invalid [{}]. Must be \"Yes\" or \"No\".",
-                                                   s_ipsc->cCurrentModuleObject,
-                                                   state.dataSurface->Surface(Found).Name,
-                                                   s_ipsc->cAlphaFieldNames(alpF),
-                                                   s_ipsc->cAlphaArgs(alpF)));
+                            ShowSevereInvalidBool(state, eoh, s_ipsc->cAlphaFieldNames(alpF), s_ipsc->cAlphaArgs(alpF));
                             ErrorsFound = true;
                         }
                         alpF++;
@@ -9562,25 +9553,16 @@ namespace SurfaceGeometry {
             }
 
             // Error checks
-            if (s_ipsc->cAlphaArgs(7) != "YES" && s_ipsc->cAlphaArgs(7) != "NO") { // Shading Control is Schedule field
+            if (BooleanSwitch bs = getYesNoValue(s_ipsc->cAlphaArgs(7)); bs == BooleanSwitch::Invalid) { // Shading Control is Schedule field
+                ShowSevereInvalidBool(state, eoh, s_ipsc->cAlphaFieldNames(7), s_ipsc->cAlphaArgs(7));
                 ErrorsFound = true;
-                ShowSevereError(state,
-                                format("{}=\"{}\" invalid {}=\"{}\".",
-                                       s_ipsc->cCurrentModuleObject,
-                                       windowShadingControl.Name,
-                                       s_ipsc->cAlphaFieldNames(7),
-                                       s_ipsc->cAlphaArgs(7)));
-            }
-            if (s_ipsc->cAlphaArgs(8) != "YES" && s_ipsc->cAlphaArgs(8) != "NO") { // Glare Control is Active field
-                ErrorsFound = true;
-                ShowSevereError(state,
-                                format("{}=\"{}\" invalid {}=\"{}\".",
-                                       s_ipsc->cCurrentModuleObject,
-                                       windowShadingControl.Name,
-                                       s_ipsc->cAlphaFieldNames(8),
-                                       s_ipsc->cAlphaArgs(8)));
             }
 
+            if (BooleanSwitch bs = getYesNoValue(s_ipsc->cAlphaArgs(8)); bs == BooleanSwitch::Invalid) { // Shading Control is Schedule field
+                ShowSevereInvalidBool(state, eoh, s_ipsc->cAlphaFieldNames(8), s_ipsc->cAlphaArgs(8));
+                ErrorsFound = true;
+            }
+            
             if ((windowShadingControl.shadingControlType == DataSurfaces::WindowShadingControlType::OnIfScheduled) &&
                 (!windowShadingControl.ShadingControlIsScheduled)) { // CR 7709 BG
                 ErrorsFound = true;
@@ -11237,18 +11219,10 @@ namespace SurfaceGeometry {
             }
 
             if (!s_ipsc->lAlphaFieldBlanks(3)) {
-
-                if (Util::SameString(s_ipsc->cAlphaArgs(3), "No")) {
-                    state.dataSurface->OSC(OSCNum).SinusoidalConstTempCoef = false;
-                } else if (Util::SameString(s_ipsc->cAlphaArgs(3), "Yes")) {
-                    state.dataSurface->OSC(OSCNum).SinusoidalConstTempCoef = true;
+                if (BooleanSwitch bs = getYesNoValue(s_ipsc->cAlphaArgs(3)); bs != BooleanSwitch::Invalid) {
+                    state.dataSurface->OSC(OSCNum).SinusoidalConstTempCoef = static_cast<bool>(bs);
                 } else {
-                    ShowSevereError(state,
-                                    format("{}=\"{}\", invalid {}=\"{}",
-                                           s_ipsc->cCurrentModuleObject,
-                                           s_ipsc->cAlphaArgs(1),
-                                           s_ipsc->cAlphaFieldNames(3),
-                                           s_ipsc->cAlphaArgs(3)));
+                    ShowSevereInvalidBool(state, eoh, s_ipsc->cAlphaFieldNames(3), s_ipsc->cAlphaArgs(3));
                     ErrorsFound = true;
                 }
             }
@@ -11307,44 +11281,23 @@ namespace SurfaceGeometry {
             } else {
                 s_ipsc->cAlphaArgs(1) = "N/A";
             }
-            if (state.dataSurface->OSC(Loop).constTempSched != nullptr) {
-                s_ipsc->cAlphaArgs(2) = state.dataSurface->OSC(Loop).ConstTempScheduleName;
-                constexpr std::string_view format = "Other Side Coefficients,{},{},{},{:.3R},{:.3R},{:.3R},{:.3R},{:.3R},{},{},{:.3R},{:.3R},{}\n";
-                print(state.files.eio,
-                      format,
-                      state.dataSurface->OSC(Loop).Name,
-                      s_ipsc->cAlphaArgs(1),
-                      "N/A",
-                      state.dataSurface->OSC(Loop).ConstTempCoef,
-                      state.dataSurface->OSC(Loop).ExtDryBulbCoef,
-                      state.dataSurface->OSC(Loop).GroundTempCoef,
-                      state.dataSurface->OSC(Loop).WindSpeedCoef,
-                      state.dataSurface->OSC(Loop).ZoneAirTempCoef,
-                      s_ipsc->cAlphaArgs(2),
-                      s_ipsc->cAlphaArgs(3),
-                      state.dataSurface->OSC(Loop).SinusoidPeriod,
-                      state.dataSurface->OSC(Loop).TPreviousCoef,
-                      cOSCLimitsString);
-            } else {
-                s_ipsc->cAlphaArgs(2) = "N/A";
-                constexpr std::string_view format =
-                    "Other Side Coefficients,{},{},{:.2R},{:.3R},{:.3R},{:.3R},{:.3R},{:.3R},{},{},{:.3R},{:.3R},{}\n";
-                print(state.files.eio,
-                      format,
-                      state.dataSurface->OSC(Loop).Name,
-                      s_ipsc->cAlphaArgs(1),
-                      state.dataSurface->OSC(Loop).ConstTemp,
-                      state.dataSurface->OSC(Loop).ConstTempCoef,
-                      state.dataSurface->OSC(Loop).ExtDryBulbCoef,
-                      state.dataSurface->OSC(Loop).GroundTempCoef,
-                      state.dataSurface->OSC(Loop).WindSpeedCoef,
-                      state.dataSurface->OSC(Loop).ZoneAirTempCoef,
-                      s_ipsc->cAlphaArgs(2),
-                      s_ipsc->cAlphaArgs(3),
-                      state.dataSurface->OSC(Loop).SinusoidPeriod,
-                      state.dataSurface->OSC(Loop).TPreviousCoef,
-                      cOSCLimitsString);
-            }
+
+            constexpr std::string_view format = "Other Side Coefficients,{},{},{:.2R},{:.3R},{:.3R},{:.3R},{:.3R},{:.3R},{},{},{:.3R},{:.3R},{}\n";
+            print(state.files.eio,
+                  format,
+                  state.dataSurface->OSC(Loop).Name,
+                  s_ipsc->cAlphaArgs(1),
+                  state.dataSurface->OSC(Loop).ConstTemp,
+                  state.dataSurface->OSC(Loop).ConstTempCoef,
+                  state.dataSurface->OSC(Loop).ExtDryBulbCoef,
+                  state.dataSurface->OSC(Loop).GroundTempCoef,
+                  state.dataSurface->OSC(Loop).WindSpeedCoef,
+                  state.dataSurface->OSC(Loop).ZoneAirTempCoef,
+                  (state.dataSurface->OSC(Loop).constTempSched == nullptr) ? "N/A" : state.dataSurface->OSC(Loop).constTempSched->Name,
+                  s_ipsc->cAlphaArgs(3),
+                  state.dataSurface->OSC(Loop).SinusoidPeriod,
+                  state.dataSurface->OSC(Loop).TPreviousCoef,
+                  cOSCLimitsString);
         }
     }
 

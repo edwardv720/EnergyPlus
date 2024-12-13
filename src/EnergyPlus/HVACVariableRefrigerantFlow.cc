@@ -9923,7 +9923,8 @@ void SetAverageAirFlow(EnergyPlusData &state,
     }
 
     // if the terminal unit and fan are scheduled on then set flow rate
-    if (state.dataHVACVarRefFlow->VRFTU(VRFTUNum).availSched->getCurrentVal() > 0.0 &&
+    if (state.dataHVACVarRefFlow->VRFTU(VRFTUNum).fanPlace != HVAC::FanPlace::Invalid &&
+        state.dataHVACVarRefFlow->VRFTU(VRFTUNum).availSched->getCurrentVal() > 0.0 &&
         (state.dataHVACVarRefFlow->VRFTU(VRFTUNum).fanAvailSched->getCurrentVal() > 0.0 || state.dataHVACGlobal->TurnFansOn) &&
         !state.dataHVACGlobal->TurnFansOff) {
 
