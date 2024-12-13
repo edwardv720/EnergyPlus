@@ -329,7 +329,7 @@ TEST_F(EnergyPlusFixture, SingleSpeedFluidCoolerInput_Test5)
     EXPECT_EQ(thisFluidCooler.HighSpeedFluidCoolerUA, 0.0);
 }
 
-TEST_F(EnergyPlusFixture, SizeFunctionTestWhenPlantSizingIndexIsZero)
+TEST_F(EnergyPlusFixture, FluidCooler_SizeWhenPlantSizingIndexIsZero)
 {
     int FluidCoolerNum(1);
 
