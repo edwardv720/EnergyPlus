@@ -508,3 +508,44 @@ TEST_F(EnergyPlusFixture, ExerciseTwoSpeedFluidCooler)
     state->dataPlnt->PlantLoop(pl.loopNum).LoopSide(pl.loopSideNum).FlowLock = DataPlant::FlowLock::Locked;
     ptr->simulate(*state, pl, firstHVAC, curLoad, true);
 }
+
+TEST_F(EnergyPlusFixture, FluidCooler_SizeWhenPlantSizingIndexIsZeroAndAutosized)
+{
+    // Test for #10817
+    std::string const idf_objects = delimited_string({
+        "   FluidCooler:SingleSpeed,",
+        "     Dry Cooler,              !- Name",
+        "     Dry Cooler Inlet Node,   !- Water Inlet Node Name",
+        "     Dry Cooler Outlet Node,  !- Water Outlet Node Name",
+        "     NominalCapacity,         !- Performance Input Method",
+        "     Autosize,                !- Design Air Flow Rate U-factor Times Area Value {W/K}",
+        "     58601,                   !- Nominal Capacity {W}",
+        "     50,                      !- Design Entering Water Temperature {C}",
+        "     35,                      !- Design Entering Air Temperature {C}",
+        "     25,                      !- Design Entering Air Wetbulb Temperature {C}",
+        "     Autosize,                !- Design Water Flow Rate {m3/s}",
+        "     Autosize,                !- Design Air Flow Rate {m3/s}",
+        "     Autosize;                !- Design Air Flow Rate Fan Power {W}",
+    });
+
+    ASSERT_TRUE(process_idf(idf_objects));
+
+    GetFluidCoolerInput(*state);
+    int FluidCoolerNum(1);
+
+    state->dataPlnt->PlantLoop.allocate(FluidCoolerNum);
+    state->dataPlnt->PlantLoop(FluidCoolerNum).PlantSizNum = 0;
+
+    auto &thisFluidCooler = state->dataFluidCoolers->SimpleFluidCooler(FluidCoolerNum);
+    thisFluidCooler.plantLoc.loopNum = 1;
+
+    // Necessary to trigger the crash from #
+    state->dataPlnt->PlantFirstSizesOkayToFinalize = false;
+
+    EXPECT_TRUE(thisFluidCooler.DesignWaterFlowRateWasAutoSized);
+    EXPECT_TRUE(thisFluidCooler.HighSpeedFanPowerWasAutoSized);
+    EXPECT_TRUE(thisFluidCooler.HighSpeedAirFlowRateWasAutoSized);
+    EXPECT_TRUE(thisFluidCooler.HighSpeedFluidCoolerUAWasAutoSized);
+
+    thisFluidCooler.size(*state);
+}
