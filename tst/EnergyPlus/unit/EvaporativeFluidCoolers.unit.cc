@@ -306,4 +306,47 @@ TEST_F(EnergyPlusFixture, ExerciseTwoSpeedEvapFluidCooler)
     ptr->simulate(*state, pl, firstHVAC, curLoad, true);
 }
 
+TEST_F(EnergyPlusFixture, EvapFluidCooler_SizeWhenPlantSizingIndexIsZeroAndAutosized)
+{
+    // Test for #10817
+    std::string const idf_objects = delimited_string({
+        "EvaporativeFluidcooler:SingleSpeed,",
+        "  Big EvaporativeFluidCooler,  !- Name",
+        "  Condenser EvaporativeFluidcooler Inlet Node,  !- Water Inlet Node Name",
+        "  Condenser EvaporativeFluidcooler Outlet Node,  !- Water Outlet Node Name",
+        "  Autosize,                !- Design Air Flow Rate {m3/s}",
+        "  Autosize,                !- Design Air Flow Rate Fan Power {W}",
+        "  0.002208,                !- Design Spray Water Flow Rate {m3/s}",
+        "  UFactorTimesAreaAndDesignWaterFlowRate,  !- Performance Input Method",
+        "  ,                        !- Outdoor Air Inlet Node Name",
+        "  ,                        !- Heat Rejection Capacity and Nominal Capacity Sizing Ratio",
+        "  ,                        !- Standard Design Capacity {W}",
+        "  Autosize,                !- Design Air Flow Rate U-factor Times Area Value {W/K}",
+        "  Autosize,                !- Design Water Flow Rate {m3/s}",
+        "  ,                        !- User Specified Design Capacity {W}",
+        "  46.11,                   !- Design Entering Water Temperature {C}",
+        "  35,                      !- Design Entering Air Temperature {C}",
+        "  25.6;                    !- Design Entering Air Wet-bulb Temperature {C}",
+    });
+
+    ASSERT_TRUE(process_idf(idf_objects));
+
+    EvapFluidCoolerSpecs *ptr =
+        EvapFluidCoolerSpecs::factory(*state, DataPlant::PlantEquipmentType::EvapFluidCooler_SingleSpd, "BIG EVAPORATIVEFLUIDCOOLER");
+
+    state->dataPlnt->PlantLoop.allocate(1);
+    state->dataPlnt->PlantLoop(1).PlantSizNum = 0;
+    ptr->plantLoc.loopNum = 1;
+
+    // Necessary to trigger the crash from #
+    state->dataPlnt->PlantFirstSizesOkayToFinalize = false;
+
+    EXPECT_TRUE(ptr->DesignWaterFlowRateWasAutoSized);
+    EXPECT_TRUE(ptr->HighSpeedAirFlowRateWasAutoSized);
+    EXPECT_TRUE(ptr->HighSpeedFanPowerWasAutoSized);
+    EXPECT_TRUE(ptr->HighSpeedEvapFluidCoolerUAWasAutoSized);
+
+    ptr->SizeEvapFluidCooler(*state);
+}
+
 } // namespace EnergyPlus
