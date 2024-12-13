@@ -1572,6 +1572,24 @@ void FluidCoolerspecs::size(EnergyPlusData &state)
     ErrorsFound = false;
 
     if (state.dataPlnt->PlantFinalSizesOkayToReport) {
+
+        if (this->DesignLeavingWaterTemp <= HVAC::SmallTempDiff) {
+            this->WaterTemp = this->DesignEnteringWaterTemp;       // design inlet water temperature
+            this->AirTemp = this->DesignEnteringAirTemp;           // design inlet air dry-bulb temp
+            this->AirWetBulb = this->DesignEnteringAirWetBulbTemp; // design inlet air wet-bulb temp
+            this->AirPress = state.dataEnvrn->StdBaroPress;
+            this->AirHumRat = Psychrometrics::PsyWFnTdbTwbPb(state, this->AirTemp, this->AirWetBulb, this->AirPress);
+            Real64 OutletTemp = 0;
+            rho = FluidProperties::GetDensityGlycol(state,
+                                                    state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidName,
+                                                    Constant::InitConvTemp,
+                                                    state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidIndex,
+                                                    CalledFrom);
+            CalcFluidCoolerOutlet(
+                state, this->indexInArray, rho * this->DesignWaterFlowRate, this->HighSpeedAirFlowRate, this->HighSpeedFluidCoolerUA, OutletTemp);
+            this->DesignLeavingWaterTemp = OutletTemp;
+        }
+
         // create predefined report
         OutputReportPredefined::PreDefTableEntry(
             state, state.dataOutRptPredefined->pdchMechType, this->Name, DataPlant::PlantEquipTypeNames[static_cast<int>(this->FluidCoolerType)]);
