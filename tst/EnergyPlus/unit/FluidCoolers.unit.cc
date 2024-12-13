@@ -389,10 +389,10 @@ TEST_F(EnergyPlusFixture, ExerciseSingleSpeedFluidCooler)
 
     FluidCoolerspecs *ptr = FluidCoolerspecs::factory(*state, DataPlant::PlantEquipmentType::FluidCooler_SingleSpd, "DRY COOLER");
 
-    PlantLocation pl{1, EnergyPlus::DataPlant::LoopSideLocation::Demand, 1, 1};
+    PlantLocation pl{1, EnergyPlus::DataPlant::LoopSideLocation::Supply, 1, 1};
     state->dataPlnt->PlantLoop.allocate(1);
-    state->dataPlnt->PlantLoop(1).LoopSide(EnergyPlus::DataPlant::LoopSideLocation::Demand).Branch.allocate(1);
-    state->dataPlnt->PlantLoop(1).LoopSide(EnergyPlus::DataPlant::LoopSideLocation::Demand).Branch(1).Comp.allocate(1);
+    state->dataPlnt->PlantLoop(1).LoopSide(EnergyPlus::DataPlant::LoopSideLocation::Supply).Branch.allocate(1);
+    state->dataPlnt->PlantLoop(1).LoopSide(EnergyPlus::DataPlant::LoopSideLocation::Supply).Branch(1).Comp.allocate(1);
 
     Real64 max, opt, min = 0.0;
     ptr->getDesignCapacities(*state, pl, max, min, opt);
@@ -401,9 +401,9 @@ TEST_F(EnergyPlusFixture, ExerciseSingleSpeedFluidCooler)
     EXPECT_NEAR(opt, 58601.0, 1.0);
 
     state->dataPlnt->PlantLoop(1).LoopDemandCalcScheme = DataPlant::LoopDemandCalcScheme::SingleSetPoint;
-    state->dataPlnt->PlantLoop(1).LoopSide(EnergyPlus::DataPlant::LoopSideLocation::Demand).TempSetPoint = 2.0;
-    state->dataPlnt->PlantLoop(1).LoopSide(EnergyPlus::DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).MyLoad = 1000;
-    state->dataPlnt->PlantLoop(1).LoopSide(EnergyPlus::DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).ON = true;
+    state->dataPlnt->PlantLoop(1).LoopSide(EnergyPlus::DataPlant::LoopSideLocation::Supply).TempSetPoint = 2.0;
+    state->dataPlnt->PlantLoop(1).LoopSide(EnergyPlus::DataPlant::LoopSideLocation::Supply).Branch(1).Comp(1).MyLoad = 1000;
+    state->dataPlnt->PlantLoop(1).LoopSide(EnergyPlus::DataPlant::LoopSideLocation::Supply).Branch(1).Comp(1).ON = true;
     state->dataPlnt->PlantLoop(1).MaxVolFlowRate = 3;
     state->dataPlnt->PlantLoop(1).MaxMassFlowRate = 3;
 
@@ -422,7 +422,7 @@ TEST_F(EnergyPlusFixture, ExerciseSingleSpeedFluidCooler)
     bool firstHVAC = true;
     Real64 curLoad = 0.0;
     ptr->plantLoc.loopNum = 1;
-    ptr->plantLoc.loopSideNum = EnergyPlus::DataPlant::LoopSideLocation::Demand;
+    ptr->plantLoc.loopSideNum = EnergyPlus::DataPlant::LoopSideLocation::Supply;
     ptr->plantLoc.branchNum = 1;
     ptr->plantLoc.compNum = 1;
     ptr->DesWaterMassFlowRate = 3.141;
@@ -460,10 +460,10 @@ TEST_F(EnergyPlusFixture, ExerciseTwoSpeedFluidCooler)
 
     FluidCoolerspecs *ptr = FluidCoolerspecs::factory(*state, DataPlant::PlantEquipmentType::FluidCooler_TwoSpd, "BIG FLUIDCOOLER");
 
-    PlantLocation pl{1, EnergyPlus::DataPlant::LoopSideLocation::Demand, 1, 1};
+    PlantLocation pl{1, EnergyPlus::DataPlant::LoopSideLocation::Supply, 1, 1};
     state->dataPlnt->PlantLoop.allocate(1);
-    state->dataPlnt->PlantLoop(1).LoopSide(EnergyPlus::DataPlant::LoopSideLocation::Demand).Branch.allocate(1);
-    state->dataPlnt->PlantLoop(1).LoopSide(EnergyPlus::DataPlant::LoopSideLocation::Demand).Branch(1).Comp.allocate(1);
+    state->dataPlnt->PlantLoop(1).LoopSide(EnergyPlus::DataPlant::LoopSideLocation::Supply).Branch.allocate(1);
+    state->dataPlnt->PlantLoop(1).LoopSide(EnergyPlus::DataPlant::LoopSideLocation::Supply).Branch(1).Comp.allocate(1);
 
     Real64 max, opt, min = 0.0;
     ptr->getDesignCapacities(*state, pl, max, min, opt);
@@ -472,9 +472,9 @@ TEST_F(EnergyPlusFixture, ExerciseTwoSpeedFluidCooler)
     EXPECT_NEAR(opt, 58601.0, 1.0);
 
     state->dataPlnt->PlantLoop(1).LoopDemandCalcScheme = DataPlant::LoopDemandCalcScheme::SingleSetPoint;
-    state->dataPlnt->PlantLoop(1).LoopSide(EnergyPlus::DataPlant::LoopSideLocation::Demand).TempSetPoint = 2.0;
-    state->dataPlnt->PlantLoop(1).LoopSide(EnergyPlus::DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).MyLoad = 1000;
-    state->dataPlnt->PlantLoop(1).LoopSide(EnergyPlus::DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).ON = true;
+    state->dataPlnt->PlantLoop(1).LoopSide(EnergyPlus::DataPlant::LoopSideLocation::Supply).TempSetPoint = 2.0;
+    state->dataPlnt->PlantLoop(1).LoopSide(EnergyPlus::DataPlant::LoopSideLocation::Supply).Branch(1).Comp(1).MyLoad = 1000;
+    state->dataPlnt->PlantLoop(1).LoopSide(EnergyPlus::DataPlant::LoopSideLocation::Supply).Branch(1).Comp(1).ON = true;
     state->dataPlnt->PlantLoop(1).MaxVolFlowRate = 3;
     state->dataPlnt->PlantLoop(1).MaxMassFlowRate = 3;
 
@@ -493,7 +493,7 @@ TEST_F(EnergyPlusFixture, ExerciseTwoSpeedFluidCooler)
     bool firstHVAC = true;
     Real64 curLoad = 0.0;
     ptr->plantLoc.loopNum = 1;
-    ptr->plantLoc.loopSideNum = EnergyPlus::DataPlant::LoopSideLocation::Demand;
+    ptr->plantLoc.loopSideNum = EnergyPlus::DataPlant::LoopSideLocation::Supply;
     ptr->plantLoc.branchNum = 1;
     ptr->plantLoc.compNum = 1;
     ptr->DesWaterMassFlowRate = 3.141;
