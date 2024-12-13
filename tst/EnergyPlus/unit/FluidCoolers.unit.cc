@@ -360,6 +360,7 @@ TEST_F(EnergyPlusFixture, SizeFunctionTestWhenPlantSizingIndexIsZero)
     state->dataFluidCoolers->SimpleFluidCooler(FluidCoolerNum).plantLoc.loopNum = 1;
     state->dataPlnt->PlantLoop(FluidCoolerNum).PlantSizNum = 0;
 
+    EXPECT_EQ("DRY COOLER", thisFluidCooler.Name);
     EXPECT_FALSE(thisFluidCooler.HighSpeedFanPowerWasAutoSized);
     EXPECT_FALSE(thisFluidCooler.HighSpeedAirFlowRateWasAutoSized);
     EXPECT_FALSE(thisFluidCooler.HighSpeedFluidCoolerUAWasAutoSized);
