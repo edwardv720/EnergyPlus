@@ -808,7 +808,7 @@ void GetRefrigerationInput(EnergyPlusData &state)
                 RefrigCase(CaseNum).LightingPower = RefrigCase(CaseNum).RatedLightingPower;
             } // blank input
 
-            if (!lAlphaBlanks(6)) {
+            if (lAlphaBlanks(6)) {
                 RefrigCase(CaseNum).lightingSched = Sched::GetScheduleAlwaysOn(state);
             } else if ((RefrigCase(CaseNum).lightingSched = Sched::GetSchedule(state, Alphas(6))) == nullptr) { 
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(6), Alphas(6));

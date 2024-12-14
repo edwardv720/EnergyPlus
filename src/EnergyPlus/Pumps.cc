@@ -328,9 +328,10 @@ void GetPumpInput(EnergyPlusData &state)
         }
 
         // Input the optional schedule for the pump
-        if (thisInput->lAlphaFieldBlanks(5)) {
+        if (thisInput->cAlphaArgs(5).empty()) {
+            thisPump.sched = Sched::GetScheduleAlwaysOff(state);
         } else if ((thisPump.sched = Sched::GetSchedule(state, thisInput->cAlphaArgs(5))) == nullptr) {
-            ShowWarningItemNotFound(state, eoh, thisInput->cAlphaFieldNames(5),  thisInput->cAlphaArgs(1), "");
+            ShowWarningItemNotFound(state, eoh, thisInput->cAlphaFieldNames(5),  thisInput->cAlphaArgs(5), "");
         }
 
         thisPump.NomVolFlowRate = thisInput->rNumericArgs(1);
