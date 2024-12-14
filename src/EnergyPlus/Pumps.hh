@@ -133,7 +133,7 @@ namespace Pumps {
         DataPlant::PlantEquipmentType TypeOf_Num = DataPlant::PlantEquipmentType::Invalid; // pump type of number in reference to the dataplant values
         PlantLocation plantLoc = {0, DataPlant::LoopSideLocation::Invalid, 0, 0};
         PumpControlType PumpControl = PumpControlType::Invalid;            // Integer equivalent of PumpControlType
-        Sched::Schedule *sched = nullptr;                                         // Schedule // availabilty?
+        Sched::Schedule *flowRateSched = nullptr;                          // Flow rate modifier schedule, blank/missing --> AlwaysOn
         int InletNodeNum = 0;                                              // Node number on the inlet side of the plant
         int OutletNodeNum = 0;                                             // Node number on the outlet side of the plant
         PumpBankControlSeq SequencingScheme = PumpBankControlSeq::Invalid; // Optimal, Sequential, User-Defined

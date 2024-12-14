@@ -327,11 +327,12 @@ void GetPumpInput(EnergyPlusData &state)
             thisPump.PumpControl = PumpControlType::Continuous;
         }
 
-        // Input the optional schedule for the pump
+        // Input the optional schedule for the pump, this is a flow modifier schedule so blank/missing means Always On.
         if (thisInput->cAlphaArgs(5).empty()) {
-            thisPump.sched = Sched::GetScheduleAlwaysOff(state);
-        } else if ((thisPump.sched = Sched::GetSchedule(state, thisInput->cAlphaArgs(5))) == nullptr) {
-            ShowWarningItemNotFound(state, eoh, thisInput->cAlphaFieldNames(5),  thisInput->cAlphaArgs(5), "");
+            thisPump.flowRateSched = Sched::GetScheduleAlwaysOn(state);
+        } else if ((thisPump.flowRateSched = Sched::GetSchedule(state, thisInput->cAlphaArgs(5))) == nullptr) {
+            ShowWarningItemNotFound(state, eoh, thisInput->cAlphaFieldNames(5), thisInput->cAlphaArgs(5), "");
+            thisPump.flowRateSched = Sched::GetScheduleAlwaysOn(state);
         }
 
         thisPump.NomVolFlowRate = thisInput->rNumericArgs(1);
@@ -603,9 +604,10 @@ void GetPumpInput(EnergyPlusData &state)
 
         // Input the optional schedule for the pump
         if (thisInput->lAlphaFieldBlanks(5)) {
-            thisPump.sched = Sched::GetScheduleAlwaysOff(state);
-        } else if ((thisPump.sched = Sched::GetSchedule(state, thisInput->cAlphaArgs(5))) == nullptr) {
+            thisPump.flowRateSched = Sched::GetScheduleAlwaysOff(state);
+        } else if ((thisPump.flowRateSched = Sched::GetSchedule(state, thisInput->cAlphaArgs(5))) == nullptr) {
             ShowWarningItemNotFound(state, eoh, thisInput->cAlphaFieldNames(5), thisInput->cAlphaArgs(5), "");
+            thisPump.flowRateSched = Sched::GetScheduleAlwaysOn(state);
         }
 
         // Input pressure related data such as pressure curve and impeller size/rotational speed
@@ -700,6 +702,8 @@ void GetPumpInput(EnergyPlusData &state)
                                                                  thisInput->cAlphaFieldNames,
                                                                  thisInput->cNumericFieldNames);
 
+        ErrorObjectHeader eoh{routineName, cCurrentModuleObject, thisInput->cAlphaArgs(1)};
+        
         GlobalNames::VerifyUniqueInterObjectName(
             state, state.dataPumps->PumpUniqueNames, thisInput->cAlphaArgs(1), cCurrentModuleObject, thisInput->cAlphaFieldNames(1), ErrorsFound);
         thisPump.Name = thisInput->cAlphaArgs(1);
@@ -730,13 +734,11 @@ void GetPumpInput(EnergyPlusData &state)
         thisPump.PumpControl = PumpControlType::Intermittent;
 
         // Input the optional schedule for the pump
-        if (thisInput->lAlphaFieldBlanks(4)) { 
-            thisPump.sched = Sched::GetSchedule(state, thisInput->cAlphaArgs(4));
-            if (thisPump.sched != nullptr) {
-                ShowWarningError(state,
-                                 format("{}{}=\"{}\", Invalid {}", RoutineName, cCurrentModuleObject, thisPump.Name, thisInput->cAlphaFieldNames(4)));
-                ShowContinueError(state, format("Schedule named =[{}]. was not found and will not be used.", thisInput->cAlphaArgs(4)));
-            }
+        if (thisInput->cAlphaArgs(4).empty()) {
+            thisPump.flowRateSched = Sched::GetScheduleAlwaysOn(state);
+        } else if ((thisPump.flowRateSched = Sched::GetSchedule(state, thisInput->cAlphaArgs(4))) == nullptr) {
+            ShowWarningItemNotFound(state, eoh, thisInput->cAlphaFieldNames(4), thisInput->cAlphaArgs(4)); 
+            thisPump.flowRateSched = Sched::GetScheduleAlwaysOn(state);
         }
 
         thisPump.NomSteamVolFlowRate = thisInput->rNumericArgs(1);
@@ -833,6 +835,8 @@ void GetPumpInput(EnergyPlusData &state)
                                                                  thisInput->cAlphaFieldNames,
                                                                  thisInput->cNumericFieldNames);
 
+        ErrorObjectHeader eoh{routineName, cCurrentModuleObject, thisInput->cAlphaArgs(1)};
+
         GlobalNames::VerifyUniqueInterObjectName(
             state, state.dataPumps->PumpUniqueNames, thisInput->cAlphaArgs(1), cCurrentModuleObject, thisInput->cAlphaFieldNames(1), ErrorsFound);
         thisPump.Name = thisInput->cAlphaArgs(1);
@@ -886,13 +890,11 @@ void GetPumpInput(EnergyPlusData &state)
         }
 
         // Input the optional schedule for the pump
-        if (!thisInput->cAlphaArgs(6).empty()) { // Initialized to zero, don't get a schedule for an empty
-            thisPump.sched = Sched::GetSchedule(state, thisInput->cAlphaArgs(6));
-            if (thisPump.sched != nullptr) {
-                ShowWarningError(state,
-                                 format("{}{}=\"{}\", Invalid {}", RoutineName, cCurrentModuleObject, thisPump.Name, thisInput->cAlphaFieldNames(6)));
-                ShowContinueError(state, format("Schedule named =[{}]. was not found and will not be used.", thisInput->cAlphaArgs(6)));
-            }
+        if (thisInput->cAlphaArgs(6).empty()) { // Initialized to zero, don't get a schedule for an empty
+            thisPump.flowRateSched = Sched::GetScheduleAlwaysOn(state);
+        } else if ((thisPump.flowRateSched = Sched::GetSchedule(state, thisInput->cAlphaArgs(6))) == nullptr) {
+            ShowWarningItemNotFound(state, eoh, thisInput->cAlphaFieldNames(6), thisInput->cAlphaArgs(6));
+            thisPump.flowRateSched = Sched::GetScheduleAlwaysOn(state);
         }
 
         thisPump.NomVolFlowRate = thisInput->rNumericArgs(1);
@@ -1035,8 +1037,10 @@ void GetPumpInput(EnergyPlusData &state)
 
         // Input the optional schedule for the pump
         if (thisInput->lAlphaFieldBlanks(6)) {
-        } else if ((thisPump.sched = Sched::GetSchedule(state, thisInput->cAlphaArgs(6))) == nullptr) { 
+            thisPump.flowRateSched = Sched::GetScheduleAlwaysOn(state);
+        } else if ((thisPump.flowRateSched = Sched::GetSchedule(state, thisInput->cAlphaArgs(6))) == nullptr) { 
             ShowWarningItemNotFound(state, eoh, thisInput->cAlphaFieldNames(6), thisInput->cAlphaArgs(6), "");
+            thisPump.flowRateSched = Sched::GetScheduleAlwaysOn(state);
         }
 
         thisPump.NomVolFlowRate = thisInput->rNumericArgs(1);
@@ -1602,12 +1606,8 @@ void SetupPumpMinMaxFlows(EnergyPlusData &state, int const LoopNum, int const Pu
     InletNodeMin = thisInNode.MassFlowRateMinAvail;
 
     // Retrive the pump speed fraction from the pump schedule
-    if (thisPump.sched != nullptr) {
-        PumpSchedFraction = thisPump.sched->getCurrentVal();
-        PumpSchedFraction = BoundValueToWithinTwoValues(PumpSchedFraction, 0.0, 1.0);
-    } else {
-        PumpSchedFraction = 1.0;
-    }
+    PumpSchedFraction = thisPump.flowRateSched->getCurrentVal();
+    PumpSchedFraction = std::clamp(PumpSchedFraction, 0.0, 1.0);
 
     // User specified min/max mass flow rates for pump
     PumpOverridableMaxLimit = thisPump.MassFlowRateMax;
