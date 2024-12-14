@@ -190,7 +190,7 @@ namespace Sched {
         return false;
     } // ScheduleDay::checkValsForBadIntegers()
         
-    void DaySchedule::populateFromMinuteVals(EnergyPlusData &state, std::vector<Real64> const &minuteVals)
+    void DaySchedule::populateFromMinuteVals(EnergyPlusData &state, std::array<Real64, Constant::iMinutesInDay> const &minuteVals)
     {
        auto &s_glob = state.dataGlobal;
        if (this->interpolation == Interpolation::Average) {
@@ -342,12 +342,9 @@ namespace Sched {
         std::string CFld; // Character field for error message
         //  CHARACTER(len=20) CFld1        ! Character field for error message
         
-        std::vector<Real64> minuteVals;
-        std::vector<bool> setMinuteVals;
+        std::array<Real64, Constant::iMinutesInDay> minuteVals;
+        std::array<bool, Constant::iMinutesInDay> setMinuteVals;
 
-        minuteVals.resize(Constant::iMinutesInDay);
-        setMinuteVals.resize(Constant::iMinutesInDay);
-        
         int NumFields;
         //  LOGICAL RptSchedule
 
@@ -2641,8 +2638,8 @@ namespace Sched {
                                Array1S<Real64> const Numbers,
                                int const NumUntils,
                                int const NumNumbers,
-                               std::vector<Real64> &minuteVals,
-                               std::vector<bool> &setMinuteVals,
+                               std::array<Real64, Constant::iMinutesInDay> &minuteVals,
+                               std::array<bool, Constant::iMinutesInDay> &setMinuteVals,
                                bool &ErrorsFound,
                                std::string const &DayScheduleName,     // Name (used for errors)
                                std::string const &ErrContext,          // Context (used for errors)

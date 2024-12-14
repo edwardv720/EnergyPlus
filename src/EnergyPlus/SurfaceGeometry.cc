@@ -11282,12 +11282,11 @@ namespace SurfaceGeometry {
                 s_ipsc->cAlphaArgs(1) = "N/A";
             }
 
-            constexpr std::string_view format = "Other Side Coefficients,{},{},{:.2R},{:.3R},{:.3R},{:.3R},{:.3R},{:.3R},{},{},{:.3R},{:.3R},{}\n";
             print(state.files.eio,
-                  format,
+                  "Other Side Coefficients,{},{},{},{:.3R},{:.3R},{:.3R},{:.3R},{:.3R},{},{},{:.3R},{:.3R},{}\n",
                   state.dataSurface->OSC(Loop).Name,
                   s_ipsc->cAlphaArgs(1),
-                  state.dataSurface->OSC(Loop).ConstTemp,
+                  (state.dataSurface->OSC(Loop).constTempSched != nullptr) ? "N/A" : format("{:.2R}", state.dataSurface->OSC(Loop).ConstTemp),
                   state.dataSurface->OSC(Loop).ConstTempCoef,
                   state.dataSurface->OSC(Loop).ExtDryBulbCoef,
                   state.dataSurface->OSC(Loop).GroundTempCoef,

@@ -746,11 +746,15 @@ namespace InternalHeatGains {
                                     thisPeople.clothingSched = Sched::GetSchedule(state, IHGAlphas(12));
                                     if (Item1 == 1) {
                                         if (IHGAlphaFieldBlanks(12)) {
-                                            ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(12), IHGAlphaFieldNames(10), IHGAlphas(10));
-                                            ErrorsFound = true;
+                                            if (ModelWithAdditionalInputs) {
+                                                ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(12), IHGAlphaFieldNames(10), IHGAlphas(10));
+                                                ErrorsFound = true;
+                                            }
                                         } else if (thisPeople.clothingSched == nullptr) {
-                                            ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(12), IHGAlphas(12));
-                                            ErrorsFound = true;
+                                            if (ModelWithAdditionalInputs) {
+                                                ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(12), IHGAlphas(12));
+                                                ErrorsFound = true;
+                                            }
                                         } else if (!thisPeople.clothingSched->checkMinVal(state, Clusive::In, 0.0)) {
                                             Sched::ShowSevereBadMin(state, eoh, IHGAlphaFieldNames(12), IHGAlphas(12), Clusive::In, 0.0);
                                             ErrorsFound = true;

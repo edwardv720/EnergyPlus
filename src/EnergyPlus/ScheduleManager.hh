@@ -218,7 +218,7 @@ namespace Sched {
             
         bool checkValsForLimitViolations(EnergyPlusData &state) const;
         bool checkValsForBadIntegers(EnergyPlusData &state) const;
-        void populateFromMinuteVals(EnergyPlusData &state, std::vector<Real64> const &minuteVals);
+        void populateFromMinuteVals(EnergyPlusData &state, std::array<Real64, Constant::iMinutesInDay> const &minuteVals);
         std::vector<Real64> const &getDayVals([[maybe_unused]] EnergyPlusData &state, int jDay = -1, int dayOfWeek = -1) { return tsVals; }
         void setMinMaxVals(EnergyPlusData &state);
     };
@@ -371,8 +371,8 @@ namespace Sched {
                                Array1S<Real64> const Numbers,
                                int const NumUntils,
                                int const NumNumbers,
-                               std::vector<Real64> &minuteVals,
-                               std::vector<bool> &setMinuteVals,
+                               std::array<Real64, Constant::iMinutesInDay> &minuteVals,
+                               std::array<bool, Constant::iMinutesInDay> &setMinuteVals,
                                bool &ErrorsFound,
                                std::string const &DayScheduleName,     // Name (used for errors)
                                std::string const &ErrContext,          // Context (used for errors)
