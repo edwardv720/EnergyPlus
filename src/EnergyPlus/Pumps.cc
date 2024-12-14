@@ -604,7 +604,7 @@ void GetPumpInput(EnergyPlusData &state)
 
         // Input the optional schedule for the pump
         if (thisInput->lAlphaFieldBlanks(5)) {
-            thisPump.flowRateSched = Sched::GetScheduleAlwaysOff(state);
+            thisPump.flowRateSched = Sched::GetScheduleAlwaysOn(state);
         } else if ((thisPump.flowRateSched = Sched::GetSchedule(state, thisInput->cAlphaArgs(5))) == nullptr) {
             ShowWarningItemNotFound(state, eoh, thisInput->cAlphaFieldNames(5), thisInput->cAlphaArgs(5), "");
             thisPump.flowRateSched = Sched::GetScheduleAlwaysOn(state);
