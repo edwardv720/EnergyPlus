@@ -1017,7 +1017,7 @@ namespace CondenserLoopTowers {
                 state, UniqueSimpleTowerNames, AlphArray(1), cCurrentModuleObject, state.dataIPShortCut->cAlphaFieldNames(1), ErrorsFound);
 
             auto &tower = state.dataCondenserLoopTowers->towers(TowerNum);
-            tower.VSTower = VariableSpeedTowerNumber;
+            tower.VSTower = TowerNum;
             tower.Name = AlphArray(1);
             tower.TowerType = DataPlant::PlantEquipmentType::CoolingTower_VarSpd;
             tower.WaterInletNodeNum = NodeInputManager::GetOnlySingleNode(state,
