@@ -249,7 +249,7 @@ namespace Sched {
 
         virtual ~Schedule() {};
 
-        Real64 getCurrentVal() const { return currentVal; }
+        Real64 getCurrentVal() const { return EMSActuatedOn ? EMSVal : currentVal; }
 
         // Looks up a given Schedule value for an hour & timestep, minding whether DST is enabled or not
         // Negative ts => unspecified, will use TimeStepsInHour

@@ -578,11 +578,11 @@ void GetElecReformEIRChillerInput(EnergyPlusData &state)
                 thisChiller.HeatRecCapacityFraction = 1.0;
             }
 
-            if (NumAlphas > 12 && !s_ipsc->lAlphaFieldBlanks(13)) {
-                if ((thisChiller.heatRecInletLimitSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(13))) == nullptr) {
-                    ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(13), s_ipsc->cAlphaArgs(13));
-                    ErrorsFound = true;
-                }
+            if (NumAlphas <= 12 || s_ipsc->lAlphaFieldBlanks(13)) {
+                thisChiller.heatRecInletLimitSched = nullptr; // Ok for this to be nullptr
+            } else if ((thisChiller.heatRecInletLimitSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(13))) == nullptr) {
+                ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(13), s_ipsc->cAlphaArgs(13));
+                ErrorsFound = true;
             }
 
             if (NumAlphas > 13) {
@@ -650,10 +650,10 @@ void GetElecReformEIRChillerInput(EnergyPlusData &state)
             ErrorsFound = true;
         }
 
-        if (NumAlphas > 17 && !s_ipsc->lAlphaFieldBlanks(18)) {
-            thisChiller.condDTSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(18));
-        }
-        if (thisChiller.condDTSched == nullptr && thisChiller.CondenserFlowControl == DataPlant::CondenserFlowControl::ModulatedDeltaTemperature) {
+        if (NumAlphas < 17 || s_ipsc->lAlphaFieldBlanks(18)) {
+            thisChiller.condDTSched = nullptr; // ok for this to be nullptr
+        } else if (((thisChiller.condDTSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(18))) == nullptr) && 
+                   thisChiller.CondenserFlowControl == DataPlant::CondenserFlowControl::ModulatedDeltaTemperature) {
             ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(18), s_ipsc->cAlphaArgs(18));
             ErrorsFound = true;
         }

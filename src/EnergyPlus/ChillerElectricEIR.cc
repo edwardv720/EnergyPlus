@@ -611,11 +611,11 @@ void GetElectricEIRChillerInput(EnergyPlusData &state)
                 thisChiller.HeatRecCapacityFraction = 1.0;
             }
 
-            if (NumAlphas > 13 && !s_ipsc->lAlphaFieldBlanks(14)) {
-                if ((thisChiller.heatRecInletLimitSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(14))) == nullptr) {
-                    ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(14), s_ipsc->cAlphaArgs(14));
-                    ErrorsFound = true;
-                }
+            if (NumAlphas <= 13 || s_ipsc->lAlphaFieldBlanks(14)) {
+                thisChiller.heatRecInletLimitSched = nullptr; // Ok for this schedule to remain null if field is empty
+            } else if ((thisChiller.heatRecInletLimitSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(14))) == nullptr) {
+                ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(14), s_ipsc->cAlphaArgs(14));
+                ErrorsFound = true;
             } 
 
             if (NumAlphas > 14) {
@@ -676,10 +676,10 @@ void GetElectricEIRChillerInput(EnergyPlusData &state)
             ErrorsFound = true;
         }
 
-        if (NumAlphas > 18 && !s_ipsc->lAlphaFieldBlanks(19)) {
-            thisChiller.condDTSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(19));
-        }
-        if (thisChiller.condDTSched == nullptr && thisChiller.CondenserFlowControl == DataPlant::CondenserFlowControl::ModulatedDeltaTemperature) {
+        if (NumAlphas <= 18 || s_ipsc->lAlphaFieldBlanks(19)) {
+            thisChiller.condDTSched = nullptr; // Okay for this schedule to remain nullptr if field is empty
+        } else if (((thisChiller.condDTSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(19))) == nullptr) && 
+                   thisChiller.CondenserFlowControl == DataPlant::CondenserFlowControl::ModulatedDeltaTemperature) {
             ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(19), s_ipsc->cAlphaArgs(19));
             ErrorsFound = true;
         }
