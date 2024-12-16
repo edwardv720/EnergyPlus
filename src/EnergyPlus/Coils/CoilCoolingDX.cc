@@ -70,6 +70,7 @@
 #include <EnergyPlus/ReportCoilSelection.hh>
 #include <EnergyPlus/ScheduleManager.hh>
 #include <EnergyPlus/SimAirServingZones.hh>
+#include <EnergyPlus/StandardRatings.hh>
 #include <EnergyPlus/WaterManager.hh>
 
 using namespace EnergyPlus;
@@ -1047,19 +1048,7 @@ void CoilCoolingDX::reportAllStandardRatings(EnergyPlusData &state)
             } else {
                 OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchDXCoolCoilIEERIP, coil.name, "N/A");
             }
-            OutputReportPredefined::addFootNoteSubTable(
-                state,
-                state.dataOutRptPredefined->pdstDXCoolCoil,
-                "ANSI/AHRI ratings account for supply air fan heat and electric power. <br/>"
-                "1 - EnergyPlus object type. <br/>"
-                "2 - Capacity less than 65K Btu/h (19050 W) - calculated as per AHRI Standard 210/240-2017. <br/>"
-                "&emsp;&nbsp;Capacity of 65K Btu/h (19050 W) to less than 135K Btu/h (39565 W) - calculated as per AHRI Standard 340/360-2007. "
-                "<br/>"
-                "&emsp;&nbsp;Capacity from 135K (39565 W) to 250K Btu/hr (73268 W) - calculated as per AHRI Standard 365-2009 - Ratings not yet "
-                "supported in EnergyPlus. <br/>"
-                "3 - SEER (User) is calculated using user-input PLF curve and cooling coefficient of degradation. <br/>"
-                "&emsp;&nbsp;SEER (Standard) is calculated using the default PLF curve and cooling coefficient of degradation"
-                "from the appropriate AHRI standard.");
+            OutputReportPredefined::addFootNoteSubTable(state, state.dataOutRptPredefined->pdstDXCoolCoil, StandardRatings::AHRI2017FOOTNOTE);
 
             // AHRI 2023 Standard SEER2 Calculations
             if (state.dataHVACGlobal->StandardRatingsMyCoolOneTimeFlag2) {
@@ -1125,20 +1114,7 @@ void CoilCoolingDX::reportAllStandardRatings(EnergyPlusData &state)
             } else {
                 OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchDXCoolCoilIEERIP_2023, coil.name, "N/A");
             }
-            OutputReportPredefined::addFootNoteSubTable(
-                state,
-                state.dataOutRptPredefined->pdstDXCoolCoil_2023,
-                "ANSI/AHRI ratings account for supply air fan heat and electric power. <br/>"
-                "1 - EnergyPlus object type. <br/>"
-                "2 - Capacity less than 65K Btu/h (19050 W) - calculated as per AHRI Standard 210/240-2023. <br/>"
-                "&emsp;&nbsp;Capacity of 65K Btu/h (19050 W) to less than 135K Btu/h (39565 W) - calculated as per AHRI Standard 340/360-2022. "
-                "<br/>"
-                "&emsp;&nbsp;Capacity from 135K (39565 W) to 250K Btu/hr (73268 W) - calculated as per AHRI Standard 365-2009 - Ratings not yet "
-                "supported in EnergyPlus. <br/>"
-                "3 - SEER2 (User) is calculated using user-input PLF curve and cooling coefficient of degradation. <br/>"
-                "&emsp;&nbsp;SEER2 (Standard) is calculated using the default PLF curve and cooling coefficient of degradation"
-                "from the appropriate AHRI standard. <br/>"
-                "4 - Value for the Full Speed of the coil.");
+            OutputReportPredefined::addFootNoteSubTable(state, state.dataOutRptPredefined->pdstDXCoolCoil_2023, StandardRatings::AHRI2023FOOTNOTE);
         }
     }
     state.dataCoilCooingDX->stillNeedToReportStandardRatings = false;
