@@ -3418,6 +3418,7 @@ void GetVRFInputData(EnergyPlusData &state, bool &ErrorsFound)
 
         } else {
             thisVrfTU.fanPlace = HVAC::FanPlace::Invalid; // reset fan placement when fan is not used so as not to call the fan
+            thisVrfTU.fanAvailSched = Sched::GetScheduleAlwaysOn(state); // A missing fan is the same as a fan that is always on for availability purposes
         }
 
         // Get OA mixer data
@@ -9853,85 +9854,67 @@ void SetAverageAirFlow(EnergyPlusData &state,
     // PURPOSE OF THIS SUBROUTINE:
     // Set the average air mass flow rates using the part load fraction of the heat pump for this time step
     // Set OnOffAirFlowRatio to be used by DX coils
-
+    auto &s_vrf = state.dataHVACVarRefFlow;
+    auto &vrfTu = s_vrf->VRFTU(VRFTUNum);
+    
     int InletNode;                   // inlet node number
     int OutsideAirNode;              // outside air node number
     int AirRelNode;                  // relief air node number
     Real64 AverageUnitMassFlow(0.0); // average supply air mass flow rate over time step
     Real64 AverageOAMassFlow(0.0);   // average outdoor air mass flow rate over time step
 
-    InletNode = state.dataHVACVarRefFlow->VRFTU(VRFTUNum).VRFTUInletNodeNum;
-    OutsideAirNode = state.dataHVACVarRefFlow->VRFTU(VRFTUNum).VRFTUOAMixerOANodeNum;
-    AirRelNode = state.dataHVACVarRefFlow->VRFTU(VRFTUNum).VRFTUOAMixerRelNodeNum;
+    InletNode = vrfTu.VRFTUInletNodeNum;
+    OutsideAirNode = vrfTu.VRFTUOAMixerOANodeNum;
+    AirRelNode = vrfTu.VRFTUOAMixerRelNodeNum;
 
-    if (state.dataHVACVarRefFlow->VRFTU(VRFTUNum).fanOp == HVAC::FanOp::Cycling && state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SpeedNum == 0) {
+    if (vrfTu.fanOp == HVAC::FanOp::Cycling && vrfTu.SpeedNum == 0) {
         Real64 partLoadRat = PartLoadRatio;
-        if (partLoadRat == 0.0 && state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatPartLoadRatio > 0.0) {
-            partLoadRat = state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatPartLoadRatio;
+        if (partLoadRat == 0.0 && vrfTu.SuppHeatPartLoadRatio > 0.0) {
+            partLoadRat = vrfTu.SuppHeatPartLoadRatio;
         }
-        AverageUnitMassFlow =
-            (partLoadRat * state.dataHVACVarRefFlow->CompOnMassFlow) + ((1 - partLoadRat) * state.dataHVACVarRefFlow->CompOffMassFlow);
-        AverageOAMassFlow =
-            (partLoadRat * state.dataHVACVarRefFlow->OACompOnMassFlow) + ((1 - partLoadRat) * state.dataHVACVarRefFlow->OACompOffMassFlow);
-    } else {
-        if (state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SpeedNum == 0) {
-            if (PartLoadRatio == 0.0) {
-                // set the average OA air flow to off compressor values if the compressor PartLoadRatio is zero
-                AverageUnitMassFlow = state.dataHVACVarRefFlow->CompOffMassFlow;
-                AverageOAMassFlow = state.dataHVACVarRefFlow->OACompOffMassFlow;
-            } else {
-                AverageUnitMassFlow = state.dataHVACVarRefFlow->CompOnMassFlow;
-                AverageOAMassFlow = state.dataHVACVarRefFlow->OACompOnMassFlow;
-            }
+        AverageUnitMassFlow = (partLoadRat * s_vrf->CompOnMassFlow) + ((1 - partLoadRat) * s_vrf->CompOffMassFlow);
+        AverageOAMassFlow = (partLoadRat * s_vrf->OACompOnMassFlow) + ((1 - partLoadRat) * s_vrf->OACompOffMassFlow);
+    } else if (vrfTu.SpeedNum == 0) {
+        if (PartLoadRatio == 0.0) {
+            // set the average OA air flow to off compressor values if the compressor PartLoadRatio is zero
+            AverageUnitMassFlow = s_vrf->CompOffMassFlow;
+            AverageOAMassFlow = s_vrf->OACompOffMassFlow;
         } else {
-            if (state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SpeedNum == 1) {
-                if (state.dataHVACVarRefFlow->CoolingLoad(state.dataHVACVarRefFlow->VRFTU(VRFTUNum).VRFSysNum)) {
-                    AverageUnitMassFlow =
-                        state.dataHVACVarRefFlow->VRFTU(VRFTUNum).CoolMassFlowRate[state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SpeedNum] *
-                            PartLoadRatio +
-                        (1.0 - PartLoadRatio) * state.dataHVACVarRefFlow->CompOffMassFlow;
-                } else if (state.dataHVACVarRefFlow->HeatingLoad(state.dataHVACVarRefFlow->VRFTU(VRFTUNum).VRFSysNum)) {
-                    AverageUnitMassFlow =
-                        state.dataHVACVarRefFlow->VRFTU(VRFTUNum).HeatMassFlowRate[state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SpeedNum] *
-                            PartLoadRatio +
-                        (1.0 - PartLoadRatio) * state.dataHVACVarRefFlow->CompOffMassFlow;
-                }
-            } else {
-                if (state.dataHVACVarRefFlow->CoolingLoad(state.dataHVACVarRefFlow->VRFTU(VRFTUNum).VRFSysNum)) {
-                    AverageUnitMassFlow =
-                        state.dataHVACVarRefFlow->VRFTU(VRFTUNum).CoolMassFlowRate[state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SpeedNum] *
-                            PartLoadRatio +
-                        (1.0 - PartLoadRatio) *
-                            state.dataHVACVarRefFlow->VRFTU(VRFTUNum).CoolMassFlowRate[state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SpeedNum - 1];
-                } else if (state.dataHVACVarRefFlow->HeatingLoad(state.dataHVACVarRefFlow->VRFTU(VRFTUNum).VRFSysNum)) {
-                    AverageUnitMassFlow =
-                        state.dataHVACVarRefFlow->VRFTU(VRFTUNum).HeatMassFlowRate[state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SpeedNum] *
-                            PartLoadRatio +
-                        (1.0 - PartLoadRatio) *
-                            state.dataHVACVarRefFlow->VRFTU(VRFTUNum).HeatMassFlowRate[state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SpeedNum - 1];
-                }
-            }
+            AverageUnitMassFlow = s_vrf->CompOnMassFlow;
+            AverageOAMassFlow = s_vrf->OACompOnMassFlow;
         }
+    } else if (vrfTu.SpeedNum == 1) {
+        if (s_vrf->CoolingLoad(vrfTu.VRFSysNum)) {
+            AverageUnitMassFlow = vrfTu.CoolMassFlowRate[vrfTu.SpeedNum] * PartLoadRatio + (1.0 - PartLoadRatio) * s_vrf->CompOffMassFlow;
+        } else if (s_vrf->HeatingLoad(vrfTu.VRFSysNum)) {
+            AverageUnitMassFlow = vrfTu.HeatMassFlowRate[vrfTu.SpeedNum] * PartLoadRatio + (1.0 - PartLoadRatio) * s_vrf->CompOffMassFlow;
+        }
+    } else if (s_vrf->CoolingLoad(vrfTu.VRFSysNum)) {
+        AverageUnitMassFlow = vrfTu.CoolMassFlowRate[vrfTu.SpeedNum] * PartLoadRatio +
+                (1.0 - PartLoadRatio) * vrfTu.CoolMassFlowRate[vrfTu.SpeedNum - 1];
+    } else if (s_vrf->HeatingLoad(vrfTu.VRFSysNum)) {
+        AverageUnitMassFlow = vrfTu.HeatMassFlowRate[vrfTu.SpeedNum] * PartLoadRatio +
+                (1.0 - PartLoadRatio) * vrfTu.HeatMassFlowRate[vrfTu.SpeedNum - 1];
     }
-    if (state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SpeedNum == 0) {
-        if (state.dataHVACVarRefFlow->CompOffFlowRatio > 0.0) {
-            state.dataHVACVarRefFlow->FanSpeedRatio =
-                (PartLoadRatio * state.dataHVACVarRefFlow->CompOnFlowRatio) + ((1 - PartLoadRatio) * state.dataHVACVarRefFlow->CompOffFlowRatio);
+
+    
+    if (vrfTu.SpeedNum == 0) {
+        if (s_vrf->CompOffFlowRatio > 0.0) {
+            s_vrf->FanSpeedRatio = (PartLoadRatio * s_vrf->CompOnFlowRatio) + ((1 - PartLoadRatio) * s_vrf->CompOffFlowRatio);
         } else {
-            state.dataHVACVarRefFlow->FanSpeedRatio = state.dataHVACVarRefFlow->CompOnFlowRatio;
+            s_vrf->FanSpeedRatio = s_vrf->CompOnFlowRatio;
         }
     }
 
     // if the terminal unit and fan are scheduled on then set flow rate
-    if (state.dataHVACVarRefFlow->VRFTU(VRFTUNum).fanPlace != HVAC::FanPlace::Invalid &&
-        state.dataHVACVarRefFlow->VRFTU(VRFTUNum).availSched->getCurrentVal() > 0.0 &&
-        (state.dataHVACVarRefFlow->VRFTU(VRFTUNum).fanAvailSched->getCurrentVal() > 0.0 || state.dataHVACGlobal->TurnFansOn) &&
+    if (vrfTu.availSched->getCurrentVal() > 0.0 &&
+        (vrfTu.fanAvailSched->getCurrentVal() > 0.0 || state.dataHVACGlobal->TurnFansOn) &&
         !state.dataHVACGlobal->TurnFansOff) {
 
         // so for sure OA system TUs should use inlet node flow rate, don't overwrite inlet node flow rate
         // could there be a reason for air loops to use inlet node flow? Possibly when VAV TUs used?
-        if (!state.dataHVACVarRefFlow->VRFTU(VRFTUNum).isInOASys) state.dataLoopNodes->Node(InletNode).MassFlowRate = AverageUnitMassFlow;
-        if (!state.dataHVACVarRefFlow->VRFTU(VRFTUNum).isInOASys) state.dataLoopNodes->Node(InletNode).MassFlowRateMaxAvail = AverageUnitMassFlow;
+        if (!vrfTu.isInOASys) state.dataLoopNodes->Node(InletNode).MassFlowRate = AverageUnitMassFlow;
+        if (!vrfTu.isInOASys) state.dataLoopNodes->Node(InletNode).MassFlowRateMaxAvail = AverageUnitMassFlow;
         if (OutsideAirNode > 0) {
             state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate = AverageOAMassFlow;
             state.dataLoopNodes->Node(OutsideAirNode).MassFlowRateMaxAvail = AverageOAMassFlow;
@@ -9939,14 +9922,13 @@ void SetAverageAirFlow(EnergyPlusData &state,
             state.dataLoopNodes->Node(AirRelNode).MassFlowRateMaxAvail = AverageOAMassFlow;
         }
         if (AverageUnitMassFlow > 0.0) {
-            OnOffAirFlowRatio = state.dataHVACVarRefFlow->CompOnMassFlow / AverageUnitMassFlow;
+            OnOffAirFlowRatio = s_vrf->CompOnMassFlow / AverageUnitMassFlow;
         } else {
             OnOffAirFlowRatio = 0.0;
         }
 
     } else { // terminal unit and/or fan is off
-
-        if (!state.dataHVACVarRefFlow->VRFTU(VRFTUNum).isInOASys) {
+        if (!vrfTu.isInOASys) {
             state.dataLoopNodes->Node(InletNode).MassFlowRate = 0.0;
             OnOffAirFlowRatio = 0.0;
         }
