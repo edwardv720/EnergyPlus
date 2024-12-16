@@ -17316,7 +17316,11 @@ void WriteTable(EnergyPlusData &state,
                     }
                 }
                 if (!footnoteText.empty()) {
-                    tbl_stream << fmt::format("  <footnote>{}</footnote>\n", footnoteText);
+                    if (footnoteText.find("<br") != std::string_view::npos) {
+                        tbl_stream << fmt::format("  <footnote><![CDATA[{}]]></footnote>\n", footnoteText);
+                    } else {
+                        tbl_stream << fmt::format("  <footnote>{}</footnote>\n", footnoteText);
+                    }
                 }
             }
         } else {
