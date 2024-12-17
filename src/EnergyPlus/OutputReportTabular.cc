@@ -17188,7 +17188,7 @@ void WriteTable(EnergyPlusData &state,
             // end the table
             tbl_stream << "</table>\n";
             if (!footnoteText.empty()) {
-                tbl_stream << fmt::format("<i>{}</i>\n", footnoteText);
+                tbl_stream << fmt::format("<div class=\"footnote\" style=\"font-style: italic;\">{}</div>\n", footnoteText);
             }
             tbl_stream << "<br><br>\n";
         } else if (thisStyle == TableStyle::XML) {
