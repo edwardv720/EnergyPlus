@@ -547,7 +547,7 @@ void GetZoneAirSetPoints(EnergyPlusData &state)
                 }
             }
         } // NumTStatStatements
-    }     // Check on number of TempControlledZones
+    } // Check on number of TempControlledZones
 
     cCurrentModuleObject = ValidControlTypesUC[static_cast<int>(HVAC::ThermostatType::SingleHeating)];
     state.dataZoneTempPredictorCorrector->NumSingleTempHeatingControls = inputProcessor->getNumObjectsFound(state, cCurrentModuleObject);
@@ -2051,9 +2051,9 @@ void GetZoneAirSetPoints(EnergyPlusData &state)
                                         OutputProcessor::StoreType::Average,
                                         state.dataHeatBal->Zone(TempControlledZone.ActualZoneNum).Name);
                 } // TStat Objects Loop
-            }     // found thermostat reference
-        }         // loop over NumOpTempControlledZones
-    }             // NumOpTempControlledZones > 0
+            } // found thermostat reference
+        } // loop over NumOpTempControlledZones
+    } // NumOpTempControlledZones > 0
 
     // Overcool dehumidification GetInput starts here
     cCurrentModuleObject = cZControlTypes(static_cast<int>(ZoneControlTypes::TandHStat));
@@ -2249,9 +2249,9 @@ void GetZoneAirSetPoints(EnergyPlusData &state)
                     }
 
                 } // TStat Objects Loop
-            }     // found thermostat reference
-        }         // loop over NumTempAndHumidityControlledZones
-    }             // NumTempAndHumidityControlledZones > 0
+            } // found thermostat reference
+        } // loop over NumTempAndHumidityControlledZones
+    } // NumTempAndHumidityControlledZones > 0
 
     // Staged thermostat control inputs start
     cCurrentModuleObject = cZControlTypes(static_cast<int>(ZoneControlTypes::StagedDual));
@@ -7023,56 +7023,76 @@ void FillPredefinedTableOnThermostatSchedules(EnergyPlusData &state)
     using OutputReportPredefined::PreDefTableEntry;
     auto &orp = state.dataOutRptPredefined;
 
-    auto tTypeToString = [](HVAC::ThermostatType tType) -> std::string { return std::string{HVAC::thermostatTypeNames[(int)tType]}; };
-    auto comma_fold_tType = [&tTypeToString](std::string a, HVAC::ThermostatType tType) { return std::move(a) + ", " + tTypeToString(tType); };
-    auto comma_fold_Str = [&tTypeToString](std::string a, std::string b) { return std::move(a) + ", " + std::move(b); };
+    // Helper struct so we can sort to ensure a consistent order.
+    // No matter the order in which the multiple Field Sets (Control Object Type, Control Name), the same thing is reported to the tabular outputs
+    struct ControlTypeInfo
+    {
+        // HVAC::ThermostatType tType = HVAC::ThermostatType::Invalid;
+        std::string thermostatType;
+        std::string controlTypeName;
+        std::string heatSchName;
+        std::string coolSchName;
+
+        // Only need the operator<, and we use C++17 so I can't use a defaulted 3-way operator<=>
+        bool operator<(const ControlTypeInfo &other) const
+        {
+            return std::tie(this->thermostatType, this->controlTypeName, this->heatSchName, this->coolSchName) <
+                   std::tie(other.thermostatType, other.controlTypeName, other.heatSchName, other.coolSchName);
+        }
+    };
+    using ControlTypeInfoMemPtr = std::string ControlTypeInfo::*;
+
+    auto joinStrings = [](const std::vector<ControlTypeInfo> &infos, ControlTypeInfoMemPtr memPtr) -> std::string {
+        std::vector<std::string> result;
+        result.reserve(infos.size());
+        for (const auto &info : infos) {
+            std::string val = info.*memPtr;
+            if (val.empty()) {
+                continue;
+            }
+            result.emplace_back(std::move(val));
+        }
+        return fmt::format("{}", fmt::join(result, ", "));
+    };
 
     for (int idx = 1; idx <= state.dataZoneCtrls->NumTempControlledZones; ++idx) {
         auto &tcz = state.dataZoneCtrls->TempControlledZone(idx);
         PreDefTableEntry(state, orp->pdchStatName, tcz.ZoneName, tcz.Name);
         PreDefTableEntry(state, orp->pdchStatCtrlTypeSchd, tcz.ZoneName, tcz.ControlTypeSchedName);
 
-        std::string controlTypes = std::accumulate(std::next(tcz.ControlTypeEnum.begin()),
-                                                   tcz.ControlTypeEnum.end(),
-                                                   tTypeToString(tcz.ControlTypeEnum(1)), // start with first element
-                                                   comma_fold_tType);
-        PreDefTableEntry(state, orp->pdchStatSchdType1, tcz.ZoneName, controlTypes);
-
-        std::string controlTypeNames = std::accumulate(std::next(tcz.ControlTypeName.begin()),
-                                                       tcz.ControlTypeName.end(),
-                                                       tcz.ControlTypeName(1), // start with first element
-                                                       comma_fold_Str);
-        PreDefTableEntry(state, orp->pdchStatSchdTypeName1, tcz.ZoneName, controlTypeNames);
-
-        std::vector<std::string> coolSchNames;
-        coolSchNames.reserve(tcz.NumControlTypes);
-        std::vector<std::string> heatSchNames;
-        heatSchNames.reserve(tcz.NumControlTypes);
-
+        std::vector<ControlTypeInfo> infos;
+        infos.reserve(tcz.NumControlTypes);
         for (int ctInx = 1; ctInx <= tcz.NumControlTypes; ++ctInx) {
+            ControlTypeInfo info;
+            info.thermostatType = HVAC::thermostatTypeNames[(int)tcz.ControlTypeEnum(ctInx)];
+            info.controlTypeName = tcz.ControlTypeName(ctInx);
             switch (tcz.ControlTypeEnum(ctInx)) {
             case HVAC::ThermostatType::DualSetPointWithDeadBand:
-                coolSchNames.push_back(ScheduleManager::GetScheduleName(state, tcz.SchIndx_DualSetPointWDeadBandCool));
-                heatSchNames.push_back(ScheduleManager::GetScheduleName(state, tcz.SchIndx_DualSetPointWDeadBandHeat));
-
+                info.coolSchName = ScheduleManager::GetScheduleName(state, tcz.SchIndx_DualSetPointWDeadBandCool);
+                info.heatSchName = ScheduleManager::GetScheduleName(state, tcz.SchIndx_DualSetPointWDeadBandHeat);
                 break;
             case HVAC::ThermostatType::SingleHeatCool:
-                coolSchNames.push_back(ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleHeatCoolSetPoint));
-                heatSchNames.push_back(ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleHeatCoolSetPoint));
+                info.coolSchName = ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleHeatCoolSetPoint);
+                info.heatSchName = ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleHeatCoolSetPoint);
                 break;
             case HVAC::ThermostatType::SingleCooling:
-                coolSchNames.push_back(ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleCoolSetPoint));
+                info.coolSchName = ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleCoolSetPoint);
                 break;
             case HVAC::ThermostatType::SingleHeating:
-                heatSchNames.push_back(ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleHeatSetPoint));
+                info.heatSchName = ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleHeatSetPoint);
                 break;
             }
+            infos.emplace_back(std::move(info));
         }
-        if (!heatSchNames.empty()) {
-            PreDefTableEntry(state, orp->pdchStatSchdHeatName, tcz.ZoneName, fmt::format("{}", fmt::join(heatSchNames, ", ")));
+        std::sort(infos.begin(), infos.end());
+
+        PreDefTableEntry(state, orp->pdchStatSchdType1, tcz.ZoneName, joinStrings(infos, &ControlTypeInfo::thermostatType));
+        PreDefTableEntry(state, orp->pdchStatSchdTypeName1, tcz.ZoneName, joinStrings(infos, &ControlTypeInfo::controlTypeName));
+        if (auto heatSchNames = joinStrings(infos, &ControlTypeInfo::heatSchName); !heatSchNames.empty()) {
+            PreDefTableEntry(state, orp->pdchStatSchdHeatName, tcz.ZoneName, heatSchNames);
         }
-        if (!coolSchNames.empty()) {
-            PreDefTableEntry(state, orp->pdchStatSchdCoolName, tcz.ZoneName, fmt::format("{}", fmt::join(coolSchNames, ", ")));
+        if (auto coolSchNames = joinStrings(infos, &ControlTypeInfo::coolSchName); !coolSchNames.empty()) {
+            PreDefTableEntry(state, orp->pdchStatSchdCoolName, tcz.ZoneName, coolSchNames);
         }
     }
 }
