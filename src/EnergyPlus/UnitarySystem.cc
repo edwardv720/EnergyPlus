@@ -15037,54 +15037,10 @@ namespace UnitarySystems {
         this->calcPassiveSystem(state, AirLoopNum, FirstHVACIteration);
 
         if ((CoilTypeNum == HVAC::CoilDX_MultiSpeedCooling) || (CoilTypeNum == HVAC::CoilDX_MultiSpeedHeating)) {
-
-            // TODO: THIS IF SECTION DOES NOTHING
-            if (CoilType == HVAC::Cooling) {
-                if (this->m_CoolingSpeedNum <= 1.0) {
-                    SpeedRatio = 0.0;
-                    CycRatio = PartLoadFrac;
-                } else {
-                    if (this->m_SingleMode == 0) {
-                        SpeedRatio = PartLoadFrac;
-                        CycRatio = 0.0;
-                    } else {
-                        SpeedRatio = 1.0;
-                        CycRatio = PartLoadFrac;
-                    }
-                }
-            } else {
-                if (this->m_HeatingSpeedNum <= 1.0) {
-                    SpeedRatio = 0.0;
-                    CycRatio = PartLoadFrac;
-                } else {
-                    if (this->m_SingleMode == 0) {
-                        SpeedRatio = PartLoadFrac;
-                        CycRatio = 0.0;
-                    } else {
-                        SpeedRatio = 1.0;
-                        CycRatio = PartLoadFrac;
-                    }
-                }
-            }
             DXCoils::SimDXCoilMultiSpeed(
                 state, CompName, 0.0, PartLoadFrac, CompIndex, SpeedNumber, this->m_FanOpMode, HVAC::CompressorOp::On, this->m_SingleMode);
 
         } else if (CoilTypeNum == HVAC::CoilDX_Cooling) {
-
-            if (CoilType == HVAC::Cooling) {
-                if (this->m_CoolingSpeedNum <= 1.0) {
-                    SpeedRatio = 0.0;
-                    CycRatio = PartLoadFrac;
-                } else {
-                    if (this->m_SingleMode == 0) {
-                        SpeedRatio = PartLoadFrac;
-                        CycRatio = 0.0;
-                    } else {
-                        SpeedRatio = 1.0;
-                        CycRatio = PartLoadFrac;
-                    }
-                }
-            }
             bool const singleMode = (this->m_SingleMode == 1);
             HVAC::CoilMode coilMode = HVAC::CoilMode::Normal;
             if (state.dataCoilCooingDX->coilCoolingDXs[this->m_CoolingCoilIndex].SubcoolReheatFlag) {
