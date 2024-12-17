@@ -1901,7 +1901,7 @@ TEST_F(EnergyPlusFixture, FillPredefinedTableOnThermostatSchedules_MultipleContr
     state->dataScheduleMgr->Schedule(SingleHeatCoolSchIndex).Name = "SINGLEHEATCOOLSCH";
     state->dataScheduleMgr->Schedule(DualSetPointWDeadBandHeatSchIndex).Name = "DUALSETPOINTWDEADBANDHEATSCH";
     state->dataScheduleMgr->Schedule(DualSetPointWDeadBandCoolSchIndex).Name = "DUALSETPOINTWDEADBANDCOOLSCH";
-    state->dataScheduleMgr->Schedule(CTSchedIndex).Name = "CONTROL SCHEDULE A";
+    state->dataScheduleMgr->Schedule(CTSchedIndex).Name = "CONTROL SCHEDULE";
 
     state->dataScheduleMgr->ScheduleInputProcessed = true;
 
@@ -1910,49 +1910,64 @@ TEST_F(EnergyPlusFixture, FillPredefinedTableOnThermostatSchedules_MultipleContr
 
     SetPredefinedTables(*state);
 
-    dzc.NumTempControlledZones = 1;
+    constexpr int NumControlTypes = 4;
+    dzc.NumTempControlledZones = NumControlTypes;
     dzc.TempControlledZone.allocate(dzc.NumTempControlledZones);
 
-    constexpr int NumControlTypes = 4;
+    // [1, 2, 3, 4]
+    std::vector<int> order(NumControlTypes);
+    std::iota(order.begin(), order.end(), 1);
+    for (size_t i = 0; i < order.size(); ++i) {
+        char zoneLetter = char(int('A') + i);
+        // Simple left rotate: [2, 3, 4, 1], etc
+        std::rotate(order.begin(), std::next(order.begin()), order.end());
+        auto &tcz = dzc.TempControlledZone(i + 1);
 
-    auto &tcz = dzc.TempControlledZone(1);
+        const std::string ZoneName = fmt::format("ZONE {}", zoneLetter);
+        tcz.ZoneName = ZoneName;
+        tcz.Name = fmt::format("TSTAT {}", zoneLetter);
+        tcz.ControlTypeSchedName = state->dataScheduleMgr->Schedule(CTSchedIndex).Name;
+        tcz.CTSchedIndex = CTSchedIndex;
+        tcz.NumControlTypes = NumControlTypes;
+        tcz.ControlTypeEnum.allocate(NumControlTypes);
+        tcz.ControlTypeName.allocate(NumControlTypes);
 
-    const std::string ZoneName = "ZONE A";
-    tcz.ZoneName = ZoneName;
-    tcz.Name = "TSTAT A";
-    tcz.ControlTypeSchedName = state->dataScheduleMgr->Schedule(CTSchedIndex).Name;
-    tcz.CTSchedIndex = CTSchedIndex;
-    tcz.NumControlTypes = NumControlTypes;
-    tcz.ControlTypeEnum.allocate(NumControlTypes);
-    tcz.ControlTypeName.allocate(NumControlTypes);
+        tcz.ControlTypeEnum(order.at(0)) = HVAC::ThermostatType::SingleHeating;
+        tcz.ControlTypeName(order.at(0)) = "SINGLEHEATING CTRL";
+        tcz.SchIndx_SingleHeatSetPoint = SingleHeatingSchIndex;
 
-    tcz.ControlTypeEnum(1) = HVAC::ThermostatType::SingleHeating;
-    tcz.ControlTypeName(1) = "SINGLEHEATING CTRL";
-    tcz.SchIndx_SingleHeatSetPoint = SingleHeatingSchIndex;
+        tcz.ControlTypeEnum(order.at(1)) = HVAC::ThermostatType::SingleCooling;
+        tcz.ControlTypeName(order.at(1)) = "SINGLECOOLING CTRL";
+        tcz.SchIndx_SingleCoolSetPoint = SingleCoolingSchIndex;
 
-    tcz.ControlTypeEnum(2) = HVAC::ThermostatType::SingleCooling;
-    tcz.ControlTypeName(2) = "SINGLECOOLING CTRL";
-    tcz.SchIndx_SingleCoolSetPoint = SingleCoolingSchIndex;
+        tcz.ControlTypeEnum(order.at(2)) = HVAC::ThermostatType::SingleHeatCool;
+        tcz.ControlTypeName(order.at(2)) = "SINGLEHEATCOOL CTRL";
+        tcz.SchIndx_SingleHeatCoolSetPoint = SingleHeatCoolSchIndex;
 
-    tcz.ControlTypeEnum(3) = HVAC::ThermostatType::SingleHeatCool;
-    tcz.ControlTypeName(3) = "SINGLEHEATCOOL CTRL";
-    tcz.SchIndx_SingleHeatCoolSetPoint = SingleHeatCoolSchIndex;
-
-    tcz.ControlTypeEnum(4) = HVAC::ThermostatType::DualSetPointWithDeadBand;
-    tcz.ControlTypeName(4) = "DUALSETPOINTWITHDEADBAND CTRL";
-    tcz.SchIndx_DualSetPointWDeadBandHeat = DualSetPointWDeadBandHeatSchIndex;
-    tcz.SchIndx_DualSetPointWDeadBandCool = DualSetPointWDeadBandCoolSchIndex;
+        tcz.ControlTypeEnum(order.at(3)) = HVAC::ThermostatType::DualSetPointWithDeadBand;
+        tcz.ControlTypeName(order.at(3)) = "DUALSETPOINTWITHDEADBAND CTRL";
+        tcz.SchIndx_DualSetPointWDeadBandHeat = DualSetPointWDeadBandHeatSchIndex;
+        tcz.SchIndx_DualSetPointWDeadBandCool = DualSetPointWDeadBandCoolSchIndex;
+    }
 
     FillPredefinedTableOnThermostatSchedules(*state);
 
-    EXPECT_EQ("TSTAT A", RetrievePreDefTableEntry(*state, orp.pdchStatName, ZoneName));
-    EXPECT_EQ("CONTROL SCHEDULE A", RetrievePreDefTableEntry(*state, orp.pdchStatCtrlTypeSchd, ZoneName));
-    EXPECT_EQ("SingleHeating, SingleCooling, SingleHeatCool, DualSetPointWithDeadBand",
-              RetrievePreDefTableEntry(*state, orp.pdchStatSchdType1, ZoneName));
-    EXPECT_EQ("SINGLEHEATING CTRL, SINGLECOOLING CTRL, SINGLEHEATCOOL CTRL, DUALSETPOINTWITHDEADBAND CTRL",
-              RetrievePreDefTableEntry(*state, orp.pdchStatSchdTypeName1, ZoneName));
-    EXPECT_EQ("SINGLEHEATINGSCH, SINGLEHEATCOOLSCH, DUALSETPOINTWDEADBANDHEATSCH",
-              RetrievePreDefTableEntry(*state, orp.pdchStatSchdHeatName, ZoneName));
-    EXPECT_EQ("SINGLECOOLINGSCH, SINGLEHEATCOOLSCH, DUALSETPOINTWDEADBANDCOOLSCH",
-              RetrievePreDefTableEntry(*state, orp.pdchStatSchdCoolName, ZoneName));
+    for (size_t i = 0; i < order.size(); ++i) {
+        char zoneLetter = char(int('A') + i);
+        const std::string ZoneName = fmt::format("ZONE {}", zoneLetter);
+        EXPECT_EQ(fmt::format("TSTAT {}", zoneLetter), RetrievePreDefTableEntry(*state, orp.pdchStatName, ZoneName)) << "Failed for " << ZoneName;
+        EXPECT_EQ("CONTROL SCHEDULE", RetrievePreDefTableEntry(*state, orp.pdchStatCtrlTypeSchd, ZoneName)) << "Failed for " << ZoneName;
+        EXPECT_EQ("DualSetPointWithDeadBand, SingleCooling, SingleHeatCool, SingleHeating",
+                  RetrievePreDefTableEntry(*state, orp.pdchStatSchdType1, ZoneName))
+            << "Failed for " << ZoneName;
+        EXPECT_EQ("DUALSETPOINTWITHDEADBAND CTRL, SINGLECOOLING CTRL, SINGLEHEATCOOL CTRL, SINGLEHEATING CTRL",
+                  RetrievePreDefTableEntry(*state, orp.pdchStatSchdTypeName1, ZoneName))
+            << "Failed for " << ZoneName;
+        EXPECT_EQ("DUALSETPOINTWDEADBANDHEATSCH, SINGLEHEATCOOLSCH, SINGLEHEATINGSCH",
+                  RetrievePreDefTableEntry(*state, orp.pdchStatSchdHeatName, ZoneName))
+            << "Failed for " << ZoneName;
+        EXPECT_EQ("DUALSETPOINTWDEADBANDCOOLSCH, SINGLECOOLINGSCH, SINGLEHEATCOOLSCH",
+                  RetrievePreDefTableEntry(*state, orp.pdchStatSchdCoolName, ZoneName))
+            << "Failed for " << ZoneName;
+    }
 }
