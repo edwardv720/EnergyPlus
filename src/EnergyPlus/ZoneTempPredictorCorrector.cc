@@ -47,6 +47,7 @@
 
 // C++ Headers
 #include <cmath>
+#include <numeric>
 #include <string>
 
 // ObjexxFCL Headers
@@ -7021,35 +7022,57 @@ void FillPredefinedTableOnThermostatSchedules(EnergyPlusData &state)
     // J.Glazer - March 2024
     using OutputReportPredefined::PreDefTableEntry;
     auto &orp = state.dataOutRptPredefined;
+
+    auto tTypeToString = [](HVAC::ThermostatType tType) -> std::string { return std::string{HVAC::thermostatTypeNames[(int)tType]}; };
+    auto comma_fold_tType = [&tTypeToString](std::string a, HVAC::ThermostatType tType) { return std::move(a) + ", " + tTypeToString(tType); };
+    auto comma_fold_Str = [&tTypeToString](std::string a, std::string b) { return std::move(a) + ", " + std::move(b); };
+
     for (int idx = 1; idx <= state.dataZoneCtrls->NumTempControlledZones; ++idx) {
         auto &tcz = state.dataZoneCtrls->TempControlledZone(idx);
         PreDefTableEntry(state, orp->pdchStatName, tcz.ZoneName, tcz.Name);
         PreDefTableEntry(state, orp->pdchStatCtrlTypeSchd, tcz.ZoneName, tcz.ControlTypeSchedName);
+
+        std::string controlTypes = std::accumulate(std::next(tcz.ControlTypeEnum.begin()),
+                                                   tcz.ControlTypeEnum.end(),
+                                                   tTypeToString(tcz.ControlTypeEnum(1)), // start with first element
+                                                   comma_fold_tType);
+        PreDefTableEntry(state, orp->pdchStatSchdType1, tcz.ZoneName, controlTypes);
+
+        std::string controlTypeNames = std::accumulate(std::next(tcz.ControlTypeName.begin()),
+                                                       tcz.ControlTypeName.end(),
+                                                       tcz.ControlTypeName(1), // start with first element
+                                                       comma_fold_Str);
+        PreDefTableEntry(state, orp->pdchStatSchdTypeName1, tcz.ZoneName, controlTypeNames);
+
+        std::vector<std::string> coolSchNames;
+        coolSchNames.reserve(tcz.NumControlTypes);
+        std::vector<std::string> heatSchNames;
+        heatSchNames.reserve(tcz.NumControlTypes);
+
         for (int ctInx = 1; ctInx <= tcz.NumControlTypes; ++ctInx) {
-            PreDefTableEntry(state, orp->pdchStatSchdType1, tcz.ZoneName, HVAC::thermostatTypeNames[(int)tcz.ControlTypeEnum(ctInx)]);
-            PreDefTableEntry(state, orp->pdchStatSchdTypeName1, tcz.ZoneName, tcz.ControlTypeName(1));
             switch (tcz.ControlTypeEnum(ctInx)) {
             case HVAC::ThermostatType::DualSetPointWithDeadBand:
-                PreDefTableEntry(
-                    state, orp->pdchStatSchdHeatName, tcz.ZoneName, ScheduleManager::GetScheduleName(state, tcz.SchIndx_DualSetPointWDeadBandHeat));
-                PreDefTableEntry(
-                    state, orp->pdchStatSchdCoolName, tcz.ZoneName, ScheduleManager::GetScheduleName(state, tcz.SchIndx_DualSetPointWDeadBandCool));
+                coolSchNames.push_back(ScheduleManager::GetScheduleName(state, tcz.SchIndx_DualSetPointWDeadBandCool));
+                heatSchNames.push_back(ScheduleManager::GetScheduleName(state, tcz.SchIndx_DualSetPointWDeadBandHeat));
+
                 break;
             case HVAC::ThermostatType::SingleHeatCool:
-                PreDefTableEntry(
-                    state, orp->pdchStatSchdHeatName, tcz.ZoneName, ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleHeatCoolSetPoint));
-                PreDefTableEntry(
-                    state, orp->pdchStatSchdCoolName, tcz.ZoneName, ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleHeatCoolSetPoint));
+                coolSchNames.push_back(ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleHeatCoolSetPoint));
+                heatSchNames.push_back(ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleHeatCoolSetPoint));
                 break;
             case HVAC::ThermostatType::SingleCooling:
-                PreDefTableEntry(
-                    state, orp->pdchStatSchdCoolName, tcz.ZoneName, ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleCoolSetPoint));
+                coolSchNames.push_back(ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleCoolSetPoint));
                 break;
             case HVAC::ThermostatType::SingleHeating:
-                PreDefTableEntry(
-                    state, orp->pdchStatSchdHeatName, tcz.ZoneName, ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleHeatSetPoint));
+                heatSchNames.push_back(ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleHeatSetPoint));
                 break;
             }
+        }
+        if (!heatSchNames.empty()) {
+            PreDefTableEntry(state, orp->pdchStatSchdHeatName, tcz.ZoneName, fmt::format("{}", fmt::join(heatSchNames, ", ")));
+        }
+        if (!coolSchNames.empty()) {
+            PreDefTableEntry(state, orp->pdchStatSchdCoolName, tcz.ZoneName, fmt::format("{}", fmt::join(coolSchNames, ", ")));
         }
     }
 }
