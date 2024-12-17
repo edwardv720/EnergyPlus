@@ -7043,11 +7043,11 @@ void FillPredefinedTableOnThermostatSchedules(EnergyPlusData &state)
                 break;
             case HVAC::ThermostatType::SingleCooling:
                 PreDefTableEntry(
-                    state, orp->pdchStatSchdHeatName, tcz.ZoneName, ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleCoolSetPoint));
+                    state, orp->pdchStatSchdCoolName, tcz.ZoneName, ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleCoolSetPoint));
                 break;
             case HVAC::ThermostatType::SingleHeating:
                 PreDefTableEntry(
-                    state, orp->pdchStatSchdCoolName, tcz.ZoneName, ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleHeatSetPoint));
+                    state, orp->pdchStatSchdHeatName, tcz.ZoneName, ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleHeatSetPoint));
                 break;
             }
         }
