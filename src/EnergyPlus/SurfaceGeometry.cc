@@ -3235,7 +3235,7 @@ namespace SurfaceGeometry {
                 // Base transmittance of a shadowing (sub)surface
 
                 if (s_ipsc->lAlphaFieldBlanks(2)) {
-                     surfTemp.shadowSurfSched = Sched::GetScheduleAlwaysOff(state);
+                     surfTemp.shadowSurfSched = nullptr; // Leaving this as nullptr rather than making AlwaysOff because the uses and tests are too varied
                 } else if ((surfTemp.shadowSurfSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(2))) == nullptr) {
                      ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(2), s_ipsc->cAlphaArgs(2));
                      ErrorsFound = true;
@@ -9802,7 +9802,7 @@ namespace SurfaceGeometry {
                             ShowContinueError(state,
                                               format("of {}=\"{}\" should have two or three glass layers and a",
                                                      s_ipsc->cAlphaFieldNames(3),
-                                                     s_ipsc->cAlphaArgs(32)));
+                                                     s_ipsc->cAlphaArgs(3)));
                             ShowContinueError(state, "between-glass shade layer with a gas layer on each side.");
                         }
                     } else if (windowShadingControl.ShadingType == DataSurfaces::WinShadingType::BGBlind) {

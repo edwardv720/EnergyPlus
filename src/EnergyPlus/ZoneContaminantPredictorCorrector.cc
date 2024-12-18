@@ -1105,7 +1105,7 @@ void GetZoneContaminanSetPoints(EnergyPlusData &state)
         }
 
         if (state.dataIPShortCut->lAlphaFieldBlanks(5)) {
-            controlledZone.zoneMinCO2Sched = Sched::GetScheduleAlwaysOff(state);
+            controlledZone.zoneMinCO2Sched = nullptr; // This needs to be nullptr because an empty schedule means outdoorCO2 not zero CO2
         } else if ((controlledZone.zoneMinCO2Sched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(5))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(5), state.dataIPShortCut->cAlphaArgs(5));
             ErrorsFound = true;
@@ -1118,7 +1118,7 @@ void GetZoneContaminanSetPoints(EnergyPlusData &state)
         }
 
         if (state.dataIPShortCut->lAlphaFieldBlanks(6)) {
-            controlledZone.zoneMaxCO2Sched = Sched::GetScheduleAlwaysOff(state);
+            controlledZone.zoneMaxCO2Sched = nullptr; // This needs to be nullptr because an empty schedule means outdoorCO2, not zero CO2
         } else if ((controlledZone.zoneMaxCO2Sched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(6))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(6), state.dataIPShortCut->cAlphaArgs(6));
             ErrorsFound = true;
