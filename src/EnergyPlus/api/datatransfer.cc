@@ -108,7 +108,7 @@ APIDataEntry *getAPIData(EnergyPlusState state, unsigned int *resultingSize)
         if (meter->Name.empty()) {
             break;
         }
-        localDataEntries.emplace_back("OutputMeter", "", "", meter->Name, format("()", EnergyPlus::Constant::unitNames[(int)meter->units]));
+        localDataEntries.emplace_back("OutputMeter", "", "", meter->Name, format("{}", EnergyPlus::Constant::unitNames[(int)meter->units]));
     }
     for (auto const *variable : thisState->dataOutputProcessor->outVars) {
         if (variable->varType != EnergyPlus::OutputProcessor::VariableType::Real) continue;

@@ -1590,7 +1590,8 @@ namespace Sched {
                             state.files.TempFullFilePath.filePath, FileSystem::readJSON(state.files.TempFullFilePath.filePath));
                         result = it.first;
                     } else {
-                        ShowSevereCustom(state, eoh, format("an unknown file extension and cannot be read by this program.)", cAlphaFields(3), Alphas(3)));
+                        ShowSevereCustom(state, eoh, format("{} = {} has an unknown file extension and cannot be read by this program.",
+                                                            cAlphaFields(3), Alphas(3)));
                         ShowFatalError(state, "Program terminates due to previous condition.");
                     }
                 }

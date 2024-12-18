@@ -1131,16 +1131,16 @@ void GetZoneContaminanSetPoints(EnergyPlusData &state)
         }
         
         if (NumAlphas <= 6) {
-            controlledZone.availSched = Sched::GetScheduleAlwaysOn(state);
+            controlledZone.genericContamAvailSched = Sched::GetScheduleAlwaysOn(state);
             continue;
         }
         
         if (state.dataIPShortCut->lAlphaFieldBlanks(7)) {
-            controlledZone.availSched = Sched::GetScheduleAlwaysOn(state);
-        } else if ((controlledZone.availSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(7))) == nullptr) {
+            controlledZone.genericContamAvailSched = Sched::GetScheduleAlwaysOn(state);
+        } else if ((controlledZone.genericContamAvailSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(7))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(7), state.dataIPShortCut->cAlphaArgs(7));
             ErrorsFound = true;
-        } else if (!controlledZone.availSched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
+        } else if (!controlledZone.genericContamAvailSched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
             Sched::ShowSevereBadMinMax(state, eoh, state.dataIPShortCut->cAlphaFieldNames(7), state.dataIPShortCut->cAlphaArgs(7),
                                          Clusive::In, 0.0, Clusive::In, 1.0);
             ErrorsFound = true;
@@ -1431,7 +1431,7 @@ void InitZoneContSetPoints(EnergyPlusData &state)
         if (state.dataContaminantBalance->Contaminant.GenericContamSimulation) {
             int ZoneNum = state.dataContaminantBalance->ContaminantControlledZone(Loop).ActualZoneNum;
             state.dataContaminantBalance->ZoneGCSetPoint(ZoneNum) =
-                state.dataContaminantBalance->ContaminantControlledZone(Loop).setptSched->getCurrentVal();
+                state.dataContaminantBalance->ContaminantControlledZone(Loop).genericContamSetptSched->getCurrentVal();
         }
     }
 
@@ -1788,7 +1788,7 @@ void PredictZoneContaminants(EnergyPlusData &state,
             // Check all the controlled zones to see if it matches the zone simulated
             for (auto const &contaminantControlledZone : state.dataContaminantBalance->ContaminantControlledZone) {
                 if (contaminantControlledZone.ActualZoneNum == ZoneNum) {
-                    if (contaminantControlledZone.availSched->getCurrentVal() > 0.0) {
+                    if (contaminantControlledZone.genericContamAvailSched->getCurrentVal() > 0.0) {
                         ZoneAirGCSetPoint = state.dataContaminantBalance->ZoneGCSetPoint(contaminantControlledZone.ActualZoneNum);
                         if (contaminantControlledZone.EMSOverrideCO2SetPointOn) {
                             ZoneAirGCSetPoint = contaminantControlledZone.EMSOverrideGCSetPointValue;
@@ -1800,7 +1800,7 @@ void PredictZoneContaminants(EnergyPlusData &state,
             }
             if (!ControlledGCZoneFlag) {
                 for (auto const &contaminantControlledZone : state.dataContaminantBalance->ContaminantControlledZone) {
-                    if (contaminantControlledZone.availSched->getCurrentVal() > 0.0) {
+                    if (contaminantControlledZone.genericContamAvailSched->getCurrentVal() > 0.0) {
                         ZoneAirGCSetPoint = state.dataContaminantBalance->ZoneGCSetPoint(contaminantControlledZone.ActualZoneNum);
                         if (contaminantControlledZone.EMSOverrideCO2SetPointOn) {
                             ZoneAirGCSetPoint = contaminantControlledZone.EMSOverrideGCSetPointValue;

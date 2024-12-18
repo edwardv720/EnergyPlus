@@ -3937,8 +3937,8 @@ namespace Avail {
                 ShowSevereItemNotFound(state, eoh, ipsc->cAlphaFieldNames(9), ipsc->cAlphaArgs(9));
                 ErrorsFound = true;
             } else if (hybridVentMgr.afnControlTypeSched != nullptr) {
-                ShowWarningCustom(state, eoh, format("{} and {} cannot be used at the same time, {} is disable",
-                                                     ipsc->cAlphaFieldNames(8), ipsc->cAlphaFieldNames(9)));
+                ShowWarningCustom(state, eoh, format("{} and {} cannot be used at the same time, {} is disabled.",
+                                                     ipsc->cAlphaFieldNames(8), ipsc->cAlphaFieldNames(9), ipsc->cAlphaFieldNames(9)));
                 hybridVentMgr.simpleControlTypeSched = nullptr;
             } else if (!hybridVentMgr.simpleControlTypeSched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) { 
                 Sched::ShowSevereBadMinMax(state, eoh, ipsc->cAlphaFieldNames(9), ipsc->cAlphaArgs(9), Clusive::In, 0.0, Clusive::In, 1.0);
