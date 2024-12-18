@@ -2351,7 +2351,7 @@ namespace AirflowNetwork {
                     }
                 } else {
                     MultizoneZoneData(i).VentingSchName = std::string();
-                    MultizoneZoneData(i).ventingSched = Sched::GetScheduleAlwaysOff(m_state);
+                    MultizoneZoneData(i).ventingSched = Sched::GetScheduleAlwaysOn(m_state);
                 }
             }
         } else {
@@ -3201,7 +3201,7 @@ namespace AirflowNetwork {
                 }
                 
                 if (MultizoneSurfaceData(i).VentingSchName.empty()) {
-                    MultizoneSurfaceData(i).ventingSched = Sched::GetScheduleAlwaysOff(m_state);
+                    MultizoneSurfaceData(i).ventingSched = Sched::GetScheduleAlwaysOn(m_state);
                 } else if ((MultizoneSurfaceData(i).ventingSched = Sched::GetSchedule(m_state, MultizoneSurfaceData(i).VentingSchName)) == nullptr) {
                     ShowSevereItemNotFound(m_state, eoh, "Venting Schedule", MultizoneSurfaceData(i).VentingSchName);
                     ErrorsFound = true;

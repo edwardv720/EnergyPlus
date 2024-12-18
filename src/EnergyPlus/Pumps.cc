@@ -416,8 +416,9 @@ void GetPumpInput(EnergyPlusData &state)
                     ErrorsFound = true;
                 }
 
-                thisPump.VFD.minRPMSched = Sched::GetScheduleAlwaysOff(state);
-                thisPump.VFD.maxRPMSched = Sched::GetScheduleAlwaysOff(state);
+                // These will never be used under VFDManual but make them AlwaysOn by default because that is how you deal with multiplier schedules
+                thisPump.VFD.minRPMSched = Sched::GetScheduleAlwaysOn(state);
+                thisPump.VFD.maxRPMSched = Sched::GetScheduleAlwaysOn(state);
             } break;
                     
             case ControlTypeVFD::VFDAutomatic: {
@@ -438,7 +439,7 @@ void GetPumpInput(EnergyPlusData &state)
                 }
 
                 if (thisInput->lAlphaFieldBlanks(11)) {
-                    thisPump.VFD.minRPMSched = Sched::GetScheduleAlwaysOff(state);
+                    thisPump.VFD.minRPMSched = Sched::GetScheduleAlwaysOn(state);
                 } else if ((thisPump.VFD.minRPMSched = Sched::GetSchedule(state, thisInput->cAlphaArgs(11))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, thisInput->cAlphaFieldNames(11), thisInput->cAlphaArgs(11));
                     ErrorsFound = true;

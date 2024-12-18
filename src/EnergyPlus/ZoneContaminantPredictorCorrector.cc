@@ -1149,7 +1149,7 @@ void GetZoneContaminanSetPoints(EnergyPlusData &state)
         if (state.dataIPShortCut->lAlphaFieldBlanks(8)) {
             ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaArgs(8));
             ErrorsFound = true;
-        } else if ((controlledZone.setptSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(8))) == nullptr) {
+        } else if ((controlledZone.genericContamSetptSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(8))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(8), state.dataIPShortCut->cAlphaArgs(8));
             ErrorsFound = true;
         }
