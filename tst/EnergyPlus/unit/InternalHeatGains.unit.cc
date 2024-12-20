@@ -175,7 +175,10 @@ TEST_F(EnergyPlusFixture, InternalHeatGains_OtherEquipment_NegativeDesignLevel)
     ASSERT_THROW(InternalHeatGains::GetInternalHeatGainsInput(*state), std::runtime_error);
 
     std::string const error_string = delimited_string(
-        {"   ** Severe  ** GetInternalHeatGains: OtherEquipment=\"OTHEREQ1\", Design Level is not allowed to be negative",
+        {"   ** Warning ** ProcessScheduleInput: Schedule:Constant = SCHEDULE1",
+         "   **   ~~~   ** Schedule Type Limits Name is empty.",
+         "   **   ~~~   ** Schedule will not be validated.",
+         "   ** Severe  ** GetInternalHeatGains: OtherEquipment=\"OTHEREQ1\", Design Level is not allowed to be negative",
          "   **   ~~~   ** ... when a fuel type of FuelOilNo1 is specified.",
          "   **  Fatal  ** GetInternalHeatGains: Errors found in Getting Internal Gains Input, Program Stopped",
          "   ...Summary of Errors that led to program termination:",
@@ -216,7 +219,10 @@ TEST_F(EnergyPlusFixture, InternalHeatGains_OtherEquipment_BadFuelType)
     state->init_state(*state);
     
     std::string error_string =
-        delimited_string({"   ** Severe  ** <root>[OtherEquipment][OtherEq1][fuel_type] - \"Water\" - Failed to match against any enum values."});
+        delimited_string({"   ** Severe  ** <root>[OtherEquipment][OtherEq1][fuel_type] - \"Water\" - Failed to match against any enum values.",
+                          "   ** Warning ** ProcessScheduleInput: Schedule:Constant = SCHEDULE1",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated."});
     EXPECT_TRUE(compare_err_stream(error_string, true));
 
     bool ErrorsFound(false);

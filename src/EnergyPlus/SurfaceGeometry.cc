@@ -9494,7 +9494,9 @@ namespace SurfaceGeometry {
             windowShadingControl.ShadingControlIsScheduled = getYesNoValue(s_ipsc->cAlphaArgs(7)) == BooleanSwitch::Yes;
             windowShadingControl.GlareControlIsActive = getYesNoValue(s_ipsc->cAlphaArgs(8)) == BooleanSwitch::Yes;
 
-            if (windowShadingControl.ShadingType != DataSurfaces::WinShadingType::IntBlind) {
+            if (windowShadingControl.ShadingType != DataSurfaces::WinShadingType::IntBlind &&
+                windowShadingControl.ShadingType != DataSurfaces::WinShadingType::ExtBlind &&
+                windowShadingControl.ShadingType != DataSurfaces::WinShadingType::BGBlind) {
             } else if (s_ipsc->cAlphaArgs(10).empty()) {
                 ShowSevereEmptyField(state, eoh, s_ipsc->cAlphaFieldNames(10), s_ipsc->cAlphaFieldNames(3), s_ipsc->cAlphaArgs(3));
                 ErrorsFound = true;

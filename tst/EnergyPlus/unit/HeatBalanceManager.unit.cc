@@ -1861,7 +1861,10 @@ TEST_F(EnergyPlusFixture, HeatBalanceManager_GetAirBoundaryConstructData2)
     EXPECT_TRUE(ErrorsFound);
 
     std::string const error_string =
-        delimited_string({"   ** Severe  ** CreateAirBoundaryConstructions: Construction:AirBoundary = Air Boundary with Bad Mixing Schedule", 
+        delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYS2",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Severe  ** CreateAirBoundaryConstructions: Construction:AirBoundary = Air Boundary with Bad Mixing Schedule", 
                           "   **   ~~~   ** Simple Mixing Schedule Name = xyz, item not found.",
                           "   ** Severe  ** Errors found in creating the constructions defined with Construction:AirBoundary.",
                           "   ** Warning ** This building has no thermal mass which can cause an unstable solution.",

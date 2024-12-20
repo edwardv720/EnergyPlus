@@ -193,7 +193,14 @@ TEST_F(EnergyPlusFixture, ParallelPIUTest1)
     Fans::GetFanInput(*state);
     state->dataFans->GetFanInputFlag = false;
     PoweredInductionUnits::GetPIUs(*state);
-    EXPECT_TRUE(compare_err_stream(""));
+    std::string error_string =
+       delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSOFF",
+                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                         "   **   ~~~   ** Schedule will not be validated.",
+                         "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSON",
+                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                         "   **   ~~~   ** Schedule will not be validated."});
+    EXPECT_TRUE(compare_err_stream(error_string));
     state->dataHeatBalFanSys->TempControlType.allocate(1);
     state->dataHeatBalFanSys->TempControlType(1) = HVAC::SetptType::DualHeatCool;
 
@@ -418,7 +425,15 @@ TEST_F(EnergyPlusFixture, SeriesPIUTest1)
     Fans::GetFanInput(*state);
     state->dataFans->GetFanInputFlag = false;
     PoweredInductionUnits::GetPIUs(*state);
-    EXPECT_TRUE(compare_err_stream(""));
+
+    std::string error_string =
+       delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSOFF",
+                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                         "   **   ~~~   ** Schedule will not be validated.",
+                         "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSON",
+                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                         "   **   ~~~   ** Schedule will not be validated."});
+    EXPECT_TRUE(compare_err_stream(error_string));
     state->dataHeatBalFanSys->TempControlType.allocate(1);
     state->dataHeatBalFanSys->TempControlType(1) = HVAC::SetptType::DualHeatCool;
 
@@ -2092,7 +2107,14 @@ TEST_F(EnergyPlusFixture, VSParallelPIUStagedHeat)
     Fans::GetFanInput(*state);
     state->dataFans->GetFanInputFlag = false;
     PoweredInductionUnits::GetPIUs(*state);
-    EXPECT_TRUE(compare_err_stream(""));
+    std::string error_string =
+       delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSOFF",
+                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                         "   **   ~~~   ** Schedule will not be validated.",
+                         "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSON",
+                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                         "   **   ~~~   ** Schedule will not be validated."});
+    EXPECT_TRUE(compare_err_stream(error_string));
     state->dataHeatBalFanSys->TempControlType.allocate(1);
     state->dataHeatBalFanSys->TempControlType(1) = HVAC::SetptType::DualHeatCool;
     state->dataZoneEnergyDemand->ZoneSysEnergyDemand.allocate(1);
@@ -2289,7 +2311,14 @@ TEST_F(EnergyPlusFixture, VSParallelPIUModulatedHeat)
     Fans::GetFanInput(*state);
     state->dataFans->GetFanInputFlag = false;
     PoweredInductionUnits::GetPIUs(*state);
-    EXPECT_TRUE(compare_err_stream(""));
+    std::string error_string =
+       delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSOFF",
+                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                         "   **   ~~~   ** Schedule will not be validated.",
+                         "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSON",
+                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                         "   **   ~~~   ** Schedule will not be validated."});
+    EXPECT_TRUE(compare_err_stream(error_string));
     state->dataHeatBalFanSys->TempControlType.allocate(1);
     state->dataHeatBalFanSys->TempControlType(1) = HVAC::SetptType::DualHeatCool;
     state->dataZoneEnergyDemand->ZoneSysEnergyDemand.allocate(1);
@@ -2526,7 +2555,14 @@ TEST_F(EnergyPlusFixture, VSSeriesPIUStagedHeat)
     state->dataFans->GetFanInputFlag = false;
     Fans::GetFanInput(*state);
     PoweredInductionUnits::GetPIUs(*state);
-    EXPECT_TRUE(compare_err_stream(""));
+    std::string error_string =
+       delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSOFF",
+                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                         "   **   ~~~   ** Schedule will not be validated.",
+                         "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSON",
+                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                         "   **   ~~~   ** Schedule will not be validated."});
+    EXPECT_TRUE(compare_err_stream(error_string));
     state->dataHeatBalFanSys->TempControlType.allocate(1);
     state->dataHeatBalFanSys->TempControlType(1) = HVAC::SetptType::DualHeatCool;
     state->dataZoneEnergyDemand->ZoneSysEnergyDemand.allocate(1);
@@ -2727,7 +2763,14 @@ TEST_F(EnergyPlusFixture, VSSeriesPIUModulatedHeat)
     Fans::GetFanInput(*state);
     state->dataFans->GetFanInputFlag = false;
     PoweredInductionUnits::GetPIUs(*state);
-    EXPECT_TRUE(compare_err_stream(""));
+    std::string error_string =
+       delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSOFF",
+                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                         "   **   ~~~   ** Schedule will not be validated.",
+                         "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSON",
+                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                         "   **   ~~~   ** Schedule will not be validated."});
+    EXPECT_TRUE(compare_err_stream(error_string));
     state->dataHeatBalFanSys->TempControlType.allocate(1);
     state->dataHeatBalFanSys->TempControlType(1) = HVAC::SetptType::DualHeatCool;
     state->dataZoneEnergyDemand->ZoneSysEnergyDemand.allocate(1);
@@ -2962,7 +3005,14 @@ TEST_F(EnergyPlusFixture, VSSeriesPIUCool)
     Fans::GetFanInput(*state);
     state->dataFans->GetFanInputFlag = false;
     PoweredInductionUnits::GetPIUs(*state);
-    EXPECT_TRUE(compare_err_stream(""));
+    std::string error_string =
+       delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSOFF",
+                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                         "   **   ~~~   ** Schedule will not be validated.",
+                         "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSON",
+                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                         "   **   ~~~   ** Schedule will not be validated."});
+    EXPECT_TRUE(compare_err_stream(error_string));
     state->dataHeatBalFanSys->TempControlType.allocate(1);
     state->dataHeatBalFanSys->TempControlType(1) = HVAC::SetptType::DualHeatCool;
     state->dataZoneEnergyDemand->ZoneSysEnergyDemand.allocate(1);

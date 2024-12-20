@@ -481,6 +481,15 @@ TEST_F(EnergyPlusFixture, AirflowNetwork_TestTriangularWindowWarning)
     state->init_state(*state);
     state->afn->get_input();
     std::string const error_string = delimited_string({
+        "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ONSCH",
+        "   **   ~~~   ** Schedule Type Limits Name is empty.",
+        "   **   ~~~   ** Schedule will not be validated.",
+        "   ** Warning ** ProcessScheduleInput: Schedule:Constant = AULA PEOPLE SCHED",
+        "   **   ~~~   ** Schedule Type Limits Name is empty.",
+        "   **   ~~~   ** Schedule will not be validated.",
+        "   ** Warning ** ProcessScheduleInput: Schedule:Constant = SEMPRE 21",
+        "   **   ~~~   ** Schedule Type Limits Name is empty.",
+        "   **   ~~~   ** Schedule will not be validated.",
         "   ** Warning ** AirflowNetwork::Solver::get_input: AirflowNetwork:MultiZone:Surface=\"WINDOW1\".",
         "   **   ~~~   ** The opening is a Triangular subsurface. A rectangular subsurface will be used with equivalent width and height.",
     });

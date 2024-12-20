@@ -592,7 +592,13 @@ TEST_F(EnergyPlusFixture, RoomAirInternalGains_InternalHeatGains_Check)
     EXPECT_TRUE(ErrorsFound);
 
     std::string const error_string =
-        delimited_string({"   ** Severe  ** GetRoomAirflowNetworkData: Invalid Internal Gain Object Name = LIVING_UNIT1 PEOPLE",
+        delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = SCH_ACT",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Warning ** ProcessScheduleInput: Schedule:Constant = SCH",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Severe  ** GetRoomAirflowNetworkData: Invalid Internal Gain Object Name = LIVING_UNIT1 PEOPLE",
                           "   **   ~~~   ** Entered in RoomAir:Node:AirflowNetwork:InternalGains = NODE1_GAIN",
                           "   **   ~~~   ** Internal gain did not match correctly",
                           "   ** Severe  ** GetRoomAirflowNetworkData: Invalid Internal Gain Object Name = LIVING_UNIT1 LIGHTS",

@@ -1250,7 +1250,10 @@ TEST_F(EnergyPlusFixture, HPWHOutdoorAirMissingNodeNameWarning)
     ASSERT_TRUE(ErrorsFound);
 
     std::string const error_string =
-        delimited_string({"   ** Severe  ** WaterHeater:HeatPump:PumpedCondenser=\"ZONE4HEATPUMPWATERHEATER\":",
+        delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = DUMMYSCH",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Severe  ** WaterHeater:HeatPump:PumpedCondenser=\"ZONE4HEATPUMPWATERHEATER\":",
                           "   **   ~~~   ** When Inlet Air Configuration=\"OUTDOORAIRONLY\".",
                           "   **   ~~~   ** Outdoor Air Node Name and Exhaust Air Node Name must be specified.",
                           "   ** Severe  ** WaterHeater:HeatPump:PumpedCondenser=\"ZONE4HEATPUMPWATERHEATER\":",
@@ -3336,9 +3339,16 @@ TEST_F(EnergyPlusFixture, MixedTank_WarnPotentialFreeze)
     // And the final tank temp too, which is the one triggering the warning
     EXPECT_LT(Tank.TankTemp, 2.0);
 
-    std::string const error_string = delimited_string({"   ** Warning ** CalcWaterThermalTankMixed: WaterHeater:Mixed = 'CHILLEDWATERTANK':  "
-                                                       "Temperature of tank < 2C indicates of possibility of freeze. Tank Temperature = 1.95 C.",
-                                                       "   **   ~~~   **  Environment=, at Simulation time= 00:-1 - 00:00"});
+    std::string const error_string =
+        delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = WATER HEATER SETPOINT TEMPERATURE",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Warning ** ProcessScheduleInput: Schedule:Constant = TANK AMBIENT TEMPERATURE",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Warning ** CalcWaterThermalTankMixed: WaterHeater:Mixed = 'CHILLEDWATERTANK':  "
+                          "Temperature of tank < 2C indicates of possibility of freeze. Tank Temperature = 1.95 C.",
+                          "   **   ~~~   **  Environment=, at Simulation time= 00:-1 - 00:00"});
     EXPECT_TRUE(compare_err_stream(error_string, true));
 }
 
@@ -3446,7 +3456,13 @@ TEST_F(EnergyPlusFixture, StratifiedTank_WarnPotentialFreeze)
     }
 
     std::string const error_string =
-        delimited_string({"   ** Warning ** CalcWaterThermalTankStratified: WaterHeater:Stratified = 'STRATIFIED CHILLEDWATERTANK':  Temperature of "
+        delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = WATER HEATER SETPOINT TEMPERATURE",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Warning ** ProcessScheduleInput: Schedule:Constant = TANK AMBIENT TEMPERATURE",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Warning ** CalcWaterThermalTankStratified: WaterHeater:Stratified = 'STRATIFIED CHILLEDWATERTANK':  Temperature of "
                           "tank < 2C indicates of possibility of freeze. Tank Temperature = 1.75 C.",
                           "   **   ~~~   **  Environment=, at Simulation time= 00:-1 - 00:00"});
     EXPECT_TRUE(compare_err_stream(error_string, true));
@@ -4742,13 +4758,34 @@ TEST_F(EnergyPlusFixture, HPWH_Wrapped_Stratified_Simultaneous)
     EXPECT_FALSE(WaterThermalTanks::GetWaterThermalTankInput(*state));
 
     // Previous warning before fix
-    // std::string const error_string = delimited_string({
+    std::string const error_string =
+        delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYS ON DISCRETE",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Warning ** ProcessScheduleInput: Schedule:Constant = HPWHWRAPPED COMPRESSOR SETP TEMP SCH",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Warning ** ProcessScheduleInput: Schedule:Constant = HPWHWRAPPED INLET AIR HUM SCH",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Warning ** ProcessScheduleInput: Schedule:Constant = HPWHWRAPPED INLET AIR TEMP SCH",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Warning ** ProcessScheduleInput: Schedule:Constant = HPWHWRAPPED STRATIFIED TANK HEATER1 SETP TEMP SCH",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Warning ** ProcessScheduleInput: Schedule:Constant = HPWHWRAPPED STRATIFIED TANK HEATER2 SETP TEMP SCH",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Warning ** ProcessScheduleInput: Schedule:Constant = HPWHWRAPPED STRATIFIED TANK AMBIENT TEMP SCH",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated."});
 
     //"   ** Severe  ** WaterHeater:HeatPump:WrappedCondenser = HPWHWRAPPED:",
     //"   **   ~~~   ** Heater Control Type for WaterHeater:Stratified = HPWHWRAPPED STRATIFIED TANK must be CYCLE.",
     //});
 
-    EXPECT_TRUE(compare_err_stream("", true));
+    EXPECT_TRUE(compare_err_stream(error_string, true));
 }
 
 // Test for #7902: If the HPWH is Pumped, and it has a Stratified Tank which  Priority Mode is Simultaneous,
@@ -5021,7 +5058,30 @@ TEST_F(EnergyPlusFixture, HPWH_Pumped_Stratified_Simultaneous)
     //"   **   ~~~   ** Heater Control Type for WaterHeater:Stratified = HPWHPUMPED STRATIFIED TANK must be CYCLE.",
     //});
 
-    EXPECT_TRUE(compare_err_stream("", true));
+    std::string const error_string =
+        delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYS ON DISCRETE",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Warning ** ProcessScheduleInput: Schedule:Constant = HPWHPUMPED COMPRESSOR SETP TEMP SCH",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Warning ** ProcessScheduleInput: Schedule:Constant = HPWHPUMPED INLET AIR HUM SCH",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Warning ** ProcessScheduleInput: Schedule:Constant = HPWHPUMPED INLET AIR TEMP SCH",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Warning ** ProcessScheduleInput: Schedule:Constant = HPWHPUMPED STRATIFIED TANK HEATER1 SETP TEMP SCH",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Warning ** ProcessScheduleInput: Schedule:Constant = HPWHPUMPED STRATIFIED TANK HEATER2 SETP TEMP SCH",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Warning ** ProcessScheduleInput: Schedule:Constant = HPWHPUMPED STRATIFIED TANK AMBIENT TEMP SCH",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated."});
+
+    EXPECT_TRUE(compare_err_stream(error_string, true));
 }
 
 TEST_F(EnergyPlusFixture, StratifiedTank_WarningNumberOfNodes_FalsePositiveBlanks)
@@ -5120,7 +5180,18 @@ TEST_F(EnergyPlusFixture, StratifiedTank_WarningNumberOfNodes_FalsePositiveBlank
         }
     }
 
-    EXPECT_TRUE(compare_err_stream(""));
+    std::string const error_string =
+        delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = HOT WATER SETPOINT TEMP SCHEDULE",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Warning ** ProcessScheduleInput: Schedule:Constant = AMBIENT TEMP SCHEDULE",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Warning ** ProcessScheduleInput: Schedule:Constant = HOT WATER DEMAND SCHEDULE",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated."});
+            
+    EXPECT_TRUE(compare_err_stream(error_string));
 }
 
 TEST_F(EnergyPlusFixture, StratifiedTank_WarningNumberOfNodes_FalsePositiveZeroes)
@@ -5221,7 +5292,18 @@ TEST_F(EnergyPlusFixture, StratifiedTank_WarningNumberOfNodes_FalsePositiveZeroe
         }
     }
 
-    EXPECT_TRUE(compare_err_stream(""));
+    std::string const error_string =
+        delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = HOT WATER SETPOINT TEMP SCHEDULE",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Warning ** ProcessScheduleInput: Schedule:Constant = AMBIENT TEMP SCHEDULE",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Warning ** ProcessScheduleInput: Schedule:Constant = HOT WATER DEMAND SCHEDULE",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated."});
+            
+    EXPECT_TRUE(compare_err_stream(error_string));
 }
 
 TEST_F(EnergyPlusFixture, StratifiedTank_WarningNumberOfNodes_ExpectedWarning)
@@ -5321,7 +5403,16 @@ TEST_F(EnergyPlusFixture, StratifiedTank_WarningNumberOfNodes_ExpectedWarning)
         }
     }
 
-    std::string const error_string = delimited_string({
+    std::string const error_string =
+        delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = HOT WATER SETPOINT TEMP SCHEDULE",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Warning ** ProcessScheduleInput: Schedule:Constant = AMBIENT TEMP SCHEDULE",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
+                          "   ** Warning ** ProcessScheduleInput: Schedule:Constant = HOT WATER DEMAND SCHEDULE",
+                          "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                          "   **   ~~~   ** Schedule will not be validated.",
         "   ** Warning ** WaterHeater:Stratified = STRATIFIED TANK:  More Additional Loss Coefficients were entered than the number of nodes; extra "
         "coefficients will not be used",
     });

@@ -3097,7 +3097,7 @@ void WrapperSpecs::CalcWrapperModel(EnergyPlusData &state, Real64 &MyLoad, int c
                         }
 
                         // Add ancilliary power if scheduled
-                        if (this->ancillaryPowerSched->getCurrentVal() > 0) {
+                        if (this->ancillaryPowerSched != nullptr) {
                             WrapperElecPowerCool += (this->AncillaryPower * this->ancillaryPowerSched->getCurrentVal());
                         }
 
@@ -3211,7 +3211,7 @@ void WrapperSpecs::CalcWrapperModel(EnergyPlusData &state, Real64 &MyLoad, int c
                         }
 
                         // Check if ancilliary power is used
-                        if (this->ancillaryPowerSched->getCurrentVal() > 0) {
+                        if (this->ancillaryPowerSched != nullptr) {
                             WrapperElecPowerHeat += (this->AncillaryPower * this->ancillaryPowerSched->getCurrentVal());
                         }
 

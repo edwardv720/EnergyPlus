@@ -10710,7 +10710,16 @@ TEST_F(EnergyPlusFixture, AirflowNetwork_TestZoneVentingAirBoundary)
     // Expect warnings about the air boundary surface
     EXPECT_TRUE(has_err_output(false));
     std::string const expectedErrString = delimited_string(
-        {"   ** Warning ** AirflowNetwork::Solver::get_input: AirflowNetwork:MultiZone:Surface=\"AIR WALL AULA 2\" is an air boundary surface.",
+        {"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ONSCH",
+         "   **   ~~~   ** Schedule Type Limits Name is empty.",
+         "   **   ~~~   ** Schedule will not be validated.",
+         "   ** Warning ** ProcessScheduleInput: Schedule:Constant = AULA PEOPLE SCHED",
+         "   **   ~~~   ** Schedule Type Limits Name is empty.",
+         "   **   ~~~   ** Schedule will not be validated.",
+         "   ** Warning ** ProcessScheduleInput: Schedule:Constant = SEMPRE 21",
+         "   **   ~~~   ** Schedule Type Limits Name is empty.",
+         "   **   ~~~   ** Schedule will not be validated.",
+         "   ** Warning ** AirflowNetwork::Solver::get_input: AirflowNetwork:MultiZone:Surface=\"AIR WALL AULA 2\" is an air boundary surface.",
          "   **   ~~~   ** Ventilation Control Mode = TEMPERATURE is not valid. Resetting to Constant.",
          "   ** Warning ** AirflowNetwork::Solver::get_input: : AirflowNetwork:MultiZone:Surface = AIR WALL AULA 2",
          "   **   ~~~   ** Venting Availbility Schedule is not empty.",
