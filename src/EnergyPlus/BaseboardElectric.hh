@@ -71,7 +71,7 @@ namespace BaseboardElectric {
         std::string EquipName;
         std::string EquipType;
         std::string Schedule;
-        Sched::Schedule *sched = nullptr;
+        Sched::Schedule *availSched = nullptr;
         Real64 NominalCapacity = 0.0;
         Real64 BaseboardEfficiency = 0.0;
         Real64 AirInletTemp = 0.0;

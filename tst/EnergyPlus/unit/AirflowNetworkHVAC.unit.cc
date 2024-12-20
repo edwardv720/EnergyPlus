@@ -202,8 +202,8 @@ TEST_F(EnergyPlusFixture, AirflowNetwork_TestZoneVentingSch)
     state->afn->get_input();
 
     // MultizoneZoneData has only 1 element so may be hardcoded
-    auto *ventingSched = Sched::GetSchedule(*state, state->afn->MultizoneZoneData(1).VentingSchName);
-    EXPECT_EQ(ventingSched, state->afn->MultizoneZoneData(1).ventingSched);
+    auto *ventingSched = Sched::GetSchedule(*state, state->afn->MultizoneZoneData(1).VentAvailSchName);
+    EXPECT_EQ(ventingSched, state->afn->MultizoneZoneData(1).ventAvailSched);
 
     state->dataHeatBal->Zone.deallocate();
     state->dataSurface->Surface.deallocate();
@@ -2375,8 +2375,8 @@ TEST_F(EnergyPlusFixture, AirflowNetwork_TestZoneVentingSchWithAdaptiveCtrl)
 
     // changed index 2 to 1 because in new sorted scheedule MultizoneZone(1).VentingSchName ("FREERUNNINGSEASON")
     // has index 1 which is the .VentSchNum
-    auto *ventingSched = Sched::GetSchedule(*state, state->afn->MultizoneZoneData(1).VentingSchName);
-    EXPECT_EQ(ventingSched, state->afn->MultizoneZoneData(1).ventingSched);
+    auto *ventingSched = Sched::GetSchedule(*state, state->afn->MultizoneZoneData(1).VentAvailSchName);
+    EXPECT_EQ(ventingSched, state->afn->MultizoneZoneData(1).ventAvailSched);
 
     state->dataHeatBal->Zone.deallocate();
     state->dataSurface->Surface.deallocate();
@@ -10719,13 +10719,13 @@ TEST_F(EnergyPlusFixture, AirflowNetwork_TestZoneVentingAirBoundary)
 
     // MultizoneSurfaceData(1) is connected to a normal heat transfer surface -
     // venting schedule should be non-zero and venting method should be ZoneLevel
-    auto *ventingSched = Sched::GetSchedule(*state, state->afn->MultizoneSurfaceData(1).VentingSchName);
-    EXPECT_EQ(ventingSched, state->afn->MultizoneSurfaceData(1).ventingSched);
+    auto *ventingSched = Sched::GetSchedule(*state, state->afn->MultizoneSurfaceData(1).VentAvailSchName);
+    EXPECT_EQ(ventingSched, state->afn->MultizoneSurfaceData(1).ventAvailSched);
     EXPECT_ENUM_EQ(state->afn->MultizoneSurfaceData(1).VentSurfCtrNum, AirflowNetwork::VentControlType::Temp);
 
     // MultizoneSurfaceData(2) is connected to an air boundary surface
     // venting schedule should be zero and venting method should be Constant
-    EXPECT_EQ(state->afn->MultizoneSurfaceData(2).ventingSched, Sched::GetScheduleAlwaysOn(*state));
+    EXPECT_EQ(state->afn->MultizoneSurfaceData(2).ventAvailSched, Sched::GetScheduleAlwaysOn(*state));
     EXPECT_ENUM_EQ(state->afn->MultizoneSurfaceData(2).VentSurfCtrNum, AirflowNetwork::VentControlType::Const);
 }
 

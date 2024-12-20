@@ -66,14 +66,14 @@ namespace SteamBaseboardRadiator {
     struct SteamBaseboardParams
     {
         // Members
-        std::string EquipID;
+        std::string Name;
         DataPlant::PlantEquipmentType EquipType;
         std::string designObjectName; // Design Object
         int DesignObjectPtr;
         Array1D_string SurfaceName;
         Array1D_int SurfacePtr;
         int ZonePtr;
-        Sched::Schedule *sched = nullptr;         // availability?
+        Sched::Schedule *availSched = nullptr;         
         int SteamInletNode;   // Inlet steam baseboard node
         int SteamOutletNode;  // Outlet steam baseboard node
         int TotSurfToDistrib; // Total numbers of the surfaces that the radiant heat gets distributed

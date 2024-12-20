@@ -473,7 +473,7 @@ void GetFanInput(EnergyPlusData &state)
         fan->sizingPrefix = cNumericFieldNames(3);
 
         if (lAlphaFieldBlanks(2)) {
-            fan->availSched = Sched::GetScheduleAlwaysOn(state);
+            fan->availSched = Sched::GetScheduleAlwaysOn(state); // Not an availability schedule, but defaults to constant-1.0
         } else if ((fan->availSched = Sched::GetSchedule(state, cAlphaArgs(2))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(2), cAlphaArgs(2));
             ErrorsFound = true;
@@ -520,7 +520,7 @@ void GetFanInput(EnergyPlusData &state)
         fan->endUseSubcategoryName = (NumAlphas > 4 && !lAlphaFieldBlanks(5)) ? cAlphaArgs(5) : "General";
 
         if (NumAlphas <= 5 || lAlphaFieldBlanks(6)) {
-            fan->flowFracSched = Sched::GetScheduleAlwaysOn(state);
+            fan->flowFracSched = Sched::GetScheduleAlwaysOn(state); // Not an availability schedule, but defaults to constant-1.0
         } else if ((fan->flowFracSched = Sched::GetSchedule(state, cAlphaArgs(6))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(6), cAlphaArgs(6));
             ErrorsFound = true;

@@ -2374,7 +2374,7 @@ void ProcessInputOARequirements(EnergyPlusData &state,
 
     // Set default schedule
     if (NumAlphas <= 2 || lAlphaBlanks(3)) {
-        state.dataSize->OARequirements(OAIndex).oaFlowFracSched = Sched::GetScheduleAlwaysOn(state);
+        state.dataSize->OARequirements(OAIndex).oaFlowFracSched = Sched::GetScheduleAlwaysOn(state); // Defaults to constant-1.0
     } else if ((state.dataSize->OARequirements(OAIndex).oaFlowFracSched = Sched::GetSchedule(state, Alphas(3))) == nullptr) {
         ShowSevereItemNotFound(state, eoh, cAlphaFields(3), Alphas(3));
         ErrorsFound = true;

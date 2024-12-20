@@ -919,8 +919,7 @@ namespace Dayltg {
                             state.dataDaylightingDevices->GetShelfInputErrorsFound = true;
                         }
 
-                        if (state.dataSurface->Surface(SurfNum).shadowSurfSched != nullptr &&
-                            state.dataSurface->Surface(SurfNum).shadowSurfSched != Sched::GetScheduleAlwaysOff(state)) {
+                        if (state.dataSurface->Surface(SurfNum).shadowSurfSched != nullptr) {
                             ShowSevereError(state,
                                             format("{} = {}:  Outside shelf {} must not have a transmittance schedule.",
                                                    cCurrentModuleObject,

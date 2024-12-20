@@ -314,7 +314,7 @@ namespace DataZoneEquipment {
         int NumExhaustNodes;                  // number of exhaust nodes
         int NumReturnNodes;                   // number of return air nodes
         int NumReturnFlowBasisNodes;          // number of return air flow basis nodes
-        Sched::Schedule *returnFlowSched = nullptr; // return air flow fraction schedule pointer
+        Sched::Schedule *returnFlowFracSched = nullptr; // return air flow fraction schedule pointer
         bool FlowError;                       // flow error flag
         Array1D_int InletNode;                // zone supply air inlet nodes
         Array1D_int InletNodeAirLoopNum;      // air loop number connected to this inlet node (0 if not an airloop node)

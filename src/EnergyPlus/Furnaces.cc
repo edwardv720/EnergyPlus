@@ -848,8 +848,8 @@ namespace Furnaces {
             ErrorObjectHeader eoh{routineName, cAlphaFields(1), thisFurnace.Name};
 
             if (lAlphaBlanks(2)) {
-                thisFurnace.sched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((thisFurnace.sched = Sched::GetSchedule(state, Alphas(2))) == nullptr) {
+                thisFurnace.availSched = Sched::GetScheduleAlwaysOn(state);
+            } else if ((thisFurnace.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(2), Alphas(2));
                 ErrorsFound = true;
             }
@@ -1372,8 +1372,8 @@ namespace Furnaces {
             ErrorObjectHeader eoh{routineName, CurrentModuleObject, thisFurnace.Name};
 
             if (lAlphaBlanks(2)) {
-                thisFurnace.sched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((thisFurnace.sched = Sched::GetSchedule(state, Alphas(2))) == nullptr) {
+                thisFurnace.availSched = Sched::GetScheduleAlwaysOn(state);
+            } else if ((thisFurnace.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(2), Alphas(2));
                 ErrorsFound = true;
             }
@@ -2650,8 +2650,8 @@ namespace Furnaces {
             ErrorObjectHeader eoh{routineName, CurrentModuleObject, thisFurnace.Name};
 
             if (lAlphaBlanks(2)) {
-                thisFurnace.sched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((thisFurnace.sched = Sched::GetSchedule(state, Alphas(2))) == nullptr) { 
+                thisFurnace.availSched = Sched::GetScheduleAlwaysOn(state);
+            } else if ((thisFurnace.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) { 
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(2), Alphas(2));
                 ErrorsFound = true;
             }
@@ -3557,8 +3557,8 @@ namespace Furnaces {
             ErrorObjectHeader eoh{routineName, CurrentModuleObject, thisFurnace.Name};
 
             if (lAlphaBlanks(2)) {
-                thisFurnace.sched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((thisFurnace.sched = Sched::GetSchedule(state, Alphas(2))) == nullptr) {
+                thisFurnace.availSched = Sched::GetScheduleAlwaysOn(state);
+            } else if ((thisFurnace.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(2), Alphas(2));
                 ErrorsFound = true;
             }
@@ -5146,7 +5146,7 @@ namespace Furnaces {
         // Check for heat only furnace
         if (thisFurnace.type != HVAC::UnitarySysType::Furnace_HeatOnly && thisFurnace.type != HVAC::UnitarySysType::Unitary_HeatOnly) {
 
-            if (thisFurnace.sched->getCurrentVal() > 0.0) {
+            if (thisFurnace.availSched->getCurrentVal() > 0.0) {
                 if ((state.dataFurnaces->HeatingLoad || state.dataFurnaces->CoolingLoad) || (thisFurnace.Humidistat && MoistureLoad < 0.0)) {
                     PartLoadRatio = 1.0;
                 } else {
@@ -5365,7 +5365,7 @@ namespace Furnaces {
 
         QToCoolSetPt = 0.0;
         QToHeatSetPt = 0.0;
-        if (fanOp == HVAC::FanOp::Continuous && thisFurnace.sched->getCurrentVal() > 0.0 &&
+        if (fanOp == HVAC::FanOp::Continuous && thisFurnace.availSched->getCurrentVal() > 0.0 &&
             ((thisFurnace.fanAvailSched->getCurrentVal() > 0.0 || state.dataHVACGlobal->TurnFansOn) &&
              !state.dataHVACGlobal->TurnFansOff)) {
 
@@ -6205,7 +6205,7 @@ namespace Furnaces {
             state.dataHVACGlobal->OnOffFanPartLoadFraction = 1.0;
         } else {
             // If Furnace runs then set HeatCoilLoad on Heating Coil and the Mass Flow
-            if ((thisFurnace.sched->getCurrentVal() > 0.0) && (furnaceInNode.MassFlowRate > 0.0) &&
+            if ((thisFurnace.availSched->getCurrentVal() > 0.0) && (furnaceInNode.MassFlowRate > 0.0) &&
                 (state.dataFurnaces->HeatingLoad)) {
 
                 furnaceInNode.MassFlowRate = thisFurnace.MdotFurnace;
@@ -6369,7 +6369,7 @@ namespace Furnaces {
                 //      END IF
                 thisFurnace.MdotFurnace = furnaceInNode.MassFlowRate;
 
-            } else if ((thisFurnace.sched->getCurrentVal() > 0.0) && (furnaceInNode.MassFlowRate > 0.0) &&
+            } else if ((thisFurnace.availSched->getCurrentVal() > 0.0) && (furnaceInNode.MassFlowRate > 0.0) &&
                        (fanOp == HVAC::FanOp::Continuous)) {
                 HeatCoilLoad = 0.0;
             } else { // no heating and no flow
@@ -6609,7 +6609,7 @@ namespace Furnaces {
             //*********** Heating Section ************
             // If Furnace runs with a heating load then set HeatCoilLoad on Heating Coil and the Mass Flow
             //         (Node(FurnaceInletNode)%MassFlowRate .gt. 0.0d0) .and. &
-            if ((thisFurnace.sched->getCurrentVal() > 0.0) && (state.dataFurnaces->HeatingLoad)) {
+            if ((thisFurnace.availSched->getCurrentVal() > 0.0) && (state.dataFurnaces->HeatingLoad)) {
 
                 //    Heat pumps only calculate a single PLR each time step (i.e. only cooling or heating allowed in a single time step)
                 if (thisFurnace.type == HVAC::UnitarySysType::Unitary_HeatPump_AirToAir ||
@@ -7087,7 +7087,7 @@ namespace Furnaces {
             // Simulate if scheduled ON and cooling load or if a moisture load exists when using a humidistat
             // Check of HeatingLatentOutput is used to reduce overshoot during simultaneous heating and cooling
             // Setback flag is used to avoid continued RH control when Tstat is setback (RH should float down)
-            if ((thisFurnace.sched->getCurrentVal() > 0.0 && state.dataFurnaces->CoolingLoad) ||
+            if ((thisFurnace.availSched->getCurrentVal() > 0.0 && state.dataFurnaces->CoolingLoad) ||
                 (thisFurnace.Humidistat && thisFurnace.DehumidControlType_Num == DehumidificationControlMode::CoolReheat &&
                  (SystemMoistureLoad < 0.0 || (SystemMoistureLoad >= 0.0 && HeatingLatentOutput > SystemMoistureLoad &&
                                                !state.dataZoneEnergyDemand->Setback(thisFurnace.ControlZoneNum))))) {
@@ -7774,7 +7774,7 @@ namespace Furnaces {
             //*********HVAC Scheduled OFF*************
             // No heating or cooling or dehumidification
             //!!LKL discrepancy with < 0?
-            if (thisFurnace.sched->getCurrentVal() == 0.0 ||
+            if (thisFurnace.availSched->getCurrentVal() == 0.0 ||
                 state.dataLoopNodes->Node(FurnaceInletNode).MassFlowRate == 0.0) {
                 thisFurnace.MdotFurnace = 0.0;
                 CoolCoilLoad = 0.0;
@@ -7877,7 +7877,7 @@ namespace Furnaces {
         // AND air flow rate is greater than zero...
         // AND the air system has a cooling load and is not set back or in the deadband...
         // OR the system is controlled by a humidistat and there is a latent load
-        if ((thisFurnace.sched->getCurrentVal() > 0.0 &&
+        if ((thisFurnace.availSched->getCurrentVal() > 0.0 &&
              state.dataLoopNodes->Node(FurnaceInletNode).MassFlowRate > 0.0) &&
             ((state.dataFurnaces->CoolingLoad) || (thisFurnace.Humidistat && thisFurnace.CoolingCoilLatentDemand < 0.0))) {
 
@@ -8079,7 +8079,7 @@ namespace Furnaces {
 
             //*********HEATING CALCULATIONS****************
             // If Furnace runs with a heating load then set HeatCoilLoad on Heating Coil and the Mass Flow
-        } else if ((thisFurnace.sched->getCurrentVal() > 0.0) &&
+        } else if ((thisFurnace.availSched->getCurrentVal() > 0.0) &&
                    (state.dataLoopNodes->Node(FurnaceInletNode).MassFlowRate > 0.0) && state.dataFurnaces->HeatingLoad) {
 
             // Set the air flow rate to the design flow rate and set the fan operation fraction to 1 (continuous operation)
@@ -8296,7 +8296,7 @@ namespace Furnaces {
             }
 
             //**********HVAC Scheduled ON, but no cooling, dehumidification or heating load*********
-        } else if (thisFurnace.sched->getCurrentVal() > 0.0) {
+        } else if (thisFurnace.availSched->getCurrentVal() > 0.0) {
             thisFurnace.InitHeatPump = true; // initialization call to Calc Furnace
             HeatPartLoadRatio = 0.0;
             CoolPartLoadRatio = 0.0;
@@ -9009,7 +9009,7 @@ namespace Furnaces {
         }
 
         // IF the furnace is scheduled on or nightime cycle overrides fan schedule. Uses same logic as fan.
-        if (state.dataFurnaces->Furnace(FurnaceNum).sched->getCurrentVal() > 0.0 &&
+        if (state.dataFurnaces->Furnace(FurnaceNum).availSched->getCurrentVal() > 0.0 &&
             ((state.dataFurnaces->Furnace(FurnaceNum).fanAvailSched->getCurrentVal() > 0.0 ||
               state.dataHVACGlobal->TurnFansOn) &&
              !state.dataHVACGlobal->TurnFansOff)) {
@@ -9429,7 +9429,7 @@ namespace Furnaces {
         TotalZoneSensibleLoad = QZnReq;
         TotalZoneLatentLoad = QLatReq;
         //     Calculate the reheat coil output
-        if ((thisFurnace.sched->getCurrentVal() > 0.0) &&
+        if ((thisFurnace.availSched->getCurrentVal() > 0.0) &&
             (thisFurnace.Humidistat && thisFurnace.DehumidControlType_Num == DehumidificationControlMode::CoolReheat &&
              (QLatReq < 0.0))) { // if a Humidistat is installed and dehumidification control type is CoolReheat
             CalcVarSpeedHeatPump(state,
@@ -9635,7 +9635,7 @@ namespace Furnaces {
         Real64 ErrorToler = 0.001; // Error tolerance for convergence from input deck
 
         auto &thisFurnace = state.dataFurnaces->Furnace(FurnaceNum);
-        if (thisFurnace.sched->getCurrentVal() == 0.0) return;
+        if (thisFurnace.availSched->getCurrentVal() == 0.0) return;
 
         // Get result when DX coil is off
         SupHeaterLoad = 0.0;
@@ -10813,7 +10813,7 @@ namespace Furnaces {
             }
         }
 
-        if ((thisFurnace.sched->getCurrentVal() == 0.0) || state.dataHVACGlobal->TurnFansOff ||
+        if ((thisFurnace.availSched->getCurrentVal() == 0.0) || state.dataHVACGlobal->TurnFansOff ||
             (thisFurnace.fanAvailSched->getCurrentVal() == 0.0 && !state.dataHVACGlobal->TurnFansOn)) {
             state.dataLoopNodes->Node(thisFurnace.FurnaceInletNodeNum).MassFlowRate = 0.0;
             OnOffAirFlowRatio = 0.0;

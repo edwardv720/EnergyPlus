@@ -703,8 +703,9 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                 auto &thisZone = state.dataHeatBal->Zone(thisSpace.zoneNum);
 
                 thisInfiltration.ModelType = DataHeatBalance::InfiltrationModelType::DesignFlowRate;
+
                 if (lAlphaFieldBlanks(3)) {
-                    thisInfiltration.sched = Sched::GetScheduleAlwaysOn(state);
+                    thisInfiltration.sched = Sched::GetScheduleAlwaysOn(state); // This is not an availability schedule per se, but does default to Constant-1.0
                 } else if ((thisInfiltration.sched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) {
                     if (Item1 == 1) { // avoid repeated error messages from the same input object
                         ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(3), cAlphaArgs(3));
@@ -942,7 +943,7 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                 thisInfiltration.ModelType = DataHeatBalance::InfiltrationModelType::ShermanGrimsrud;
 
                 if (lAlphaFieldBlanks(3)) {
-                    thisInfiltration.sched = Sched::GetScheduleAlwaysOn(state);
+                    thisInfiltration.sched = Sched::GetScheduleAlwaysOn(state); // Not an availability schedule but defaults to constant 1.0
                 } else if ((thisInfiltration.sched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(3), cAlphaArgs(3));
                     ErrorsFound = true;
@@ -1023,7 +1024,7 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                 thisInfiltration.ModelType = DataHeatBalance::InfiltrationModelType::AIM2;
 
                 if (lAlphaFieldBlanks(3)) {
-                    thisInfiltration.sched = Sched::GetScheduleAlwaysOn(state);
+                    thisInfiltration.sched = Sched::GetScheduleAlwaysOn(state); // Not an availability schedule, but defaults to constant-1.0
                 } else if ((thisInfiltration.sched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(3), cAlphaArgs(3));
                     ErrorsFound = true;
@@ -1336,8 +1337,8 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
 
                 thisVentilation.ModelType = DataHeatBalance::VentilationModelType::DesignFlowRate;
                 if (lAlphaFieldBlanks(3)) {
-                    thisVentilation.sched = Sched::GetScheduleAlwaysOn(state);
-                } else if ((thisVentilation.sched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) {
+                    thisVentilation.availSched = Sched::GetScheduleAlwaysOn(state); // Defaults to constant-1.0
+                } else if ((thisVentilation.availSched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) {
                     if (Item1 == 1) {
                         ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(3), cAlphaArgs(3));
                         ErrorsFound = true;
@@ -1881,7 +1882,7 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
 
                 thisVentilation.ModelType = DataHeatBalance::VentilationModelType::WindAndStack;
 
-                thisVentilation.sched = Sched::GetScheduleAlwaysOff(state);
+                thisVentilation.availSched = Sched::GetScheduleAlwaysOn(state); // not an availability schedule, but defaults to constant-1.0
 
                 thisVentilation.OpenArea = rNumericArgs(1);
                 if (thisVentilation.OpenArea < 0.0) {
@@ -1891,8 +1892,8 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                 }
 
                 if (lAlphaFieldBlanks(3)) {
-                    thisVentilation.openAreaSched = Sched::GetScheduleAlwaysOn(state);
-                } else if ((thisVentilation.openAreaSched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) {
+                    thisVentilation.openAreaFracSched = Sched::GetScheduleAlwaysOn(state); // not an availability schedule, but defaults to constant-1.0
+                } else if ((thisVentilation.openAreaFracSched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(3), cAlphaArgs(3));
                     ErrorsFound = true;
                 }
@@ -2278,7 +2279,7 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                 auto &thisZone = state.dataHeatBal->Zone(thisSpace.zoneNum);
 
                 if (lAlphaFieldBlanks(3)) {
-                    thisMixing.sched = Sched::GetScheduleAlwaysOn(state);
+                    thisMixing.sched = Sched::GetScheduleAlwaysOn(state); // Not an availability schedule, but defaults to constant-1.0
                 } else if ((thisMixing.sched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) { 
                     ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(3), cAlphaArgs(3));
                     ErrorsFound = true;
@@ -2770,7 +2771,7 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                 auto &thisZone = state.dataHeatBal->Zone(thisSpace.zoneNum);
 
                 if (lAlphaFieldBlanks(3)) {
-                    thisMixing.sched = Sched::GetScheduleAlwaysOn(state);
+                    thisMixing.sched = Sched::GetScheduleAlwaysOn(state); // not an availability schedule, but defaults to constant-1.0
                 } else if ((thisMixing.sched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) { 
                     ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(3), cAlphaArgs(3));
                     ErrorsFound = true;
@@ -3760,7 +3761,7 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
               Format_720,
               "ZoneVentilation",
               state.dataHeatBal->Ventilation(Loop).Name,
-              state.dataHeatBal->Ventilation(Loop).sched->Name,
+              state.dataHeatBal->Ventilation(Loop).availSched->Name,
               state.dataHeatBal->Zone(ZoneNum).Name,
               state.dataHeatBal->Zone(ZoneNum).FloorArea,
               state.dataHeatBal->Zone(ZoneNum).TotOccupants);

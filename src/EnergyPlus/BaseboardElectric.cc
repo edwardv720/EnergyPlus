@@ -221,8 +221,8 @@ namespace BaseboardElectric {
                 thisBaseboard.EquipType = Util::makeUPPER(cCurrentModuleObject); // the type of baseboard-rename change
                 thisBaseboard.Schedule = s_ipsc->cAlphaArgs(2);
                 if (s_ipsc->lAlphaFieldBlanks(2)) {
-                    thisBaseboard.sched = Sched::GetScheduleAlwaysOn(state);
-                } else if ((thisBaseboard.sched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(2))) == nullptr) {
+                    thisBaseboard.availSched = Sched::GetScheduleAlwaysOn(state);
+                } else if ((thisBaseboard.availSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(2))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(2), s_ipsc->cAlphaArgs(2));
                     ErrorsFound = true;
                 }
@@ -507,7 +507,7 @@ namespace BaseboardElectric {
         //  thermal loss that could be accounted for with this efficiency input.
         Real64 Effic = baseboard.BaseboardEfficiency;
 
-        if (baseboard.sched->getCurrentVal() > 0.0 && LoadMet >= HVAC::SmallLoad) {
+        if (baseboard.availSched->getCurrentVal() > 0.0 && LoadMet >= HVAC::SmallLoad) {
 
             // if the load exceeds the capacity than the capacity is set to the BB limit.
             if (LoadMet > baseboard.NominalCapacity) {

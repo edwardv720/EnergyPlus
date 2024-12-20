@@ -327,12 +327,6 @@ namespace InternalHeatGains {
                     thisPeople.spaceIndex = spaceNum;
                     thisPeople.ZonePtr = zoneNum;
 
-                    // These are Constant-1.0 by default
-                    thisPeople.workEffSched = Sched::GetScheduleAlwaysOn(state);
-                    thisPeople.clothingSched = Sched::GetScheduleAlwaysOn(state);
-                    thisPeople.clothingMethodSched = Sched::GetScheduleAlwaysOn(state);
-                    thisPeople.airVelocitySched = Sched::GetScheduleAlwaysOn(state);
-                    
                     thisPeople.sched = Sched::GetSchedule(state, IHGAlphas(3));
 
                     if (Item1 == 1) { // only show error on first one
@@ -794,7 +788,6 @@ namespace InternalHeatGains {
 
                         
                             if (IHGAlphaFieldBlanks(13)) {
-                                thisPeople.airVelocitySched = Sched::GetScheduleAlwaysOn(state);
                             } else {
                                 thisPeople.airVelocitySched = Sched::GetSchedule(state, IHGAlphas(13));
                             }
@@ -817,7 +810,6 @@ namespace InternalHeatGains {
                             }
                             
                             if (IHGAlphas(21).empty()) { // Using IHGAlphaFieldBlanks(21) doesn't work because this field has a default
-                                thisPeople.ankleAirVelocitySched = Sched::GetScheduleAlwaysOn(state);
                             } else {
                                 thisPeople.ankleAirVelocitySched = Sched::GetSchedule(state, IHGAlphas(21));
                             }
@@ -2615,7 +2607,7 @@ namespace InternalHeatGains {
                         }
 
                         if (IHGAlphaFieldBlanks(5)) {
-                            thisZoneITEq.operSched = Sched::GetScheduleAlwaysOn(state);
+                            thisZoneITEq.operSched = Sched::GetScheduleAlwaysOn(state); // Not an availability schedule, but default is constant-1.0
                         } else if ((thisZoneITEq.operSched = Sched::GetSchedule(state, IHGAlphas(5))) == nullptr) { 
                             ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(5), IHGAlphas(5));
                             ErrorsFound = true;
@@ -2625,7 +2617,7 @@ namespace InternalHeatGains {
                         }
                         
                         if (IHGAlphaFieldBlanks(6)) {
-                            thisZoneITEq.cpuLoadSched = Sched::GetScheduleAlwaysOn(state);
+                            thisZoneITEq.cpuLoadSched = Sched::GetScheduleAlwaysOn(state); // not an availability schedule, but default is constant-1.0
                         } else if ((thisZoneITEq.cpuLoadSched = Sched::GetSchedule(state, IHGAlphas(6))) == nullptr) { 
                             ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(6), IHGAlphas(6));
                             ErrorsFound = true;

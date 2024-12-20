@@ -681,7 +681,7 @@ void GetWrapperInput(EnergyPlusData &state)
 
         state.dataPlantCentralGSHP->Wrapper(WrapperNum).AncillaryPower = state.dataIPShortCut->rNumericArgs(1);
         if (state.dataIPShortCut->lAlphaFieldBlanks(9)) {
-            state.dataPlantCentralGSHP->Wrapper(WrapperNum).ancillaryPowerSched = Sched::GetScheduleAlwaysOff(state);                
+            // Leave this as nullptr
         } else if ((state.dataPlantCentralGSHP->Wrapper(WrapperNum).ancillaryPowerSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(9))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(9), state.dataIPShortCut->cAlphaArgs(9));
         }
@@ -706,9 +706,9 @@ void GetWrapperInput(EnergyPlusData &state)
                 state.dataPlantCentralGSHP->Wrapper(WrapperNum).WrapperComp(Comp).WrapperComponentName = state.dataIPShortCut->cAlphaArgs(loop + 1);
 
                 if (state.dataIPShortCut->lAlphaFieldBlanks(loop + 2)) {
-                    state.dataPlantCentralGSHP->Wrapper(WrapperNum).WrapperComp(Comp).chSched = Sched::GetScheduleAlwaysOn(state);
+                    state.dataPlantCentralGSHP->Wrapper(WrapperNum).WrapperComp(Comp).chSched = Sched::GetScheduleAlwaysOn(state); // Not an availability schedule, but defaults to constant-1.0
                 } else if ((state.dataPlantCentralGSHP->Wrapper(WrapperNum).WrapperComp(Comp).chSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(loop + 2))) == nullptr) {
-                    state.dataPlantCentralGSHP->Wrapper(WrapperNum).WrapperComp(Comp).chSched = Sched::GetScheduleAlwaysOn(state);
+                    state.dataPlantCentralGSHP->Wrapper(WrapperNum).WrapperComp(Comp).chSched = Sched::GetScheduleAlwaysOn(state); // Not an availabilty schedule, but defaults to constant-1.0
                     ShowWarningItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(loop + 2), state.dataIPShortCut->cAlphaArgs(loop + 2),
                                             "The Control Schedule is treated as AlwaysOn instead.");
                 }

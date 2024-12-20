@@ -1298,9 +1298,10 @@ void GetOAControllerInputs(EnergyPlusData &state)
             int NumGroups = (NumAlphas + NumNums - 5) / 3; // Number of extensible input groups of the VentilationMechanical object
             if (mod((NumAlphas + NumNums - 5), 3) != 0) ++NumGroups;
             thisVentilationMechanical.Name = AlphArray(1); // no need to check if AlphaArray(1) is empty since Json will catch missing required fields
+
             if (lAlphaBlanks(2)) {
-                 thisVentilationMechanical.sched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((thisVentilationMechanical.sched = Sched::GetSchedule(state, AlphArray(2))) == nullptr) { 
+                 thisVentilationMechanical.availSched = Sched::GetScheduleAlwaysOn(state);
+            } else if ((thisVentilationMechanical.availSched = Sched::GetSchedule(state, AlphArray(2))) == nullptr) { 
                  ShowSevereItemNotFound(state, eoh, cAlphaFields(2), AlphArray(2));
                  ErrorsFound = true;
             }
@@ -1588,7 +1589,7 @@ void GetOAControllerInputs(EnergyPlusData &state)
                     thisVentMechZone.ZoneOAFlowRate = 0.0;
                     thisVentMechZone.ZoneOAACHRate = 0.0;
                     thisVentMechZone.ZoneOAFlowMethod = OAFlowCalcMethod::PerPerson;
-                    thisVentMechZone.zoneOASched = Sched::GetScheduleAlwaysOff(state);
+                    thisVentMechZone.zoneOASched = Sched::GetScheduleAlwaysOn(state); // defaults to constant-1.0. TODO: what is this really suppoed to be?
                     ShowWarningError(state, format("{}{}=\"{}", RoutineName, CurrentModuleObject, thisVentilationMechanical.Name));
                     ShowContinueError(
                         state, format("Cannot locate a matching DesignSpecification:OutdoorAir object for Zone=\"{}\".", thisVentMechZone.name));
@@ -1771,28 +1772,23 @@ void GetOAControllerInputs(EnergyPlusData &state)
             "{Yes/No},System Outdoor Air Method,Zone Maximum Outdoor Air Fraction,Number of Zones,Zone Name,DSOA "
             "Name,DSZAD Name");
         print(state.files.eio, "{}\n", Format_700);
-        for (int VentMechNum = 1; VentMechNum <= state.dataMixedAir->NumVentMechControllers; ++VentMechNum) {
-            auto &thisVentilationMechanical(state.dataMixedAir->VentilationMechanical(VentMechNum));
-            print(state.files.eio, " Controller:MechanicalVentilation,{},{},", thisVentilationMechanical.Name, thisVentilationMechanical.sched->Name);
+        for (auto const &ventMech : state.dataMixedAir->VentilationMechanical) {
+            print(state.files.eio, " Controller:MechanicalVentilation,{},{},", ventMech.Name, ventMech.availSched ? ventMech.availSched->Name : "");
 
-            if (thisVentilationMechanical.DCVFlag) {
-                print(state.files.eio, "Yes,");
-            } else {
-                print(state.files.eio, "No,");
-            }
+            print(state.files.eio, format("{},", yesNoNames[(int)ventMech.DCVFlag]));
 
-            if (thisVentilationMechanical.SystemOAMethod != DataSizing::SysOAMethod::Invalid) {
-                print(state.files.eio, printSysOAMethod[static_cast<int>(thisVentilationMechanical.SystemOAMethod)]);
+            if (ventMech.SystemOAMethod != DataSizing::SysOAMethod::Invalid) {
+                print(state.files.eio, printSysOAMethod[(int)ventMech.SystemOAMethod]);
             } else {
                 print(state.files.eio, "Invalid/Unknown,");
             }
 
-            print(state.files.eio, "{:.2R},", thisVentilationMechanical.ZoneMaxOAFraction);
-            print(state.files.eio, "{},", thisVentilationMechanical.NumofVentMechZones);
+            print(state.files.eio, "{:.2R},", ventMech.ZoneMaxOAFraction);
+            print(state.files.eio, "{},", ventMech.NumofVentMechZones);
 
-            for (int jZone = 1; jZone <= thisVentilationMechanical.NumofVentMechZones; ++jZone) {
-                auto &thisVentMechZone = thisVentilationMechanical.VentMechZone(jZone);
-                if (jZone < thisVentilationMechanical.NumofVentMechZones) {
+            for (int jZone = 1; jZone <= ventMech.NumofVentMechZones; ++jZone) {
+                auto &thisVentMechZone = ventMech.VentMechZone(jZone);
+                if (jZone < ventMech.NumofVentMechZones) {
                     print(state.files.eio,
                           "{},{},{},",
                           state.dataHeatBal->Zone(thisVentMechZone.zoneNum).Name,
@@ -3670,7 +3666,7 @@ Real64 VentilationMechanicalProps::CalcMechVentController(EnergyPlusData &state,
     Real64 MechVentOAMassFlow = 0.0;
 
     // Apply mechanical ventilation only when it is available/allowed
-    if (this->sched->getCurrentVal() > 0) {
+    if (this->availSched->getCurrentVal() > 0) {
         Real64 SysOAMassFlow = 0.0; // System supply OA mass flow rate [kg/s]
         if (this->SystemOAMethod == DataSizing::SysOAMethod::IAQP) {
             // IAQP for CO2 control

@@ -862,8 +862,8 @@ TEST_F(EnergyPlusFixture, CO2ControlDesignOccupancyTest)
     EXPECT_NEAR(0.00314899, ventMechanical.VentMechZone(1).ZoneOAPeopleRate, 0.00001);
     EXPECT_NEAR(0.000407, ventMechanical.VentMechZone(1).ZoneOAAreaRate, 0.00001);
 
-    ventMechanical.sched = Sched::GetSchedule(*state, "OCCUPY-1");
-    ventMechanical.sched->currentVal = 1.0;
+    ventMechanical.availSched = Sched::GetSchedule(*state, "OCCUPY-1");
+    ventMechanical.availSched->currentVal = 1.0;
 
     ventMechanical.VentMechZone(1).zoneADEffSched = Sched::GetSchedule(*state, "ACTSCHD");
     ventMechanical.VentMechZone(1).zoneADEffSched->currentVal = 1.0;
@@ -1158,8 +1158,8 @@ TEST_F(EnergyPlusFixture, CO2ControlDesignOccupancyTest3Zone)
     EXPECT_NEAR(0.00314899, ventMechanical.VentMechZone(3).ZoneOAPeopleRate, 0.00001);
     EXPECT_NEAR(0.000407, ventMechanical.VentMechZone(3).ZoneOAAreaRate, 0.00001);
 
-    ventMechanical.sched = Sched::GetSchedule(*state, "OCCUPY-1");
-    ventMechanical.sched->currentVal = 1.0;
+    ventMechanical.availSched = Sched::GetSchedule(*state, "OCCUPY-1");
+    ventMechanical.availSched->currentVal = 1.0;
 
     ventMechanical.VentMechZone(1).zoneADEffSched = Sched::GetSchedule(*state, "ACTSCHD");
     ventMechanical.VentMechZone(2).zoneADEffSched = Sched::GetSchedule(*state, "ACTSCHD");
@@ -6562,7 +6562,7 @@ TEST_F(EnergyPlusFixture, CO2ControlDesignOARateTest)
     state->dataMixedAir->OAController(1).MixMassFlow = 1.7 * state->dataEnvrn->StdRhoAir;
     state->dataMixedAir->OAController(1).MaxOAMassFlowRate = 1.7 * state->dataEnvrn->StdRhoAir;
     state->dataAirLoop->AirLoopFlow(1).DesSupply = 1.7;
-    state->dataMixedAir->VentilationMechanical(1).sched = Sched::GetSchedule(*state, "VENTSCHEDULE");
+    state->dataMixedAir->VentilationMechanical(1).availSched = Sched::GetSchedule(*state, "VENTSCHEDULE");
 
     Sched::GetSchedule(*state, "VENTSCHEDULE")->currentVal = 1.0;
 

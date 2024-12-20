@@ -800,8 +800,8 @@ void processZoneEquipmentInput(EnergyPlusData &state,
 
     std::string ReturnNodeListName = AlphArray(6 + spaceFieldShift);
     if (lAlphaBlanks(7)) {
-        thisEquipConfig.returnFlowSched = Sched::GetScheduleAlwaysOn(state);
-    } else if ((thisEquipConfig.returnFlowSched = Sched::GetSchedule(state, AlphArray(7 + spaceFieldShift))) == nullptr) {
+        thisEquipConfig.returnFlowFracSched = Sched::GetScheduleAlwaysOn(state); // Not an availability sched, but defaults to constant-1.0
+    } else if ((thisEquipConfig.returnFlowFracSched = Sched::GetSchedule(state, AlphArray(7 + spaceFieldShift))) == nullptr) {
         ShowSevereItemNotFound(state, eoh, cAlphaFields(7), AlphArray(7));
         state.dataZoneEquip->GetZoneEquipmentDataErrorsFound = true;
     }
@@ -928,7 +928,7 @@ void processZoneEquipmentInput(EnergyPlusData &state,
                     std::string coolingSchName =
                         ip->getAlphaFieldValue(extensibleInstance, extensionSchemaProps, "zone_equipment_sequential_cooling_fraction_schedule_name");
                     if (coolingSchName.empty()) {
-                        thisZoneEquipList.sequentialCoolingFractionScheds(ZoneEquipTypeNum) = Sched::GetScheduleAlwaysOn(state);
+                        thisZoneEquipList.sequentialCoolingFractionScheds(ZoneEquipTypeNum) = Sched::GetScheduleAlwaysOn(state); // Not an availability schedule, but defaults to constant-1.0
                     } else {
                         thisZoneEquipList.sequentialCoolingFractionScheds(ZoneEquipTypeNum) = Sched::GetSchedule(state, coolingSchName);
                         if (thisZoneEquipList.sequentialCoolingFractionScheds(ZoneEquipTypeNum) == nullptr) {
@@ -940,7 +940,7 @@ void processZoneEquipmentInput(EnergyPlusData &state,
                     std::string heatingSchName =
                         ip->getAlphaFieldValue(extensibleInstance, extensionSchemaProps, "zone_equipment_sequential_heating_fraction_schedule_name");
                     if (heatingSchName.empty()) {
-                        thisZoneEquipList.sequentialHeatingFractionScheds(ZoneEquipTypeNum) = Sched::GetScheduleAlwaysOn(state);
+                        thisZoneEquipList.sequentialHeatingFractionScheds(ZoneEquipTypeNum) = Sched::GetScheduleAlwaysOn(state); // Not an availability schedule, but defaults to constant-1.0
                     } else {
                         thisZoneEquipList.sequentialHeatingFractionScheds(ZoneEquipTypeNum) = Sched::GetSchedule(state, heatingSchName);
                         if (thisZoneEquipList.sequentialHeatingFractionScheds(ZoneEquipTypeNum) == nullptr) {
@@ -2225,7 +2225,7 @@ void EquipConfiguration::calcReturnFlows(EnergyPlusData &state,
     Real64 totReturnFlow = 0.0; // Total flow to all return nodes in the zone (kg/s)
     Real64 totVarReturnFlow =
         0.0; // Total variable return flow, for return nodes connected to an airloop with an OA system or not with specified flow (kg/s)
-    Real64 returnSchedFrac = this->returnFlowSched->getCurrentVal();
+    Real64 returnSchedFrac = this->returnFlowFracSched->getCurrentVal();
     this->FixedReturnFlow = false;
     FinalTotalReturnMassFlow = 0.0;
     this->TotAvailAirLoopOA = 0.0;

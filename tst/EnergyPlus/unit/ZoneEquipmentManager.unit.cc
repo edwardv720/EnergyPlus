@@ -4540,7 +4540,7 @@ TEST_F(EnergyPlusFixture, ZoneEquipmentManager_SizeZoneEquipment_NoLoadTest)
     state->dataZoneEquip->ZoneEquipConfig(1).InletNode(2) = 2;
     state->dataZoneEquip->ZoneEquipConfig(1).ExhaustNode(1) = 3;
     state->dataZoneEquip->ZoneEquipConfig(1).NumReturnNodes = 0;
-    state->dataZoneEquip->ZoneEquipConfig(1).returnFlowSched = Sched::GetScheduleAlwaysOn(*state);
+    state->dataZoneEquip->ZoneEquipConfig(1).returnFlowFracSched = Sched::GetScheduleAlwaysOn(*state);
             
     state->dataEnvrn->StdBaroPress = 101325.;
     state->dataSize->CalcFinalZoneSizing(1).MinOA = 0.1;
@@ -4702,7 +4702,7 @@ TEST_F(EnergyPlusFixture, CalcAirFlowSimple_WindAndStackArea)
     thisVentilation.OpenEff = Constant::AutoCalculate;
     thisVentilation.EffAngle = 135; // Effective angle
     thisVentilation.OpenArea = 1.0;
-    thisVentilation.openAreaSched = Sched::GetScheduleAlwaysOn(*state); // Always on
+    thisVentilation.openAreaFracSched = Sched::GetScheduleAlwaysOn(*state); // Always on
     thisVentilation.ZonePtr = 1;
 
     thisVentilation.DiscCoef = 0.5;
@@ -4828,7 +4828,7 @@ TEST_F(EnergyPlusFixture, ZoneEquipmentManager_SizeZoneEquipment_DOASLoadTest)
     state->dataZoneEquip->ZoneEquipConfig(1).InletNode(2) = 2;
     state->dataZoneEquip->ZoneEquipConfig(1).ExhaustNode(1) = 3;
     state->dataZoneEquip->ZoneEquipConfig(1).NumReturnNodes = 0;
-    state->dataZoneEquip->ZoneEquipConfig(1).returnFlowSched = Sched::GetScheduleAlwaysOn(*state);
+    state->dataZoneEquip->ZoneEquipConfig(1).returnFlowFracSched = Sched::GetScheduleAlwaysOn(*state);
     state->dataEnvrn->StdBaroPress = 101325.;
     state->dataEnvrn->StdRhoAir = 1.20;
 
@@ -5390,9 +5390,9 @@ TEST_F(EnergyPlusFixture, SpaceReturnMixerTest)
     spaceEquipConfig2.FixedReturnFlow.allocate(1);
     spaceEquipConfig3.FixedReturnFlow.allocate(1);
 
-    spaceEquipConfig1.returnFlowSched = Sched::GetScheduleAlwaysOff(*state);
-    spaceEquipConfig2.returnFlowSched = Sched::GetScheduleAlwaysOff(*state);
-    spaceEquipConfig3.returnFlowSched = Sched::GetScheduleAlwaysOff(*state);
+    spaceEquipConfig1.returnFlowFracSched = Sched::GetScheduleAlwaysOff(*state);
+    spaceEquipConfig2.returnFlowFracSched = Sched::GetScheduleAlwaysOff(*state);
+    spaceEquipConfig3.returnFlowFracSched = Sched::GetScheduleAlwaysOff(*state);
     
     spaceEquipConfig1.ZoneNode = 5;
     spaceEquipConfig2.ZoneNode = 6;

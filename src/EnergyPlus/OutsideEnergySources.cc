@@ -275,7 +275,7 @@ void GetOutsideEnergySourcesInput(EnergyPlusData &state)
         state.dataOutsideEnergySrcs->EnergySource(EnergySourceNum).EnergyType = EnergyType;
 
         if (state.dataIPShortCut->lAlphaFieldBlanks(4)) {
-            state.dataOutsideEnergySrcs->EnergySource(EnergySourceNum).capFractionSched = Sched::GetScheduleAlwaysOn(state);
+            state.dataOutsideEnergySrcs->EnergySource(EnergySourceNum).capFractionSched = Sched::GetScheduleAlwaysOn(state); // Defaults to constant-1.0
         } else if ((state.dataOutsideEnergySrcs->EnergySource(EnergySourceNum).capFractionSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(4))) == nullptr) { 
             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(4), state.dataIPShortCut->cAlphaArgs(4));
             ErrorsFound = true;

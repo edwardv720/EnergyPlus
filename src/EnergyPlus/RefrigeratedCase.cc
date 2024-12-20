@@ -318,8 +318,6 @@ void GetRefrigerationInput(EnergyPlusData &state)
     Real64 constexpr CondARI490DelT(15.0);              // Rated sat cond temp - wet bulb air T for evap-cooled Cond w R22, ARI490
     Real64 constexpr CondARI490Tcond(40.6);             // Rated sat cond temp for evap-cooled cond with R22, ARI 490
     Real64 constexpr DelEvapTDefault(5.0);              // default difference between case T and evap T (C)
-    Real64 constexpr HoursPerDay(24.0);
-    Real64 constexpr SecondsPerHour(3600.0);
     Real64 constexpr DefaultCascadeCondApproach(3.0); // Cascade condenser approach temperature difference (deltaC)
     Real64 constexpr DefaultCircRate(2.5);            // Phase change liquid overfeed circulating rate (ASHRAE definition)
     Real64 constexpr DefaultWISurfaceUValue(0.3154);  // equiv R18 in Archaic American units (W/m2-delta T)
@@ -809,7 +807,7 @@ void GetRefrigerationInput(EnergyPlusData &state)
             } // blank input
 
             if (lAlphaBlanks(6)) {
-                RefrigCase(CaseNum).lightingSched = Sched::GetScheduleAlwaysOn(state);
+                RefrigCase(CaseNum).lightingSched = Sched::GetScheduleAlwaysOn(state); // Not an availability schedule, but defaults to constant-1.0
             } else if ((RefrigCase(CaseNum).lightingSched = Sched::GetSchedule(state, Alphas(6))) == nullptr) { 
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(6), Alphas(6));
                 ErrorsFound = true;
@@ -1041,7 +1039,6 @@ void GetRefrigerationInput(EnergyPlusData &state)
             }
 
             if (RefrigCase(CaseNum).defrostType == RefCaseDefrostType::None) {
-                RefrigCase(CaseNum).defrostSched = Sched::GetScheduleAlwaysOff(state);
             } else if (lAlphaBlanks(9)) {
                 ShowSevereEmptyField(state, eoh, cAlphaFieldNames(9));
                 ErrorsFound = true;
@@ -1057,22 +1054,25 @@ void GetRefrigerationInput(EnergyPlusData &state)
             //   count the number of defrost cycles
 
             // Flag for counting defrost cycles
-            bool StartCycle = false;
             int NumDefCycles = 0;
-            std::vector<Real64> const &dayVals = RefrigCase(CaseNum).defrostSched->getDayVals(state, 1);
-            for (int i = 0; i < Constant::iHoursInDay * state.dataGlobal->TimeStepsInHour; ++i) {
-                if (dayVals[i] == 0.0) {
-                    StartCycle = false;
-                } else if (!StartCycle) {
-                    ++NumDefCycles;
-                    StartCycle = true;
+
+            if (RefrigCase(CaseNum).defrostSched != nullptr) { 
+                bool StartCycle = false;
+                std::vector<Real64> const &dayVals = RefrigCase(CaseNum).defrostSched->getDayVals(state, 1);
+                for (int i = 0; i < Constant::iHoursInDay * state.dataGlobal->TimeStepsInHour; ++i) {
+                    if (dayVals[i] == 0.0) {
+                        StartCycle = false;
+                    } else if (!StartCycle) {
+                        ++NumDefCycles;
+                        StartCycle = true;
+                    }
                 }
             }
-
+            
             if (NumDefCycles > 0) {
                 //     calculate maximum frost formation based on defrost schedule, heat of vaporization+fusion for water = 2833.0 kJ/kg
                 RefrigCase(CaseNum).MaxKgFrost = (RefrigCase(CaseNum).RateTotCapPerLength * RefrigCase(CaseNum).RatedLHR *
-                                                  RefrigCase(CaseNum).RatedRTF * SecondsPerHour * HoursPerDay / 1000.0 / 2833.0) /
+                                                  RefrigCase(CaseNum).RatedRTF * Constant::rSecsInHour * Constant::rHoursInDay / 1000.0 / 2833.0) / // Parenthesize!!!
                                                  (NumDefCycles);
             } else {
                 RefrigCase(CaseNum).MaxKgFrost = 9999999.9;
@@ -1373,7 +1373,7 @@ void GetRefrigerationInput(EnergyPlusData &state)
 
             AlphaNum = 3;
             if (lAlphaBlanks(AlphaNum)) {
-                WalkIn(WalkInID).heaterSched = Sched::GetScheduleAlwaysOn(state);
+                WalkIn(WalkInID).heaterSched = Sched::GetScheduleAlwaysOn(state); // Not an availability schedule, but defaults to constant-1.0
             } else if ((WalkIn(WalkInID).heaterSched = Sched::GetSchedule(state, Alphas(AlphaNum))) == nullptr) { 
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(AlphaNum), Alphas(AlphaNum));
                 ErrorsFound = true;
@@ -1419,7 +1419,7 @@ void GetRefrigerationInput(EnergyPlusData &state)
 
             AlphaNum = 4;
             if (lAlphaBlanks(AlphaNum)) {
-                WalkIn(WalkInID).lightingSched = Sched::GetScheduleAlwaysOn(state);
+                WalkIn(WalkInID).lightingSched = Sched::GetScheduleAlwaysOn(state); // Not an availability schedule, but defaults to constant-1.0
             } else if ((WalkIn(WalkInID).lightingSched = Sched::GetSchedule(state, Alphas(AlphaNum))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(AlphaNum), Alphas(AlphaNum));
                 ErrorsFound = true;

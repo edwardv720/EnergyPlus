@@ -136,7 +136,7 @@ protected:
         state->dataZoneEquip->ZoneEquipConfig(1).ReturnNode(1) = 21;
         state->dataZoneEquip->ZoneEquipConfig(1).FixedReturnFlow.allocate(1);
         state->dataHeatBal->Zone(1).SystemZoneNodeNumber = state->dataZoneEquip->ZoneEquipConfig(1).ZoneNode;
-        state->dataZoneEquip->ZoneEquipConfig(1).returnFlowSched = Sched::GetScheduleAlwaysOn(*state);
+        state->dataZoneEquip->ZoneEquipConfig(1).returnFlowFracSched = Sched::GetScheduleAlwaysOn(*state);
         state->dataZoneEquip->ZoneEquipList(1).Name = "ZONE2EQUIPMENT";
         int maxEquipCount = 1;
         state->dataZoneEquip->ZoneEquipList(1).NumOfEquipTypes = maxEquipCount;

@@ -158,8 +158,8 @@ TEST_F(EnergyPlusFixture, DOASEffectOnZoneSizing_SizeZoneEquipment)
     state->dataZoneEquip->ZoneEquipConfig(2).InletNode.allocate(2);
     state->dataZoneEquip->ZoneEquipConfig(1).ExhaustNode.allocate(1);
     state->dataZoneEquip->ZoneEquipConfig(2).ExhaustNode.allocate(1);
-    state->dataZoneEquip->ZoneEquipConfig(1).returnFlowSched = Sched::GetScheduleAlwaysOff(*state);
-    state->dataZoneEquip->ZoneEquipConfig(2).returnFlowSched = Sched::GetScheduleAlwaysOff(*state);
+    state->dataZoneEquip->ZoneEquipConfig(1).returnFlowFracSched = Sched::GetScheduleAlwaysOff(*state);
+    state->dataZoneEquip->ZoneEquipConfig(2).returnFlowFracSched = Sched::GetScheduleAlwaysOff(*state);
     state->dataHeatBalFanSys->ZoneMassBalanceFlag.allocate(2);
     state->dataGlobal->NumOfZones = 2;
     state->dataHeatBal->MassConservation.allocate(state->dataGlobal->NumOfZones);

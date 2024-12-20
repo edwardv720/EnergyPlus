@@ -111,7 +111,7 @@ namespace Furnaces {
         std::string Name;                                          // Name of the Furnace
         HVAC::UnitarySysType type = HVAC::UnitarySysType::Invalid; // Numeric Equivalent for Furnace Type
         int FurnaceIndex;                                          // Index to furnace
-        Sched::Schedule *sched = nullptr;                          // furnace operating schedule
+        Sched::Schedule *availSched = nullptr;                          // furnace operating schedule
         Sched::Schedule *fanOpModeSched = nullptr;                 // fan operating mode schedule
         Sched::Schedule *fanAvailSched = nullptr;                  // fan availability schedule
         int ControlZoneNum;                                        // Index to controlled zone

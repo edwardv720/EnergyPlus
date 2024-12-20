@@ -248,7 +248,7 @@ namespace AirflowNetwork {
         // Members
         std::string ZoneName;    // Name of Associated EnergyPlus Thermal Zone
         std::string VentControl; // Ventilation Control Mode: "TEMPERATURE", "ENTHALPIC", "CONSTANT", or "NOVENT"
-        std::string VentSchName; // Name of ventilation temperature control schedule
+        std::string VentAvailSchName; // Ventilation availability schedule
         Real64 Height;           // Nodal height
         Real64 OpenFactor;       // Limit Value on Multiplier for Modulating Venting Open Factor,
         // Not applicable if Vent Control Mode = CONSTANT or NOVENT
@@ -261,10 +261,10 @@ namespace AirflowNetwork {
         Real64 UpValueEnth; // Upper Value on Inside/Outside Temperature Difference for
         // Modulating the Venting Open Factor with Enthalpic control
         int ZoneNum;                                // Zone number associated with ZoneName
-        Sched::Schedule *ventSched = nullptr;                             // Zone ventilation schedule number associated with ventilation schedule name
+        Sched::Schedule *ventTempControlSched = nullptr;  // Ventilation temperature control schedule
         int VentCtrNum;                             // Ventilation control mode number: 1 "Temperature", 2 "ENTHALPIC", 3 "CONSTANT", 4 "NOVENT"
-        std::string VentingSchName;                 // Name of ventilation temperature control schedule
-        Sched::Schedule *ventingSched = nullptr;                          // Ventilation schedule number
+        std::string VentTempControlSchName;                 // Name of ventilation temperature control schedule
+        Sched::Schedule *ventAvailSched = nullptr;                          // Ventilation availability schedule
         std::string SingleSidedCpType;              // Type of calculation method for single sided wind pressure coefficients
         Real64 BuildWidth;                          // The width of the building along the facade that contains this zone.
         int ASH55PeopleInd;                         // Index of people object with ASH55 comfort calcs for ventilation control
@@ -299,7 +299,6 @@ namespace AirflowNetwork {
         Real64 Width;                 // Surface width
         Real64 CHeight;               // Surface central height in z direction
         std::string VentControl;      // Ventilation Control Mode: TEMPERATURE, ENTHALPIC, CONSTANT, ZONELEVEL or NOVENT
-        std::string VentSchName;      // ! Name of ventilation temperature control schedule
         Real64 ModulateFactor;        // Limit Value on Multiplier for Modulating Venting Open Factor
         Real64 LowValueTemp;          // Lower Value on Inside/Outside Temperature Difference for
         // Modulating the Venting Open Factor with temp control
@@ -309,10 +308,11 @@ namespace AirflowNetwork {
         // Modulating the Venting Open Factor with Enthalpic control
         Real64 UpValueEnth; // Upper Value on Inside/Outside Temperature Difference for
         // Modulating the Venting Open Factor with Enthalpic control
-        std::string VentingSchName;                 // Name of ventilation temperature control schedule
-        Sched::Schedule *ventSched = nullptr;                             // Zone ventilation schedule number associated with ventilation schedule name
+        std::string VentTempControlSchName;                 // Name of ventilation temperature control schedule
+        Sched::Schedule *ventTempControlSched = nullptr;     // Ventilation temperature control schedule
         VentControlType VentSurfCtrNum;             // Ventilation control mode number: 1 "Temperature", 2 "ENTHALPIC", 3 "CONSTANT", 4 "NOVENT"
-        Sched::Schedule *ventingSched = nullptr;                          // Ventilation schedule number
+        std::string VentAvailSchName;               // Ventilation availability schedule 
+        Sched::Schedule *ventAvailSched = nullptr;  // Ventilation availability schedule
         int ZonePtr;                                // Pointer to inside face zone
         bool IndVentControl;                        // Individual surface venting control
         int ExtLargeOpeningErrCount;                // Exterior large opening error count during HVAC system operation

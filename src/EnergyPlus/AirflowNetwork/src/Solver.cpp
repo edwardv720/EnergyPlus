@@ -2306,7 +2306,7 @@ namespace AirflowNetwork {
                 if (!lAlphaBlanks(2)) MultizoneZoneData(i).VentControl = Alphas(2); // Ventilation Control Mode: "Temperature", "Enthalpy",
                 // "ASHRAE55ADAPTIVE", "CEN15251AdaptiveComfort,
                 // "Constant", or "NoVent"
-                MultizoneZoneData(i).VentSchName = Alphas(3); // Name of ventilation temperature control schedule
+                MultizoneZoneData(i).VentTempControlSchName = Alphas(3); // Name of ventilation temperature control schedule
                 MultizoneZoneData(i).OpenFactor = Numbers(1); // Limit Value on Multiplier for Modulating Venting Open Factor,
                 // Not applicable if Vent Control Mode = CONSTANT or NOVENT
                 MultizoneZoneData(i).LowValueTemp = Numbers(2); // Lower Value on Inside/Outside Temperature Difference
@@ -2343,15 +2343,15 @@ namespace AirflowNetwork {
 
                 if (MultizoneZoneData(i).VentCtrNum < NumOfVentCtrTypes) {
                     if (NumAlphas >= 4 && (!lAlphaBlanks(4))) {
-                        MultizoneZoneData(i).VentingSchName = Alphas(4);
-                        if ((MultizoneZoneData(i).ventingSched = Sched::GetSchedule(m_state, MultizoneZoneData(i).VentingSchName)) == nullptr) {
+                        MultizoneZoneData(i).VentAvailSchName = Alphas(4);
+                        if ((MultizoneZoneData(i).ventAvailSched = Sched::GetSchedule(m_state, MultizoneZoneData(i).VentAvailSchName)) == nullptr) {
                             ShowSevereItemNotFound(m_state, eoh, cAlphaFields(4), Alphas(4));
                             ErrorsFound = true;
                         }
                     }
                 } else {
-                    MultizoneZoneData(i).VentingSchName = std::string();
-                    MultizoneZoneData(i).ventingSched = Sched::GetScheduleAlwaysOn(m_state);
+                    MultizoneZoneData(i).VentAvailSchName = std::string();
+                    MultizoneZoneData(i).ventAvailSched = Sched::GetScheduleAlwaysOn(m_state);
                 }
             }
         } else {
@@ -2389,18 +2389,18 @@ namespace AirflowNetwork {
                 // .or. &
                 // Util::SameString(MultizoneZoneData(i)%VentControl,'ASHRAE55Adaptive') .or. &
                 // Util::SameString(MultizoneZoneData(i)%VentControl,'CEN15251Adaptive')) then
-                if (MultizoneZoneData(i).VentSchName.empty()) {
+                if (MultizoneZoneData(i).VentTempControlSchName.empty()) {
                     ShowSevereEmptyField(m_state, eoh, cAlphaFields(3), cAlphaFields(2), Alphas(2));
                     ErrorsFound = true;
-                } else if ((MultizoneZoneData(i).ventSched = Sched::GetSchedule(m_state, MultizoneZoneData(i).VentSchName)) == nullptr) {
+                } else if ((MultizoneZoneData(i).ventTempControlSched = Sched::GetSchedule(m_state, MultizoneZoneData(i).VentTempControlSchName)) == nullptr) {
                     ShowSevereItemNotFound(m_state, eoh, cAlphaFields(3), Alphas(3));
                     ErrorsFound = true;
                 }
             } else {
-                MultizoneZoneData(i).ventSched = Sched::GetScheduleAlwaysOff(m_state);
-                if (!MultizoneZoneData(i).VentSchName.empty()) {
+                MultizoneZoneData(i).ventTempControlSched = nullptr;
+                if (!MultizoneZoneData(i).VentTempControlSchName.empty()) {
                     ShowWarningNonEmptyField(m_state, eoh, cAlphaFields(3), cAlphaFields(2), Alphas(2));
-                    MultizoneZoneData(i).VentSchName = std::string();
+                    MultizoneZoneData(i).VentTempControlSchName = std::string();
                 }
             }
             if (MultizoneZoneData(i).OpenFactor > 1.0 || MultizoneZoneData(i).OpenFactor < 0.0) {
@@ -2677,7 +2677,7 @@ namespace AirflowNetwork {
                     //   or "ADJACENTENTHALPY"
                     if (!lAlphaBlanks(4)) MultizoneSurfaceData(i).VentControl = Alphas(4);
                     // Name of ventilation temperature control schedule
-                    if (!lAlphaBlanks(5)) MultizoneSurfaceData(i).VentSchName = Alphas(5);
+                    if (!lAlphaBlanks(5)) MultizoneSurfaceData(i).VentTempControlSchName = Alphas(5);
                     {
                         // This SELECT_CASE_var will go on input refactor, no need to fix
                         auto const SELECT_CASE_var(Util::makeUPPER(MultizoneSurfaceData(i).VentControl));
@@ -2728,7 +2728,7 @@ namespace AirflowNetwork {
                 if (MultizoneSurfaceData(i).VentSurfCtrNum < 4 || MultizoneSurfaceData(i).VentSurfCtrNum == VentControlType::AdjTemp ||
                     MultizoneSurfaceData(i).VentSurfCtrNum == VentControlType::AdjEnth) {
                     if (!lAlphaBlanks(6)) {
-                        MultizoneSurfaceData(i).VentingSchName = Alphas(6); // Name of ventilation availability schedule
+                        MultizoneSurfaceData(i).VentAvailSchName = Alphas(6); // Name of ventilation availability schedule
                     }
                 }
                 if (!lAlphaBlanks(7)) {
@@ -3200,26 +3200,26 @@ namespace AirflowNetwork {
                     MultizoneSurfaceData(i).IndVentControl = true;
                 }
                 
-                if (MultizoneSurfaceData(i).VentingSchName.empty()) {
-                    MultizoneSurfaceData(i).ventingSched = Sched::GetScheduleAlwaysOn(m_state);
-                } else if ((MultizoneSurfaceData(i).ventingSched = Sched::GetSchedule(m_state, MultizoneSurfaceData(i).VentingSchName)) == nullptr) {
-                    ShowSevereItemNotFound(m_state, eoh, "Venting Schedule", MultizoneSurfaceData(i).VentingSchName);
+                if (MultizoneSurfaceData(i).VentAvailSchName.empty()) {
+                    MultizoneSurfaceData(i).ventAvailSched = Sched::GetScheduleAlwaysOn(m_state);
+                } else if ((MultizoneSurfaceData(i).ventAvailSched = Sched::GetSchedule(m_state, MultizoneSurfaceData(i).VentAvailSchName)) == nullptr) {
+                    ShowSevereItemNotFound(m_state, eoh, "Venting Schedule", MultizoneSurfaceData(i).VentAvailSchName);
                     ErrorsFound = true;
                 } else if (m_state.dataSurface->Surface(MultizoneSurfaceData(i).SurfNum).IsAirBoundarySurf) {
                     ShowWarningNonEmptyField(m_state, eoh, "Venting Availbility Schedule");
                     ShowContinueError(m_state, "Venting is always available for air-boundary surfaces.");
-                    MultizoneSurfaceData(i).ventingSched = Sched::GetScheduleAlwaysOn(m_state);
-                    MultizoneSurfaceData(i).VentingSchName = "";
+                    MultizoneSurfaceData(i).ventAvailSched = Sched::GetScheduleAlwaysOn(m_state);
+                    MultizoneSurfaceData(i).VentAvailSchName = "";
                 }
                 
                 switch (MultizoneSurfaceData(i).VentSurfCtrNum) {
                 case VentControlType::Temp:
                 case VentControlType::AdjTemp: {
-                    if (MultizoneSurfaceData(i).VentSchName.empty()) {
+                    if (MultizoneSurfaceData(i).VentTempControlSchName.empty()) {
                         ShowSevereEmptyField(m_state, eoh, "Ventilation Schedule", "Ventinlation Control", "Temperature");
                         ErrorsFound = true;
-                    } else if ((MultizoneSurfaceData(i).ventSched = Sched::GetSchedule(m_state, MultizoneSurfaceData(i).VentSchName)) == nullptr) {
-                        ShowSevereItemNotFound(m_state, eoh, "Ventilation Schedule", MultizoneSurfaceData(i).VentSchName);
+                    } else if ((MultizoneSurfaceData(i).ventTempControlSched = Sched::GetSchedule(m_state, MultizoneSurfaceData(i).VentTempControlSchName)) == nullptr) {
+                        ShowSevereItemNotFound(m_state, eoh, "Ventilation Schedule", MultizoneSurfaceData(i).VentTempControlSchName);
                         ErrorsFound = true;
                     }
                     if (MultizoneSurfaceData(i).LowValueTemp < 0.0) {
@@ -3245,13 +3245,14 @@ namespace AirflowNetwork {
                     }
 
                 } break;
+                        
                 case VentControlType::Enth:
                 case VentControlType::AdjEnth: {
-                    if (MultizoneSurfaceData(i).VentSchName.empty()) {
+                    if (MultizoneSurfaceData(i).VentTempControlSchName.empty()) {
                         ShowSevereEmptyField(m_state, eoh, "Ventilation Schedule", "Ventilation Control", "Enthalpy");
                         ErrorsFound = true;
-                    } else if ((MultizoneSurfaceData(i).ventSched = Sched::GetSchedule(m_state, MultizoneSurfaceData(i).VentSchName)) == nullptr) {
-                        ShowSevereItemNotFound(m_state, eoh, "Ventilation Schedule", MultizoneSurfaceData(i).VentSchName);
+                    } else if ((MultizoneSurfaceData(i).ventTempControlSched = Sched::GetSchedule(m_state, MultizoneSurfaceData(i).VentTempControlSchName)) == nullptr) {
+                        ShowSevereItemNotFound(m_state, eoh, "Ventilation Schedule", MultizoneSurfaceData(i).VentTempControlSchName);
                         ErrorsFound = true;
                     }
                     if (MultizoneSurfaceData(i).LowValueEnth < 0.0) {
@@ -3283,8 +3284,8 @@ namespace AirflowNetwork {
                 case VentControlType::CEN15251:
                 case VentControlType::NoVent:
                 case VentControlType::ZoneLevel: {
-                    MultizoneSurfaceData(i).ventSched = Sched::GetScheduleAlwaysOff(m_state);
-                    MultizoneSurfaceData(i).VentSchName = "";
+                    MultizoneSurfaceData(i).ventTempControlSched = nullptr;
+                    MultizoneSurfaceData(i).VentTempControlSchName = "";
                 } break;
                 default:
                     break;
@@ -9879,10 +9880,10 @@ namespace AirflowNetwork {
         // Note in the following that individual venting control for a window/door takes
         // precedence over zone-level control
         if (MultizoneSurfaceData(i).IndVentControl) {
-            VentTemp = MultizoneSurfaceData(i).ventSched->getCurrentVal();
+            VentTemp = MultizoneSurfaceData(i).ventTempControlSched->getCurrentVal();
             VentCtrlNum = MultizoneSurfaceData(i).VentSurfCtrNum;
-            if (MultizoneSurfaceData(i).ventingSched != nullptr) {
-                VentingSchVal = MultizoneSurfaceData(i).ventingSched->getCurrentVal();
+            if (MultizoneSurfaceData(i).ventAvailSched != nullptr) {
+                VentingSchVal = MultizoneSurfaceData(i).ventAvailSched->getCurrentVal();
                 if (VentingSchVal <= 0.0) {
                     VentingAllowed = false;
                     m_state.dataSurface->SurfWinVentingAvailabilityRep(SurfNum) = 0.0;
@@ -9890,10 +9891,10 @@ namespace AirflowNetwork {
             }
         } else {
             // Zone level only by Gu on Nov. 8, 2005
-            VentTemp = MultizoneZoneData(IZ).ventSched->getCurrentVal();
+            VentTemp = MultizoneZoneData(IZ).ventTempControlSched ? MultizoneZoneData(IZ).ventTempControlSched->getCurrentVal() : 0.0;
             VentCtrlNum = MultizoneZoneData(IZ).VentCtrNum;
-            if (MultizoneZoneData(IZ).ventingSched != nullptr) {
-                VentingSchVal = MultizoneZoneData(IZ).ventingSched->getCurrentVal();
+            if (MultizoneZoneData(IZ).ventAvailSched != nullptr) {
+                VentingSchVal = MultizoneZoneData(IZ).ventAvailSched->getCurrentVal();
                 if (VentingSchVal <= 0.0) {
                     VentingAllowed = false;
                     m_state.dataSurface->SurfWinVentingAvailabilityRep(SurfNum) = 0.0;

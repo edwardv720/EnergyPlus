@@ -448,7 +448,7 @@ namespace ExhaustAirSystemManager {
                     ip->getAlphaFieldValue(objectFields, objectSchemaProps, "exhaust_flow_fraction_schedule_name");
 
                 if (exhaustFlowFractionSchedName.empty()) {
-                    thisExhCtrl.exhaustFlowFractionSched = Sched::GetScheduleAlwaysOn(state);
+                    thisExhCtrl.exhaustFlowFractionSched = Sched::GetScheduleAlwaysOn(state); // Not an availability schedule, but defaults to constant-1.0
                 } else  if ((thisExhCtrl.exhaustFlowFractionSched = Sched::GetSchedule(state, exhaustFlowFractionSchedName)) == nullptr) { 
                     ShowSevereItemNotFound(state, eoh, "Exhaust Flow Fraction Schedule Name", exhaustFlowFractionSchedName);
                 }

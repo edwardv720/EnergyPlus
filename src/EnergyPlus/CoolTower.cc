@@ -192,10 +192,9 @@ namespace CoolTower {
             ErrorObjectHeader eoh{routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)};
             
             state.dataCoolTower->CoolTowerSys(CoolTowerNum).Name = s_ipsc->cAlphaArgs(1);     // Name of cooltower
-            state.dataCoolTower->CoolTowerSys(CoolTowerNum).Schedule = s_ipsc->cAlphaArgs(2); // Get schedule
             if (lAlphaBlanks(2)) {
-                state.dataCoolTower->CoolTowerSys(CoolTowerNum).sched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((state.dataCoolTower->CoolTowerSys(CoolTowerNum).sched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(2))) == nullptr) {
+                state.dataCoolTower->CoolTowerSys(CoolTowerNum).availSched = Sched::GetScheduleAlwaysOn(state);
+            } else if ((state.dataCoolTower->CoolTowerSys(CoolTowerNum).availSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(2))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(2), s_ipsc->cAlphaArgs(2));
                 ErrorsFound = true;
             }
@@ -625,7 +624,7 @@ namespace CoolTower {
                 thisSpaceHB.CTMFL = 0.0;
             }
 
-            if (state.dataCoolTower->CoolTowerSys(CoolTowerNum).sched->getCurrentVal() > 0.0) {
+            if (state.dataCoolTower->CoolTowerSys(CoolTowerNum).availSched->getCurrentVal() > 0.0) {
                 // check component operation
                 if (state.dataEnvrn->WindSpeed < MinWindSpeed || state.dataEnvrn->WindSpeed > MaxWindSpeed) continue;
                 if (state.dataZoneTempPredictorCorrector->zoneHeatBalance(ZoneNum).MAT < state.dataCoolTower->CoolTowerSys(CoolTowerNum).MinZoneTemp)
@@ -703,7 +702,7 @@ namespace CoolTower {
                 AirSpecHeat = Psychrometrics::PsyCpAirFnW(OutletHumRat);
                 AirDensity = Psychrometrics::PsyRhoAirFnPbTdbW(state, state.dataEnvrn->OutBaroPress, OutletTemp, OutletHumRat); // Outlet air density
                 CVF_ZoneNum = state.dataCoolTower->CoolTowerSys(CoolTowerNum).ActualAirVolFlowRate *
-                        state.dataCoolTower->CoolTowerSys(CoolTowerNum).sched->getCurrentVal();
+                        state.dataCoolTower->CoolTowerSys(CoolTowerNum).availSched->getCurrentVal();
                 Real64 thisMCPC = CVF_ZoneNum * AirDensity * AirSpecHeat;
                 Real64 thisMCPTC = thisMCPC * OutletTemp;
                 Real64 thisCTMFL = thisMCPC / AirSpecHeat;

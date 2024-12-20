@@ -1117,9 +1117,8 @@ namespace DataHeatBalance {
         std::string Name;
         int ZonePtr = 0;
         int spaceIndex = 0; // Space index for this ventilation instance
-        Sched::Schedule *sched = nullptr;
-        VentilationModelType ModelType =
-            VentilationModelType::Invalid; // which model is used for ventilation: DesignFlowRate and WindandStackOpenArea
+        Sched::Schedule *availSched = nullptr; 
+        VentilationModelType ModelType = VentilationModelType::Invalid; // DesignFlowRate or WindandStackOpenArea
         Real64 DesignLevel = 0.0;
         bool EMSSimpleVentOn = false;      // EMS actuating ventilation flow rate if .TRUE.
         Real64 EMSimpleVentFlowRate = 0.0; // Value EMS is directing to use for override
@@ -1152,7 +1151,7 @@ namespace DataHeatBalance {
         bool HybridControlMasterStatus = false;                   // Hybrid ventilation control master object opening status
         // WindandStackOpenArea
         Real64 OpenArea = 0.0;    // Opening area [m2]
-        Sched::Schedule *openAreaSched = nullptr; // Opening area fraction schedule
+        Sched::Schedule *openAreaFracSched = nullptr; // Opening area fraction schedule
         Real64 OpenEff = 0.0;     // Opening effectiveness [dimensionless]
         Real64 EffAngle = 0.0;    // Effective angle [degree]
         Real64 DH = 0.0;          // Height difference [m]

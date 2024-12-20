@@ -880,11 +880,11 @@ TEST_F(SQLiteFixture, SQLiteProcedures_createZoneExtendedOutput)
 
     auto const ventilationData0 = std::make_unique<DataHeatBalance::VentilationData>();
     ventilationData0->Name = "test ventilation 1";
-    ventilationData0->sched = Sched::GetScheduleAlwaysOff(*state);
+    ventilationData0->availSched = Sched::GetScheduleAlwaysOff(*state);
     auto const ventilationData1 = std::make_unique<DataHeatBalance::VentilationData>();
     ventilationData1->Name = "test ventilation 2";
     ventilationData1->ZonePtr = 1;
-    ventilationData1->sched = Sched::GetSchedule(*state, "SCHED-1");
+    ventilationData1->availSched = Sched::GetSchedule(*state, "SCHED-1");
     ventilationData1->DesignLevel = 2;
 
     auto const roomAirModelData0 = std::make_unique<RoomAir::AirModelData>();

@@ -947,7 +947,7 @@ private:
                     int const ventilationNumber,
                     DataHeatBalance::VentilationData const &ventilationData)
             : SQLiteData(errorStream, db), number(ventilationNumber), name(ventilationData.Name), zonePtr(ventilationData.ZonePtr),
-              sched(ventilationData.sched), designLevel(ventilationData.DesignLevel)
+              sched(ventilationData.availSched), designLevel(ventilationData.DesignLevel)
         {
         }
 

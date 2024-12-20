@@ -5617,7 +5617,7 @@ void CalcAirFlowSimple(EnergyPlusData &state,
 
         if (thisVentilation.ModelType == DataHeatBalance::VentilationModelType::DesignFlowRate) {
             // CR6845 if calculated < 0, don't propagate.
-            VVF = thisVentilation.DesignLevel * thisVentilation.sched->getCurrentVal();
+            VVF = thisVentilation.DesignLevel * thisVentilation.availSched->getCurrentVal();
 
             if (thisVentilation.EMSSimpleVentOn) VVF = thisVentilation.EMSimpleVentFlowRate;
 
@@ -5760,8 +5760,8 @@ void CalcAirFlowSimple(EnergyPlusData &state,
             } else {
                 Cd = 0.40 + 0.0045 * std::abs(TempExt - thisMixingMAT);
             }
-            Qw = Cw * thisVentilation.OpenArea * thisVentilation.openAreaSched->getCurrentVal() * WindSpeedExt;
-            Qst = Cd * thisVentilation.OpenArea * thisVentilation.openAreaSched->getCurrentVal() *
+            Qw = Cw * thisVentilation.OpenArea * thisVentilation.openAreaFracSched->getCurrentVal() * WindSpeedExt;
+            Qst = Cd * thisVentilation.OpenArea * thisVentilation.openAreaFracSched->getCurrentVal() *
                   std::sqrt(2.0 * 9.81 * thisVentilation.DH * std::abs(TempExt - thisMixingMAT) / (thisMixingMAT + 273.15));
             VVF = std::sqrt(Qw * Qw + Qst * Qst);
             if (thisVentilation.EMSSimpleVentOn) VVF = thisVentilation.EMSimpleVentFlowRate;

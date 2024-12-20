@@ -4123,7 +4123,7 @@ namespace SurfaceGeometry {
                     }
                 }
                 // Not sure if it's better to add this or guard in SolarShading.cc
-                // surfTemp.shadowSurfSched = Sched::GetScheduleAlwaysOff(*state); 
+                // surfTemp.shadowSurfSched = nullptr
             }
         } // Item Looop
         // Check number of Vertex between base surface and Outside Boundary surface
@@ -6234,7 +6234,7 @@ namespace SurfaceGeometry {
             }
 
             if (s_ipsc->lAlphaFieldBlanks(3)) {
-                surfTemp.shadowSurfSched = Sched::GetScheduleAlwaysOff(state);
+                // Defaults to constant-0.0, but leave this as nullptr for now 
             } else if ((surfTemp.shadowSurfSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(3))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(3), s_ipsc->cAlphaArgs(3));
                 ErrorsFound = true;
@@ -9437,6 +9437,45 @@ namespace SurfaceGeometry {
             }
 
             windowShadingControl.SequenceNumber = int(s_ipsc->rNumericArgs(1));
+
+                        // For upward compatibility change old "noninsulating" and "insulating" shade types to
+            // INTERIORSHADE or EXTERIORSHADE
+            if (s_ipsc->cAlphaArgs(3) == "INTERIORNONINSULATINGSHADE" || s_ipsc->cAlphaArgs(3) == "INTERIORINSULATINGSHADE") {
+                ShowWarningError(state,
+                                 format("{}=\"{}\" is using obsolete {}=\"{}\", changing to \"InteriorShade\"",
+                                        s_ipsc->cCurrentModuleObject,
+                                        windowShadingControl.Name,
+                                        s_ipsc->cAlphaFieldNames(3),
+                                        s_ipsc->cAlphaArgs(3)));
+                windowShadingControl.ShadingType = DataSurfaces::WinShadingType::IntShade;
+                s_ipsc->cAlphaArgs(3) = "INTERIORSHADE";
+            }
+            if (s_ipsc->cAlphaArgs(3) == "EXTERIORNONINSULATINGSHADE" || s_ipsc->cAlphaArgs(3) == "EXTERIORINSULATINGSHADE") {
+                ShowWarningError(state,
+                                 format("{}=\"{}\" is using obsolete {}=\"{}\", changing to \"ExteriorShade\"",
+                                        s_ipsc->cCurrentModuleObject,
+                                        windowShadingControl.Name,
+                                        s_ipsc->cAlphaFieldNames(3),
+                                        s_ipsc->cAlphaArgs(3)));
+                windowShadingControl.ShadingType = DataSurfaces::WinShadingType::ExtShade;
+                s_ipsc->cAlphaArgs(3) = "EXTERIORSHADE";
+            }
+
+            // Check for illegal shading type name
+            Found = Util::FindItemInList(s_ipsc->cAlphaArgs(3), cValidShadingTypes, NumValidShadingTypes);
+            if (Found <= 1) {
+                ErrorsFound = true;
+                ShowSevereError(state,
+                                format("{}=\"{}\" invalid {}=\"{}\".",
+                                       s_ipsc->cCurrentModuleObject,
+                                       windowShadingControl.Name,
+                                       s_ipsc->cAlphaFieldNames(3),
+                                       s_ipsc->cAlphaArgs(3)));
+            } else {
+                windowShadingControl.ShadingType = DataSurfaces::WinShadingType(Found);
+            }
+
+
             // WindowShadingControl().getInputShadedConstruction is only used during GetInput process and is ultimately stored in
             // Surface().shadedConstructionList
             windowShadingControl.getInputShadedConstruction =
@@ -9444,7 +9483,7 @@ namespace SurfaceGeometry {
             windowShadingControl.ShadingDevice = Material::GetMaterialNum(state, s_ipsc->cAlphaArgs(9));
 
             if (s_ipsc->lAlphaFieldBlanks(6)) {
-                windowShadingControl.sched = Sched::GetScheduleAlwaysOff(state);
+                windowShadingControl.sched = Sched::GetScheduleAlwaysOn(state); // Not an availability schedule, but the default is constant-1.0
             } else if ((windowShadingControl.sched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(6))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(6), s_ipsc->cAlphaArgs(6));
                 ErrorsFound = true;
@@ -9455,8 +9494,19 @@ namespace SurfaceGeometry {
             windowShadingControl.ShadingControlIsScheduled = getYesNoValue(s_ipsc->cAlphaArgs(7)) == BooleanSwitch::Yes;
             windowShadingControl.GlareControlIsActive = getYesNoValue(s_ipsc->cAlphaArgs(8)) == BooleanSwitch::Yes;
 
-            if (s_ipsc->lAlphaFieldBlanks(11)) {
-                windowShadingControl.slatAngleSched = Sched::GetScheduleAlwaysOff(state);
+            if (windowShadingControl.ShadingType != DataSurfaces::WinShadingType::IntBlind) {
+            } else if (s_ipsc->cAlphaArgs(10).empty()) {
+                ShowSevereEmptyField(state, eoh, s_ipsc->cAlphaFieldNames(10), s_ipsc->cAlphaFieldNames(3), s_ipsc->cAlphaArgs(3));
+                ErrorsFound = true;
+            } else if ((windowShadingControl.slatAngleControl =
+                        static_cast<DataSurfaces::SlatAngleControl>(getEnumValue(SlatAngleNamesUC, s_ipsc->cAlphaArgs(10)))) ==
+                       DataSurfaces::SlatAngleControl::Invalid) {
+                ShowSevereInvalidKey(state, eoh, s_ipsc->cAlphaFieldNames(10), s_ipsc->cAlphaArgs(10));
+                ErrorsFound = true;
+            } else if (windowShadingControl.slatAngleControl != DataSurfaces::SlatAngleControl::Scheduled) {
+            } else if (s_ipsc->lAlphaFieldBlanks(11)) {
+                ShowSevereEmptyField(state, eoh, s_ipsc->cAlphaFieldNames(11), s_ipsc->cAlphaFieldNames(10), s_ipsc->cAlphaArgs(10));
+                ErrorsFound = true;
             } else if ((windowShadingControl.slatAngleSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(11))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(11), s_ipsc->cAlphaArgs(11));
                 ErrorsFound = true;
@@ -9573,34 +9623,9 @@ namespace SurfaceGeometry {
                                        s_ipsc->cAlphaFieldNames(7),
                                        s_ipsc->cAlphaFieldNames(5)));
             }
-            windowShadingControl.slatAngleControl =
-                static_cast<DataSurfaces::SlatAngleControl>(getEnumValue(SlatAngleNamesUC, Util::makeUPPER(s_ipsc->cAlphaArgs(10))));
-
-            // For upward compatibility change old "noninsulating" and "insulating" shade types to
-            // INTERIORSHADE or EXTERIORSHADE
-            if (s_ipsc->cAlphaArgs(3) == "INTERIORNONINSULATINGSHADE" || s_ipsc->cAlphaArgs(3) == "INTERIORINSULATINGSHADE") {
-                ShowWarningError(state,
-                                 format("{}=\"{}\" is using obsolete {}=\"{}\", changing to \"InteriorShade\"",
-                                        s_ipsc->cCurrentModuleObject,
-                                        windowShadingControl.Name,
-                                        s_ipsc->cAlphaFieldNames(3),
-                                        s_ipsc->cAlphaArgs(3)));
-                windowShadingControl.ShadingType = DataSurfaces::WinShadingType::IntShade;
-                s_ipsc->cAlphaArgs(3) = "INTERIORSHADE";
-            }
-            if (s_ipsc->cAlphaArgs(3) == "EXTERIORNONINSULATINGSHADE" || s_ipsc->cAlphaArgs(3) == "EXTERIORINSULATINGSHADE") {
-                ShowWarningError(state,
-                                 format("{}=\"{}\" is using obsolete {}=\"{}\", changing to \"ExteriorShade\"",
-                                        s_ipsc->cCurrentModuleObject,
-                                        windowShadingControl.Name,
-                                        s_ipsc->cAlphaFieldNames(3),
-                                        s_ipsc->cAlphaArgs(3)));
-                windowShadingControl.ShadingType = DataSurfaces::WinShadingType::ExtShade;
-                s_ipsc->cAlphaArgs(3) = "EXTERIORSHADE";
-            }
-
+            
             if (windowShadingControl.shadingControlType == DataSurfaces::WindowShadingControlType::MeetDaylIlumSetp &&
-                s_ipsc->cAlphaArgs(3) != "SWITCHABLEGLAZING") {
+                windowShadingControl.ShadingType != DataSurfaces::WinShadingType::SwitchableGlazing) {
                 ErrorsFound = true;
                 ShowSevereError(state,
                                 format("{}=\"{}\" invalid {}=\"{}\".",
@@ -9612,20 +9637,6 @@ namespace SurfaceGeometry {
                                   format("...{} must be SwitchableGlazing for this control, but entered type=\"{}\".",
                                          s_ipsc->cAlphaFieldNames(3),
                                          s_ipsc->cAlphaArgs(3)));
-            }
-
-            // Check for illegal shading type name
-            Found = Util::FindItemInList(s_ipsc->cAlphaArgs(3), cValidShadingTypes, NumValidShadingTypes);
-            if (Found <= 1) {
-                ErrorsFound = true;
-                ShowSevereError(state,
-                                format("{}=\"{}\" invalid {}=\"{}\".",
-                                       s_ipsc->cCurrentModuleObject,
-                                       windowShadingControl.Name,
-                                       s_ipsc->cAlphaFieldNames(3),
-                                       s_ipsc->cAlphaArgs(3)));
-            } else {
-                windowShadingControl.ShadingType = DataSurfaces::WinShadingType(Found);
             }
 
             DataSurfaces::WinShadingType ShTyp = windowShadingControl.ShadingType;

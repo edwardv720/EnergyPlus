@@ -275,8 +275,8 @@ namespace BaseboardRadiator {
                 thisBaseboard.EquipType = DataPlant::PlantEquipmentType::Baseboard_Conv_Water;
                 thisBaseboard.Schedule = s_ipsc->cAlphaArgs(2);
                 if (s_ipsc->lAlphaFieldBlanks(2)) {
-                    thisBaseboard.sched = Sched::GetScheduleAlwaysOn(state);
-                } else if ((thisBaseboard.sched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(2))) == nullptr) {
+                    thisBaseboard.availSched = Sched::GetScheduleAlwaysOn(state);
+                } else if ((thisBaseboard.availSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(2))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(2), s_ipsc->cAlphaArgs(2));
                     ErrorsFound = true;
                 }
@@ -1024,7 +1024,7 @@ namespace BaseboardRadiator {
         CapacitanceAir = CpAir * AirMassFlowRate;
 
         if (QZnReq > SmallLoad && (!state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum) || baseboard->baseboards(BaseboardNum).MySizeFlag) &&
-            (baseboard->baseboards(BaseboardNum).sched->getCurrentVal() > 0 || baseboard->baseboards(BaseboardNum).MySizeFlag) &&
+            (baseboard->baseboards(BaseboardNum).availSched->getCurrentVal() > 0 || baseboard->baseboards(BaseboardNum).MySizeFlag) &&
             (WaterMassFlowRate > 0.0)) {
             CapacitanceWater = CpWater * WaterMassFlowRate;
             CapacitanceMax = max(CapacitanceAir, CapacitanceWater);

@@ -285,7 +285,7 @@ namespace MixedAir {
     {
         // Members
         std::string Name;             // Name of Ventilation:Mechanical object
-        Sched::Schedule *sched = nullptr;               // Mechanical ventilation schedule
+        Sched::Schedule *availSched = nullptr; // Mechanical ventilation schedule
         bool DCVFlag = false;         // if true, implement OA based on demand controlled ventilation
         int NumofVentMechZones = 0;   // Number of zones with mechanical ventilation
         Real64 TotAreaOAFlow = 0.0;   // Total outdoor air flow rate for all zones per area (m3/s/m2)

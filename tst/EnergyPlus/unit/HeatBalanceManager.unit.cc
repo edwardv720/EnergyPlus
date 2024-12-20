@@ -498,7 +498,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceManager_ZoneAirMassFlowConservationData2)
     state->dataZoneEquip->ZoneEquipConfig(1).ReturnNode(1) = 4;
     state->dataZoneEquip->ZoneEquipConfig(1).FixedReturnFlow.allocate(1);
     state->dataZoneEquip->ZoneEquipConfig(1).IsControlled = true;
-    state->dataZoneEquip->ZoneEquipConfig(1).returnFlowSched = Sched::GetScheduleAlwaysOn(*state);
+    state->dataZoneEquip->ZoneEquipConfig(1).returnFlowFracSched = Sched::GetScheduleAlwaysOn(*state);
     state->dataZoneEquip->ZoneEquipConfig(1).InletNodeAirLoopNum.allocate(1);
     state->dataZoneEquip->ZoneEquipConfig(1).InletNodeADUNum.allocate(1);
     state->dataZoneEquip->ZoneEquipConfig(1).AirDistUnitCool.allocate(1);
@@ -524,7 +524,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceManager_ZoneAirMassFlowConservationData2)
     state->dataZoneEquip->ZoneEquipConfig(2).ReturnNode(1) = 8;
     state->dataZoneEquip->ZoneEquipConfig(2).FixedReturnFlow.allocate(1);
     state->dataZoneEquip->ZoneEquipConfig(2).IsControlled = true;
-    state->dataZoneEquip->ZoneEquipConfig(2).returnFlowSched = Sched::GetScheduleAlwaysOn(*state);
+    state->dataZoneEquip->ZoneEquipConfig(2).returnFlowFracSched = Sched::GetScheduleAlwaysOn(*state);
     state->dataZoneEquip->ZoneEquipConfig(2).InletNodeAirLoopNum.allocate(1);
     state->dataZoneEquip->ZoneEquipConfig(2).InletNodeADUNum.allocate(1);
     state->dataZoneEquip->ZoneEquipConfig(2).AirDistUnitCool.allocate(1);

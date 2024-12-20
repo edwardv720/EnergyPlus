@@ -99,7 +99,7 @@ namespace CoolingPanelSimple {
         Array1D_string SurfaceName;
         Array1D_int SurfacePtr;
         int ZonePtr = 0;
-        Sched::Schedule *sched = nullptr;
+        Sched::Schedule *availSched = nullptr;
         int WaterInletNode = 0;
         int WaterOutletNode = 0;
         int TotSurfToDistrib = 0;

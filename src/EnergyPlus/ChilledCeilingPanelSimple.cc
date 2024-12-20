@@ -292,8 +292,8 @@ void GetCoolingPanelInput(EnergyPlusData &state)
         // Get schedule
         thisCP.Schedule = s_ipsc->cAlphaArgs(2);
         if (s_ipsc->lAlphaFieldBlanks(2)) {
-            thisCP.sched = Sched::GetScheduleAlwaysOn(state);
-        } else if ((thisCP.sched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(2))) == nullptr) {
+            thisCP.availSched = Sched::GetScheduleAlwaysOn(state);
+        } else if ((thisCP.availSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(2))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(2), s_ipsc->cAlphaArgs(2));
             ErrorsFound = true;
         }
@@ -1207,7 +1207,7 @@ void CoolingPanelParams::CalcCoolingPanel(EnergyPlusData &state, int const Cooli
     Real64 waterMassFlowRateMax = this->WaterMassFlowRateMax;
     Real64 Xr = this->FracRadiant;
 
-    CoolingPanelOn = this->sched->getCurrentVal() > 0;
+    CoolingPanelOn = this->availSched->getCurrentVal() > 0;
 
     // Calculate the "zone" temperature for determining the output of the cooling panel
     auto &thisZoneHB = state.dataZoneTempPredictorCorrector->zoneHeatBalance(ZoneNum);

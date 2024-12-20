@@ -245,7 +245,7 @@ protected:
         thisZoneEqConfig.ExhaustNode.allocate(NumZoneExhaustNodes);
         thisZoneEqConfig.ExhaustNode(1) = zoneExhNode1;
         thisZoneEqConfig.EquipListIndex = zoneNum;
-        thisZoneEqConfig.returnFlowSched = Sched::GetScheduleAlwaysOn(*state);
+        thisZoneEqConfig.returnFlowFracSched = Sched::GetScheduleAlwaysOn(*state);
 
         auto &thisZone(state->dataHeatBal->Zone(zoneNum));
         thisZone.Name = "ZONE1";

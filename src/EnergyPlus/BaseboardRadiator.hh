@@ -69,7 +69,7 @@ namespace BaseboardRadiator {
         // Members
         std::string EquipID;
         std::string Schedule;
-        Sched::Schedule *sched = nullptr;
+        Sched::Schedule *availSched = nullptr;
         DataPlant::PlantEquipmentType EquipType = DataPlant::PlantEquipmentType::Invalid;
         int ZonePtr = 0;
         int WaterInletNode = 0;

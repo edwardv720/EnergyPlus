@@ -142,7 +142,7 @@ namespace SteamBaseboardRadiator {
 
         // Find the correct Baseboard Equipment
         if (CompIndex == 0) {
-            BaseboardNum = Util::FindItemInList(EquipName, state.dataSteamBaseboardRadiator->SteamBaseboard, &SteamBaseboardParams::EquipID);
+            BaseboardNum = Util::FindItemInList(EquipName, state.dataSteamBaseboardRadiator->SteamBaseboard, &SteamBaseboardParams::Name);
             if (BaseboardNum == 0) {
                 ShowFatalError(state, format("SimSteamBaseboard: Unit not found={}", EquipName));
             }
@@ -157,12 +157,12 @@ namespace SteamBaseboardRadiator {
                                       EquipName));
             }
             if (state.dataSteamBaseboardRadiator->CheckEquipName(BaseboardNum)) {
-                if (EquipName != state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID) {
+                if (EquipName != state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name) {
                     ShowFatalError(state,
                                    format("SimSteamBaseboard: Invalid CompIndex passed={}, Unit name={}, stored Unit Name for that index={}",
                                           BaseboardNum,
                                           EquipName,
-                                          state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID));
+                                          state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name));
                 }
                 state.dataSteamBaseboardRadiator->CheckEquipName(BaseboardNum) = false;
             }
@@ -179,7 +179,7 @@ namespace SteamBaseboardRadiator {
                     .DesignObjectPtr)}; // Array that contains the design data for steam baseboard objects
 
             if (QZnReq > SmallLoad && !state.dataZoneEnergyDemand->CurDeadBandOrSetback(ControlledZoneNum) &&
-                (state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).sched->getCurrentVal() > 0.0)) {
+                (state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).availSched->getCurrentVal() > 0.0)) {
 
                 // On the first HVAC iteration the system values are given to the controller, but after that
                 // the demand limits are in place and there needs to be feedback to the Zone Equipment
@@ -196,7 +196,7 @@ namespace SteamBaseboardRadiator {
                 switch (state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipType) {
                 case DataPlant::PlantEquipmentType::Baseboard_Rad_Conv_Steam: { // 'ZoneHVAC:Baseboard:RadiantConvective:Steam'
                     ControlCompOutput(state,
-                                      state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID,
+                                      state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name,
                                       state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam,
                                       BaseboardNum,
                                       FirstHVACIteration,
@@ -217,7 +217,7 @@ namespace SteamBaseboardRadiator {
                 default: {
                     ShowSevereError(
                         state,
-                        format("SimSteamBaseboard: Errors in Baseboard={}", state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID));
+                        format("SimSteamBaseboard: Errors in Baseboard={}", state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name));
                     ShowContinueError(state,
                                       format("Invalid or unimplemented equipment type={}",
                                              state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipType));
@@ -532,7 +532,7 @@ namespace SteamBaseboardRadiator {
                                       ErrorsFound,
                                       state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam + " Name");
 
-            state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID = state.dataIPShortCut->cAlphaArgs(1); // Name of the baseboard
+            state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name = state.dataIPShortCut->cAlphaArgs(1); // Name of the baseboard
             state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipType =
                 DataPlant::PlantEquipmentType::Baseboard_Rad_Conv_Steam; //'ZoneHVAC:Baseboard:RadiantConvective:Steam'
 
@@ -547,8 +547,8 @@ namespace SteamBaseboardRadiator {
 
             // Get schedule
             if (state.dataIPShortCut->lAlphaFieldBlanks(3)) {
-                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).sched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).sched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(3))) == nullptr) {
+                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).availSched = Sched::GetScheduleAlwaysOn(state);
+            } else if ((state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).availSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(3))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(3), state.dataIPShortCut->cAlphaArgs(3));
                 ErrorsFound = true;
             }
@@ -593,7 +593,7 @@ namespace SteamBaseboardRadiator {
                         ShowSevereError(state,
                                         format("{} = {}",
                                                state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam,
-                                               state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID));
+                                               state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name));
                         ShowContinueError(state,
                                           format("Illegal {} = {:.7T}",
                                                  state.dataIPShortCut->cNumericFieldNames(iHeatDesignCapacityNumericNum),
@@ -604,7 +604,7 @@ namespace SteamBaseboardRadiator {
                     ShowSevereError(state,
                                     format("{} = {}",
                                            state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam,
-                                           state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID));
+                                           state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name));
                     ShowContinueError(state,
                                       format("Input for {} = {}",
                                              state.dataIPShortCut->cAlphaFieldNames(iHeatCAPMAlphaNum),
@@ -694,7 +694,7 @@ namespace SteamBaseboardRadiator {
                     if (state.dataZoneEquip->ZoneEquipList(ctrlZone).EquipType(zoneEquipTypeNum) ==
                             DataZoneEquipment::ZoneEquipType::BaseboardSteam &&
                         state.dataZoneEquip->ZoneEquipList(ctrlZone).EquipName(zoneEquipTypeNum) ==
-                            state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID) {
+                            state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name) {
                         state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).ZonePtr = ctrlZone;
                     }
                 }
@@ -704,7 +704,7 @@ namespace SteamBaseboardRadiator {
                                 format("{}{}=\"{}\" is not on any ZoneHVAC:EquipmentList.",
                                        RoutineName,
                                        state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam,
-                                       state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID));
+                                       state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name));
                 ErrorsFound = true;
                 continue;
             }
@@ -716,7 +716,7 @@ namespace SteamBaseboardRadiator {
                     HeatBalanceIntRadExchange::GetRadiantSystemSurface(
                         state,
                         state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam,
-                        state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID,
+                        state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name,
                         state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).ZonePtr,
                         state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).SurfaceName(SurfNum),
                         ErrorsFound);
@@ -797,7 +797,7 @@ namespace SteamBaseboardRadiator {
                                 state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).TotPower,
                                 OutputProcessor::TimeStepType::System,
                                 OutputProcessor::StoreType::Average,
-                                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID);
+                                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name);
 
             SetupOutputVariable(state,
                                 "Baseboard Convective Heating Rate",
@@ -805,21 +805,21 @@ namespace SteamBaseboardRadiator {
                                 state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).ConvPower,
                                 OutputProcessor::TimeStepType::System,
                                 OutputProcessor::StoreType::Average,
-                                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID);
+                                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name);
             SetupOutputVariable(state,
                                 "Baseboard Radiant Heating Rate",
                                 Constant::Units::W,
                                 state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).RadPower,
                                 OutputProcessor::TimeStepType::System,
                                 OutputProcessor::StoreType::Average,
-                                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID);
+                                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name);
             SetupOutputVariable(state,
                                 "Baseboard Total Heating Energy",
                                 Constant::Units::J,
                                 state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).TotEnergy,
                                 OutputProcessor::TimeStepType::System,
                                 OutputProcessor::StoreType::Sum,
-                                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID,
+                                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name,
                                 Constant::eResource::EnergyTransfer,
                                 OutputProcessor::Group::HVAC,
                                 OutputProcessor::EndUseCat::Baseboard);
@@ -829,21 +829,21 @@ namespace SteamBaseboardRadiator {
                                 state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).ConvEnergy,
                                 OutputProcessor::TimeStepType::System,
                                 OutputProcessor::StoreType::Sum,
-                                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID);
+                                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name);
             SetupOutputVariable(state,
                                 "Baseboard Radiant Heating Energy",
                                 Constant::Units::J,
                                 state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).RadEnergy,
                                 OutputProcessor::TimeStepType::System,
                                 OutputProcessor::StoreType::Sum,
-                                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID);
+                                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name);
             SetupOutputVariable(state,
                                 "Baseboard Steam Energy",
                                 Constant::Units::J,
                                 state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Energy,
                                 OutputProcessor::TimeStepType::System,
                                 OutputProcessor::StoreType::Sum,
-                                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID,
+                                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name,
                                 Constant::eResource::PlantLoopHeatingDemand,
                                 OutputProcessor::Group::HVAC,
                                 OutputProcessor::EndUseCat::Baseboard);
@@ -853,28 +853,28 @@ namespace SteamBaseboardRadiator {
                                 state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Power,
                                 OutputProcessor::TimeStepType::System,
                                 OutputProcessor::StoreType::Average,
-                                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID);
+                                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name);
             SetupOutputVariable(state,
                                 "Baseboard Steam Mass Flow Rate",
                                 Constant::Units::kg_s,
                                 state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).SteamMassFlowRate,
                                 OutputProcessor::TimeStepType::System,
                                 OutputProcessor::StoreType::Average,
-                                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID);
+                                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name);
             SetupOutputVariable(state,
                                 "Baseboard Steam Inlet Temperature",
                                 Constant::Units::C,
                                 state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).SteamInletTemp,
                                 OutputProcessor::TimeStepType::System,
                                 OutputProcessor::StoreType::Average,
-                                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID);
+                                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name);
             SetupOutputVariable(state,
                                 "Baseboard Steam Outlet Temperature",
                                 Constant::Units::C,
                                 state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).SteamOutletTemp,
                                 OutputProcessor::TimeStepType::System,
                                 OutputProcessor::StoreType::Average,
-                                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID);
+                                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name);
         }
     }
 
@@ -931,12 +931,12 @@ namespace SteamBaseboardRadiator {
             for (Loop = 1; Loop <= state.dataSteamBaseboardRadiator->NumSteamBaseboards; ++Loop) {
                 if (CheckZoneEquipmentList(state,
                                            state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam,
-                                           state.dataSteamBaseboardRadiator->SteamBaseboard(Loop).EquipID))
+                                           state.dataSteamBaseboardRadiator->SteamBaseboard(Loop).Name))
                     continue;
                 ShowSevereError(state,
                                 format("InitBaseboard: Unit=[{},{}] is not on any ZoneHVAC:EquipmentList.  It will not be simulated.",
                                        state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam,
-                                       state.dataSteamBaseboardRadiator->SteamBaseboard(Loop).EquipID));
+                                       state.dataSteamBaseboardRadiator->SteamBaseboard(Loop).Name));
             }
         }
 
@@ -944,7 +944,7 @@ namespace SteamBaseboardRadiator {
             if (allocated(state.dataPlnt->PlantLoop)) {
                 errFlag = false;
                 ScanPlantLoopsForObject(state,
-                                        state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID,
+                                        state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name,
                                         state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipType,
                                         state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).plantLoc,
                                         errFlag,
@@ -1116,17 +1116,17 @@ namespace SteamBaseboardRadiator {
                     if (state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).SteamVolFlowRateMax > 0.0) {
                         BaseSizer::reportSizerOutput(state,
                                                      state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam,
-                                                     state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID,
+                                                     state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name,
                                                      "User-Specified Maximum Water Flow Rate [m3/s]",
                                                      state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).SteamVolFlowRateMax);
                     }
                 } else {
                     CheckZoneSizing(state,
                                     state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam,
-                                    state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID);
+                                    state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name);
 
                     CompType = state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam;
-                    CompName = state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID;
+                    CompName = state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name;
                     state.dataSize->DataFracOfAutosizedHeatingCapacity = 1.0;
                     state.dataSize->DataZoneNumber = state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).ZonePtr;
                     SizingMethod = HeatingCapacitySizing;
@@ -1212,7 +1212,7 @@ namespace SteamBaseboardRadiator {
                         state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).SteamVolFlowRateMax = SteamVolFlowRateMaxDes;
                         BaseSizer::reportSizerOutput(state,
                                                      state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam,
-                                                     state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID,
+                                                     state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name,
                                                      "Design Size Maximum Steam Flow Rate [m3/s]",
                                                      SteamVolFlowRateMaxDes);
                     } else { // Hard size with sizing data
@@ -1221,7 +1221,7 @@ namespace SteamBaseboardRadiator {
                             SteamVolFlowRateMaxUser = state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).SteamVolFlowRateMax;
                             BaseSizer::reportSizerOutput(state,
                                                          state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam,
-                                                         state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID,
+                                                         state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name,
                                                          "Design Size Maximum Steam Flow Rate [m3/s]",
                                                          SteamVolFlowRateMaxDes,
                                                          "User-Specified Maximum Steam Flow Rate [m3/s]",
@@ -1233,7 +1233,7 @@ namespace SteamBaseboardRadiator {
                                     ShowMessage(state,
                                                 format("SizeSteamBaseboard: Potential issue with equipment sizing for "
                                                        "ZoneHVAC:Baseboard:RadiantConvective:Steam=\"{}\".",
-                                                       state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID));
+                                                       state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name));
                                     ShowContinueError(state,
                                                       format("User-Specified Maximum Steam Flow Rate of {:.5R} [m3/s]", SteamVolFlowRateMaxUser));
                                     ShowContinueError(
@@ -1252,7 +1252,7 @@ namespace SteamBaseboardRadiator {
                 // first error will be issued by MyPlantSizingIndex
                 ShowSevereError(state, "Autosizing of steam baseboard requires a heating loop Sizing:Plant object");
                 ShowContinueError(state,
-                                  format("Occurs in Baseboard Heater={}", state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID));
+                                  format("Occurs in Baseboard Heater={}", state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name));
                 ErrorsFound = true;
             }
         }
@@ -1328,7 +1328,7 @@ namespace SteamBaseboardRadiator {
         SubcoolDeltaT = state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).DegOfSubcooling;
 
         if (QZnReq > SmallLoad && !state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum) && SteamMassFlowRate > 0.0 &&
-            state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).sched->getCurrentVal() > 0) {
+            state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).availSched->getCurrentVal() > 0) {
             // Unit is on
             EnthSteamInDry = GetSatEnthalpyRefrig(
                 state, fluidNameSteam, SteamInletTemp, 1.0, state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).FluidIndex, RoutineName);
@@ -1536,7 +1536,7 @@ namespace SteamBaseboardRadiator {
                         ShowContinueError(state,
                                           format("Occurs in {} = {}",
                                                  state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam,
-                                                 state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID));
+                                                 state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name));
                         ShowContinueError(state, format("Radiation intensity = {:.2R} [W/m2]", ThisSurfIntensity));
                         ShowContinueError(
                             state,
@@ -1550,7 +1550,7 @@ namespace SteamBaseboardRadiator {
                     ShowContinueError(state,
                                       format("Occurs in {} = {}",
                                              state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam,
-                                             state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID));
+                                             state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name));
                     ShowContinueError(
                         state,
                         format("Assign a larger surface area or more surfaces in {}", state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam));
@@ -1618,7 +1618,7 @@ namespace SteamBaseboardRadiator {
 
         // Find the correct baseboard
         if (CompIndex == 0) {
-            BaseboardNum = Util::FindItemInList(BaseboardName, state.dataSteamBaseboardRadiator->SteamBaseboard, &SteamBaseboardParams::EquipID);
+            BaseboardNum = Util::FindItemInList(BaseboardName, state.dataSteamBaseboardRadiator->SteamBaseboard, &SteamBaseboardParams::Name);
             if (BaseboardNum == 0) {
                 ShowFatalError(state, format("UpdateSteamBaseboardPlantConnection: Specified baseboard not valid ={}", BaseboardName));
             }
@@ -1634,13 +1634,13 @@ namespace SteamBaseboardRadiator {
                            BaseboardName));
             }
             if (state.dataGlobal->KickOffSimulation) {
-                if (BaseboardName != state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID) {
+                if (BaseboardName != state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name) {
                     ShowFatalError(state,
                                    format("UpdateSteamBaseboardPlantConnection: Invalid CompIndex passed={}, baseboard name={}, stored baseboard "
                                           "Name for that index={}",
                                           BaseboardNum,
                                           BaseboardName,
-                                          state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID));
+                                          state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).Name));
                 }
                 if (BaseboardType != DataPlant::PlantEquipmentType::Baseboard_Rad_Conv_Steam) {
                     ShowFatalError(state,

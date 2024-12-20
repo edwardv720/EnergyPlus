@@ -4814,6 +4814,7 @@ namespace HeatBalanceManager {
                             errorsFound = true;
                         }
                     }
+                    
                     if (auto found = fields.find("simple_mixing_schedule_name"); found != fields.end()) {
                         std::string schedName = found.value().get<std::string>(); // .get<std::string>() creates and returns a new string, no &
                         if ((thisConstruct.airBoundaryMixingSched = Sched::GetSchedule(state, Util::makeUPPER(schedName))) == nullptr) { 
@@ -4821,7 +4822,7 @@ namespace HeatBalanceManager {
                             errorsFound = true;
                         }
                     } else {
-                        thisConstruct.airBoundaryMixingSched = Sched::GetScheduleAlwaysOn(state);
+                        thisConstruct.airBoundaryMixingSched = Sched::GetScheduleAlwaysOn(state); // Not an availability manager, but defaults to constant-1.0
                     }
                 }
             }

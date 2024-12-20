@@ -223,6 +223,7 @@ TEST_F(EnergyPlusFixture, ZoneContaminantPredictorCorrector_AddMDotOATest)
     state->dataContaminantBalance->ContaminantControlledZone.allocate(1);
 
     state->dataContaminantBalance->ContaminantControlledZone(1).availSched = Sched::GetScheduleAlwaysOn(*state);
+    state->dataContaminantBalance->ContaminantControlledZone(1).genericContamAvailSched = Sched::GetScheduleAlwaysOn(*state);
     state->dataContaminantBalance->ContaminantControlledZone(1).ActualZoneNum = 1;
     state->dataContaminantBalance->ContaminantControlledZone(1).NumOfZones = 1;
     state->dataContaminantBalance->ZoneGCSetPoint(1) = 0.0025;
@@ -532,12 +533,15 @@ TEST_F(EnergyPlusFixture, ZoneContaminantPredictorCorrector_MultiZoneCO2ControlT
     state->dataContaminantBalance->ContaminantControlledZone.allocate(3);
 
     state->dataContaminantBalance->ContaminantControlledZone(1).availSched = Sched::GetScheduleAlwaysOn(*state);
+    state->dataContaminantBalance->ContaminantControlledZone(1).genericContamAvailSched = Sched::GetScheduleAlwaysOn(*state);
     state->dataContaminantBalance->ContaminantControlledZone(1).ActualZoneNum = 1;
     state->dataContaminantBalance->ContaminantControlledZone(1).NumOfZones = 1;
     state->dataContaminantBalance->ContaminantControlledZone(2).availSched = Sched::GetScheduleAlwaysOn(*state);
+    state->dataContaminantBalance->ContaminantControlledZone(2).genericContamAvailSched = Sched::GetScheduleAlwaysOn(*state);
     state->dataContaminantBalance->ContaminantControlledZone(2).ActualZoneNum = 2;
     state->dataContaminantBalance->ContaminantControlledZone(2).NumOfZones = 1;
     state->dataContaminantBalance->ContaminantControlledZone(3).availSched = Sched::GetScheduleAlwaysOn(*state);
+    state->dataContaminantBalance->ContaminantControlledZone(3).genericContamAvailSched = Sched::GetScheduleAlwaysOn(*state);
     state->dataContaminantBalance->ContaminantControlledZone(3).ActualZoneNum = 3;
     state->dataContaminantBalance->ContaminantControlledZone(3).NumOfZones = 1;
 
@@ -718,12 +722,15 @@ TEST_F(EnergyPlusFixture, ZoneContaminantPredictorCorrector_MultiZoneGCControlTe
     state->dataContaminantBalance->ContaminantControlledZone.allocate(3);
 
     state->dataContaminantBalance->ContaminantControlledZone(1).availSched = Sched::GetScheduleAlwaysOn(*state);
+    state->dataContaminantBalance->ContaminantControlledZone(1).genericContamAvailSched = Sched::GetScheduleAlwaysOn(*state);
     state->dataContaminantBalance->ContaminantControlledZone(1).ActualZoneNum = 1;
     state->dataContaminantBalance->ContaminantControlledZone(1).NumOfZones = 1;
     state->dataContaminantBalance->ContaminantControlledZone(2).availSched = Sched::GetScheduleAlwaysOn(*state);
+    state->dataContaminantBalance->ContaminantControlledZone(2).genericContamAvailSched = Sched::GetScheduleAlwaysOn(*state);
     state->dataContaminantBalance->ContaminantControlledZone(2).ActualZoneNum = 2;
     state->dataContaminantBalance->ContaminantControlledZone(2).NumOfZones = 1;
     state->dataContaminantBalance->ContaminantControlledZone(3).availSched = Sched::GetScheduleAlwaysOn(*state);
+    state->dataContaminantBalance->ContaminantControlledZone(3).genericContamAvailSched = Sched::GetScheduleAlwaysOn(*state);
     state->dataContaminantBalance->ContaminantControlledZone(3).ActualZoneNum = 3;
     state->dataContaminantBalance->ContaminantControlledZone(3).NumOfZones = 1;
 

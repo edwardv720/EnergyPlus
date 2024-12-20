@@ -352,7 +352,7 @@ namespace FaultsManager {
 
             // Fault severity schedule
             if (lAlphaFieldBlanks(3)) {
-                faultsECFouling.severitySched = Sched::GetScheduleAlwaysOn(state); // returns schedule value of 1
+                faultsECFouling.severitySched = Sched::GetScheduleAlwaysOn(state); // not an availability schedule, but defaults to constant-1.0
             } else if ((faultsECFouling.severitySched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(3), cAlphaArgs(3));
                 state.dataFaultsMgr->ErrorsFound = true;
@@ -433,7 +433,7 @@ namespace FaultsManager {
 
             // Fault severity schedule
             if (lAlphaFieldBlanks(3)) {
-                faultsChillerFouling.severitySched = Sched::GetScheduleAlwaysOn(state); // returns schedule value of 1
+                faultsChillerFouling.severitySched = Sched::GetScheduleAlwaysOn(state); // not an availability schedule, but defaults to constant-1.0
             } else if ((faultsChillerFouling.severitySched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(3), cAlphaArgs(3));
                 state.dataFaultsMgr->ErrorsFound = true;
@@ -701,7 +701,7 @@ namespace FaultsManager {
 
             // Fault severity schedule
             if (lAlphaFieldBlanks(3)) {
-                faultsBoilerFouling.severitySched = Sched::GetScheduleAlwaysOn(state); // returns schedule value of 1
+                faultsBoilerFouling.severitySched = Sched::GetScheduleAlwaysOn(state); // not an availability schedule, but defaults to constant-1.0
             } else if ((faultsBoilerFouling.severitySched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(3), cAlphaArgs(3));
                 state.dataFaultsMgr->ErrorsFound = true;
@@ -779,7 +779,7 @@ namespace FaultsManager {
 
             // Fault severity schedule
             if (lAlphaFieldBlanks(3)) {
-                faultsCoilSATFouling.severitySched = Sched::GetScheduleAlwaysOn(state); // returns schedule value of 1
+                faultsCoilSATFouling.severitySched = Sched::GetScheduleAlwaysOn(state); // not an availability schedule, but defaults to constant-1.0
             } else if ((faultsCoilSATFouling.severitySched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(3), cAlphaArgs(3));
                 state.dataFaultsMgr->ErrorsFound = true;
@@ -999,7 +999,7 @@ namespace FaultsManager {
 
             // Fault severity schedule
             if (lAlphaFieldBlanks(3)) {
-                faultsTowerFouling.severitySched = Sched::GetScheduleAlwaysOn(state); // returns schedule value of 1
+                faultsTowerFouling.severitySched = Sched::GetScheduleAlwaysOn(state); // not an availability schedule, but defaults to constant-1.0
             } else if ((faultsTowerFouling.severitySched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(3), cAlphaArgs(3));
                 state.dataFaultsMgr->ErrorsFound = true;
@@ -1107,7 +1107,7 @@ namespace FaultsManager {
 
             // Fault severity schedule
             if (lAlphaFieldBlanks(3)) {
-                faultsCondSWTFouling.severitySched = Sched::GetScheduleAlwaysOn(state); // returns schedule value of 1
+                faultsCondSWTFouling.severitySched = Sched::GetScheduleAlwaysOn(state); // not an availability schedule, but defaults to constant-1.0
             } else if ((faultsCondSWTFouling.severitySched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(3), cAlphaArgs(3));
                 state.dataFaultsMgr->ErrorsFound = true;
@@ -1200,7 +1200,7 @@ namespace FaultsManager {
 
             // Fault severity schedule
             if (lAlphaFieldBlanks(3)) {
-                faultsChillerSWT.severitySched = Sched::GetScheduleAlwaysOn(state); // returns schedule value of 1
+                faultsChillerSWT.severitySched = Sched::GetScheduleAlwaysOn(state); // not an availability schedule, but defaults to constant-1.0
             } else if ((faultsChillerSWT.severitySched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(3), cAlphaArgs(3));
                 state.dataFaultsMgr->ErrorsFound = true;
@@ -1449,7 +1449,7 @@ namespace FaultsManager {
 
             // Fan pressure increase fraction schedule
             if (lAlphaFieldBlanks(5)) {
-                faultsAirFilter.pressFracSched = Sched::GetScheduleAlwaysOn(state); // returns schedule value of 1
+                faultsAirFilter.pressFracSched = Sched::GetScheduleAlwaysOn(state); // not an availability schedule, but defaults to constant-1.0
             } else if ((faultsAirFilter.pressFracSched = Sched::GetSchedule(state, cAlphaArgs(5))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(5), cAlphaArgs(5));
                 state.dataFaultsMgr->ErrorsFound = true;
@@ -1520,7 +1520,7 @@ namespace FaultsManager {
 
                 // Severity schedule
                 if (lAlphaFieldBlanks(5)) {
-                    faultsHStat.severitySched = Sched::GetScheduleAlwaysOn(state); // returns schedule value of 1
+                    faultsHStat.severitySched = Sched::GetScheduleAlwaysOn(state); // not an availability schedule, but defaults to constant-1.0
                 } else if ((faultsHStat.severitySched = Sched::GetSchedule(state, cAlphaArgs(5))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(5), cAlphaArgs(5));
                     state.dataFaultsMgr->ErrorsFound = true;
@@ -1573,7 +1573,7 @@ namespace FaultsManager {
 
             // Severity schedule
             if (lAlphaFieldBlanks(4)) {
-                faultsTStat.severitySched = Sched::GetScheduleAlwaysOn(state); // returns schedule value of 1
+                faultsTStat.severitySched = Sched::GetScheduleAlwaysOn(state); // not an availability schedule, but defaults to constant-1.0
             } else if ((faultsTStat.severitySched = Sched::GetSchedule(state, cAlphaArgs(4))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(4), cAlphaArgs(4));
                 state.dataFaultsMgr->ErrorsFound = true;
@@ -1621,7 +1621,7 @@ namespace FaultsManager {
 
             // Severity schedule
             if (lAlphaFieldBlanks(4)) {
-                faultsFoulCoil.severitySched = Sched::GetScheduleAlwaysOn(state); // returns schedule value of 1
+                faultsFoulCoil.severitySched = Sched::GetScheduleAlwaysOn(state); // not an availability schedule, but defaults to constant-1.0
             } else if ((faultsFoulCoil.severitySched = Sched::GetSchedule(state, cAlphaArgs(4))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(4), cAlphaArgs(4));
                 state.dataFaultsMgr->ErrorsFound = true;
@@ -1783,7 +1783,7 @@ namespace FaultsManager {
 
                 // check severity schedule
                 if (lAlphaFieldBlanks(3)) {
-                    fault.severitySched = Sched::GetScheduleAlwaysOn(state); // returns schedule value of 1
+                    fault.severitySched = Sched::GetScheduleAlwaysOn(state); // not an availability schedule, but defaults to constant-1.0
                 } else if ((fault.severitySched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(3), cAlphaArgs(3));
                     state.dataFaultsMgr->ErrorsFound = true;
