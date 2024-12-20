@@ -3222,9 +3222,9 @@ namespace InternalHeatGains {
                 } else {
                     print(state.files.eio, "N/A,");
                 }
-                print(state.files.eio, "{},", people.workEffSched->Name);
+                print(state.files.eio, "{},", people.workEffSched ? people.workEffSched->Name : "");
 
-                print(state.files.eio, clothingTypeEIOStrings[static_cast<int>(people.clothingType)]);
+                print(state.files.eio, clothingTypeEIOStrings[(int)people.clothingType]);
 
                 if (people.clothingType == ClothingType::CalculationSchedule) {
                     print(state.files.eio, "{},", people.clothingMethodSched->Name);
@@ -3232,8 +3232,8 @@ namespace InternalHeatGains {
                     print(state.files.eio, "N/A,");
                 }
 
-                print(state.files.eio, "{},", people.clothingSched->Name);
-                print(state.files.eio, "{},", people.airVelocitySched->Name);
+                print(state.files.eio, "{},", people.clothingSched ? people.clothingSched->Name : "");
+                print(state.files.eio, "{},", people.airVelocitySched ? people.airVelocitySched->Name : "");
 
                 print(state.files.eio, "{},", yesNoNames[(int)people.Fanger]);
                 print(state.files.eio, "{},", yesNoNames[(int)people.Pierce]);

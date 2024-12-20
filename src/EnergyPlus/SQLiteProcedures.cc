@@ -2314,13 +2314,13 @@ bool SQLite::NominalPeople::insertIntoSQLite(sqlite3_stmt *insertStmt)
     sqliteBindText(insertStmt, 2, name);
     sqliteBindForeignKey(insertStmt, 3, zonePtr);
     sqliteBindDouble(insertStmt, 4, numberOfPeople);
-    sqliteBindForeignKey(insertStmt, 5, numberOfPeopleSched->Num);
-    sqliteBindForeignKey(insertStmt, 6, activityLevelSched->Num);
+    sqliteBindForeignKey(insertStmt, 5, numberOfPeopleSched ? numberOfPeopleSched->Num : -1);
+    sqliteBindForeignKey(insertStmt, 6, activityLevelSched ? activityLevelSched->Num : -1);
     sqliteBindDouble(insertStmt, 7, fractionRadiant);
     sqliteBindDouble(insertStmt, 8, fractionConvected);
-    sqliteBindForeignKey(insertStmt, 9, workEffSched->Num);
-    sqliteBindForeignKey(insertStmt, 10, clothingSched->Num);
-    sqliteBindForeignKey(insertStmt, 11, airVelocitySched->Num);
+    sqliteBindForeignKey(insertStmt, 9, workEffSched ? workEffSched->Num : -1);
+    sqliteBindForeignKey(insertStmt, 10, clothingSched ? clothingSched->Num : -1);
+    sqliteBindForeignKey(insertStmt, 11, airVelocitySched ? airVelocitySched->Num : -1);
     sqliteBindLogical(insertStmt, 12, fanger);
     sqliteBindLogical(insertStmt, 13, pierce);
     sqliteBindLogical(insertStmt, 14, ksu);

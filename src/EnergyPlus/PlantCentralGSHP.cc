@@ -2883,7 +2883,7 @@ void WrapperSpecs::CalcWrapperModel(EnergyPlusData &state, Real64 &MyLoad, int c
 
                 HWOutletTemp = HWInletTemp;
 
-                if (this->ancillaryPowerSched->getCurrentVal() > 0) {
+                if (this->ancillaryPowerSched != nullptr) {
                     WrapperElecPowerCool += (this->AncillaryPower * this->ancillaryPowerSched->getCurrentVal());
                 }
 
@@ -3275,7 +3275,7 @@ void WrapperSpecs::CalcWrapperModel(EnergyPlusData &state, Real64 &MyLoad, int c
                     CHWOutletTemp = CHWInletTemp;
 
                     // Add ancilliary power if necessary
-                    if (this->ancillaryPowerSched->getCurrentVal() > 0) {
+                    if (this->ancillaryPowerSched != nullptr) {
                         WrapperElecPowerHeat += (this->AncillaryPower * this->ancillaryPowerSched->getCurrentVal());
                     }
 
