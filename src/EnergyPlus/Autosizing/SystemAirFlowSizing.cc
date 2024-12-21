@@ -783,7 +783,19 @@ Real64 SystemAirFlowSizer::size(EnergyPlusData &state, Real64 _originalValue, bo
                             this->autoSizedValue =
                                 this->airloopDOAS[outsideAirSys(this->curOASysNum).AirLoopDOASNum].SizingMassFlow / state.dataEnvrn->StdRhoAir;
                         } else {
-                            this->autoSizedValue = this->finalSysSizing(this->curSysNum).DesOutAirVolFlow;
+                            switch (this->curDuctType) {
+                            case HVAC::AirDuctType::Cooling: {
+                                this->autoSizedValue = this->finalSysSizing(this->curSysNum).DesCoolVolFlow;
+                            } break;
+                            case HVAC::AirDuctType::Heating: {
+                                this->autoSizedValue = this->finalSysSizing(this->curSysNum).DesHeatVolFlow;
+                            } break;
+                            case HVAC::AirDuctType::Main:
+                            case HVAC::AirDuctType::Other:
+                            default: {
+                                this->autoSizedValue = this->finalSysSizing(this->curSysNum).DesMainVolFlow;
+                            } break;
+                            }
                         }
                     } else {
                         auto &sysSizPeakDDNum = state.dataSize->SysSizPeakDDNum(this->curSysNum);
