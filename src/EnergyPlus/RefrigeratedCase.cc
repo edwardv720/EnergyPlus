@@ -1329,7 +1329,7 @@ void GetRefrigerationInput(EnergyPlusData &state)
             WalkIn(WalkInID).Name = Alphas(1);
 
             if (lAlphaBlanks(2)) {
-                    WalkIn(WalkInID).availSched = Sched::GetScheduleAlwaysOn(state);
+                WalkIn(WalkInID).availSched = Sched::GetScheduleAlwaysOn(state);
             } else if ((WalkIn(WalkInID).availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) { 
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(2), Alphas(2));
                 ErrorsFound = true;
@@ -2242,7 +2242,7 @@ void GetRefrigerationInput(EnergyPlusData &state)
             }
 
             ++AlphaNum; // A6
-            if (!lAlphaBlanks(AlphaNum)) {
+            if (lAlphaBlanks(AlphaNum)) {
                 WarehouseCoil(CoilID).heaterAvailSched = Sched::GetScheduleAlwaysOn(state);
             } else if ((WarehouseCoil(CoilID).heaterAvailSched = Sched::GetSchedule(state, Alphas(AlphaNum))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(AlphaNum), Alphas(AlphaNum));
