@@ -796,6 +796,29 @@ Real64 SystemAirFlowSizer::size(EnergyPlusData &state, Real64 _originalValue, bo
                                 this->autoSizedValue = this->finalSysSizing(this->curSysNum).DesMainVolFlow;
                             } break;
                             }
+                            if (this->autoSizedValue == this->finalSysSizing(this->curSysNum).DesHeatVolFlow) {
+                                if (this->finalSysSizing(this->curSysNum).HeatDDNum > 0 &&
+                                    this->finalSysSizing(this->curSysNum).HeatDDNum <= state.dataEnvrn->TotDesDays) {
+                                    auto &desDayInput = state.dataWeather->DesDayInput(this->finalSysSizing(this->curSysNum).HeatDDNum);
+                                    DDNameFanPeak = desDayInput.Title;
+                                    dateTimeFanPeak = format("{}/{} {}",
+                                                             desDayInput.Month,
+                                                             desDayInput.DayOfMonth,
+                                                             state.dataRptCoilSelection->coilSelectionReportObj->getTimeText(
+                                                                 state, this->finalSysSizing(this->curSysNum).SysHeatAirTimeStepPk));
+                                }
+                            } else if (this->autoSizedValue == this->finalSysSizing(this->curSysNum).DesCoolVolFlow) {
+                                auto &sysSizPeakDDNum = state.dataSize->SysSizPeakDDNum(this->curSysNum);
+                                if (sysSizPeakDDNum.CoolFlowPeakDD > 0 && sysSizPeakDDNum.CoolFlowPeakDD <= state.dataEnvrn->TotDesDays) {
+                                    auto &desDayInput = state.dataWeather->DesDayInput(sysSizPeakDDNum.CoolFlowPeakDD);
+                                    DDNameFanPeak = desDayInput.Title;
+                                    dateTimeFanPeak = format("{}/{} {}",
+                                                             desDayInput.Month,
+                                                             desDayInput.DayOfMonth,
+                                                             state.dataRptCoilSelection->coilSelectionReportObj->getTimeText(
+                                                                 state, sysSizPeakDDNum.TimeStepAtCoolFlowPk(sysSizPeakDDNum.CoolFlowPeakDD)));
+                                }
+                            }
                         }
                     } else {
                         auto &sysSizPeakDDNum = state.dataSize->SysSizPeakDDNum(this->curSysNum);
