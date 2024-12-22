@@ -96,8 +96,6 @@ namespace WaterToAirHeatPump {
 
     using namespace DataLoopNode;
 
-    static constexpr std::string_view fluidNameWater("WATER");
-
     void SimWatertoAirHP(EnergyPlusData &state,
                          std::string_view CompName,     // component name
                          int &CompIndex,                // Index for Component name
@@ -128,7 +126,6 @@ namespace WaterToAirHeatPump {
 
         // Obtains and Allocates WatertoAirHP related parameters from input file
         if (state.dataWaterToAirHeatPump->GetCoilsInputFlag) {                                               // First time subroutine has been entered
-            state.dataWaterToAirHeatPump->WaterIndex = FluidProperties::GetGlycolNum(state, fluidNameWater); // Initialize the WaterIndex once
             GetWatertoAirHPInput(state);
             state.dataWaterToAirHeatPump->GetCoilsInputFlag = false;
         }
@@ -1437,7 +1434,7 @@ namespace WaterToAirHeatPump {
                         state, SourceSideFluidName, heatPump.InletWaterTemp, SourceSideFluidIndex, RoutineNameSourceSideInletTemp);
 
                     //      IF (SourceSideFluidName=='WATER') THEN
-                    if (SourceSideFluidIndex == state.dataWaterToAirHeatPump->WaterIndex) { // SourceSideFluidName=='Water'
+                    if (SourceSideFluidIndex == FluidProperties::GlycolNum_Water) { // SourceSideFluidName=='Water'
                         SourceSideEffect = 1.0 - std::exp(-heatPump.SourceSideUACoeff / (CpFluid * heatPump.InletWaterMassFlowRate));
                     } else {
                         DegradFactor = DegradF(state, SourceSideFluidName, heatPump.InletWaterTemp, SourceSideFluidIndex);
@@ -1906,7 +1903,7 @@ namespace WaterToAirHeatPump {
                     state, SourceSideFluidName, heatPump.InletWaterTemp, SourceSideFluidIndex, RoutineNameSourceSideInletTemp);
 
                 //      IF (SourceSideFluidName=='WATER') THEN
-                if (SourceSideFluidIndex == state.dataWaterToAirHeatPump->WaterIndex) {
+                if (SourceSideFluidIndex == FluidProperties::GlycolNum_Water) {
                     SourceSideEffect =
                         1.0 - std::exp(-heatPump.SourceSideUACoeff / (CpFluid * heatPump.InletWaterMassFlowRate)); // SourceSideFluidName=='Water'
                 } else {
@@ -2440,10 +2437,12 @@ namespace WaterToAirHeatPump {
         Real64 CpCoolant;      // Specific heat of water [J/kg-K]
         Real64 CondCoolant;    // Conductivity of water [W/m-K]
 
-        VisWater = FluidProperties::GetViscosityGlycol(state, fluidNameWater, Temp, state.dataWaterToAirHeatPump->WaterIndex, CalledFrom);
-        DensityWater = FluidProperties::GetDensityGlycol(state, fluidNameWater, Temp, state.dataWaterToAirHeatPump->WaterIndex, CalledFrom);
-        CpWater = FluidProperties::GetSpecificHeatGlycol(state, fluidNameWater, Temp, state.dataWaterToAirHeatPump->WaterIndex, CalledFrom);
-        CondWater = FluidProperties::GetConductivityGlycol(state, fluidNameWater, Temp, state.dataWaterToAirHeatPump->WaterIndex, CalledFrom);
+        auto *water = FluidProperties::GetWater(state);
+        
+        VisWater = water->getViscosity(state, Temp, CalledFrom);
+        DensityWater = water->getDensity(state, Temp, CalledFrom);
+        CpWater = water->getSpecificHeat(state, Temp, CalledFrom);
+        CondWater = water->getConductivity(state, Temp, CalledFrom);
         VisCoolant = FluidProperties::GetViscosityGlycol(state, FluidName, Temp, FluidIndex, CalledFrom);
         DensityCoolant = FluidProperties::GetDensityGlycol(state, FluidName, Temp, FluidIndex, CalledFrom);
         CpCoolant = FluidProperties::GetSpecificHeatGlycol(state, FluidName, Temp, FluidIndex, CalledFrom);
@@ -2479,7 +2478,6 @@ namespace WaterToAirHeatPump {
         // Obtains and Allocates WatertoAirHP related parameters from input file
         if (state.dataWaterToAirHeatPump->GetCoilsInputFlag) { // First time subroutine has been entered
             GetWatertoAirHPInput(state);
-            state.dataWaterToAirHeatPump->WaterIndex = FluidProperties::GetGlycolNum(state, fluidNameWater); // Initialize the WaterIndex once
             state.dataWaterToAirHeatPump->GetCoilsInputFlag = false;
         }
 
@@ -2519,7 +2517,6 @@ namespace WaterToAirHeatPump {
 
         // Obtains and Allocates WatertoAirHP related parameters from input file
         if (state.dataWaterToAirHeatPump->GetCoilsInputFlag) {                                               // First time subroutine has been entered
-            state.dataWaterToAirHeatPump->WaterIndex = FluidProperties::GetGlycolNum(state, fluidNameWater); // Initialize the WaterIndex once
             GetWatertoAirHPInput(state);
             state.dataWaterToAirHeatPump->GetCoilsInputFlag = false;
         }
@@ -2574,7 +2571,6 @@ namespace WaterToAirHeatPump {
         // Obtains and Allocates WatertoAirHP related parameters from input file
         if (state.dataWaterToAirHeatPump->GetCoilsInputFlag) { // First time subroutine has been entered
             GetWatertoAirHPInput(state);
-            state.dataWaterToAirHeatPump->WaterIndex = FluidProperties::GetGlycolNum(state, fluidNameWater); // Initialize the WaterIndex once
             state.dataWaterToAirHeatPump->GetCoilsInputFlag = false;
         }
 
@@ -2619,7 +2615,6 @@ namespace WaterToAirHeatPump {
         // Obtains and Allocates WatertoAirHP related parameters from input file
         if (state.dataWaterToAirHeatPump->GetCoilsInputFlag) { // First time subroutine has been entered
             GetWatertoAirHPInput(state);
-            state.dataWaterToAirHeatPump->WaterIndex = FluidProperties::GetGlycolNum(state, fluidNameWater); // Initialize the WaterIndex once
             state.dataWaterToAirHeatPump->GetCoilsInputFlag = false;
         }
 

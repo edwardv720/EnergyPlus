@@ -92,8 +92,6 @@ namespace SolarCollectors {
     // must be connected to a WATER HEATER object on the supply side of the plant loop.  Water is assumed to be
     // the heat transfer fluid.
 
-    static constexpr std::string_view fluidNameWater("WATER");
-
     PlantComponent *CollectorData::factory(EnergyPlusData &state, std::string const &objectName)
     {
         // Process the input data
@@ -2049,17 +2047,18 @@ namespace SolarCollectors {
         Real64 DeltaT = std::abs(TAbsorber - TWater);
         Real64 TReference = TAbsorber - 0.25 * (TAbsorber - TWater);
         // record fluid prop index for water
-        int WaterIndex = FluidProperties::GetGlycolNum(state, fluidNameWater);
+
+        auto *water = FluidProperties::GetWater(state);
         // find properties of water - always assume water
-        Real64 WaterSpecHeat = FluidProperties::GetSpecificHeatGlycol(state, fluidNameWater, max(TReference, 0.0), WaterIndex, CalledFrom);
-        Real64 CondOfWater = FluidProperties::GetConductivityGlycol(state, fluidNameWater, max(TReference, 0.0), WaterIndex, CalledFrom);
-        Real64 VisOfWater = FluidProperties::GetViscosityGlycol(state, fluidNameWater, max(TReference, 0.0), WaterIndex, CalledFrom);
-        Real64 DensOfWater = FluidProperties::GetDensityGlycol(state, fluidNameWater, max(TReference, 0.0), WaterIndex, CalledFrom);
+        Real64 WaterSpecHeat = water->getSpecificHeat(state, max(TReference, 0.0), CalledFrom);
+        Real64 CondOfWater = water->getConductivity(state, max(TReference, 0.0), CalledFrom);
+        Real64 VisOfWater = water->getViscosity(state, max(TReference, 0.0), CalledFrom);
+        Real64 DensOfWater = water->getDensity(state, max(TReference, 0.0), CalledFrom);
         Real64 PrOfWater = VisOfWater * WaterSpecHeat / CondOfWater;
         // Requires a different reference temperature for volumetric expansion coefficient
         TReference = TWater - 0.25 * (TWater - TAbsorber);
-        Real64 VolExpWater = -(FluidProperties::GetDensityGlycol(state, fluidNameWater, max(TReference, 10.0) + 5.0, WaterIndex, CalledFrom) -
-                               FluidProperties::GetDensityGlycol(state, fluidNameWater, max(TReference, 10.0) - 5.0, WaterIndex, CalledFrom)) /
+        Real64 VolExpWater = -(water->getDensity(state, max(TReference, 10.0) + 5.0, CalledFrom) -
+                               water->getDensity(state, max(TReference, 10.0) - 5.0, CalledFrom)) /
                              (10.0 * DensOfWater);
 
         // Grashof number

@@ -55,6 +55,7 @@
 #include <EnergyPlus/Data/BaseData.hh>
 #include <EnergyPlus/DataGlobals.hh>
 #include <EnergyPlus/EnergyPlus.hh>
+#include <EnergyPlus/FluidProperties.hh>
 #include <EnergyPlus/Plant/DataPlant.hh>
 #include <EnergyPlus/PlantComponent.hh>
 
@@ -176,6 +177,8 @@ namespace ChillerIndirectAbsorption {
         bool MyEnvrnFlag = true;
         ReportVars Report;
         DataBranchAirLoopPlant::ControlType EquipFlowCtrl = DataBranchAirLoopPlant::ControlType::Invalid;
+
+        FluidProperties::GlycolProps *water = nullptr;
 
         static IndirectAbsorberSpecs *factory(EnergyPlusData &state, std::string const &objectName);
 

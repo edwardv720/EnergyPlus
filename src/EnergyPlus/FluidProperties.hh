@@ -69,6 +69,9 @@ struct EnergyPlusData;
 
 namespace FluidProperties {
 
+    constexpr int GlycolNum_Water = 1;
+    constexpr int RefrigNum_Steam = 1;
+        
 #undef PERFORMANCE_OPT
 
 #ifdef EP_cache_GlycolSpecificHeat
@@ -534,12 +537,15 @@ namespace FluidProperties {
 
     int GetRefrigNum(EnergyPlusData &state, std::string_view name);
     RefrigProps *GetRefrig(EnergyPlusData &state, std::string_view name);
+    RefrigProps *GetSteam(EnergyPlusData &state);
+        
 
     int GetGlycolRawNum(EnergyPlusData &state, std::string_view name);
     GlycolRawProps *GetGlycolRaw(EnergyPlusData &state, std::string_view name);
 
     int GetGlycolNum(EnergyPlusData &state, std::string_view name);
     GlycolProps *GetGlycol(EnergyPlusData &state, std::string_view name);
+    GlycolProps *GetWater(EnergyPlusData &state);
 
     std::string GetGlycolNameByIndex(EnergyPlusData &state, int Idx); // carries in substance index
 

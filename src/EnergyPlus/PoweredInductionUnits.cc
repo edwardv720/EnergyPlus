@@ -118,7 +118,6 @@ using Psychrometrics::PsyHFnTdbW;
 using SteamCoils::SimulateSteamCoilComponents;
 
 constexpr const char *fluidNameSteam("STEAM");
-constexpr const char *fluidNameWater("WATER");
 
 void SimPIU(EnergyPlusData &state,
             std::string_view CompName,     // name of the PIU
@@ -1313,8 +1312,7 @@ void SizePIU(EnergyPlusData &state, int const PIUNum)
                             Real64 const SteamDensity =
                                 FluidProperties::GetSatDensityRefrig(state, fluidNameSteam, TempSteamIn, 1.0, thisPIU.HCoil_FluidIndex, RoutineName);
                             int DummyWaterIndex = 1;
-                            Real64 const Cp = GetSpecificHeatGlycol(
-                                state, fluidNameWater, state.dataSize->PlantSizData(PltSizHeatNum).ExitTemp, DummyWaterIndex, RoutineName);
+                            Real64 const Cp = FluidProperties::GetWater(state)->getSpecificHeat(state, state.dataSize->PlantSizData(PltSizHeatNum).ExitTemp, RoutineName);
                             MaxVolHotSteamFlowDes =
                                 DesCoilLoad / (SteamDensity * (LatentHeatSteam + state.dataSize->PlantSizData(PltSizHeatNum).DeltaT * Cp));
                         } else {

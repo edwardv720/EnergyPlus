@@ -65,7 +65,6 @@ namespace Humidifiers {
 
     static constexpr std::array<std::string_view, 2> HumidifierType = {"Humidifier:Steam:Electric", "Humidifier:Steam:Gas"};
     constexpr std::string_view fluidNameSteam = "STEAM";
-    constexpr std::string_view fluidNameWater = "WATER";
 
     enum class HumidType
     {

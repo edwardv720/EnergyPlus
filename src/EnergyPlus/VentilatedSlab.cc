@@ -118,7 +118,6 @@ namespace VentilatedSlab {
     // Fred Buhl's fan coil module (FanCoilUnits.cc)
 
     static std::string const fluidNameSteam("STEAM");
-    static std::string const fluidNameWater("WATER");
     std::string const cMO_VentilatedSlab = "ZoneHVAC:VentilatedSlab";
 
     //    int constexpr NotOperating = 0; // Parameter for use with OperatingMode variable, set for no heating/cooling
@@ -2251,10 +2250,10 @@ namespace VentilatedSlab {
                                 SteamDensity = FluidProperties::GetSatDensityRefrig(
                                     state, fluidNameSteam, TempSteamIn, 1.0, ventSlab.heatingCoil_FluidIndex, RoutineName);
                                 int DummyWaterIndex = 1;
-                                Cp = FluidProperties::GetSpecificHeatGlycol(
-                                    state, fluidNameWater, Constant::HWInitConvTemp, DummyWaterIndex, RoutineName);
-                                rho =
-                                    FluidProperties::GetDensityGlycol(state, fluidNameWater, Constant::HWInitConvTemp, DummyWaterIndex, RoutineName);
+
+                                auto *water = FluidProperties::GetWater(state);
+                                Cp = water->getSpecificHeat(state, Constant::HWInitConvTemp, RoutineName);
+                                rho = water->getDensity(state, Constant::HWInitConvTemp, RoutineName);
                                 MaxVolHotSteamFlowDes =
                                     DesCoilLoad / ((state.dataSize->PlantSizData(PltSizHeatNum).DeltaT * Cp * rho) + SteamDensity * LatentHeatSteam);
                             } else {

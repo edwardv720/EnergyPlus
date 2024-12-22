@@ -55,6 +55,7 @@
 #include <EnergyPlus/Data/BaseData.hh>
 #include <EnergyPlus/DataGlobals.hh>
 #include <EnergyPlus/EnergyPlus.hh>
+#include <EnergyPlus/FluidProperties.hh>
 
 namespace EnergyPlus {
 
@@ -257,7 +258,6 @@ struct WaterToAirHeatPumpData : BaseGlobalStruct
     Array1D_bool CheckEquipName;
 
     int RefrigIndex;        // Refrigerant index
-    int WaterIndex;         // Water index
     bool GetCoilsInputFlag; // Flag set to make sure you get input once
     bool MyOneTimeFlag;
     bool firstTime;
@@ -288,7 +288,6 @@ struct WaterToAirHeatPumpData : BaseGlobalStruct
         this->NumWatertoAirHPs = 0;
         this->CheckEquipName.clear();
         this->RefrigIndex = 0;
-        this->WaterIndex = 0;
         this->GetCoilsInputFlag = true;
         this->MyOneTimeFlag = true;
         this->firstTime = true;
@@ -306,7 +305,7 @@ struct WaterToAirHeatPumpData : BaseGlobalStruct
     }
 
     // Default Constructor
-    WaterToAirHeatPumpData() : NumWatertoAirHPs(0), RefrigIndex(0), WaterIndex(0), GetCoilsInputFlag(true), MyOneTimeFlag(true), firstTime(true)
+    WaterToAirHeatPumpData() : NumWatertoAirHPs(0), RefrigIndex(0), GetCoilsInputFlag(true), MyOneTimeFlag(true), firstTime(true)
     {
     }
 };

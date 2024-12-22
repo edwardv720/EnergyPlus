@@ -146,7 +146,6 @@ namespace LowTempRadiantSystem {
     constexpr std::string_view cConstantFlowSystem("ZoneHVAC:LowTemperatureRadiant:ConstantFlow");
     constexpr std::string_view OnePerSurf("OnePerSurface");
     constexpr std::string_view CalcFromLength("CalculateFromCircuitLength");
-    constexpr std::string_view fluidNameWater("WATER");
 
     // DERIVED TYPE DEFINITIONS:
 
@@ -375,31 +374,27 @@ namespace LowTempRadiantSystem {
 
         state.dataLowTempRadSys->HydrRadSys.allocate(state.dataLowTempRadSys->NumOfHydrLowTempRadSys);
         if (state.dataLowTempRadSys->NumOfHydrLowTempRadSys > 0) {
-            GlycolIndex = FluidProperties::GetGlycolNum(state, fluidNameWater);
-            for (auto &e : state.dataLowTempRadSys->HydrRadSys)
-                e.GlycolIndex = GlycolIndex;
-            if (GlycolIndex == 0) {
+            auto *water = FluidProperties::GetWater(state);
+            if (water == nullptr) {
                 ShowSevereError(state, "Hydronic radiant systems: no water property data found in input");
                 ErrorsFound = true;
             }
-        } else {
+            
             for (auto &e : state.dataLowTempRadSys->HydrRadSys)
-                e.GlycolIndex = 0;
-        }
+                e.water = water;
+        } 
 
         state.dataLowTempRadSys->CFloRadSys.allocate(state.dataLowTempRadSys->NumOfCFloLowTempRadSys);
         if (state.dataLowTempRadSys->NumOfCFloLowTempRadSys > 0) {
-            GlycolIndex = FluidProperties::GetGlycolNum(state, fluidNameWater);
-            for (auto &e : state.dataLowTempRadSys->CFloRadSys)
-                e.GlycolIndex = GlycolIndex;
-            if (GlycolIndex == 0) {
+            auto *water = FluidProperties::GetWater(state);
+            if (water == nullptr) {
                 ShowSevereError(state, "Constant flow radiant systems: no water property data found in input");
                 ErrorsFound = true;
             }
-        } else {
+            
             for (auto &e : state.dataLowTempRadSys->CFloRadSys)
-                e.GlycolIndex = 0;
-        }
+                e.water = water;
+        } 
 
         state.dataLowTempRadSys->ElecRadSys.allocate(state.dataLowTempRadSys->NumOfElecLowTempRadSys);
         state.dataLowTempRadSys->ElecRadSysNumericFields.allocate(state.dataLowTempRadSys->NumOfElecLowTempRadSys);
@@ -4297,7 +4292,7 @@ namespace LowTempRadiantSystem {
         }
 
         if (SysRunning) {
-            CpFluid = GetSpecificHeatGlycol(state, fluidNameWater, RadInTemp, this->GlycolIndex, RoutineName);
+            CpFluid = this->water->getSpecificHeat(state, RadInTemp, RoutineName);
         }
 
         if ((!SysRunning) || (CpFluid < LowCpFluidValue)) {
@@ -4821,7 +4816,7 @@ namespace LowTempRadiantSystem {
                 Cl = Ch + ((Ci * (Cc + Cb * Cf) + Cj * (Cf + Ce * Cc)) / (1.0 - Ce * Cb));
 
                 Mdot = WaterMassFlow * this->SurfaceFrac(RadSurfNum);
-                Cp = GetSpecificHeatGlycol(state, fluidNameWater, WaterTempIn, this->GlycolIndex, RoutineName);
+                Cp = this->water->getSpecificHeat(state, WaterTempIn, RoutineName);
 
                 if (!Iteration) {
 
@@ -5083,7 +5078,7 @@ namespace LowTempRadiantSystem {
             TotalRadSysPower *= ZoneMult;
 
             if (this->WaterMassFlowRate > 0.0) {
-                Cp = GetSpecificHeatGlycol(state, fluidNameWater, WaterTempIn, this->GlycolIndex, RoutineName);
+                Cp = this->water->getSpecificHeat(state, WaterTempIn, RoutineName);
                 this->WaterOutletTemp = this->WaterInletTemp - (TotalRadSysPower / (this->WaterMassFlowRate * Cp));
                 if ((std::abs(this->WaterOutletTemp - WaterOutletTempCheck) > TempCheckLimit) && (std::abs(TotalRadSysPower) > ZeroSystemResp)) {
                     // If the total system power is zero, that means we have shut down and the temperatures won't match because of that

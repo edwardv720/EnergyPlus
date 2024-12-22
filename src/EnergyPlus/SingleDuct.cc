@@ -117,7 +117,6 @@ using namespace ScheduleManager;
 using namespace SteamCoils;
 
 static constexpr std::string_view fluidNameSteam("STEAM");
-static constexpr std::string_view fluidNameWater("WATER");
 
 void SimulateSingleDuct(
     EnergyPlusData &state, std::string_view CompName, bool const FirstHVACIteration, int const ZoneNum, int const ZoneNodeNum, int &CompIndex)
@@ -3592,11 +3591,7 @@ void SingleDuctAirTerminal::SizeSys(EnergyPlusData &state)
                             SteamDensity =
                                 FluidProperties::GetSatDensityRefrig(state, fluidNameSteam, TempSteamIn, 1.0, this->FluidIndex, RoutineNameFull);
 
-                            Cp = GetSpecificHeatGlycol(state,
-                                                       fluidNameWater,
-                                                       state.dataSize->PlantSizData(PltSizHeatNum).ExitTemp,
-                                                       state.dataSingleDuct->DummyWaterIndexSS,
-                                                       RoutineName);
+                            Cp = state.dataSingleDuct->water->getSpecificHeat(state, state.dataSize->PlantSizData(PltSizHeatNum).ExitTemp, RoutineName);
                             MaxReheatSteamVolFlowDes = state.dataSingleDuct->DesCoilLoadSS /
                                                        (SteamDensity * (LatentHeatSteam + state.dataSize->PlantSizData(PltSizHeatNum).DeltaT * Cp));
                         } else {

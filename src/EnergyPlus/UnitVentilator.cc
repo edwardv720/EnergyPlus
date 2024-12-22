@@ -117,7 +117,6 @@ namespace UnitVentilator {
     // Fred Buhl's fan coil module (FanCoilUnits.cc)
 
     static constexpr std::string_view fluidNameSteam("STEAM");
-    static constexpr std::string_view fluidNameWater("WATER");
     static constexpr std::array<std::string_view, static_cast<int>(CoilsUsed::Num)> CoilsUsedNamesUC = {
         "NONE", "HEATINGANDCOOLING", "HEATING", "COOLING"};
     static constexpr std::array<std::string_view, static_cast<int>(OAControl::Num)> OAControlNamesUC = {
@@ -2004,11 +2003,7 @@ namespace UnitVentilator {
                                 LatentHeatSteam = EnthSteamInDry - EnthSteamOutWet;
                                 SteamDensity = FluidProperties::GetSatDensityRefrig(
                                     state, fluidNameSteam, TempSteamIn, 1.0, state.dataUnitVentilators->RefrigIndex, RoutineName);
-                                Cp = FluidProperties::GetSpecificHeatGlycol(state,
-                                                                            fluidNameWater,
-                                                                            state.dataSize->PlantSizData(PltSizHeatNum).ExitTemp,
-                                                                            state.dataUnitVentilators->DummyWaterIndex,
-                                                                            RoutineName);
+                                Cp = FluidProperties::GetWater(state)->getSpecificHeat(state, state.dataSize->PlantSizData(PltSizHeatNum).ExitTemp,RoutineName);
                                 MaxVolHotSteamFlowDes =
                                     DesHeatingLoad / (SteamDensity * (LatentHeatSteam + state.dataSize->PlantSizData(PltSizHeatNum).DeltaT * Cp));
                             } else {

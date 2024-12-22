@@ -642,6 +642,7 @@ namespace FluidProperties {
         steam->Name = "STEAM";
         df->refrigs.push_back(steam);
         steam->Num = df->refrigs.isize();
+        assert(steam->Num == RefrigNum_Steam);
 
         // Check to see if there is any FluidName input.  If not, this is okay as
         // long as the user only desires to simulate loops with water.  More than
@@ -1608,6 +1609,7 @@ namespace FluidProperties {
 
             df->glycols.push_back(water);
             water->Num = df->glycols.isize();
+            assert(water->Num == GlycolNum_Water);
         }
         water->Concentration = 1.0;
         water->CpDataPresent = true;
@@ -4560,6 +4562,11 @@ namespace FluidProperties {
         return (refrigNum > 0) ? df->refrigs(refrigNum) : nullptr;
     }
 
+    RefrigProps *GetSteam(EnergyPlusData &state) {
+        assert(state.dataFluidProps->refrigs.isize() >= RefrigNum_Steam);
+        return state.dataFluidProps->refrigs(RefrigNum_Steam);
+    }
+        
     //*****************************************************************************
 
     int GetGlycolNum(EnergyPlusData &state, std::string_view const glycolName) // carries in substance name
@@ -4591,6 +4598,11 @@ namespace FluidProperties {
         return (glycolNum > 0) ? df->glycols(glycolNum) : nullptr;
     }
 
+    GlycolProps *GetWater(EnergyPlusData &state) {
+        assert(state.dataFluidProps->glycols.isize() >= GlycolNum_Water);
+        return state.dataFluidProps->glycols(GlycolNum_Water);
+    }
+        
     int GetGlycolRawNum(EnergyPlusData &state, std::string_view const glycolRawName) // carries in substance name
     {
         auto const &df = state.dataFluidProps;
