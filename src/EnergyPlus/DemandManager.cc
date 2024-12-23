@@ -383,16 +383,12 @@ void GetDemandManagerListInput(EnergyPlusData &state)
             thisDemandMgrList.SafetyFraction = s_ipsc->rNumericArgs(1);
 
             if (s_ipsc->lAlphaFieldBlanks(4)) {
-                ShowSevereEmptyField(state, eoh, s_ipsc->cAlphaFieldNames(4));
-                ErrorsFound = true;
             } else if ((thisDemandMgrList.billingSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(4))) == nullptr) { 
                 ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(4), s_ipsc->cAlphaArgs(4));
                 ErrorsFound = true;
             }
 
             if (s_ipsc->lAlphaFieldBlanks(5)) {
-                ShowSevereEmptyField(state, eoh, s_ipsc->cAlphaFieldNames(5));
-                ErrorsFound = true;
             } else if ((thisDemandMgrList.peakSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(5))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(5), s_ipsc->cAlphaArgs(5));
                 ErrorsFound = true;
