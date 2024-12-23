@@ -165,8 +165,6 @@ namespace Furnaces {
     // MODULE PARAMETER DEFINITIONS
     static constexpr std::string_view BlankString;
 
-    constexpr std::string_view fluidNameSteam("STEAM");
-
     // Functions
 
     void SimFurnace(EnergyPlusData &state,
@@ -733,7 +731,6 @@ namespace Furnaces {
         std::string FanName;           // Used in mining function CALLS
         bool PrintMessage;             // Used in mining function CALLS
         int HeatingCoilPLFCurveIndex;  // index of heating coil PLF curve
-        int SteamIndex;                // steam coil index
         Real64 SteamDensity;           // density of steam at 100C
         int DXCoilIndex;               // Index to DX coil in HXAssited object
         std::string IHPCoilName;       // IHP cooling coil name
@@ -1130,9 +1127,7 @@ namespace Furnaces {
                     // Get the Heating Coil steam max volume flow rate
                     thisFurnace.MaxHeatCoilFluidFlow = SteamCoils::GetCoilMaxSteamFlowRate(state, thisFurnace.HeatingCoilIndex, errFlag);
                     if (thisFurnace.MaxHeatCoilFluidFlow > 0.0) {
-                        SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
-                        SteamDensity = FluidProperties::GetSatDensityRefrig(
-                            state, fluidNameSteam, state.dataFurnaces->TempSteamIn, 1.0, SteamIndex, getUnitaryHeatOnly);
+                        SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, state.dataFurnaces->TempSteamIn, 1.0, getUnitaryHeatOnly);
                         thisFurnace.MaxHeatCoilFluidFlow *= SteamDensity;
                     }
 
@@ -1672,9 +1667,7 @@ namespace Furnaces {
                     // Get the Heating Coil steam max volume flow rate
                     thisFurnace.MaxHeatCoilFluidFlow = SteamCoils::GetCoilMaxSteamFlowRate(state, thisFurnace.HeatingCoilIndex, errFlag);
                     if (thisFurnace.MaxHeatCoilFluidFlow > 0.0) {
-                        SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
-                        SteamDensity = FluidProperties::GetSatDensityRefrig(
-                            state, fluidNameSteam, state.dataFurnaces->TempSteamIn, 1.0, SteamIndex, getAirLoopHVACHeatCoolInput);
+                        SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, state.dataFurnaces->TempSteamIn, 1.0, getAirLoopHVACHeatCoolInput);
                         thisFurnace.MaxHeatCoilFluidFlow *= SteamDensity;
                     }
 
@@ -2129,9 +2122,7 @@ namespace Furnaces {
                         // Get the Heating Coil steam max volume flow rate
                         thisFurnace.MaxSuppCoilFluidFlow = SteamCoils::GetCoilMaxSteamFlowRate(state, thisFurnace.SuppHeatCoilIndex, errFlag);
                         if (thisFurnace.MaxSuppCoilFluidFlow > 0.0) {
-                            SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
-                            SteamDensity = FluidProperties::GetSatDensityRefrig(
-                                state, fluidNameSteam, state.dataFurnaces->TempSteamIn, 1.0, SteamIndex, getAirLoopHVACHeatCoolInput);
+                            SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, state.dataFurnaces->TempSteamIn, 1.0, getAirLoopHVACHeatCoolInput);
                             thisFurnace.MaxSuppCoilFluidFlow =
                                 SteamCoils::GetCoilMaxSteamFlowRate(state, thisFurnace.SuppHeatCoilIndex, errFlag) * SteamDensity;
                         }
@@ -3136,9 +3127,7 @@ namespace Furnaces {
                     // Get the Heating Coil steam max volume flow rate
                     thisFurnace.MaxSuppCoilFluidFlow = SteamCoils::GetCoilMaxSteamFlowRate(state, thisFurnace.SuppHeatCoilIndex, errFlag);
                     if (thisFurnace.MaxSuppCoilFluidFlow > 0.0) {
-                        SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
-                        SteamDensity = FluidProperties::GetSatDensityRefrig(
-                            state, fluidNameSteam, state.dataFurnaces->TempSteamIn, 1.0, SteamIndex, getAirLoopHVACHeatCoolInput);
+                        SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, state.dataFurnaces->TempSteamIn, 1.0, getAirLoopHVACHeatCoolInput);
                         thisFurnace.MaxSuppCoilFluidFlow =
                             SteamCoils::GetCoilMaxSteamFlowRate(state, thisFurnace.SuppHeatCoilIndex, errFlag) * SteamDensity;
                     }
@@ -3953,9 +3942,7 @@ namespace Furnaces {
                     // Get the Heating Coil steam max volume flow rate
                     thisFurnace.MaxSuppCoilFluidFlow = SteamCoils::GetCoilMaxSteamFlowRate(state, thisFurnace.SuppHeatCoilIndex, errFlag);
                     if (thisFurnace.MaxSuppCoilFluidFlow > 0.0) {
-                        SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
-                        SteamDensity = FluidProperties::GetSatDensityRefrig(
-                            state, fluidNameSteam, state.dataFurnaces->TempSteamIn, 1.0, SteamIndex, getAirLoopHVACHeatCoolInput);
+                        SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, state.dataFurnaces->TempSteamIn, 1.0, getAirLoopHVACHeatCoolInput);
                         thisFurnace.MaxSuppCoilFluidFlow =
                             SteamCoils::GetCoilMaxSteamFlowRate(state, thisFurnace.SuppHeatCoilIndex, errFlag) * SteamDensity;
                     }
@@ -4810,9 +4797,7 @@ namespace Furnaces {
                     }
                     thisFurnace.MaxHeatCoilFluidFlow = SteamCoils::GetCoilMaxSteamFlowRate(state, thisFurnace.HeatingCoilIndex, ErrorsFound);
                     if (thisFurnace.MaxHeatCoilFluidFlow > 0.0) {
-                        int SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
-                        SteamDensity = FluidProperties::GetSatDensityRefrig(
-                            state, fluidNameSteam, state.dataFurnaces->TempSteamIn, 1.0, SteamIndex, RoutineName);
+                        SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, state.dataFurnaces->TempSteamIn, 1.0, RoutineName);
                         thisFurnace.MaxHeatCoilFluidFlow *= SteamDensity;
                     }
                 }
@@ -4872,9 +4857,7 @@ namespace Furnaces {
                     }
                     thisFurnace.MaxSuppCoilFluidFlow = SteamCoils::GetCoilMaxSteamFlowRate(state, thisFurnace.SuppHeatCoilIndex, ErrorsFound);
                     if (thisFurnace.MaxSuppCoilFluidFlow > 0.0) {
-                        int SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
-                        SteamDensity = FluidProperties::GetSatDensityRefrig(
-                            state, fluidNameSteam, state.dataFurnaces->TempSteamIn, 1.0, SteamIndex, RoutineName);
+                        SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, state.dataFurnaces->TempSteamIn, 1.0, RoutineName);
                         thisFurnace.MaxSuppCoilFluidFlow *= SteamDensity;
                     }
                 }
@@ -4934,9 +4917,7 @@ namespace Furnaces {
                                                                 QActual); // QCoilReq, simulate any load > 0 to get max capacity
                         CoilMaxVolFlowRate = SteamCoils::GetCoilMaxSteamFlowRate(state, thisFurnace.HeatingCoilIndex, ErrorsFound);
                         if (CoilMaxVolFlowRate != DataSizing::AutoSize) {
-                            int SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
-                            SteamDensity = FluidProperties::GetSatDensityRefrig(
-                                state, fluidNameSteam, state.dataFurnaces->TempSteamIn, 1.0, SteamIndex, RoutineName);
+                            SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, state.dataFurnaces->TempSteamIn, 1.0, RoutineName);
                             thisFurnace.MaxHeatCoilFluidFlow = CoilMaxVolFlowRate * SteamDensity;
                         }
                     }
@@ -4971,9 +4952,7 @@ namespace Furnaces {
                                                                 QActual); // QCoilReq, simulate any load > 0 to get max capacity
                         CoilMaxVolFlowRate = SteamCoils::GetCoilMaxSteamFlowRate(state, thisFurnace.SuppHeatCoilIndex, ErrorsFound);
                         if (CoilMaxVolFlowRate != DataSizing::AutoSize) {
-                            int SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
-                            SteamDensity = FluidProperties::GetSatDensityRefrig(
-                                state, fluidNameSteam, state.dataFurnaces->TempSteamIn, 1.0, SteamIndex, RoutineName);
+                            SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, state.dataFurnaces->TempSteamIn, 1.0, RoutineName);
                             thisFurnace.MaxSuppCoilFluidFlow = CoilMaxVolFlowRate * SteamDensity;
                         }
                     }

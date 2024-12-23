@@ -52,6 +52,7 @@
 #include <EnergyPlus/Data/BaseData.hh>
 #include <EnergyPlus/DataGlobals.hh>
 #include <EnergyPlus/EnergyPlus.hh>
+// #include <EnergyPlus/FluidProperties.hh>
 
 namespace EnergyPlus {
 
@@ -137,7 +138,7 @@ namespace Pumps {
         int InletNodeNum = 0;                                              // Node number on the inlet side of the plant
         int OutletNodeNum = 0;                                             // Node number on the outlet side of the plant
         PumpBankControlSeq SequencingScheme = PumpBankControlSeq::Invalid; // Optimal, Sequential, User-Defined
-        int FluidIndex = 0;                                                // Index for Fluid Properties
+        // FluidProperties::RefrigProps *fluid = nullptr;                                                // Index for Fluid Properties
         int NumPumpsInBank = 0;                                            // Node number on the inlet side of the plant
         int PowerErrIndex1 = 0;                                            // for recurring errors
         int PowerErrIndex2 = 0;                                            // for recurring errors

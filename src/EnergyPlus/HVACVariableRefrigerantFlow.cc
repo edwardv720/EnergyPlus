@@ -4279,9 +4279,8 @@ void GetVRFInputData(EnergyPlusData &state, bool &ErrorsFound)
                     // Get the supplemental heating coil steam max volume flow rate
                     thisVrfTU.SuppHeatCoilFluidMaxFlow = SteamCoils::GetCoilMaxSteamFlowRate(state, thisVrfTU.SuppHeatCoilIndex, errFlag);
                     if (thisVrfTU.SuppHeatCoilFluidMaxFlow > 0.0) {
-                        int SteamIndex = 0; // fluid type index of 0 is passed if steam
                         Real64 TempSteamIn = 100.0;
-                        Real64 SteamDensity = FluidProperties::GetSatDensityRefrig(state, fluidNameSteam, TempSteamIn, 1.0, SteamIndex, RoutineName);
+                        Real64 SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, TempSteamIn, 1.0, RoutineName);
                         thisVrfTU.SuppHeatCoilFluidMaxFlow =
                             SteamCoils::GetCoilMaxSteamFlowRate(state, thisVrfTU.SuppHeatCoilIndex, errFlag) * SteamDensity;
                     }
@@ -5676,9 +5675,8 @@ void InitVRF(EnergyPlusData &state, int const VRFTUNum, int const ZoneNum, bool 
             state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilFluidMaxFlow =
                 SteamCoils::GetCoilMaxSteamFlowRate(state, state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilIndex, ErrorsFound);
             if (state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilFluidMaxFlow > 0.0) {
-                int SteamIndex = 0; // fluid type index of 0 is passed if steam
                 Real64 TempSteamIn = 100.0;
-                Real64 SteamDensity = FluidProperties::GetSatDensityRefrig(state, fluidNameSteam, TempSteamIn, 1.0, SteamIndex, RoutineName);
+                Real64 SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, TempSteamIn, 1.0, RoutineName);
                 state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilFluidMaxFlow =
                     state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilFluidMaxFlow * SteamDensity;
             }
@@ -6309,9 +6307,8 @@ void InitVRF(EnergyPlusData &state, int const VRFTUNum, int const ZoneNum, bool 
                     Real64 CoilMaxVolFlowRate =
                         SteamCoils::GetCoilMaxSteamFlowRate(state, state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilIndex, ErrorsFound);
                     if (CoilMaxVolFlowRate != DataSizing::AutoSize) {
-                        int SteamIndex = 0; // fluid type index of 0 is passed if steam
                         Real64 TempSteamIn = 100.0;
-                        Real64 SteamDensity = FluidProperties::GetSatDensityRefrig(state, fluidNameSteam, TempSteamIn, 1.0, SteamIndex, RoutineName);
+                        Real64 SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, TempSteamIn, 1.0, RoutineName);
                         state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilFluidMaxFlow = CoilMaxVolFlowRate * SteamDensity;
                     }
                 }

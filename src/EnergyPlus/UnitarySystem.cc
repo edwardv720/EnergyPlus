@@ -111,7 +111,6 @@ namespace UnitarySystems {
     int constexpr HeatingCoil = 1;
     int constexpr SuppHeatCoil = 2;
 
-    static constexpr std::string_view fluidNameSteam("STEAM");
     static constexpr std::string_view blankString("");
     static const std::string blankStdString("");
 
@@ -651,9 +650,8 @@ namespace UnitarySystems {
                     this->MaxHeatCoilFluidFlow =
                         SteamCoils::GetCoilMaxSteamFlowRate(state, this->m_HeatingCoilIndex, state.dataUnitarySystems->initUnitarySystemsErrorsFound);
                     if (this->MaxHeatCoilFluidFlow > 0.0) {
-                        int SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
                         Real64 TempSteamIn = 100.0;
-                        Real64 SteamDensity = FluidProperties::GetSatDensityRefrig(state, fluidNameSteam, TempSteamIn, 1.0, SteamIndex, routineName);
+                        Real64 SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, TempSteamIn, 1.0, routineName);
                         this->MaxHeatCoilFluidFlow *= SteamDensity;
                     }
                 }
@@ -724,9 +722,8 @@ namespace UnitarySystems {
                 this->m_MaxSuppCoilFluidFlow =
                     SteamCoils::GetCoilMaxSteamFlowRate(state, this->m_SuppHeatCoilIndex, state.dataUnitarySystems->initUnitarySystemsErrorsFound);
                 if (this->m_MaxSuppCoilFluidFlow > 0.0) {
-                    int SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
                     Real64 TempSteamIn = 100.0;
-                    Real64 SteamDensity = FluidProperties::GetSatDensityRefrig(state, fluidNameSteam, TempSteamIn, 1.0, SteamIndex, routineName);
+                    Real64 SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, TempSteamIn, 1.0, routineName);
                     this->m_MaxSuppCoilFluidFlow *= SteamDensity;
                 }
 
@@ -832,10 +829,8 @@ namespace UnitarySystems {
                         Real64 CoilMaxVolFlowRate = SteamCoils::GetCoilMaxSteamFlowRate(
                             state, this->m_HeatingCoilIndex, state.dataUnitarySystems->initUnitarySystemsErrorsFound);
                         if (CoilMaxVolFlowRate != DataSizing::AutoSize) {
-                            int SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
                             Real64 TempSteamIn = 100.0;
-                            Real64 SteamDensity =
-                                FluidProperties::GetSatDensityRefrig(state, fluidNameSteam, TempSteamIn, 1.0, SteamIndex, routineName);
+                            Real64 SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, TempSteamIn, 1.0, routineName);
                             this->MaxHeatCoilFluidFlow = CoilMaxVolFlowRate * SteamDensity;
                         }
                     }
@@ -871,10 +866,8 @@ namespace UnitarySystems {
                         Real64 CoilMaxVolFlowRate = SteamCoils::GetCoilMaxSteamFlowRate(
                             state, this->m_SuppHeatCoilIndex, state.dataUnitarySystems->initUnitarySystemsErrorsFound);
                         if (CoilMaxVolFlowRate != DataSizing::AutoSize) {
-                            int SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
                             Real64 TempSteamIn = 100.0;
-                            Real64 SteamDensity =
-                                FluidProperties::GetSatDensityRefrig(state, fluidNameSteam, TempSteamIn, 1.0, SteamIndex, routineName);
+                            Real64 SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, TempSteamIn, 1.0, routineName);
                             this->m_MaxSuppCoilFluidFlow = CoilMaxVolFlowRate * SteamDensity;
                         }
                     }
@@ -4362,10 +4355,8 @@ namespace UnitarySystems {
                         this->m_DesignHeatingCapacity = DataSizing::AutoSize;
                     }
                     if (this->MaxHeatCoilFluidFlow > 0.0) {
-                        int SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
                         Real64 TempSteamIn = 100.0;
-                        Real64 SteamDensity =
-                            FluidProperties::GetSatDensityRefrig(state, fluidNameSteam, TempSteamIn, 1.0, SteamIndex, "getUnitarySystemInputData");
+                        Real64 SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, TempSteamIn, 1.0, "getUnitarySystemInputData");
                         this->MaxHeatCoilFluidFlow *= SteamDensity;
                         errFlag = false;
                     }
@@ -5383,10 +5374,8 @@ namespace UnitarySystems {
                             this->m_DesignSuppHeatingCapacity = DataSizing::AutoSize; // not sure if steam coil needs this
                         }
                         if (this->m_MaxSuppCoilFluidFlow > 0.0) {
-                            int SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
                             Real64 TempSteamIn = 100.0;
-                            Real64 SteamDensity = FluidProperties::GetSatDensityRefrig(
-                                state, fluidNameSteam, TempSteamIn, 1.0, SteamIndex, "getUnitarySystemInputData");
+                            Real64 SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, TempSteamIn, 1.0, "getUnitarySystemInputData");
                             this->m_MaxSuppCoilFluidFlow = this->m_MaxSuppCoilFluidFlow * SteamDensity;
                         }
                         SupHeatCoilInletNode = thisSuppCoil.AirInletNodeNum;
@@ -10020,10 +10009,8 @@ namespace UnitarySystems {
                                                                 QActual); // QCoilReq, simulate any load > 0 to get max capacity
                         Real64 CoilMaxVolFlowRate = SteamCoils::GetCoilMaxSteamFlowRate(state, this->m_HeatingCoilIndex, errorsFound);
                         if (CoilMaxVolFlowRate != DataSizing::AutoSize) {
-                            int SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
                             Real64 TempSteamIn = 100.0;
-                            Real64 SteamDensity =
-                                FluidProperties::GetSatDensityRefrig(state, fluidNameSteam, TempSteamIn, 1.0, SteamIndex, routineName);
+                            Real64 SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, TempSteamIn, 1.0, routineName);
                             this->MaxHeatCoilFluidFlow = CoilMaxVolFlowRate * SteamDensity;
                         }
                     }
@@ -10057,10 +10044,8 @@ namespace UnitarySystems {
                                                                 QActual); // QCoilReq, simulate any load > 0 to get max capacity
                         Real64 CoilMaxVolFlowRate = SteamCoils::GetCoilMaxSteamFlowRate(state, this->m_SuppHeatCoilIndex, errorsFound);
                         if (CoilMaxVolFlowRate != DataSizing::AutoSize) {
-                            int SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
                             Real64 TempSteamIn = 100.0;
-                            Real64 SteamDensity =
-                                FluidProperties::GetSatDensityRefrig(state, fluidNameSteam, TempSteamIn, 1.0, SteamIndex, routineName);
+                            Real64 SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, TempSteamIn, 1.0, routineName);
                             this->m_MaxSuppCoilFluidFlow = CoilMaxVolFlowRate * SteamDensity;
                         }
                     }

@@ -129,8 +129,6 @@ namespace HVACVariableRefrigerantFlow {
         }
     }
 
-    constexpr const char *fluidNameSteam("STEAM");
-
     // Flag for hex operation
     enum class HXOpMode
     {

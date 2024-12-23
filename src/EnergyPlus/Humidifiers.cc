@@ -863,10 +863,9 @@ namespace Humidifiers {
             NomCap = RhoH2O(Constant::InitConvTemp) * NomCapVol;
 
             auto *water = FluidProperties::GetWater(state);
-            
-            int RefrigerantIndex = FluidProperties::GetRefrigNum(state, format(fluidNameSteam));
-            SteamSatEnthalpy = GetSatEnthalpyRefrig(state, format(fluidNameSteam), TSteam, 1.0, RefrigerantIndex, CalledFrom);
-            WaterSatEnthalpy = GetSatEnthalpyRefrig(state, format(fluidNameSteam), TSteam, 0.0, RefrigerantIndex, CalledFrom);
+            auto *steam = FluidProperties::GetSteam(state);
+            SteamSatEnthalpy = steam->getSatEnthalpy(state, TSteam, 1.0, CalledFrom);
+            WaterSatEnthalpy = steam->getSatEnthalpy(state, TSteam, 0.0, CalledFrom);
             WaterSpecHeatAvg = 0.5 * (water->getSpecificHeat(state, TSteam, CalledFrom) + water->getSpecificHeat(state, Tref, CalledFrom));
             NominalPower = NomCap * ((SteamSatEnthalpy - WaterSatEnthalpy) + WaterSpecHeatAvg * (TSteam - Tref));
 
@@ -1236,9 +1235,9 @@ namespace Humidifiers {
                 Tref = CurMakeupWaterTemp;
 
                 auto *water = FluidProperties::GetWater(state);
-                int RefrigerantIndex = FluidProperties::GetRefrigNum(state, format(fluidNameSteam));
-                SteamSatEnthalpy = GetSatEnthalpyRefrig(state, format(fluidNameSteam), TSteam, 1.0, RefrigerantIndex, RoutineName);
-                WaterSatEnthalpy = GetSatEnthalpyRefrig(state, format(fluidNameSteam), TSteam, 0.0, RefrigerantIndex, RoutineName);
+                auto *steam = FluidProperties::GetSteam(state);
+                SteamSatEnthalpy = steam->getSatEnthalpy(state, TSteam, 1.0, RoutineName);
+                WaterSatEnthalpy = steam->getSatEnthalpy(state, TSteam, 0.0, RoutineName);
                 WaterSpecHeatAvg = 0.5 * (water->getSpecificHeat(state, TSteam, RoutineName) + water->getSpecificHeat(state, Tref, RoutineName));
                 GasUseRateAtRatedEff = WaterAdd * ((SteamSatEnthalpy - WaterSatEnthalpy) + WaterSpecHeatAvg * (TSteam - Tref)) / ThermalEffRated;
             }

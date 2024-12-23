@@ -57,6 +57,7 @@
 #include <EnergyPlus/DataGlobalConstants.hh>
 #include <EnergyPlus/DataGlobals.hh>
 #include <EnergyPlus/EnergyPlus.hh>
+#include <EnergyPlus/FluidProperties.hh>
 #include <EnergyPlus/Plant/Enums.hh>
 #include <EnergyPlus/Plant/PlantLocation.hh>
 #include <EnergyPlus/PlantComponent.hh>
@@ -97,7 +98,7 @@ namespace BoilerSteam {
         int TypeNum = 0;                                     // Plant loop type identifier
         PlantLocation plantLoc;
         int PressErrIndex = 0;         // index pointer for recurring errors
-        int FluidIndex = 0;            // Steam index
+        FluidProperties::RefrigProps *fluid = nullptr;            // Steam fluid properties
         std::string EndUseSubcategory; // identifier use for the end use subcategory
         bool myFlag = true;
         bool myEnvrnFlag = true;

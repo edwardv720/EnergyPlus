@@ -129,7 +129,7 @@ namespace ChillerAbsorption {
         Real64 GeneratorVolFlowRate = 0.0;                                                  // m3/s - hot water volumetric flow rate through generator
         bool GeneratorVolFlowRateWasAutoSized = false;                                      // true if hot water flow was autosize on input
         Real64 GeneratorSubcool = 0.0;                                                      // amount of subcooling in steam generator
-        int SteamFluidIndex = 0;                                                            // index to generator fluid type
+        FluidProperties::RefrigProps *steam = nullptr; // STEAM fluid properties
         Real64 GeneratorDeltaTemp = -99999.0;                                               // C - generator fluid temperature difference (water only)
         bool GeneratorDeltaTempWasAutoSized = true;                                         // true if generator delta T was autosize on input
         PlantLocation CWPlantLoc;                                                           // chilled water plant loop index number

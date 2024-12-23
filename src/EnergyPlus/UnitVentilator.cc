@@ -116,7 +116,6 @@ namespace UnitVentilator {
     // ASHRAE Systems and Equipment Handbook (SI), 1996. pp. 31.1-31.3
     // Fred Buhl's fan coil module (FanCoilUnits.cc)
 
-    static constexpr std::string_view fluidNameSteam("STEAM");
     static constexpr std::array<std::string_view, static_cast<int>(CoilsUsed::Num)> CoilsUsedNamesUC = {
         "NONE", "HEATINGANDCOOLING", "HEATING", "COOLING"};
     static constexpr std::array<std::string_view, static_cast<int>(OAControl::Num)> OAControlNamesUC = {
@@ -1135,8 +1134,7 @@ namespace UnitVentilator {
                 }
                 if (unitVent.HCoilType == HeatCoilType::Steam) {
                     Real64 TempSteamIn = 100.00;
-                    Real64 SteamDensity =
-                        FluidProperties::GetSatDensityRefrig(state, fluidNameSteam, TempSteamIn, 1.0, unitVent.HCoil_FluidIndex, RoutineName);
+                    Real64 SteamDensity = unitVent.HCoil_fluid->getSatDensity(state, TempSteamIn, 1.0, RoutineName);
                     unitVent.MaxHotSteamFlow = SteamDensity * unitVent.MaxVolHotSteamFlow;
                     unitVent.MinHotSteamFlow = SteamDensity * unitVent.MinVolHotSteamFlow;
 
@@ -1979,6 +1977,7 @@ namespace UnitVentilator {
                                     default: {
                                     } break;
                                     }
+                                    
                                     PrintFlag = false;
                                     bool errorsFound = false;
                                     HeatingCapacitySizer sizerHeatingCapacity;
@@ -1996,13 +1995,11 @@ namespace UnitVentilator {
                                     DesHeatingLoad = sizerHeatingCapacity.size(state, TempSize, errorsFound);
                                 }
                                 TempSteamIn = 100.00;
-                                EnthSteamInDry = FluidProperties::GetSatEnthalpyRefrig(
-                                    state, fluidNameSteam, TempSteamIn, 1.0, state.dataUnitVentilators->RefrigIndex, RoutineName);
-                                EnthSteamOutWet = FluidProperties::GetSatEnthalpyRefrig(
-                                    state, fluidNameSteam, TempSteamIn, 0.0, state.dataUnitVentilators->RefrigIndex, RoutineName);
+                                auto *steam = FluidProperties::GetSteam(state);
+                                EnthSteamInDry = steam->getSatEnthalpy(state, TempSteamIn, 1.0, RoutineName);
+                                EnthSteamOutWet = steam->getSatEnthalpy(state, TempSteamIn, 0.0, RoutineName);
                                 LatentHeatSteam = EnthSteamInDry - EnthSteamOutWet;
-                                SteamDensity = FluidProperties::GetSatDensityRefrig(
-                                    state, fluidNameSteam, TempSteamIn, 1.0, state.dataUnitVentilators->RefrigIndex, RoutineName);
+                                SteamDensity = steam->getSatDensity(state, TempSteamIn, 1.0, RoutineName);
                                 Cp = FluidProperties::GetWater(state)->getSpecificHeat(state, state.dataSize->PlantSizData(PltSizHeatNum).ExitTemp,RoutineName);
                                 MaxVolHotSteamFlowDes =
                                     DesHeatingLoad / (SteamDensity * (LatentHeatSteam + state.dataSize->PlantSizData(PltSizHeatNum).DeltaT * Cp));

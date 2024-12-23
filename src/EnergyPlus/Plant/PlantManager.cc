@@ -144,8 +144,6 @@ using namespace DataPlant;
 using namespace DataBranchAirLoopPlant;
 using namespace DataLoopNode;
 
-static constexpr std::string_view fluidNameSteam("STEAM");
-
 void ManagePlantLoops(EnergyPlusData &state,
                       bool const FirstHVACIteration,
                       bool &SimAirLoops,                          // True when the air loops need to be (re)simulated
@@ -2637,11 +2635,12 @@ void ReInitPlantLoopsAtFirstHVACIteration(EnergyPlusData &state)
                 // use saturated liquid of steam at the loop setpoint temp as the starting enthalpy for a water loop
                 if (state.dataPlnt->PlantLoop(LoopNum).FluidType == DataLoopNode::NodeFluidType::Steam) {
                     SteamTemp = 100.0;
-                    SteamDensity = FluidProperties::GetSatDensityRefrig(
-                        state, fluidNameSteam, SteamTemp, 1.0, state.dataPlnt->PlantLoop(LoopNum).FluidIndex, RoutineName);
+                    auto *steam = FluidProperties::GetSteam(state);
+                    state.dataPlnt->PlantLoop(LoopNum).FluidIndex = steam->Num;
+                    
+                    SteamDensity = steam->getSatDensity(state, SteamTemp, 1.0, RoutineName);
                     LoopMaxMassFlowRate = state.dataPlnt->PlantLoop(LoopNum).MaxVolFlowRate * SteamDensity;
-                    StartEnthalpy = FluidProperties::GetSatEnthalpyRefrig(
-                        state, fluidNameSteam, LoopSetPointTemp, 0.0, state.dataPlnt->PlantLoop(LoopNum).FluidIndex, RoutineName);
+                    StartEnthalpy = steam->getSatEnthalpy(state, LoopSetPointTemp, 0.0, RoutineName);
                     LoopMinMassFlowRate = state.dataPlnt->PlantLoop(LoopNum).MinVolFlowRate * SteamDensity;
                 }
 
@@ -3349,8 +3348,9 @@ void SizePlantLoop(EnergyPlusData &state,
             }
         }
     } else if (state.dataPlnt->PlantLoop(LoopNum).FluidType == DataLoopNode::NodeFluidType::Steam) {
-        FluidDensity =
-            FluidProperties::GetSatDensityRefrig(state, fluidNameSteam, 100.0, 1.0, state.dataPlnt->PlantLoop(LoopNum).FluidIndex, RoutineName);
+        auto *steam = FluidProperties::GetSteam(state);
+        state.dataPlnt->PlantLoop(LoopNum).FluidIndex = steam->Num;
+        FluidDensity = steam->getSatDensity(state, 100.0, 1.0, RoutineName);
     } else {
         assert(false);
     }
@@ -3480,8 +3480,7 @@ void ResizePlantLoopLevelSizes(EnergyPlusData &state, int const LoopNum // Suppl
         FluidDensity = FluidProperties::GetDensityGlycol(
             state, state.dataPlnt->PlantLoop(LoopNum).FluidName, Constant::InitConvTemp, state.dataPlnt->PlantLoop(LoopNum).FluidIndex, RoutineName);
     } else if (state.dataPlnt->PlantLoop(LoopNum).FluidType == DataLoopNode::NodeFluidType::Steam) {
-        FluidDensity =
-            FluidProperties::GetSatDensityRefrig(state, fluidNameSteam, 100.0, 1.0, state.dataPlnt->PlantLoop(LoopNum).FluidIndex, RoutineName);
+        FluidDensity = FluidProperties::GetSteam(state)->getSatDensity(state, 100.0, 1.0, RoutineName);
     } else {
         assert(false);
     }

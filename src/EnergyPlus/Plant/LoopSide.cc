@@ -66,8 +66,6 @@
 namespace EnergyPlus {
 namespace DataPlant {
 
-    static constexpr std::string_view fluidNameSteam("STEAM");
-
     void HalfLoopData::solve(EnergyPlusData &state, bool const FirstHVACIteration, bool &ReSimOtherSideNeeded)
     {
 
@@ -823,10 +821,9 @@ namespace DataPlant {
                     // Calculate the delta temperature
                     Real64 DeltaTemp = LoopSetPointTemperature - WeightedInletTemp;
 
-                    Real64 EnthalpySteamSatVapor =
-                        FluidProperties::GetSatEnthalpyRefrig(state, fluidNameSteam, LoopSetPointTemperature, 1.0, this->refrigIndex, RoutineNameAlt);
-                    Real64 EnthalpySteamSatLiquid =
-                        FluidProperties::GetSatEnthalpyRefrig(state, fluidNameSteam, LoopSetPointTemperature, 0.0, this->refrigIndex, RoutineNameAlt);
+                    auto *steam = FluidProperties::GetSteam(state);
+                    Real64 EnthalpySteamSatVapor = steam->getSatEnthalpy(state, LoopSetPointTemperature, 1.0, RoutineNameAlt);
+                    Real64 EnthalpySteamSatLiquid = steam->getSatEnthalpy(state, LoopSetPointTemperature, 0.0, RoutineNameAlt);
 
                     Real64 LatentHeatSteam = EnthalpySteamSatVapor - EnthalpySteamSatLiquid;
 

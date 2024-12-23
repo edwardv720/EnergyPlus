@@ -117,8 +117,6 @@ using Psychrometrics::PsyCpAirFnW;
 using Psychrometrics::PsyHFnTdbW;
 using SteamCoils::SimulateSteamCoilComponents;
 
-constexpr const char *fluidNameSteam("STEAM");
-
 void SimPIU(EnergyPlusData &state,
             std::string_view CompName,     // name of the PIU
             bool const FirstHVACIteration, // TRUE if first HVAC iteration in time step
@@ -322,8 +320,8 @@ void GetPIUs(EnergyPlusData &state)
                 }
                 case HtgCoilType::SteamAirHeating: {
                     thisPIU.HCoil_PlantType = DataPlant::PlantEquipmentType::CoilSteamAirHeating;
-                    thisPIU.HCoil_FluidIndex = FluidProperties::GetRefrigNum(state, "STEAM");
-                    if (thisPIU.HCoil_FluidIndex == 0) {
+                    thisPIU.HCoil_fluid = FluidProperties::GetSteam(state);
+                    if (thisPIU.HCoil_fluid == nullptr) {
                         ShowSevereError(state, format("{} Steam Properties for {} not found.", RoutineName, thisPIU.Name));
                         if (SteamMessageNeeded) {
                             ShowContinueError(state, "Steam Fluid Properties should have been included in the input file.");
@@ -1304,14 +1302,10 @@ void SizePIU(EnergyPlusData &state, int const PIUNum)
                             Real64 const DesMassFlow = state.dataEnvrn->StdRhoAir * TermUnitSizing(CurTermUnitSizingNum).AirVolFlow;
                             DesCoilLoad = PsyCpAirFnW(CoilOutHumRat) * DesMassFlow * (CoilOutTemp - CoilInTemp);
                             Real64 constexpr TempSteamIn = 100.00;
-                            Real64 const EnthSteamInDry =
-                                FluidProperties::GetSatEnthalpyRefrig(state, fluidNameSteam, TempSteamIn, 1.0, thisPIU.HCoil_FluidIndex, RoutineName);
-                            Real64 const EnthSteamOutWet =
-                                FluidProperties::GetSatEnthalpyRefrig(state, fluidNameSteam, TempSteamIn, 0.0, thisPIU.HCoil_FluidIndex, RoutineName);
+                            Real64 const EnthSteamInDry = thisPIU.HCoil_fluid->getSatEnthalpy(state, TempSteamIn, 1.0, RoutineName);
+                            Real64 const EnthSteamOutWet = thisPIU.HCoil_fluid->getSatEnthalpy(state, TempSteamIn, 0.0, RoutineName);
                             Real64 const LatentHeatSteam = EnthSteamInDry - EnthSteamOutWet;
-                            Real64 const SteamDensity =
-                                FluidProperties::GetSatDensityRefrig(state, fluidNameSteam, TempSteamIn, 1.0, thisPIU.HCoil_FluidIndex, RoutineName);
-                            int DummyWaterIndex = 1;
+                            Real64 const SteamDensity = thisPIU.HCoil_fluid->getSatDensity(state, TempSteamIn, 1.0, RoutineName);
                             Real64 const Cp = FluidProperties::GetWater(state)->getSpecificHeat(state, state.dataSize->PlantSizData(PltSizHeatNum).ExitTemp, RoutineName);
                             MaxVolHotSteamFlowDes =
                                 DesCoilLoad / (SteamDensity * (LatentHeatSteam + state.dataSize->PlantSizData(PltSizHeatNum).DeltaT * Cp));

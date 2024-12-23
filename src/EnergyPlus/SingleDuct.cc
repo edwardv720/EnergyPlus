@@ -116,8 +116,6 @@ using Psychrometrics::PsyRhoAirFnPbTdbW;
 using namespace ScheduleManager;
 using namespace SteamCoils;
 
-static constexpr std::string_view fluidNameSteam("STEAM");
-
 void SimulateSingleDuct(
     EnergyPlusData &state, std::string_view CompName, bool const FirstHVACIteration, int const ZoneNum, int const ZoneNodeNum, int &CompIndex)
 {
@@ -2555,7 +2553,7 @@ void SingleDuctAirTerminal::InitSys(EnergyPlusData &state, bool const FirstHVACI
 
         if (this->ReheatComp_Num == HeatingCoilType::SteamAirHeating) {
             SteamTemp = 100.0;
-            SteamDensity = FluidProperties::GetSatDensityRefrig(state, fluidNameSteam, SteamTemp, 1.0, this->FluidIndex, RoutineNameFull);
+            SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, SteamTemp, 1.0, RoutineNameFull);
             this->MaxReheatSteamFlow = SteamDensity * this->MaxReheatSteamVolFlow;
             this->MinReheatSteamFlow = SteamDensity * this->MinReheatSteamVolFlow;
         }
@@ -3583,13 +3581,11 @@ void SingleDuctAirTerminal::SizeSys(EnergyPlusData &state)
                                                                           (state.dataSingleDuct->ZoneDesTempSS - state.dataSingleDuct->CoilInTempSS);
                         if (state.dataSingleDuct->DesCoilLoadSS >= SmallLoad) {
                             TempSteamIn = 100.00;
-                            EnthSteamInDry =
-                                FluidProperties::GetSatEnthalpyRefrig(state, fluidNameSteam, TempSteamIn, 1.0, this->FluidIndex, RoutineNameFull);
-                            EnthSteamOutWet =
-                                FluidProperties::GetSatEnthalpyRefrig(state, fluidNameSteam, TempSteamIn, 0.0, this->FluidIndex, RoutineNameFull);
+                            auto *steam = FluidProperties::GetSteam(state);
+                            EnthSteamInDry = steam->getSatEnthalpy(state, TempSteamIn, 1.0, RoutineNameFull);
+                            EnthSteamOutWet = steam->getSatEnthalpy(state, TempSteamIn, 0.0, RoutineNameFull);
                             LatentHeatSteam = EnthSteamInDry - EnthSteamOutWet;
-                            SteamDensity =
-                                FluidProperties::GetSatDensityRefrig(state, fluidNameSteam, TempSteamIn, 1.0, this->FluidIndex, RoutineNameFull);
+                            SteamDensity = steam->getSatDensity(state, TempSteamIn, 1.0, RoutineNameFull);
 
                             Cp = FluidProperties::GetWater(state)->getSpecificHeat(state, state.dataSize->PlantSizData(PltSizHeatNum).ExitTemp, RoutineName);
                             MaxReheatSteamVolFlowDes = state.dataSingleDuct->DesCoilLoadSS /

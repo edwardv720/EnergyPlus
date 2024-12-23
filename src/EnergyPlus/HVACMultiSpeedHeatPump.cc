@@ -121,8 +121,6 @@ namespace HVACMultiSpeedHeatPump {
         Num
     };
 
-    static constexpr std::string_view fluidNameSteam("STEAM");
-
     void SimMSHeatPump(EnergyPlusData &state,
                        std::string_view CompName,     // Name of the unitary engine driven heat pump system
                        bool const FirstHVACIteration, // TRUE if 1st HVAC simulation of system time step
@@ -484,7 +482,6 @@ namespace HVACMultiSpeedHeatPump {
         int TotalArgs(0);              // Total number of alpha and numeric arguments (max) for a
         //  certain object in the input file
         bool errFlag;
-        int SteamIndex;      // steam coil steam inlet density
         Real64 SteamDensity; // density of steam at 100C
 
         auto &MSHeatPump(state.dataHVACMultiSpdHP->MSHeatPump);
@@ -906,9 +903,7 @@ namespace HVACMultiSpeedHeatPump {
                     // Get the supplemental Heating Coil steam max volume flow rate
                     thisMSHP.MaxCoilFluidFlow = SteamCoils::GetCoilMaxSteamFlowRate(state, thisMSHP.HeatCoilNum, errFlag);
                     if (thisMSHP.MaxCoilFluidFlow > 0.0) {
-                        SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
-                        SteamDensity = FluidProperties::GetSatDensityRefrig(
-                            state, fluidNameSteam, state.dataHVACMultiSpdHP->TempSteamIn, 1.0, SteamIndex, routineName);
+                        SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, state.dataHVACMultiSpdHP->TempSteamIn, 1.0, routineName);
                         thisMSHP.MaxCoilFluidFlow *= SteamDensity;
                     }
 
@@ -1178,9 +1173,7 @@ namespace HVACMultiSpeedHeatPump {
                     // Get the Supplemental Heating Coil steam max volume flow rate
                     thisMSHP.MaxSuppCoilFluidFlow = SteamCoils::GetCoilMaxSteamFlowRate(state, thisMSHP.SuppHeatCoilNum, errFlag);
                     if (thisMSHP.MaxSuppCoilFluidFlow > 0.0) {
-                        SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
-                        SteamDensity = FluidProperties::GetSatDensityRefrig(
-                            state, fluidNameSteam, state.dataHVACMultiSpdHP->TempSteamIn, 1.0, SteamIndex, routineName);
+                        SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, state.dataHVACMultiSpdHP->TempSteamIn, 1.0, routineName);
                         thisMSHP.MaxSuppCoilFluidFlow *= SteamDensity;
                     }
 
@@ -1877,10 +1870,7 @@ namespace HVACMultiSpeedHeatPump {
                 MSHeatPump(MSHeatPumpNum).MaxCoilFluidFlow =
                     SteamCoils::GetCoilMaxSteamFlowRate(state, MSHeatPump(MSHeatPumpNum).HeatCoilNum, ErrorsFound);
                 if (MSHeatPump(MSHeatPumpNum).MaxCoilFluidFlow > 0.0) {
-                    int SteamIndex =
-                        0; // Function GetSatDensityRefrig will look up steam index if 0 is passed // TODO: Why do you want to re-look this up?
-                    SteamDensity = FluidProperties::GetSatDensityRefrig(
-                        state, fluidNameSteam, state.dataHVACMultiSpdHP->TempSteamIn, 1.0, SteamIndex, RoutineName);
+                    SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, state.dataHVACMultiSpdHP->TempSteamIn, 1.0, RoutineName);
                     MSHeatPump(MSHeatPumpNum).MaxCoilFluidFlow *= SteamDensity;
                 }
 
@@ -1940,9 +1930,7 @@ namespace HVACMultiSpeedHeatPump {
                 MSHeatPump(MSHeatPumpNum).MaxSuppCoilFluidFlow =
                     SteamCoils::GetCoilMaxSteamFlowRate(state, MSHeatPump(MSHeatPumpNum).SuppHeatCoilNum, ErrorsFound);
                 if (MSHeatPump(MSHeatPumpNum).MaxSuppCoilFluidFlow > 0.0) {
-                    int SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
-                    SteamDensity = FluidProperties::GetSatDensityRefrig(
-                        state, fluidNameSteam, state.dataHVACMultiSpdHP->TempSteamIn, 1.0, SteamIndex, RoutineName);
+                    SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, state.dataHVACMultiSpdHP->TempSteamIn, 1.0, RoutineName);
                     MSHeatPump(MSHeatPumpNum).MaxSuppCoilFluidFlow *= SteamDensity;
                 }
 
@@ -2110,9 +2098,7 @@ namespace HVACMultiSpeedHeatPump {
                         CoilMaxVolFlowRate = SteamCoils::GetCoilMaxSteamFlowRate(state, MSHeatPump(MSHeatPumpNum).HeatCoilNum, ErrorsFound);
 
                         if (CoilMaxVolFlowRate != DataSizing::AutoSize) {
-                            int SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
-                            SteamDensity = FluidProperties::GetSatDensityRefrig(
-                                state, fluidNameSteam, state.dataHVACMultiSpdHP->TempSteamIn, 1.0, SteamIndex, RoutineName);
+                            SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, state.dataHVACMultiSpdHP->TempSteamIn, 1.0, RoutineName);
                             MSHeatPump(MSHeatPumpNum).MaxCoilFluidFlow = CoilMaxVolFlowRate * SteamDensity;
                         }
                         PlantUtilities::InitComponentNodes(state,
@@ -2157,9 +2143,7 @@ namespace HVACMultiSpeedHeatPump {
                         CoilMaxVolFlowRate = SteamCoils::GetCoilMaxSteamFlowRate(state, MSHeatPump(MSHeatPumpNum).SuppHeatCoilNum, ErrorsFound);
 
                         if (CoilMaxVolFlowRate != DataSizing::AutoSize) {
-                            int SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
-                            SteamDensity = FluidProperties::GetSatDensityRefrig(
-                                state, fluidNameSteam, state.dataHVACMultiSpdHP->TempSteamIn, 1.0, SteamIndex, RoutineName);
+                            SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, state.dataHVACMultiSpdHP->TempSteamIn, 1.0, RoutineName);
                             MSHeatPump(MSHeatPumpNum).MaxSuppCoilFluidFlow = CoilMaxVolFlowRate * SteamDensity;
                         }
                         PlantUtilities::InitComponentNodes(state,
