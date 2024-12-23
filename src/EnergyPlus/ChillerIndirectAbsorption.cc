@@ -353,6 +353,7 @@ void GetIndirectAbsorberInput(EnergyPlusData &state)
                 //       Default to Steam if left blank
             } else if (Util::SameString(state.dataIPShortCut->cAlphaArgs(16), "STEAM") || state.dataIPShortCut->cAlphaArgs(16).empty()) {
                 thisChiller.GenHeatSourceType = DataLoopNode::NodeFluidType::Steam;
+                thisChiller.steam = FluidProperties::GetSteam(state);
             } else {
                 ShowWarningError(state, format("{}, Name={}", state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)));
                 ShowContinueError(state, "...Generator heat source type must be Steam or Hot Water.");
@@ -362,6 +363,7 @@ void GetIndirectAbsorberInput(EnergyPlusData &state)
         } else {
             //     Default to Steam if not entered as input
             thisChiller.GenHeatSourceType = DataLoopNode::NodeFluidType::Steam;
+            thisChiller.steam = FluidProperties::GetSteam(state);
         }
 
         if ((!state.dataIPShortCut->cAlphaArgs(9).empty()) && (!state.dataIPShortCut->cAlphaArgs(10).empty())) {
