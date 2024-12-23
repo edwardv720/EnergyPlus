@@ -2242,7 +2242,7 @@ void GetRefrigerationInput(EnergyPlusData &state)
             }
 
             ++AlphaNum; // A6
-            if (lAlphaBlanks(AlphaNum)) {
+            if (!lAlphaBlanks(AlphaNum)) {
                 WarehouseCoil(CoilID).heaterAvailSched = Sched::GetScheduleAlwaysOn(state);
             } else if ((WarehouseCoil(CoilID).heaterAvailSched = Sched::GetSchedule(state, Alphas(AlphaNum))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(AlphaNum), Alphas(AlphaNum));

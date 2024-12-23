@@ -767,7 +767,7 @@ void GetFanInput(EnergyPlusData &state)
         BranchNodeConnections::TestCompSet(state, cCurrentModuleObject, cAlphaArgs(1), cAlphaArgs(2), cAlphaArgs(3), "Air Nodes");
 
         if (lAlphaFieldBlanks(4)) {
-            fan->availSched = nullptr;
+            fan->availSched = Sched::GetScheduleAlwaysOn(state);
         } else if ((fan->availSched = Sched::GetSchedule(state, cAlphaArgs(4))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(4), cAlphaArgs(4));
             ErrorsFound = true;
@@ -862,7 +862,7 @@ void GetFanInput(EnergyPlusData &state)
         fan->type = HVAC::FanType::SystemModel;
 
         if (lAlphaFieldBlanks(2)) {
-            fan->availSched = Sched::GetScheduleAlwaysOn(state);
+            fan->availSched = Sched::GetScheduleAlwaysOn(state); // nullptr
         } else if ((fan->availSched = Sched::GetSchedule(state, cAlphaArgs(2))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(2), cAlphaArgs(2));
             ErrorsFound = true;
