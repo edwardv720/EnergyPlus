@@ -431,14 +431,14 @@ namespace PlantPipingSystemsManager {
             auto const &thisDomain = state.dataPlantPipingSysMgr->domains[DomainNum];
 
             // validate pipe domain-circuit name-to-index references
-            for (auto &thisCircuit : thisDomain.circuits) {
+            for (auto const &thisCircuit : thisDomain.circuits) {
                 thisCircuit->ParentDomainIndex = DomainNum;
             }
 
             // correct segment locations for: INTERNAL DATA STRUCTURE Y VALUE MEASURED FROM BOTTOM OF DOMAIN,
             //                                INPUT WAS MEASURED FROM GROUND SURFACE
             for (auto const &thisCircuit : thisDomain.circuits) {
-                for (auto &thisSegment : thisCircuit->pipeSegments) {
+                for (auto const &thisSegment : thisCircuit->pipeSegments) {
                     thisSegment->PipeLocation.Y = thisDomain.Extents.yMax - thisSegment->PipeLocation.Y;
                 }
             }
@@ -446,7 +446,7 @@ namespace PlantPipingSystemsManager {
             // correct segment locations for: BASEMENT X SHIFT
             if (thisDomain.HasBasement && thisDomain.BasementZone.ShiftPipesByWidth) {
                 for (auto const &thisCircuit : thisDomain.circuits) {
-                    for (auto &thisSegment : thisCircuit->pipeSegments) {
+                    for (auto const &thisSegment : thisCircuit->pipeSegments) {
                         thisSegment->PipeLocation.X += thisDomain.BasementZone.Width;
                     }
                 }
@@ -2333,7 +2333,7 @@ namespace PlantPipingSystemsManager {
         return (LocalMax < this->SimControls.Convergence_CurrentToPrevIteration);
     }
 
-    bool IsConverged_PipeCurrentToPrevIteration(Circuit *thisCircuit, CartesianCell const &CellToCheck)
+    bool IsConverged_PipeCurrentToPrevIteration(Circuit const *thisCircuit, CartesianCell const &CellToCheck)
     {
 
         // FUNCTION INFORMATION:
@@ -5367,7 +5367,7 @@ namespace PlantPipingSystemsManager {
         cell.PipeCellData.Insulation.Temperature = Numerator / Denominator;
     }
 
-    void SimulateRadialPipeCell(Circuit *thisCircuit, CartesianCell &cell)
+    void SimulateRadialPipeCell(Circuit const *thisCircuit, CartesianCell &cell)
     {
 
         // SUBROUTINE INFORMATION:
@@ -5432,7 +5432,7 @@ namespace PlantPipingSystemsManager {
         cell.PipeCellData.Pipe.Temperature = Numerator / Denominator;
     }
 
-    void SimulateFluidCell(Circuit *thisCircuit, CartesianCell &cell, Real64 const FlowRate, Real64 const EnteringFluidTemp)
+    void SimulateFluidCell(Circuit const *thisCircuit, CartesianCell &cell, Real64 const FlowRate, Real64 const EnteringFluidTemp)
     {
 
         // SUBROUTINE INFORMATION:
