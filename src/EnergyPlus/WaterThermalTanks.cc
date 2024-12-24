@@ -624,7 +624,7 @@ void CalcWaterThermalTankZoneGains(EnergyPlusData &state)
     for (int WaterThermalTankNum = 1; WaterThermalTankNum <= state.dataWaterThermalTanks->numWaterThermalTank; ++WaterThermalTankNum) {
         auto &Tank = state.dataWaterThermalTanks->WaterThermalTank(WaterThermalTankNum);
         if (Tank.AmbientTempZone == 0) continue;
-        auto &thisZoneHB = state.dataZoneTempPredictorCorrector->zoneHeatBalance(Tank.AmbientTempZone);
+        auto const &thisZoneHB = state.dataZoneTempPredictorCorrector->zoneHeatBalance(Tank.AmbientTempZone);
         if (state.dataGlobal->DoingSizing) {
             // Initialize tank temperature to setpoint
             // (use HPWH or Desuperheater heating coil set point if applicable)
@@ -7919,7 +7919,7 @@ void WaterThermalTankData::CalcWaterThermalTankStratified(EnergyPlusData &state)
                 // Remove off cycle loads
                 // Apply on cycle loads
                 for (int i = 0; i < nTankNodes; i++) {
-                    auto &node = this->Node[i];
+                    auto const &node = this->Node[i];
                     Real64 NodeCapacitance = node.Mass * Cp;
                     A[i] += (node.OffCycLossCoeff - node.OnCycLossCoeff) / NodeCapacitance;
                     B[i] += (-node.OffCycParaLoad + node.OnCycParaLoad + (node.OnCycLossCoeff - node.OffCycLossCoeff) * this->AmbientTemp) /
@@ -7929,7 +7929,7 @@ void WaterThermalTankData::CalcWaterThermalTankStratified(EnergyPlusData &state)
                 // Remove on cycle loads
                 // Apply off cycle loads
                 for (int i = 0; i < nTankNodes; i++) {
-                    auto &node = this->Node[i];
+                    auto const &node = this->Node[i];
                     Real64 NodeCapacitance = node.Mass * Cp;
                     A[i] -= (node.OffCycLossCoeff - node.OnCycLossCoeff) / NodeCapacitance;
                     B[i] -= (-node.OffCycParaLoad + node.OnCycParaLoad + (node.OnCycLossCoeff - node.OffCycLossCoeff) * this->AmbientTemp) /
@@ -8924,36 +8924,36 @@ void WaterThermalTankData::CalcDesuperheaterWaterHeater(EnergyPlusData &state, b
         if (DesupHtr.ReclaimHeatingSource == ReclaimHeatObjectType::CompressorRackRefrigeratedCase) {
             state.dataHeatBal->HeatReclaimRefrigeratedRack(SourceID).WaterHeatingDesuperheaterReclaimedHeat(DesuperheaterNum) = DesupHtr.HeaterRate;
             state.dataHeatBal->HeatReclaimRefrigeratedRack(SourceID).WaterHeatingDesuperheaterReclaimedHeatTotal = 0.0;
-            for (auto &num : state.dataHeatBal->HeatReclaimRefrigeratedRack(SourceID).WaterHeatingDesuperheaterReclaimedHeat)
+            for (auto const &num : state.dataHeatBal->HeatReclaimRefrigeratedRack(SourceID).WaterHeatingDesuperheaterReclaimedHeat)
                 state.dataHeatBal->HeatReclaimRefrigeratedRack(SourceID).WaterHeatingDesuperheaterReclaimedHeatTotal += num;
         } else if (DesupHtr.ReclaimHeatingSource == ReclaimHeatObjectType::CondenserRefrigeration) {
             state.dataHeatBal->HeatReclaimRefrigCondenser(SourceID).WaterHeatingDesuperheaterReclaimedHeat(DesuperheaterNum) = DesupHtr.HeaterRate;
             state.dataHeatBal->HeatReclaimRefrigCondenser(SourceID).WaterHeatingDesuperheaterReclaimedHeatTotal = 0.0;
-            for (auto &num : state.dataHeatBal->HeatReclaimRefrigCondenser(SourceID).WaterHeatingDesuperheaterReclaimedHeat)
+            for (auto const &num : state.dataHeatBal->HeatReclaimRefrigCondenser(SourceID).WaterHeatingDesuperheaterReclaimedHeat)
                 state.dataHeatBal->HeatReclaimRefrigCondenser(SourceID).WaterHeatingDesuperheaterReclaimedHeatTotal += num;
         } else if (DesupHtr.ReclaimHeatingSource == ReclaimHeatObjectType::DXCooling ||
                    DesupHtr.ReclaimHeatingSource == ReclaimHeatObjectType::DXMultiSpeed ||
                    DesupHtr.ReclaimHeatingSource == ReclaimHeatObjectType::DXMultiMode) {
             state.dataHeatBal->HeatReclaimDXCoil(SourceID).WaterHeatingDesuperheaterReclaimedHeat(DesuperheaterNum) = DesupHtr.HeaterRate;
             state.dataHeatBal->HeatReclaimDXCoil(SourceID).WaterHeatingDesuperheaterReclaimedHeatTotal = 0.0;
-            for (auto &num : state.dataHeatBal->HeatReclaimDXCoil(SourceID).WaterHeatingDesuperheaterReclaimedHeat)
+            for (auto const &num : state.dataHeatBal->HeatReclaimDXCoil(SourceID).WaterHeatingDesuperheaterReclaimedHeat)
                 state.dataHeatBal->HeatReclaimDXCoil(SourceID).WaterHeatingDesuperheaterReclaimedHeatTotal += num;
         } else if (DesupHtr.ReclaimHeatingSource == ReclaimHeatObjectType::DXVariableCooling) {
             state.dataHeatBal->HeatReclaimVS_DXCoil(SourceID).WaterHeatingDesuperheaterReclaimedHeat(DesuperheaterNum) = DesupHtr.HeaterRate;
             state.dataHeatBal->HeatReclaimVS_DXCoil(SourceID).WaterHeatingDesuperheaterReclaimedHeatTotal = 0.0;
-            for (auto &num : state.dataHeatBal->HeatReclaimVS_DXCoil(SourceID).WaterHeatingDesuperheaterReclaimedHeat)
+            for (auto const &num : state.dataHeatBal->HeatReclaimVS_DXCoil(SourceID).WaterHeatingDesuperheaterReclaimedHeat)
                 state.dataHeatBal->HeatReclaimVS_DXCoil(SourceID).WaterHeatingDesuperheaterReclaimedHeatTotal += num;
         } else if (DesupHtr.ReclaimHeatingSource == ReclaimHeatObjectType::AirWaterHeatPumpEQ) {
             state.dataHeatBal->HeatReclaimSimple_WAHPCoil(SourceID).WaterHeatingDesuperheaterReclaimedHeat(DesuperheaterNum) = DesupHtr.HeaterRate;
             state.dataHeatBal->HeatReclaimSimple_WAHPCoil(SourceID).WaterHeatingDesuperheaterReclaimedHeatTotal = 0.0;
-            for (auto &num : state.dataHeatBal->HeatReclaimSimple_WAHPCoil(SourceID).WaterHeatingDesuperheaterReclaimedHeat)
+            for (auto const &num : state.dataHeatBal->HeatReclaimSimple_WAHPCoil(SourceID).WaterHeatingDesuperheaterReclaimedHeat)
                 state.dataHeatBal->HeatReclaimSimple_WAHPCoil(SourceID).WaterHeatingDesuperheaterReclaimedHeatTotal += num;
         } else if (DesupHtr.ReclaimHeatingSource == ReclaimHeatObjectType::CoilCoolingDX) {
             state.dataCoilCooingDX->coilCoolingDXs[DesupHtr.ReclaimHeatingSourceIndexNum].reclaimHeat.WaterHeatingDesuperheaterReclaimedHeat(
                 DesuperheaterNum) = DesupHtr.HeaterRate;
             state.dataCoilCooingDX->coilCoolingDXs[DesupHtr.ReclaimHeatingSourceIndexNum].reclaimHeat.WaterHeatingDesuperheaterReclaimedHeatTotal =
                 0.0;
-            for (auto &num :
+            for (auto const &num :
                  state.dataCoilCooingDX->coilCoolingDXs[DesupHtr.ReclaimHeatingSourceIndexNum].reclaimHeat.WaterHeatingDesuperheaterReclaimedHeat)
                 state.dataCoilCooingDX->coilCoolingDXs[DesupHtr.ReclaimHeatingSourceIndexNum]
                     .reclaimHeat.WaterHeatingDesuperheaterReclaimedHeatTotal += num;
@@ -11007,7 +11007,7 @@ void WaterThermalTankData::SizeTankForDemandSide(EnergyPlusData &state)
 
         // MJW TODO: this won't compile now: Real64 SumPeopleAllZones = sum(state.dataHeatBal->Zone, &DataHeatBalance::ZoneData::TotOccupants);
         Real64 SumPeopleAllZones = 0.0;
-        for (auto &thisZone : state.dataHeatBal->Zone) {
+        for (auto const &thisZone : state.dataHeatBal->Zone) {
             SumPeopleAllZones += thisZone.TotOccupants;
         }
         if (this->VolumeWasAutoSized) tmpTankVolume = this->Sizing.TankCapacityPerPerson * SumPeopleAllZones;
@@ -11059,7 +11059,7 @@ void WaterThermalTankData::SizeTankForDemandSide(EnergyPlusData &state)
 
         // MJW TODO: this won't compile now: Real64 SumFloorAreaAllZones = sum(state.dataHeatBal->Zone, &DataHeatBalance::ZoneData::FloorArea);
         Real64 SumFloorAreaAllZones = 0.0;
-        for (auto &thisZone : state.dataHeatBal->Zone) {
+        for (auto const &thisZone : state.dataHeatBal->Zone) {
             SumFloorAreaAllZones += thisZone.FloorArea;
         }
         if (this->VolumeWasAutoSized) tmpTankVolume = this->Sizing.TankCapacityPerArea * SumFloorAreaAllZones;
@@ -11747,7 +11747,7 @@ void WaterThermalTankData::SizeStandAloneWaterHeater(EnergyPlusData &state)
 
             // MJW TODO: this won't compile now: Real64 SumPeopleAllZones = sum(state.dataHeatBal->Zone, &DataHeatBalance::ZoneData::TotOccupants);
             Real64 SumPeopleAllZones = 0.0;
-            for (auto &thisZone : state.dataHeatBal->Zone) {
+            for (auto const &thisZone : state.dataHeatBal->Zone) {
                 SumPeopleAllZones += thisZone.TotOccupants;
             }
             if (this->VolumeWasAutoSized) {
@@ -11775,7 +11775,7 @@ void WaterThermalTankData::SizeStandAloneWaterHeater(EnergyPlusData &state)
 
             // MJW TODO: this won't compile now: Real64 SumFloorAreaAllZones = sum(state.dataHeatBal->Zone, &DataHeatBalance::ZoneData::FloorArea);
             Real64 SumFloorAreaAllZones = 0.0;
-            for (auto &thisZone : state.dataHeatBal->Zone) {
+            for (auto const &thisZone : state.dataHeatBal->Zone) {
                 SumFloorAreaAllZones += thisZone.FloorArea;
             }
             if (this->VolumeWasAutoSized) {
