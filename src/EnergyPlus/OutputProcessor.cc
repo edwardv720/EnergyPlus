@@ -3743,9 +3743,9 @@ void UpdateMeterReporting(EnergyPlusData &state)
             name.erase(varnameLen);
         }
 
-        std::string::size_type wildCardPosition = index(name, '*');
-
         auto const &op = state.dataOutputProcessor;
+
+        std::string::size_type wildCardPosition = index(name, '*');
 
         if (wildCardPosition == std::string::npos) {
             if (auto found = op->meterMap.find(name); found != op->meterMap.end()) {
