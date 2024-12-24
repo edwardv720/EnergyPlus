@@ -1104,7 +1104,7 @@ void UpdatePoolSourceValAvg(EnergyPlusData &state, bool &SwimmingPoolOn) // .TRU
     if (state.dataSwimmingPools->NumSwimmingPools == 0) return;
 
     for (int PoolNum = 1; PoolNum <= state.dataSwimmingPools->NumSwimmingPools; ++PoolNum) {
-        auto &thisPool = state.dataSwimmingPools->Pool(PoolNum);
+        auto const &thisPool = state.dataSwimmingPools->Pool(PoolNum);
         if (thisPool.QPoolSrcAvg != 0.0) SwimmingPoolOn = true;
         int SurfNum = thisPool.SurfacePtr; // surface number index
         state.dataHeatBalFanSys->QPoolSurfNumerator(SurfNum) = thisPool.QPoolSrcAvg;
