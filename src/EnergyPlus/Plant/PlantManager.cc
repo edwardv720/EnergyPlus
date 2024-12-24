@@ -1648,11 +1648,11 @@ void GetPlantInput(EnergyPlusData &state)
     for (LoopNum = 1; LoopNum <= state.dataHVACGlobal->NumPlantLoops; ++LoopNum) {
 
         // set up references for this loop
-        auto &this_plant_loop(state.dataPlnt->PlantLoop(LoopNum));
-        auto &this_plant_supply(this_plant_loop.LoopSide(LoopSideLocation::Supply));
-        auto &this_vent_plant_supply(state.dataPlnt->VentRepPlant[static_cast<int>(LoopSideLocation::Supply)](LoopNum));
-        auto &this_plant_demand(this_plant_loop.LoopSide(LoopSideLocation::Demand));
-        auto &this_vent_plant_demand(state.dataPlnt->VentRepPlant[static_cast<int>(LoopSideLocation::Demand)](LoopNum));
+        auto &this_plant_loop = state.dataPlnt->PlantLoop(LoopNum);
+        auto const &this_plant_supply = this_plant_loop.LoopSide(LoopSideLocation::Supply);
+        auto &this_vent_plant_supply = state.dataPlnt->VentRepPlant[static_cast<int>(LoopSideLocation::Supply)](LoopNum);
+        auto const &this_plant_demand = this_plant_loop.LoopSide(LoopSideLocation::Demand);
+        auto &this_vent_plant_demand = state.dataPlnt->VentRepPlant[static_cast<int>(LoopSideLocation::Demand)](LoopNum);
 
         this_vent_plant_supply.Name = this_plant_loop.Name;
         this_vent_plant_supply.NodeNumIn = this_plant_supply.NodeNumIn;
@@ -1665,8 +1665,8 @@ void GetPlantInput(EnergyPlusData &state)
 
         for (BranchNum = 1; BranchNum <= this_vent_plant_supply.TotalBranches; ++BranchNum) {
 
-            auto &this_plant_supply_branch(state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideLocation::Supply).Branch(BranchNum));
-            auto &this_vent_plant_supply_branch(state.dataPlnt->VentRepPlant[static_cast<int>(LoopSideLocation::Supply)](LoopNum).Branch(BranchNum));
+            auto const &this_plant_supply_branch = state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideLocation::Supply).Branch(BranchNum);
+            auto &this_vent_plant_supply_branch = state.dataPlnt->VentRepPlant[static_cast<int>(LoopSideLocation::Supply)](LoopNum).Branch(BranchNum);
 
             this_vent_plant_supply_branch.Name = this_plant_supply_branch.Name;
             this_vent_plant_supply_branch.NodeNumIn = this_plant_supply_branch.NodeNumIn;
@@ -1681,9 +1681,10 @@ void GetPlantInput(EnergyPlusData &state)
                  CompNum <= state.dataPlnt->VentRepPlant[static_cast<int>(LoopSideLocation::Supply)](LoopNum).Branch(BranchNum).TotalComponents;
                  ++CompNum) {
 
-                auto &this_plant_supply_comp(state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideLocation::Supply).Branch(BranchNum).Comp(CompNum));
-                auto &this_vent_plant_supply_comp(
-                    state.dataPlnt->VentRepPlant[static_cast<int>(LoopSideLocation::Supply)](LoopNum).Branch(BranchNum).Comp(CompNum));
+                auto const &this_plant_supply_comp =
+                    state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideLocation::Supply).Branch(BranchNum).Comp(CompNum);
+                auto &this_vent_plant_supply_comp =
+                    state.dataPlnt->VentRepPlant[static_cast<int>(LoopSideLocation::Supply)](LoopNum).Branch(BranchNum).Comp(CompNum);
 
                 this_vent_plant_supply_comp.Name = this_plant_supply_comp.Name;
                 this_vent_plant_supply_comp.TypeOf = this_plant_supply_comp.TypeOf;
@@ -1707,8 +1708,8 @@ void GetPlantInput(EnergyPlusData &state)
 
         for (BranchNum = 1; BranchNum <= this_vent_plant_demand.TotalBranches; ++BranchNum) {
 
-            auto &this_plant_demand_branch(state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideLocation::Demand).Branch(BranchNum));
-            auto &this_vent_plant_demand_branch(state.dataPlnt->VentRepPlant[static_cast<int>(LoopSideLocation::Demand)](LoopNum).Branch(BranchNum));
+            auto const &this_plant_demand_branch = state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideLocation::Demand).Branch(BranchNum);
+            auto &this_vent_plant_demand_branch = state.dataPlnt->VentRepPlant[static_cast<int>(LoopSideLocation::Demand)](LoopNum).Branch(BranchNum);
 
             this_vent_plant_demand_branch.Name = this_plant_demand_branch.Name;
             this_vent_plant_demand_branch.NodeNumIn = this_plant_demand_branch.NodeNumIn;
@@ -1721,9 +1722,10 @@ void GetPlantInput(EnergyPlusData &state)
 
             for (CompNum = 1; CompNum <= this_vent_plant_demand_branch.TotalComponents; ++CompNum) {
 
-                auto &this_plant_demand_comp(state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideLocation::Demand).Branch(BranchNum).Comp(CompNum));
-                auto &this_vent_plant_demand_comp(
-                    state.dataPlnt->VentRepPlant[static_cast<int>(LoopSideLocation::Demand)](LoopNum).Branch(BranchNum).Comp(CompNum));
+                auto const &this_plant_demand_comp =
+                    state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideLocation::Demand).Branch(BranchNum).Comp(CompNum);
+                auto &this_vent_plant_demand_comp =
+                    state.dataPlnt->VentRepPlant[static_cast<int>(LoopSideLocation::Demand)](LoopNum).Branch(BranchNum).Comp(CompNum);
 
                 this_vent_plant_demand_comp.Name = this_plant_demand_comp.Name;
                 this_vent_plant_demand_comp.TypeOf = this_plant_demand_comp.TypeOf;
@@ -2815,7 +2817,7 @@ void ReInitPlantLoopsAtFirstHVACIteration(EnergyPlusData &state)
     }
 }
 
-void UpdateNodeThermalHistory(EnergyPlusData &state)
+void UpdateNodeThermalHistory(EnergyPlusData const &state)
 {
 
     // SUBROUTINE INFORMATION:
