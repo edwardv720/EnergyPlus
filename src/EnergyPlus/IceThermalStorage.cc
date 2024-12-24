@@ -1923,7 +1923,7 @@ namespace IceThermalStorage {
         }
     }
 
-    void UpdateIceFractions(EnergyPlusData &state)
+    void UpdateIceFractions(EnergyPlusData const &state)
     {
 
         // SUBROUTINE INFORMATION:
