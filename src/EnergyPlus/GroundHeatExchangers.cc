@@ -1323,7 +1323,7 @@ void GLHEVert::calcShortTimestepGFunctions(EnergyPlusData &state)
 
 //******************************************************************************
 
-std::vector<Real64> TDMA(std::vector<Real64> a, std::vector<Real64> b, std::vector<Real64> c, std::vector<Real64> d)
+std::vector<Real64> TDMA(std::vector<Real64> const &a, std::vector<Real64> const &b, std::vector<Real64> c, std::vector<Real64> d)
 {
     // from: https://en.wikibooks.org/wiki/Algorithm_Implementation/Linear_Algebra/Tridiagonal_matrix_algorithm#C.2B.2B
 
