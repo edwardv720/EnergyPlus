@@ -73,7 +73,7 @@
 
 namespace EnergyPlus {
 
-void createCoilSelectionReportObj(EnergyPlusData const &state)
+void createCoilSelectionReportObj(EnergyPlusData &state)
 {
     state.dataRptCoilSelection->coilSelectionReportObj = std::make_unique<ReportCoilSelection>();
 }

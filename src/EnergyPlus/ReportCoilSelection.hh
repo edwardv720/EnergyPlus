@@ -449,7 +449,7 @@ public: // data
 
 }; // end ReportCoilSelection class
 
-void createCoilSelectionReportObj(EnergyPlusData const &state);
+void createCoilSelectionReportObj(EnergyPlusData &state);
 
 struct ReportCoilSelectionData : BaseGlobalStruct
 {

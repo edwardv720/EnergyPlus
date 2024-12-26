@@ -431,14 +431,14 @@ namespace PlantPipingSystemsManager {
             auto const &thisDomain = state.dataPlantPipingSysMgr->domains[DomainNum];
 
             // validate pipe domain-circuit name-to-index references
-            for (auto const &thisCircuit : thisDomain.circuits) {
+            for (auto &thisCircuit : thisDomain.circuits) {
                 thisCircuit->ParentDomainIndex = DomainNum;
             }
 
             // correct segment locations for: INTERNAL DATA STRUCTURE Y VALUE MEASURED FROM BOTTOM OF DOMAIN,
             //                                INPUT WAS MEASURED FROM GROUND SURFACE
             for (auto const &thisCircuit : thisDomain.circuits) {
-                for (auto const &thisSegment : thisCircuit->pipeSegments) {
+                for (auto &thisSegment : thisCircuit->pipeSegments) {
                     thisSegment->PipeLocation.Y = thisDomain.Extents.yMax - thisSegment->PipeLocation.Y;
                 }
             }
@@ -446,7 +446,7 @@ namespace PlantPipingSystemsManager {
             // correct segment locations for: BASEMENT X SHIFT
             if (thisDomain.HasBasement && thisDomain.BasementZone.ShiftPipesByWidth) {
                 for (auto const &thisCircuit : thisDomain.circuits) {
-                    for (auto const &thisSegment : thisCircuit->pipeSegments) {
+                    for (auto &thisSegment : thisCircuit->pipeSegments) {
                         thisSegment->PipeLocation.X += thisDomain.BasementZone.Width;
                     }
                 }
