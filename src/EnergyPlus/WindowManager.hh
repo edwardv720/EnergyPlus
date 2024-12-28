@@ -240,6 +240,7 @@ namespace Window {
         return (X < 0.0 || X > 1.0) ? 0.0 : (X * (A[0] + X * (A[1] + X * (A[2] + X * (A[3] + X * (A[4] + X * A[5]))))));
     }
 
+#ifdef GET_OUT  
     constexpr Real64 POLYF(Real64 const X,          // Cosine of angle of incidence
                            Array1D<Real64> const &A // Polynomial coefficients
     )
@@ -250,7 +251,8 @@ namespace Window {
             return X * (A(1) + X * (A(2) + X * (A(3) + X * (A(4) + X * (A(5) + X * A(6))))));
         }
     }
-        
+#endif // GET_OUT
+  
     void WindowGasConductance(EnergyPlusData &state,
                               Real64 tleft,  // Temperature of gap surface closest to outside (K)
                               Real64 tright, // Temperature of gap surface closest to zone (K)
