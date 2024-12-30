@@ -232,12 +232,12 @@ namespace Window {
         std::array<Real64, numPhis> solabsShadePhi;
 
         // These need to stay as Array1D for a little longer because changing them spreads into many source files
-        std::array<Real64, numPhis> tsolPhi;        // Glazing system solar transmittance for each angle of incidence
-        std::array<Real64, numPhis> rfsolPhi;       // Glazing system solar front reflectance for each angle of incidence
-        std::array<Real64, numPhis> rbsolPhi;       // Glazing system solar back reflectance for each angle of incidence
-        std::array<Real64, numPhis> tvisPhi;        // Glazing system visible transmittance for each angle of incidence
-        std::array<Real64, numPhis> rfvisPhi;       // Glazing system visible front reflectance for each angle of incidence
-        std::array<Real64, numPhis> rbvisPhi;       // Glazing system visible back reflectance for each angle of incidence
+        std::array<Real64, numPhis> tsolPhi;  // Glazing system solar transmittance for each angle of incidence
+        std::array<Real64, numPhis> rfsolPhi; // Glazing system solar front reflectance for each angle of incidence
+        std::array<Real64, numPhis> rbsolPhi; // Glazing system solar back reflectance for each angle of incidence
+        std::array<Real64, numPhis> tvisPhi;  // Glazing system visible transmittance for each angle of incidence
+        std::array<Real64, numPhis> rfvisPhi; // Glazing system visible front reflectance for each angle of incidence
+        std::array<Real64, numPhis> rbvisPhi; // Glazing system visible back reflectance for each angle of incidence
 
         Real64 ab1; // = abBareSolPhi(,1)(,2)
         Real64 ab2;
@@ -631,12 +631,13 @@ namespace Window {
             // Get glass layer properties, then glazing system properties (which include the
             // effect of inter-reflection among glass layers) at each incidence angle.
 
-	    // Apparently, using pre-calcaulated and hard-coded cosPhis (e.g., Window::cosPhis) causes a bunch of
-	    // diffs, including some big ones
-	    std::array<Real64, numPhis> cosPhisLocal;
-	    
-            for (int iPhi = 0; iPhi < numPhis; ++iPhi) cosPhisLocal[iPhi] = std::cos((double)iPhi * dPhiDeg * Constant::DegToRad);
-	    
+            // Apparently, using pre-calcaulated and hard-coded cosPhis (e.g., Window::cosPhis) causes a bunch of
+            // diffs, including some big ones
+            std::array<Real64, numPhis> cosPhisLocal;
+
+            for (int iPhi = 0; iPhi < numPhis; ++iPhi)
+                cosPhisLocal[iPhi] = std::cos((double)iPhi * dPhiDeg * Constant::DegToRad);
+
             for (int iPhi = 0; iPhi < numPhis; ++iPhi) {
                 // For each wavelength, get glass layer properties at this angle of incidence
                 // from properties at normal incidence
@@ -1361,7 +1362,7 @@ namespace Window {
                         cbtar.Vis.Bk.Df.Ref =
                             rb3v + td3v * (rbshv + rbshv * rf3v * rbshv + tshv * rb2v * tshv + tshv * td2v * rb1v * td2v * tshv) * td3v;
                     } // if (NGlass == 3)
-                }     // for (iSlatAng)
+                } // for (iSlatAng)
 
                 // Exterior screen
             } else if (ExtScreen) {
@@ -1493,7 +1494,7 @@ namespace Window {
                 surfShade.effGlassEmi = surfShade.glass.epsIR * TauShIR / (1.0 - surfShade.glass.rhoIR * RhoShIR);
 
             } // End of check if interior shade or interior blind
-        }     // End of surface loop
+        } // End of surface loop
 
         for (int SurfNum = 1; SurfNum <= s_surf->TotSurfaces; ++SurfNum) {
             auto const &surf = s_surf->Surface(SurfNum);
@@ -1783,7 +1784,7 @@ namespace Window {
             }
 
         } // End of wavelength loop
-    }     // SystemSpectralPropertiesAtPhi()
+    } // SystemSpectralPropertiesAtPhi()
 
     //************************************************************************
 
@@ -2502,7 +2503,6 @@ namespace Window {
     } // CalcWindowHeatBalanceInternalRoutines()
 
     //****************************************************************************
-
 
     //****************************************************************************
 
@@ -4508,7 +4508,7 @@ namespace Window {
             dens = rhomix;
 
         } // End of check if single or multiple gases in gap
-    }     // WindowGasPropertiesAtTemp()
+    } // WindowGasPropertiesAtTemp()
 
     //********************************************************************************
 
@@ -5296,8 +5296,8 @@ namespace Window {
 
     //**************************************************************************
     void W5LsqFit(std::array<Real64, numPhis> const &ivars, // Independent variables
-                  std::array<Real64, numPhis> const &dvars,   // Dependent variables
-                  std::array<Real64, maxPolyCoef> &coeffs // Polynomial coefficients from fit
+                  std::array<Real64, numPhis> const &dvars, // Dependent variables
+                  std::array<Real64, maxPolyCoef> &coeffs   // Polynomial coefficients from fit
     )
     {
 
@@ -5314,9 +5314,9 @@ namespace Window {
         // form C1*X + C2*X**2 + C3*X**3 + ... +CN*X**N, where N <= 6.
         // Adapted from BLAST subroutine LSQFIT.
 
-        std::array<std::array<Real64, maxPolyCoef>, maxPolyCoef> A;  // Least squares derivative matrix
-        std::array<Real64, maxPolyCoef> B;     // Least squares derivative vector
-        std::array<std::array<Real64, 16>, maxPolyCoef> D; // Powers of independent variable
+        std::array<std::array<Real64, maxPolyCoef>, maxPolyCoef> A; // Least squares derivative matrix
+        std::array<Real64, maxPolyCoef> B;                          // Least squares derivative vector
+        std::array<std::array<Real64, 16>, maxPolyCoef> D;          // Powers of independent variable
 
         // Set up least squares matrix
         for (int M = 0; M < numPhis; ++M) {
@@ -5359,7 +5359,7 @@ namespace Window {
         }
 
         // Perform back substitution
-        coeffs[maxPolyCoef-1] = B[maxPolyCoef-1] / A[maxPolyCoef-1][maxPolyCoef-1];
+        coeffs[maxPolyCoef - 1] = B[maxPolyCoef - 1] / A[maxPolyCoef - 1][maxPolyCoef - 1];
         int LP1 = maxPolyCoef - 1;
         int L = maxPolyCoef - 2;
 
@@ -5373,7 +5373,7 @@ namespace Window {
             --L;
         }
     } // W5LsqFit()
-        
+
     //********************************************************************************
 
     void W5LsqFit2(Array1A<Real64> const IndepVar, // Independent variables
@@ -5469,7 +5469,7 @@ namespace Window {
     } // W5LsqFit2()
 
     //***********************************************************************
-        
+
     Real64 DiffuseAverage(std::array<Real64, numPhis> const &props) // Property value at angles of incidence
     {
 
@@ -5502,7 +5502,7 @@ namespace Window {
 
         return (avg < 0.0) ? 0.0 : avg;
     } // DiffuseAverage()
-        
+
     //*************************************************************************************
 
     void CalcWinFrameAndDividerTemps(EnergyPlusData &state,
@@ -5717,7 +5717,7 @@ namespace Window {
             if (ANY_INTERIOR_SHADE_BLIND(s_surf->SurfWinShadingFlag(SurfNum))) s_surf->SurfWinDividerHeatGain(SurfNum) = DividerHeatGain;
             // DivTempOut = s_surf->SurfWinDividerTempSurfOut(SurfNum) + Constant::Kelvin;
         } // End of check if window has dividers
-    }     // CalcWinFrameAndDividerTemps()
+    } // CalcWinFrameAndDividerTemps()
 
     //************************************************************************************
 
@@ -6087,8 +6087,8 @@ namespace Window {
                     TVisNorm = TBlBmBm * (TBmBmVis + TDifVis * RGlFrontVis * RhoBlBackVis / (1 - RGlDiffFrontVis * RhoBlDiffBackVis)) +
                                TBlBmDifVis * TDifVis / (1.0 - RGlDiffFrontVis * RhoBlDiffBackVis);
                 } // (ExtBlind)
-            }     // (Screen or Blind)
-        }         // (Shade, Blind, or Screen)
+            } // (Screen or Blind)
+        } // (Shade, Blind, or Screen)
 
         // Fill the layer properties needed for the thermal calculation.
 
@@ -7004,8 +7004,8 @@ namespace Window {
                             break;
                         }
                     } // for (i)
-                }     // if (construct.TypeIsWindow)
-            }         // for (ThisNum)
+                } // if (construct.TypeIsWindow)
+            } // for (ThisNum)
 
         } else if (wm->HasWindows) {
 
@@ -7173,7 +7173,7 @@ namespace Window {
                             btar.Vis.Bk.Bm[IProfAng].DfRef = st_lay(8);
                         }
                     } // End of loop over slat angles
-                }     // End of loop over profile angles
+                } // End of loop over profile angles
 
                 if (ISolVis == 1) {
 
@@ -7225,7 +7225,7 @@ namespace Window {
             } // End of loop over solar vs. visible properties
 
         } // End of loop over blinds
-    }     // CalcWindowBlindProperties()
+    } // CalcWindowBlindProperties()
 
     //*************************************************************************************
 
@@ -7468,7 +7468,7 @@ namespace Window {
                 print(screenCsvFile, "\n\n");
             }
         } // if (PrintTransMap)
-    }     // CalcWindowScreenProperties()
+    } // CalcWindowScreenProperties()
 
     void BlindOpticsDiffuse(EnergyPlusData &state,
                             int const BlindNum,      // Blind number
@@ -7503,7 +7503,7 @@ namespace Window {
         c.dim(15);
         p.dim(16);
 
-        Array1D<Real64> fEdgeA(2);       // Average slat edge correction factor for upper and lower quadrants
+        Array1D<Real64> fEdgeA(2); // Average slat edge correction factor for upper and lower quadrants
         //  seen by window blind
         Array1D<Real64> j(6);       // Slat section radiosity vector
         Array1D<Real64> G(6);       // Slat section irradiance vector
@@ -7605,10 +7605,12 @@ namespace Window {
 
         //     Slat edge correction factor
         std::array<Real64, numPhis> fEdgeSource; // Slat edge correction factor vs source elevation
-        
-        Real64 const phib = b_el;                           // Elevation of slat normal vector (radians)
-        Real64 constexpr delphis = Constant::PiOvr2 / 10.0; // Angle increment for integration over source distribution (radians) // This is a bug, the delta is 10.0, PiOvr2/10.0 is 9.0.
-        
+
+        Real64 const phib = b_el; // Elevation of slat normal vector (radians)
+        Real64 constexpr delphis =
+            Constant::PiOvr2 /
+            10.0; // Angle increment for integration over source distribution (radians) // This is a bug, the delta is 10.0, PiOvr2/10.0 is 9.0.
+
         for (int IUpDown = 1; IUpDown <= 2; ++IUpDown) {
             for (int iPhi = 0; iPhi < numPhis; ++iPhi) {
                 Real64 phis = -((double)iPhi + 0.5) * delphis; // Source elevation (radians)
@@ -7773,7 +7775,7 @@ namespace Window {
             p(15) = max(0.0001, 1.0 - p(13) - BlindIRreflBack);
 
         } // End of IR properties calculation
-    }     // BlindOpticsDiffuse()
+    } // BlindOpticsDiffuse()
 
     //**********************************************************************************************
 
@@ -8008,7 +8010,7 @@ namespace Window {
             p(6 + i) = G(1) * (1.0 - fEdge) + fEdge * c(8);
 
         } // End of loop over front and back side properties of blind
-    }     // BlindOpticsBeam()
+    } // BlindOpticsBeam()
 
     //********************************************************************************************
 

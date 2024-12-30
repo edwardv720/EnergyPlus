@@ -1976,7 +1976,7 @@ namespace HeatBalanceManager {
                                 ErrorsFound = true;
                             }
                         } // Loop
-                    }     // ZoneNum
+                    } // ZoneNum
                 }
 
             } // ListNum
@@ -3622,30 +3622,31 @@ namespace HeatBalanceManager {
         int FrDivNum;                 // FrameDivider number
         Array1D<Real64> WinHeight(2); // Height, width for glazing system (m)
         Array1D<Real64> WinWidth(2);
-        Array1D<Real64> UValCenter(2);      // Center of glass U-value (W/m2-K) for glazing system
-        Array1D<Real64> SCCenter(2);        // Center of glass shading coefficient for glazing system
-        Array1D<Real64> SHGCCenter(2);      // Center of glass solar heat gain coefficient for glazing system
-        Array1D<Real64> TVisCenter(2);      // Center of glass visible transmittance for glazing system
-        Array1D<Real64> TsolTemp(Window::numPhis+1);           // Solar transmittance vs incidence angle; diffuse trans.
+        Array1D<Real64> UValCenter(2);                 // Center of glass U-value (W/m2-K) for glazing system
+        Array1D<Real64> SCCenter(2);                   // Center of glass shading coefficient for glazing system
+        Array1D<Real64> SHGCCenter(2);                 // Center of glass solar heat gain coefficient for glazing system
+        Array1D<Real64> TVisCenter(2);                 // Center of glass visible transmittance for glazing system
+        Array1D<Real64> TsolTemp(Window::numPhis + 1); // Solar transmittance vs incidence angle; diffuse trans.
         std::array<Real64, Window::numPhis> Tsol;
-        Array2D<Real64> AbsSolTemp(Window::maxGlassLayers, Window::numPhis+1);      // Solar absorptance vs inc. angle in each glass layer
-        Array1D<std::array<Real64, Window::numPhis>> AbsSol(Window::maxGlassLayers);      // Solar absorptance vs inc. angle in each glass layer
-        Array1D<Real64> RfsolTemp(Window::numPhis+1);          // Front solar reflectance vs inc. angle
+        Array2D<Real64> AbsSolTemp(Window::maxGlassLayers, Window::numPhis + 1);     // Solar absorptance vs inc. angle in each glass layer
+        Array1D<std::array<Real64, Window::numPhis>> AbsSol(Window::maxGlassLayers); // Solar absorptance vs inc. angle in each glass layer
+        Array1D<Real64> RfsolTemp(Window::numPhis + 1);                              // Front solar reflectance vs inc. angle
         std::array<Real64, Window::numPhis> Rfsol;
-        Array1D<Real64> RbsolTemp(Window::numPhis+1);          // Back solar reflectance vs inc. angle
+        Array1D<Real64> RbsolTemp(Window::numPhis + 1); // Back solar reflectance vs inc. angle
         std::array<Real64, Window::numPhis> Rbsol;
-        Array1D<Real64> TvisTemp(Window::numPhis+1);           // Visible transmittance vs inc. angle
+        Array1D<Real64> TvisTemp(Window::numPhis + 1); // Visible transmittance vs inc. angle
         std::array<Real64, Window::numPhis> Tvis;
-        Array1D<Real64> RfvisTemp(Window::numPhis+1);          // Front visible reflectance vs inc. angle
+        Array1D<Real64> RfvisTemp(Window::numPhis + 1); // Front visible reflectance vs inc. angle
         std::array<Real64, Window::numPhis> Rfvis;
-        Array1D<Real64> RbvisTemp(Window::numPhis+1);          // Back visible reflectance vs inc. angle
+        Array1D<Real64> RbvisTemp(Window::numPhis + 1); // Back visible reflectance vs inc. angle
         std::array<Real64, Window::numPhis> Rbvis;
-        
-        std::array<Real64, Window::numPhis> tsolFit;        // Fitted solar transmittance vs incidence angle
-        std::array<Real64, Window::numPhis> tvisFit;        // Fitted visible transmittance vs incidence angle
-        std::array<Real64, Window::numPhis> rfsolFit;       // Fitted solar front reflectance vs incidence angle
-        Array1D<std::array<Real64, Window::numPhis>> solabsFit(Window::maxGlassLayers);   // Fitted solar absorptance vs incidence angle for each glass layer
-        Array1D_string DividerType(2);      // Divider type: DividedLite or Suspended
+
+        std::array<Real64, Window::numPhis> tsolFit;  // Fitted solar transmittance vs incidence angle
+        std::array<Real64, Window::numPhis> tvisFit;  // Fitted visible transmittance vs incidence angle
+        std::array<Real64, Window::numPhis> rfsolFit; // Fitted solar front reflectance vs incidence angle
+        Array1D<std::array<Real64, Window::numPhis>> solabsFit(
+            Window::maxGlassLayers);   // Fitted solar absorptance vs incidence angle for each glass layer
+        Array1D_string DividerType(2); // Divider type: DividedLite or Suspended
         Real64 FrameWidth;
         Real64 MullionWidth;
         Real64 FrameProjectionOut;
@@ -4239,7 +4240,7 @@ namespace HeatBalanceManager {
                     ShowContinueError(state, format("Line (~{}) in error (first 100 characters)={}", FileLineCount, NextLine.data.substr(0, 100)));
                     ErrorsFound = true;
                 }
-                
+
                 for (IGlass = 1; IGlass <= NGlass(IGlSys); ++IGlass) {
                     NextLine = W5DataFile.readLine();
                     ++FileLineCount;
@@ -4320,20 +4321,20 @@ namespace HeatBalanceManager {
                                DesiredConstructionName));
 
                 for (int iPhi = 0; iPhi < Window::numPhis; ++iPhi) {
-                    Tsol[iPhi] = TsolTemp(iPhi+1);
-                    Tvis[iPhi] = TvisTemp(iPhi+1);
-                    Rfsol[iPhi] = RfsolTemp(iPhi+1);
-                    Rbsol[iPhi] = RbsolTemp(iPhi+1);
-                    Rfvis[iPhi] = RfvisTemp(iPhi+1);
-                    Rbvis[iPhi] = RbvisTemp(iPhi+1);
+                    Tsol[iPhi] = TsolTemp(iPhi + 1);
+                    Tvis[iPhi] = TvisTemp(iPhi + 1);
+                    Rfsol[iPhi] = RfsolTemp(iPhi + 1);
+                    Rbsol[iPhi] = RbsolTemp(iPhi + 1);
+                    Rfvis[iPhi] = RfvisTemp(iPhi + 1);
+                    Rbvis[iPhi] = RbvisTemp(iPhi + 1);
                 }
 
                 for (IGlass = 1; IGlass <= NGlass(IGlSys); ++IGlass) {
                     for (int iPhi = 0; iPhi < Window::numPhis; ++iPhi) {
-                         AbsSol(IGlass)[iPhi] = AbsSolTemp(IGlass, iPhi+1);
+                        AbsSol(IGlass)[iPhi] = AbsSolTemp(IGlass, iPhi + 1);
                     }
                 }
-                        
+
                 // Hemis
                 thisConstruct.TransDiff = TsolTemp(11);
                 thisConstruct.TransDiffVis = TvisTemp(11);
@@ -4342,7 +4343,7 @@ namespace HeatBalanceManager {
                 thisConstruct.ReflectVisDiffFront = RfvisTemp(11);
                 thisConstruct.ReflectVisDiffBack = RbvisTemp(11);
 
-		// Using pre-calculated/hard-coded cosPhis in this module is okay.  Shrug.
+                // Using pre-calculated/hard-coded cosPhis in this module is okay.  Shrug.
                 Window::W5LsqFit(Window::cosPhis, Tsol, thisConstruct.TransSolBeamCoef);
                 Window::W5LsqFit(Window::cosPhis, Tvis, thisConstruct.TransVisBeamCoef);
                 Window::W5LsqFit(Window::cosPhis, Rfsol, thisConstruct.ReflSolBeamFrontCoef);
@@ -4356,7 +4357,7 @@ namespace HeatBalanceManager {
                     tvisFit[iPhi] = Window::POLYF(Window::cosPhis[iPhi], thisConstruct.TransVisBeamCoef);
                     rfsolFit[iPhi] = Window::POLYF(Window::cosPhis[iPhi], thisConstruct.ReflSolBeamFrontCoef);
                     for (IGlass = 1; IGlass <= NGlass(IGlSys); ++IGlass) {
-                            solabsFit(IGlass)[iPhi] = Window::POLYF(Window::cosPhis[iPhi], thisConstruct.AbsBeamCoef(IGlass));
+                        solabsFit(IGlass)[iPhi] = Window::POLYF(Window::cosPhis[iPhi], thisConstruct.AbsBeamCoef(IGlass));
                     }
                 }
                 // end

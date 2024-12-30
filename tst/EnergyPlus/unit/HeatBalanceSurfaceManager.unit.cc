@@ -4910,7 +4910,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_IncSolarMultiplier)
     int ConstrNum = 1;
     state->dataSurface->Surface(SurfNum).Construction = ConstrNum;
     auto &constr = state->dataConstruction->Construct(ConstrNum);
-    
+
     state->dataSurface->SurfActiveConstruction(SurfNum) = state->dataSurface->Surface(SurfNum).Construction;
     state->dataConstruction->Construct(ConstrNum).TransDiff = 0.1;
     // Why is this being written and immediately overwritten?
