@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University
+# EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University
 # of Illinois, The Regents of the University of California, through Lawrence
 # Berkeley National Laboratory (subject to receipt of any required approvals
 # from the U.S. Dept. of Energy), Oak Ridge National Laboratory, managed by UT-
@@ -121,7 +121,7 @@ parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',
 args = parser.parse_args()
 
 TOOL_NAME = 'license-update'
-dryrun = False
+dryrun = True
 
 #
 # Directories to check
