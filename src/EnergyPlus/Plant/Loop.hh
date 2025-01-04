@@ -90,7 +90,7 @@ namespace DataPlant {
         std::string Name;                      // Name of the component list
         std::string FluidName;                 // Name of the fluid specified for this loop
         DataLoopNode::NodeFluidType FluidType; // Type of fluid in the loop
-        int FluidIndex;                        // Index for Fluid in FluidProperties
+        int FluidIndex = 0;
 
         FluidProperties::GlycolProps *glycol = nullptr;
         FluidProperties::RefrigProps *steam = nullptr;
@@ -154,7 +154,7 @@ namespace DataPlant {
 
         // Default Constructor
         PlantLoopData()
-          : FluidType(DataLoopNode::NodeFluidType::Blank), FluidIndex(1), // default to water
+          : FluidType(DataLoopNode::NodeFluidType::Blank), 
               MFErrIndex(0), MFErrIndex1(0), MFErrIndex2(0), TempSetPointNodeNum(0), MaxBranch(0), MinTemp(0.0), MaxTemp(0.0), MinTempErrIndex(0),
               MaxTempErrIndex(0), MinVolFlowRate(0.0), MaxVolFlowRate(0.0), MaxVolFlowRateWasAutoSized(false), MinMassFlowRate(0.0),
               MaxMassFlowRate(0.0), Volume(0.0), VolumeWasAutoSized(false), CirculationTime(2.0), Mass(0.0), EMSCtrl(false), EMSValue(0.0),

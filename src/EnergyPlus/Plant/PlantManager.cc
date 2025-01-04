@@ -387,6 +387,7 @@ void GetPlantLoopData(EnergyPlusData &state)
         if (Util::SameString(Alpha(2), "STEAM")) {
             this_loop.FluidType = DataLoopNode::NodeFluidType::Steam;
             this_loop.FluidName = Alpha(2);
+            this_loop.FluidIndex = 0;
             this_loop.steam = FluidProperties::GetSteam(state);
         } else if (Util::SameString(Alpha(2), "WATER")) {
             this_loop.FluidType = DataLoopNode::NodeFluidType::Water;
@@ -395,7 +396,8 @@ void GetPlantLoopData(EnergyPlusData &state)
             this_loop.glycol = FluidProperties::GetWater(state);
         } else if (Util::SameString(Alpha(2), "USERDEFINEDFLUIDTYPE")) {
             this_loop.FluidType = DataLoopNode::NodeFluidType::Water;
-            // this_loop.FluidName = Alpha(3);
+            this_loop.FluidName = Alpha(3);
+            this_loop.FluidIndex = 0;
             // check for valid fluid name
             this_loop.glycol = FluidProperties::GetGlycol(state, Alpha(3));
             if (this_loop.glycol == nullptr) {
