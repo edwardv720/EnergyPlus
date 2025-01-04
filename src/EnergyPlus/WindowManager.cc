@@ -1362,7 +1362,7 @@ namespace Window {
                         cbtar.Vis.Bk.Df.Ref =
                             rb3v + td3v * (rbshv + rbshv * rf3v * rbshv + tshv * rb2v * tshv + tshv * td2v * rb1v * td2v * tshv) * td3v;
                     } // if (NGlass == 3)
-                } // for (iSlatAng)
+                }     // for (iSlatAng)
 
                 // Exterior screen
             } else if (ExtScreen) {
@@ -1494,7 +1494,7 @@ namespace Window {
                 surfShade.effGlassEmi = surfShade.glass.epsIR * TauShIR / (1.0 - surfShade.glass.rhoIR * RhoShIR);
 
             } // End of check if interior shade or interior blind
-        } // End of surface loop
+        }     // End of surface loop
 
         for (int SurfNum = 1; SurfNum <= s_surf->TotSurfaces; ++SurfNum) {
             auto const &surf = s_surf->Surface(SurfNum);
@@ -1784,7 +1784,7 @@ namespace Window {
             }
 
         } // End of wavelength loop
-    } // SystemSpectralPropertiesAtPhi()
+    }     // SystemSpectralPropertiesAtPhi()
 
     //************************************************************************
 
@@ -4508,7 +4508,7 @@ namespace Window {
             dens = rhomix;
 
         } // End of check if single or multiple gases in gap
-    } // WindowGasPropertiesAtTemp()
+    }     // WindowGasPropertiesAtTemp()
 
     //********************************************************************************
 
@@ -5717,7 +5717,7 @@ namespace Window {
             if (ANY_INTERIOR_SHADE_BLIND(s_surf->SurfWinShadingFlag(SurfNum))) s_surf->SurfWinDividerHeatGain(SurfNum) = DividerHeatGain;
             // DivTempOut = s_surf->SurfWinDividerTempSurfOut(SurfNum) + Constant::Kelvin;
         } // End of check if window has dividers
-    } // CalcWinFrameAndDividerTemps()
+    }     // CalcWinFrameAndDividerTemps()
 
     //************************************************************************************
 
@@ -6087,8 +6087,8 @@ namespace Window {
                     TVisNorm = TBlBmBm * (TBmBmVis + TDifVis * RGlFrontVis * RhoBlBackVis / (1 - RGlDiffFrontVis * RhoBlDiffBackVis)) +
                                TBlBmDifVis * TDifVis / (1.0 - RGlDiffFrontVis * RhoBlDiffBackVis);
                 } // (ExtBlind)
-            } // (Screen or Blind)
-        } // (Shade, Blind, or Screen)
+            }     // (Screen or Blind)
+        }         // (Shade, Blind, or Screen)
 
         // Fill the layer properties needed for the thermal calculation.
 
@@ -7004,8 +7004,8 @@ namespace Window {
                             break;
                         }
                     } // for (i)
-                } // if (construct.TypeIsWindow)
-            } // for (ThisNum)
+                }     // if (construct.TypeIsWindow)
+            }         // for (ThisNum)
 
         } else if (wm->HasWindows) {
 
@@ -7173,7 +7173,7 @@ namespace Window {
                             btar.Vis.Bk.Bm[IProfAng].DfRef = st_lay(8);
                         }
                     } // End of loop over slat angles
-                } // End of loop over profile angles
+                }     // End of loop over profile angles
 
                 if (ISolVis == 1) {
 
@@ -7225,7 +7225,7 @@ namespace Window {
             } // End of loop over solar vs. visible properties
 
         } // End of loop over blinds
-    } // CalcWindowBlindProperties()
+    }     // CalcWindowBlindProperties()
 
     //*************************************************************************************
 
@@ -7468,7 +7468,7 @@ namespace Window {
                 print(screenCsvFile, "\n\n");
             }
         } // if (PrintTransMap)
-    } // CalcWindowScreenProperties()
+    }     // CalcWindowScreenProperties()
 
     void BlindOpticsDiffuse(EnergyPlusData &state,
                             int const BlindNum,      // Blind number
@@ -7775,7 +7775,7 @@ namespace Window {
             p(15) = max(0.0001, 1.0 - p(13) - BlindIRreflBack);
 
         } // End of IR properties calculation
-    } // BlindOpticsDiffuse()
+    }     // BlindOpticsDiffuse()
 
     //**********************************************************************************************
 
@@ -8010,7 +8010,7 @@ namespace Window {
             p(6 + i) = G(1) * (1.0 - fEdge) + fEdge * c(8);
 
         } // End of loop over front and back side properties of blind
-    } // BlindOpticsBeam()
+    }     // BlindOpticsBeam()
 
     //********************************************************************************************
 

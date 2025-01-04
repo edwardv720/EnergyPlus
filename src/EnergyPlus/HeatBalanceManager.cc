@@ -1976,7 +1976,7 @@ namespace HeatBalanceManager {
                                 ErrorsFound = true;
                             }
                         } // Loop
-                    } // ZoneNum
+                    }     // ZoneNum
                 }
 
             } // ListNum
