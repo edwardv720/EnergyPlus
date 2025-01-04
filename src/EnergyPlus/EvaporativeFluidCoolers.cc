@@ -1277,11 +1277,9 @@ namespace EvaporativeFluidCoolers {
         // Begin environment initializations
         if (this->MyEnvrnFlag && state.dataGlobal->BeginEnvrnFlag && (state.dataPlnt->PlantFirstSizesOkayToFinalize)) {
 
-            Real64 rho = FluidProperties::GetDensityGlycol(state,
-                                                           state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidName,
-                                                           Constant::InitConvTemp,
-                                                           state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidIndex,
-                                                           RoutineName);
+            Real64 rho = state.dataPlnt->PlantLoop(this->plantLoc.loopNum).glycol->getDensity(state,
+                                                                                              Constant::InitConvTemp,
+                                                                                              RoutineName);
             this->DesWaterMassFlowRate = this->DesignWaterFlowRate * rho;
             PlantUtilities::InitComponentNodes(state, 0.0, this->DesWaterMassFlowRate, this->WaterInletNodeNum, this->WaterOutletNodeNum);
             this->MyEnvrnFlag = false;
@@ -1406,16 +1404,12 @@ namespace EvaporativeFluidCoolers {
 
         if (this->PerformanceInputMethod_Num == PIM::UFactor && !this->HighSpeedEvapFluidCoolerUAWasAutoSized) {
             if (PltSizCondNum > 0) {
-                Real64 rho = FluidProperties::GetDensityGlycol(state,
-                                                               state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidName,
-                                                               Constant::InitConvTemp,
-                                                               state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidIndex,
-                                                               CalledFrom);
-                Real64 Cp = FluidProperties::GetSpecificHeatGlycol(state,
-                                                                   state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidName,
-                                                                   state.dataSize->PlantSizData(PltSizCondNum).ExitTemp,
-                                                                   state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidIndex,
-                                                                   CalledFrom);
+                Real64 rho = state.dataPlnt->PlantLoop(this->plantLoc.loopNum).glycol->getDensity(state, 
+                                                                                                Constant::InitConvTemp,
+                                                                                                CalledFrom);
+                Real64 Cp = state.dataPlnt->PlantLoop(this->plantLoc.loopNum).glycol->getSpecificHeat(state, 
+                                                                                                      state.dataSize->PlantSizData(PltSizCondNum).ExitTemp,
+                                                                                                      CalledFrom);
                 DesEvapFluidCoolerLoad = rho * Cp * tmpDesignWaterFlowRate * state.dataSize->PlantSizData(PltSizCondNum).DeltaT;
                 this->HighSpeedStandardDesignCapacity = DesEvapFluidCoolerLoad / this->HeatRejectCapNomCapSizingRatio;
             } else {
@@ -1481,16 +1475,12 @@ namespace EvaporativeFluidCoolers {
                     if (state.dataPlnt->PlantFirstSizesOkayToFinalize) this->HighSpeedFanPower = tmpHighSpeedFanPower;
                 } else if (PltSizCondNum > 0) {
                     if (state.dataSize->PlantSizData(PltSizCondNum).DesVolFlowRate >= HVAC::SmallWaterVolFlow) {
-                        Real64 rho = FluidProperties::GetDensityGlycol(state,
-                                                                       state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidName,
-                                                                       Constant::InitConvTemp,
-                                                                       state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidIndex,
-                                                                       CalledFrom);
-                        Real64 Cp = FluidProperties::GetSpecificHeatGlycol(state,
-                                                                           state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidName,
-                                                                           state.dataSize->PlantSizData(PltSizCondNum).ExitTemp,
-                                                                           state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidIndex,
-                                                                           CalledFrom);
+                        Real64 rho = state.dataPlnt->PlantLoop(this->plantLoc.loopNum).glycol->getDensity(state, 
+                                                                                                          Constant::InitConvTemp,
+                                                                                                          CalledFrom);
+                        Real64 Cp = state.dataPlnt->PlantLoop(this->plantLoc.loopNum).glycol->getSpecificHeat(state, 
+                                                                                                              state.dataSize->PlantSizData(PltSizCondNum).ExitTemp,
+                                                                                                              CalledFrom);
                         DesEvapFluidCoolerLoad = rho * Cp * tmpDesignWaterFlowRate * state.dataSize->PlantSizData(PltSizCondNum).DeltaT;
                         tmpHighSpeedFanPower = 0.0105 * DesEvapFluidCoolerLoad;
                         if (state.dataPlnt->PlantFirstSizesOkayToFinalize) this->HighSpeedFanPower = tmpHighSpeedFanPower;
@@ -1586,16 +1576,12 @@ namespace EvaporativeFluidCoolers {
                                           "must be > 25.6 C if autosizing the Evaporative Fluid Cooler.");
                         ShowFatalError(state, "Review and revise design input values as appropriate.");
                     }
-                    Real64 rho = FluidProperties::GetDensityGlycol(state,
-                                                                   state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidName,
-                                                                   Constant::InitConvTemp,
-                                                                   state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidIndex,
-                                                                   CalledFrom);
-                    Real64 Cp = FluidProperties::GetSpecificHeatGlycol(state,
-                                                                       state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidName,
-                                                                       state.dataSize->PlantSizData(PltSizCondNum).ExitTemp,
-                                                                       state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidIndex,
-                                                                       CalledFrom);
+                    Real64 rho = state.dataPlnt->PlantLoop(this->plantLoc.loopNum).glycol->getDensity(state, 
+                                                                                                      Constant::InitConvTemp,
+                                                                                                      CalledFrom);
+                    Real64 Cp = state.dataPlnt->PlantLoop(this->plantLoc.loopNum).glycol->getSpecificHeat(state, 
+                                                                                                          state.dataSize->PlantSizData(PltSizCondNum).ExitTemp,
+                                                                                                          CalledFrom);
                     DesEvapFluidCoolerLoad = rho * Cp * tmpDesignWaterFlowRate * state.dataSize->PlantSizData(PltSizCondNum).DeltaT;
                     Real64 const par1 = rho * tmpDesignWaterFlowRate; // Design water mass flow rate
                     Real64 const par2 = tmpHighSpeedAirFlowRate;      // Design air volume flow rate
@@ -1714,16 +1700,12 @@ namespace EvaporativeFluidCoolers {
             if (this->DesignWaterFlowRate >= HVAC::SmallWaterVolFlow) {
                 // Standard Design Capacity doesn't include compressor heat;
                 // predefined factor was 1.25 W heat rejection per W of delivered cooling, now a user input with 1.25 default
-                Real64 rho = FluidProperties::GetDensityGlycol(state,
-                                                               state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidName,
-                                                               Constant::InitConvTemp,
-                                                               state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidIndex,
-                                                               CalledFrom);
-                Real64 Cp = FluidProperties::GetSpecificHeatGlycol(state,
-                                                                   state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidName,
-                                                                   35.0,
-                                                                   state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidIndex,
-                                                                   CalledFrom);
+                Real64 rho = state.dataPlnt->PlantLoop(this->plantLoc.loopNum).glycol->getDensity(state, 
+                                                                                                  Constant::InitConvTemp,
+                                                                                                  CalledFrom);
+                Real64 Cp = state.dataPlnt->PlantLoop(this->plantLoc.loopNum).glycol->getSpecificHeat(state, 
+                                                                                                      35.0,
+                                                                                                      CalledFrom);
                 DesEvapFluidCoolerLoad = this->HighSpeedStandardDesignCapacity * this->HeatRejectCapNomCapSizingRatio;
                 Real64 const par1 = rho * this->DesignWaterFlowRate; // Design water mass flow rate
                 Real64 const par2 = this->HighSpeedAirFlowRate;      // Design air volume flow rate

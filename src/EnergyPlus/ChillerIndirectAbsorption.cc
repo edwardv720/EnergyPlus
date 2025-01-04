@@ -894,21 +894,17 @@ void IndirectAbsorberSpecs::initialize(EnergyPlusData &state, bool RunFlag, Real
     // Initialize Supply Side Variables
     if (this->MyEnvrnFlag && state.dataGlobal->BeginEnvrnFlag && (state.dataPlnt->PlantFirstSizesOkayToFinalize)) {
 
-        Real64 rho = FluidProperties::GetDensityGlycol(state,
-                                                       state.dataPlnt->PlantLoop(this->CWPlantLoc.loopNum).FluidName,
-                                                       Constant::CWInitConvTemp,
-                                                       state.dataPlnt->PlantLoop(this->CWPlantLoc.loopNum).FluidIndex,
-                                                       RoutineName);
-
+        Real64 rho = state.dataPlnt->PlantLoop(this->CWPlantLoc.loopNum).glycol->getDensity(state, 
+                                                                                            Constant::CWInitConvTemp,
+                                                                                            RoutineName);
+        
         this->EvapMassFlowRateMax = this->EvapVolFlowRate * rho;
 
         PlantUtilities::InitComponentNodes(state, 0.0, this->EvapMassFlowRateMax, this->EvapInletNodeNum, this->EvapOutletNodeNum);
 
-        rho = FluidProperties::GetDensityGlycol(state,
-                                                state.dataPlnt->PlantLoop(this->CDPlantLoc.loopNum).FluidName,
-                                                Constant::CWInitConvTemp,
-                                                state.dataPlnt->PlantLoop(this->CDPlantLoc.loopNum).FluidIndex,
-                                                RoutineName);
+        rho = state.dataPlnt->PlantLoop(this->CDPlantLoc.loopNum).glycol->getDensity(state, 
+                                                                                     Constant::CWInitConvTemp,
+                                                                                     RoutineName);
 
         this->CondMassFlowRateMax = rho * this->CondVolFlowRate;
 
@@ -920,11 +916,9 @@ void IndirectAbsorberSpecs::initialize(EnergyPlusData &state, bool RunFlag, Real
 
             if (this->GenHeatSourceType == DataLoopNode::NodeFluidType::Water) {
 
-                rho = FluidProperties::GetDensityGlycol(state,
-                                                        state.dataPlnt->PlantLoop(this->GenPlantLoc.loopNum).FluidName,
-                                                        Constant::HWInitConvTemp,
-                                                        state.dataPlnt->PlantLoop(this->GenPlantLoc.loopNum).FluidIndex,
-                                                        RoutineName);
+                rho = state.dataPlnt->PlantLoop(this->GenPlantLoc.loopNum).glycol->getDensity(state, 
+                                                                                            Constant::HWInitConvTemp,
+                                                                                            RoutineName);
                 this->GenMassFlowRateMax = rho * this->GeneratorVolFlowRate;
 
             } else {
@@ -1051,17 +1045,13 @@ void IndirectAbsorberSpecs::sizeChiller(EnergyPlusData &state)
     if (PltSizNum > 0) {
         if (state.dataSize->PlantSizData(PltSizNum).DesVolFlowRate >= HVAC::SmallWaterVolFlow) {
 
-            Real64 Cp = FluidProperties::GetSpecificHeatGlycol(state,
-                                                               state.dataPlnt->PlantLoop(this->CWPlantLoc.loopNum).FluidName,
-                                                               Constant::CWInitConvTemp,
-                                                               state.dataPlnt->PlantLoop(this->CWPlantLoc.loopNum).FluidIndex,
-                                                               RoutineName);
+            Real64 Cp = state.dataPlnt->PlantLoop(this->CWPlantLoc.loopNum).glycol->getSpecificHeat(state, 
+                                                                                                    Constant::CWInitConvTemp,
+                                                                                                    RoutineName);
 
-            Real64 rho = FluidProperties::GetDensityGlycol(state,
-                                                           state.dataPlnt->PlantLoop(this->CWPlantLoc.loopNum).FluidName,
-                                                           Constant::CWInitConvTemp,
-                                                           state.dataPlnt->PlantLoop(this->CWPlantLoc.loopNum).FluidIndex,
-                                                           RoutineName);
+            Real64 rho = state.dataPlnt->PlantLoop(this->CWPlantLoc.loopNum).glycol->getDensity(state, 
+                                                                                                Constant::CWInitConvTemp,
+                                                                                                RoutineName);
             tmpNomCap =
                 Cp * rho * state.dataSize->PlantSizData(PltSizNum).DeltaT * state.dataSize->PlantSizData(PltSizNum).DesVolFlowRate * this->SizFac;
             if (!this->NomCapWasAutoSized) tmpNomCap = this->NomCap;
@@ -1239,17 +1229,13 @@ void IndirectAbsorberSpecs::sizeChiller(EnergyPlusData &state)
         if (this->EvapVolFlowRate >= HVAC::SmallWaterVolFlow && tmpNomCap > 0.0) {
             //       QCondenser = QEvaporator + QGenerator + PumpingPower
 
-            Real64 Cp = FluidProperties::GetSpecificHeatGlycol(state,
-                                                               state.dataPlnt->PlantLoop(this->CDPlantLoc.loopNum).FluidName,
-                                                               Constant::CWInitConvTemp,
-                                                               state.dataPlnt->PlantLoop(this->CDPlantLoc.loopNum).FluidIndex,
-                                                               RoutineName);
+            Real64 Cp = state.dataPlnt->PlantLoop(this->CDPlantLoc.loopNum).glycol->getSpecificHeat(state, 
+                                                                                                    Constant::CWInitConvTemp,
+                                                                                                    RoutineName);
 
-            Real64 rho = FluidProperties::GetDensityGlycol(state,
-                                                           state.dataPlnt->PlantLoop(this->CDPlantLoc.loopNum).FluidName,
-                                                           Constant::CWInitConvTemp,
-                                                           state.dataPlnt->PlantLoop(this->CDPlantLoc.loopNum).FluidIndex,
-                                                           RoutineName);
+            Real64 rho = state.dataPlnt->PlantLoop(this->CDPlantLoc.loopNum).glycol->getDensity(state, 
+                                                                                                Constant::CWInitConvTemp,
+                                                                                                RoutineName);
             tmpCondVolFlowRate =
                 tmpNomCap * (1.0 + SteamInputRatNom + tmpNomPumpPower / tmpNomCap) / (state.dataSize->PlantSizData(PltSizCondNum).DeltaT * Cp * rho);
             if (!this->CondVolFlowRateWasAutoSized) tmpCondVolFlowRate = this->CondVolFlowRate;
@@ -1330,18 +1316,14 @@ void IndirectAbsorberSpecs::sizeChiller(EnergyPlusData &state)
         (PltSizHeatingNum > 0 && this->GenHeatSourceType == DataLoopNode::NodeFluidType::Water)) {
         if (this->EvapVolFlowRate >= HVAC::SmallWaterVolFlow && tmpNomCap > 0.0) {
             if (this->GenHeatSourceType == DataLoopNode::NodeFluidType::Water) {
-                Real64 CpWater = FluidProperties::GetSpecificHeatGlycol(state,
-                                                                        state.dataPlnt->PlantLoop(this->GenPlantLoc.loopNum).FluidName,
-                                                                        state.dataSize->PlantSizData(PltSizHeatingNum).ExitTemp,
-                                                                        state.dataPlnt->PlantLoop(this->GenPlantLoc.loopNum).FluidIndex,
-                                                                        RoutineName);
+                Real64 CpWater = state.dataPlnt->PlantLoop(this->GenPlantLoc.loopNum).glycol->getSpecificHeat(state, 
+                                                                                                              state.dataSize->PlantSizData(PltSizHeatingNum).ExitTemp,
+                                                                                                              RoutineName);
                 Real64 SteamDeltaT = max(0.5, state.dataSize->PlantSizData(PltSizHeatingNum).DeltaT);
 
-                Real64 RhoWater = FluidProperties::GetDensityGlycol(state,
-                                                                    state.dataPlnt->PlantLoop(this->GenPlantLoc.loopNum).FluidName,
-                                                                    (state.dataSize->PlantSizData(PltSizHeatingNum).ExitTemp - SteamDeltaT),
-                                                                    state.dataPlnt->PlantLoop(this->GenPlantLoc.loopNum).FluidIndex,
-                                                                    RoutineName);
+                Real64 RhoWater = state.dataPlnt->PlantLoop(this->GenPlantLoc.loopNum).glycol->getDensity(state, 
+                                                                                                          (state.dataSize->PlantSizData(PltSizHeatingNum).ExitTemp - SteamDeltaT),
+                                                                                                          RoutineName);
                 tmpGeneratorVolFlowRate = (tmpNomCap * SteamInputRatNom) / (CpWater * SteamDeltaT * RhoWater);
                 if (!this->GeneratorVolFlowRateWasAutoSized) tmpGeneratorVolFlowRate = this->GeneratorVolFlowRate;
                 if (state.dataPlnt->PlantFirstSizesOkayToFinalize) {
@@ -1507,16 +1489,12 @@ void IndirectAbsorberSpecs::sizeChiller(EnergyPlusData &state)
         if (PltSizHeatingNum > 0 && this->GenHeatSourceType == DataLoopNode::NodeFluidType::Water) {
             this->GeneratorDeltaTemp = max(0.5, state.dataSize->PlantSizData(PltSizHeatingNum).DeltaT);
         } else if (this->GenHeatSourceType == DataLoopNode::NodeFluidType::Water) {
-            Real64 rho = FluidProperties::GetDensityGlycol(state,
-                                                           state.dataPlnt->PlantLoop(this->GenPlantLoc.loopNum).FluidName,
-                                                           Constant::HWInitConvTemp,
-                                                           state.dataPlnt->PlantLoop(this->GenPlantLoc.loopNum).FluidIndex,
-                                                           RoutineName);
-            Real64 CpWater = FluidProperties::GetSpecificHeatGlycol(state,
-                                                                    state.dataPlnt->PlantLoop(this->GenPlantLoc.loopNum).FluidName,
-                                                                    state.dataSize->PlantSizData(PltSizHeatingNum).ExitTemp,
-                                                                    state.dataPlnt->PlantLoop(this->GenPlantLoc.loopNum).FluidIndex,
-                                                                    RoutineName);
+            Real64 rho = state.dataPlnt->PlantLoop(this->GenPlantLoc.loopNum).glycol->getDensity(state, 
+                                                                                                 Constant::HWInitConvTemp,
+                                                                                                 RoutineName);
+            Real64 CpWater = state.dataPlnt->PlantLoop(this->GenPlantLoc.loopNum).glycol->getSpecificHeat(state, 
+                                                                                                          state.dataSize->PlantSizData(PltSizHeatingNum).ExitTemp,
+                                                                                                          RoutineName);
             if (state.dataPlnt->PlantFirstSizesOkayToFinalize) {
                 this->GeneratorDeltaTemp = (SteamInputRatNom * this->NomCap) / (CpWater * rho * this->GeneratorVolFlowRate);
             }
@@ -1705,11 +1683,9 @@ void IndirectAbsorberSpecs::calculate(EnergyPlusData &state, Real64 MyLoad, bool
     // C - Evaporator low temp. limit cut off
     Real64 TempLowLimitEout = this->TempLowLimitEvapOut;
 
-    Real64 CpFluid = FluidProperties::GetSpecificHeatGlycol(state,
-                                                            state.dataPlnt->PlantLoop(this->CWPlantLoc.loopNum).FluidName,
-                                                            EvapInletTemp,
-                                                            state.dataPlnt->PlantLoop(this->CWPlantLoc.loopNum).FluidIndex,
-                                                            RoutineName);
+    Real64 CpFluid = state.dataPlnt->PlantLoop(this->CWPlantLoc.loopNum).glycol->getSpecificHeat(state, 
+                                                                                                 EvapInletTemp,
+                                                                                                 RoutineName);
 
     // If there is a fault of Chiller SWT Sensor
     if (this->FaultyChillerSWTFlag && (!state.dataGlobal->WarmupFlag) && (!state.dataGlobal->DoingSizing) && (!state.dataGlobal->KickOffSimulation)) {
@@ -1975,11 +1951,9 @@ void IndirectAbsorberSpecs::calculate(EnergyPlusData &state, Real64 MyLoad, bool
 
     this->QCondenser = this->QEvaporator + this->QGenerator + this->PumpingPower;
 
-    CpFluid = FluidProperties::GetSpecificHeatGlycol(state,
-                                                     state.dataPlnt->PlantLoop(this->CDPlantLoc.loopNum).FluidName,
-                                                     CondInletTemp,
-                                                     state.dataPlnt->PlantLoop(this->CDPlantLoc.loopNum).FluidIndex,
-                                                     RoutineName);
+    CpFluid = state.dataPlnt->PlantLoop(this->CDPlantLoc.loopNum).glycol->getSpecificHeat(state, 
+                                                                                          CondInletTemp,
+                                                                                          RoutineName);
 
     if (this->CondMassFlowRate > DataBranchAirLoopPlant::MassFlowTolerance) {
         this->CondOutletTemp = this->QCondenser / this->CondMassFlowRate / CpFluid + CondInletTemp;
@@ -1998,11 +1972,9 @@ void IndirectAbsorberSpecs::calculate(EnergyPlusData &state, Real64 MyLoad, bool
         //   Hot water plant is used for the generator
         if (this->GenHeatSourceType == DataLoopNode::NodeFluidType::Water) {
 
-            CpFluid = FluidProperties::GetSpecificHeatGlycol(state,
-                                                             state.dataPlnt->PlantLoop(this->GenPlantLoc.loopNum).FluidName,
-                                                             state.dataLoopNodes->Node(this->GeneratorInletNodeNum).Temp,
-                                                             state.dataPlnt->PlantLoop(this->GenPlantLoc.loopNum).FluidIndex,
-                                                             RoutineName);
+          CpFluid = state.dataPlnt->PlantLoop(this->GenPlantLoc.loopNum).glycol->getSpecificHeat(state, 
+                                                                                                 state.dataLoopNodes->Node(this->GeneratorInletNodeNum).Temp,
+                                                                                                 RoutineName);
             if ((this->FlowMode == DataPlant::FlowMode::Constant) || (this->FlowMode == DataPlant::FlowMode::NotModulated)) {
                 this->GenMassFlowRate = this->GenMassFlowRateMax;
             } else {

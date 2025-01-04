@@ -133,6 +133,7 @@ TEST_F(AutoSizingFixture, WaterHeatingCapacitySizingGauntlet)
     state->dataSize->ZoneEqSizing(1).ATMixerHeatPriDryBulb = 28.0;
     state->dataSize->ZoneEqSizing(1).ATMixerHeatPriHumRat = 0.0045;
     state->dataPlnt->PlantLoop.allocate(1);
+    state->dataPlnt->PlantLoop(1).glycol = FluidProperties::GetWater(*state);
     state->dataSize->DataWaterLoopNum = 1;
     state->dataSize->DataWaterCoilSizHeatDeltaT = 5.0;
 

@@ -291,6 +291,7 @@ void GetPlantLoopData(EnergyPlusData &state)
 
     // SUBROUTINE PARAMETER DEFINITIONS:
     static constexpr std::string_view RoutineName("GetPlant/CondenserLoopData: ");
+    static constexpr std::string_view routineName = "GetPlant/CondenserLoopData";
 
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
     int LoopNum;   // DO loop counter for loops
@@ -334,6 +335,10 @@ void GetPlantLoopData(EnergyPlusData &state)
         auto &this_loop(state.dataPlnt->PlantLoop(LoopNum));
         auto &this_demand_side(this_loop.LoopSide(DataPlant::LoopSideLocation::Demand));
         auto &this_supply_side(this_loop.LoopSide(DataPlant::LoopSideLocation::Supply));
+
+        ErrorObjectHeader eoh;
+        eoh.routineName = routineName;
+        
         DataLoopNode::ConnectionObjectType objType;
         if (LoopNum <= state.dataHVACGlobal->NumPlantLoops) {
             PlantLoopNum = LoopNum;
@@ -352,6 +357,9 @@ void GetPlantLoopData(EnergyPlusData &state)
                                                                      state.dataIPShortCut->lAlphaFieldBlanks,
                                                                      state.dataIPShortCut->cAlphaFieldNames,
                                                                      state.dataIPShortCut->cNumericFieldNames);
+
+            eoh.objectType = CurrentModuleObject;
+            eoh.objectName = Alpha(1);
         } else {
             CondLoopNum = LoopNum - state.dataHVACGlobal->NumPlantLoops;
             this_loop.TypeOfLoop = LoopType::Condenser;
@@ -369,31 +377,30 @@ void GetPlantLoopData(EnergyPlusData &state)
                                                                      _,
                                                                      state.dataIPShortCut->cAlphaFieldNames,
                                                                      state.dataIPShortCut->cNumericFieldNames);
+            eoh.objectType = CurrentModuleObject;
+            eoh.objectName = Alpha(1);
         }
+        
         Util::IsNameEmpty(state, Alpha(1), CurrentModuleObject, ErrorsFound);
         this_loop.Name = Alpha(1); // Load the Plant Loop Name
 
         if (Util::SameString(Alpha(2), "STEAM")) {
             this_loop.FluidType = DataLoopNode::NodeFluidType::Steam;
             this_loop.FluidName = Alpha(2);
+            this_loop.steam = FluidProperties::GetSteam(state);
         } else if (Util::SameString(Alpha(2), "WATER")) {
             this_loop.FluidType = DataLoopNode::NodeFluidType::Water;
             this_loop.FluidName = Alpha(2);
             this_loop.FluidIndex = FluidProperties::GetGlycolNum(state, Alpha(2));
+            this_loop.glycol = FluidProperties::GetWater(state);
         } else if (Util::SameString(Alpha(2), "USERDEFINEDFLUIDTYPE")) {
             this_loop.FluidType = DataLoopNode::NodeFluidType::Water;
-            this_loop.FluidName = Alpha(3);
+            // this_loop.FluidName = Alpha(3);
             // check for valid fluid name
-            NumFluids = FluidProperties::CheckFluidPropertyName(state, Alpha(3));
-            if (NumFluids == 0) {
-                ShowSevereError(state, CurrentModuleObject + "=\"" + Alpha(1) + "\", missing fluid data for Plant loop.");
+            this_loop.glycol = FluidProperties::GetGlycol(state, Alpha(3));
+            if (this_loop.glycol == nullptr) {
+                ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(3), Alpha(3));
                 ErrorsFound = true;
-            } else {
-                this_loop.FluidIndex = FluidProperties::GetGlycolNum(state, Alpha(3));
-                if (this_loop.FluidIndex == 0) {
-                    ShowSevereError(state, CurrentModuleObject + "=\"" + Alpha(1) + "\", invalid glycol fluid data for Plant loop.");
-                    ErrorsFound = true;
-                }
             }
         } else {
             ShowWarningError(state,
@@ -404,6 +411,7 @@ void GetPlantLoopData(EnergyPlusData &state)
             this_loop.FluidType = DataLoopNode::NodeFluidType::Water;
             this_loop.FluidName = "WATER";
             this_loop.FluidIndex = FluidProperties::GetGlycolNum(state, "WATER");
+            this_loop.glycol = FluidProperties::GetWater(state);
         }
 
         this_loop.OperationScheme = Alpha(4); // Load the Plant Control Scheme Priority List
@@ -2614,20 +2622,16 @@ void ReInitPlantLoopsAtFirstHVACIteration(EnergyPlusData &state)
                 state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideNum).OutletNode.MassFlowRateHistory = 0.0;
 
                 if (state.dataPlnt->PlantLoop(LoopNum).FluidType != DataLoopNode::NodeFluidType::Steam) {
-                    Cp = FluidProperties::GetSpecificHeatGlycol(state,
-                                                                state.dataPlnt->PlantLoop(LoopNum).FluidName,
-                                                                LoopSetPointTemp,
-                                                                state.dataPlnt->PlantLoop(LoopNum).FluidIndex,
-                                                                RoutineNameAlt);
+                    Cp = state.dataPlnt->PlantLoop(LoopNum).glycol->getSpecificHeat(state, 
+                                                                                    LoopSetPointTemp,
+                                                                                    RoutineNameAlt);
                     StartEnthalpy = Cp * LoopSetPointTemp;
                 }
                 // Use Min/Max flow rates to initialize loop
                 if (state.dataPlnt->PlantLoop(LoopNum).FluidType == DataLoopNode::NodeFluidType::Water) {
-                    rho = FluidProperties::GetDensityGlycol(state,
-                                                            state.dataPlnt->PlantLoop(LoopNum).FluidName,
-                                                            LoopSetPointTemp,
-                                                            state.dataPlnt->PlantLoop(LoopNum).FluidIndex,
-                                                            RoutineNameAlt);
+                    rho = state.dataPlnt->PlantLoop(LoopNum).glycol->getDensity(state, 
+                                                                                LoopSetPointTemp,
+                                                                                RoutineNameAlt);
 
                     LoopMaxMassFlowRate = state.dataPlnt->PlantLoop(LoopNum).MaxVolFlowRate * rho;
                     LoopMinMassFlowRate = state.dataPlnt->PlantLoop(LoopNum).MinVolFlowRate * rho;
@@ -3332,14 +3336,11 @@ void SizePlantLoop(EnergyPlusData &state,
 
     // should now have plant volume, calculate plant volume's mass for fluid type
     if (state.dataPlnt->PlantLoop(LoopNum).FluidType == DataLoopNode::NodeFluidType::Water) {
-        FluidDensity = FluidProperties::GetDensityGlycol(
-            state, state.dataPlnt->PlantLoop(LoopNum).FluidName, Constant::InitConvTemp, state.dataPlnt->PlantLoop(LoopNum).FluidIndex, RoutineName);
+        FluidDensity = state.dataPlnt->PlantLoop(LoopNum).glycol->getDensity(state, Constant::InitConvTemp, RoutineName);
         if (PlantSizNum > 0 && allocated(state.dataSize->PlantSizData)) { // method only works if sizing delta T is available
-            Real64 cp = FluidProperties::GetSpecificHeatGlycol(state,
-                                                               state.dataPlnt->PlantLoop(LoopNum).FluidName,
-                                                               Constant::InitConvTemp,
-                                                               state.dataPlnt->PlantLoop(LoopNum).FluidIndex,
-                                                               RoutineName);
+            Real64 cp = state.dataPlnt->PlantLoop(LoopNum).glycol->getSpecificHeat(state, 
+                                                                                   Constant::InitConvTemp,
+                                                                                   RoutineName);
             Real64 DesignPlantCapacity =
                 cp * FluidDensity * state.dataSize->PlantSizData(PlantSizNum).DesVolFlowRate * state.dataSize->PlantSizData(PlantSizNum).DeltaT;
             state.dataSize->PlantSizData(PlantSizNum).DesCapacity = DesignPlantCapacity; // store it for later use in scaling
@@ -3477,8 +3478,7 @@ void ResizePlantLoopLevelSizes(EnergyPlusData &state, int const LoopNum // Suppl
 
     // should now have plant volume, calculate plant volume's mass for fluid type
     if (state.dataPlnt->PlantLoop(LoopNum).FluidType == DataLoopNode::NodeFluidType::Water) {
-        FluidDensity = FluidProperties::GetDensityGlycol(
-            state, state.dataPlnt->PlantLoop(LoopNum).FluidName, Constant::InitConvTemp, state.dataPlnt->PlantLoop(LoopNum).FluidIndex, RoutineName);
+        FluidDensity = state.dataPlnt->PlantLoop(LoopNum).glycol->getDensity(state, Constant::InitConvTemp, RoutineName);
     } else if (state.dataPlnt->PlantLoop(LoopNum).FluidType == DataLoopNode::NodeFluidType::Steam) {
         FluidDensity = FluidProperties::GetSteam(state)->getSatDensity(state, 100.0, 1.0, RoutineName);
     } else {

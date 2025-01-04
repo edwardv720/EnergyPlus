@@ -266,6 +266,7 @@ TEST_F(AutoSizingFixture, HeatingWaterflowSizingGauntlet)
     state->dataSize->DataWaterCoilSizHeatDeltaT = 10.0;
     state->dataPlnt->PlantLoop.allocate(1);
     state->dataPlnt->PlantLoop(1).FluidName = "Water";
+    state->dataPlnt->PlantLoop(1).glycol = FluidProperties::GetWater(*state);
     // start with an auto-sized value as the user input
     inputValue = DataSizing::AutoSize;
     // do sizing

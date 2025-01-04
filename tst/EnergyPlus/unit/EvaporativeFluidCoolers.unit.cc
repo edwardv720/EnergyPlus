@@ -127,6 +127,7 @@ TEST_F(EnergyPlusFixture, EvapFluidCoolerSpecs_getDesignCapacitiesTest)
     state->dataSize->PlantSizData.allocate(1);
     state->dataSize->PlantSizData(1).DeltaT = 5.0;
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(1).glycol = FluidProperties::GetWater(*state);
     state->dataSize->PlantSizData(1).ExitTemp = 20.0;
 
     // Now set the specific data for the actual test

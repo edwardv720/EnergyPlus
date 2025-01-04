@@ -97,6 +97,7 @@ TEST_F(AutoSizingFixture, CoolingWaterflowSizingGauntlet)
     // Test #2 - Zone Equipment, no autosizing, has input data
     state->dataSize->DataWaterLoopNum = 1;
     state->dataPlnt->PlantLoop.allocate(1);
+    state->dataPlnt->PlantLoop(1).glycol = FluidProperties::GetWater(*state);
     state->dataSize->DataWaterCoilSizCoolDeltaT = 10.0;
     sizer.initializeWithinEP(*this->state, HVAC::cAllCoilTypes(HVAC::Coil_CoolingWater), "MyWaterCoil", printFlag, routineName);
     sizedValue = sizer.size(*this->state, inputValue, errorsFound);

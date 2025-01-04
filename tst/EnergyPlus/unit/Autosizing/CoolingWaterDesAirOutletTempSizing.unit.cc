@@ -119,6 +119,7 @@ TEST_F(AutoSizingFixture, CoolingWaterDesAirOutletTempSizingGauntlet)
     state->dataSize->FinalZoneSizing.allocate(1);
     state->dataSize->ZoneEqSizing.allocate(1);
     state->dataPlnt->PlantLoop.allocate(1);
+    state->dataPlnt->PlantLoop(1).glycol = FluidProperties::GetWater(*state);
     state->dataSize->PlantSizData.allocate(1);
     state->dataSize->PlantSizData(1).ExitTemp = 7.0;
     state->dataSize->DataPltSizCoolNum = 1;

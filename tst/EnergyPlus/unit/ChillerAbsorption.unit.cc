@@ -1946,6 +1946,7 @@ TEST_F(EnergyPlusFixture, ChillerAbsorption_Autosize)
         thisLoop.Name = "ChilledWaterLoop";
         thisLoop.FluidIndex = 1;
         thisLoop.FluidName = "WATER";
+        thisLoop.glycol = FluidProperties::GetWater(*state);
         thisLoop.PlantSizNum = chwLoopNum;
         auto &loopside = thisLoop.LoopSide(DataPlant::LoopSideLocation::Supply);
         loopside.TotalBranches = 1;
@@ -1972,6 +1973,7 @@ TEST_F(EnergyPlusFixture, ChillerAbsorption_Autosize)
         thisLoop.Name = "CondenserWaterLoop";
         thisLoop.FluidIndex = 1;
         thisLoop.FluidName = "WATER";
+        thisLoop.glycol = FluidProperties::GetWater(*state);
         thisLoop.PlantSizNum = cndLoopNum;
         auto &loopside = thisLoop.LoopSide(DataPlant::LoopSideLocation::Demand);
         loopside.TotalBranches = 1;
@@ -1998,6 +2000,7 @@ TEST_F(EnergyPlusFixture, ChillerAbsorption_Autosize)
         thisLoop.Name = "Generator HW Loop";
         thisLoop.FluidIndex = 1;
         thisLoop.FluidName = "WATER";
+        thisLoop.glycol = FluidProperties::GetWater(*state);
         thisLoop.PlantSizNum = genLoopNum;
         auto &loopside = thisLoop.LoopSide(DataPlant::LoopSideLocation::Demand);
         loopside.TotalBranches = 1;

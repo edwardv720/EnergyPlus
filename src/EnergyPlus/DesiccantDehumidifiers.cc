@@ -1647,11 +1647,9 @@ namespace DesiccantDehumidifiers {
                     desicDehum.MaxCoilFluidFlow =
                         WaterCoils::GetCoilMaxWaterFlowRate(state, "Coil:Heating:Water", desicDehum.RegenCoilName, ErrorFlag);
                     if (desicDehum.MaxCoilFluidFlow > 0.0) {
-                        Real64 FluidDensity = FluidProperties::GetDensityGlycol(state,
-                                                                                state.dataPlnt->PlantLoop(desicDehum.plantLoc.loopNum).FluidName,
-                                                                                Constant::HWInitConvTemp,
-                                                                                state.dataPlnt->PlantLoop(desicDehum.plantLoc.loopNum).FluidIndex,
-                                                                                initCBVAV);
+                        Real64 FluidDensity = state.dataPlnt->PlantLoop(desicDehum.plantLoc.loopNum).glycol->getDensity(state, 
+                                                                                                                      Constant::HWInitConvTemp,
+                                                                                                                      initCBVAV);
                         desicDehum.MaxCoilFluidFlow *= FluidDensity;
                     }
 
@@ -1762,11 +1760,9 @@ namespace DesiccantDehumidifiers {
                             //}
                             if (CoilMaxVolFlowRate != DataSizing::AutoSize) {
                                 Real64 FluidDensity =
-                                    FluidProperties::GetDensityGlycol(state,
-                                                                      state.dataPlnt->PlantLoop(desicDehum.plantLoc.loopNum).FluidName,
-                                                                      Constant::HWInitConvTemp,
-                                                                      state.dataPlnt->PlantLoop(desicDehum.plantLoc.loopNum).FluidIndex,
-                                                                      RoutineName);
+                                  state.dataPlnt->PlantLoop(desicDehum.plantLoc.loopNum).glycol->getDensity(state, 
+                                                                                                            Constant::HWInitConvTemp,
+                                                                                                            RoutineName);
                                 desicDehum.MaxCoilFluidFlow = CoilMaxVolFlowRate * FluidDensity;
                             }
                         }
