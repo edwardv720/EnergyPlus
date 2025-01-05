@@ -83,6 +83,8 @@ public:
     {
         EnergyPlusFixture::SetUp(); // Sets up individual test cases.
 
+        state->dataFluidProps->init_state(*state);
+        
         // unit test for PlantEquipmentOperation:ChillerHeaterChangeover
         state->dataHeatBal->Zone.allocate(4);
         state->dataZoneEnergyDemand->ZoneSysEnergyDemand.allocate(4);
@@ -125,6 +127,8 @@ public:
                 thisPlantLoop.OperationScheme = "Heating Loop Operation Scheme List";
             }
 
+            thisPlantLoop.FluidName = "WATER";
+            thisPlantLoop.glycol = FluidProperties::GetWater(*state);
             thisPlantLoop.NumOpSchemes = 1;
             thisPlantLoop.OpScheme.allocate(thisPlantLoop.NumOpSchemes);
             auto &opSch1 = thisPlantLoop.OpScheme(1);

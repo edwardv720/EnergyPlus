@@ -2688,6 +2688,8 @@ TEST_F(EnergyPlusFixture, StratifiedTank_GSHP_DesuperheaterSourceHeat)
     state->dataWaterToAirHeatPumpSimple->SimpleWatertoAirHP(HPNum).plantLoc.loopNum = 1;
     state->dataPlnt->PlantLoop.allocate(LoopNum);
     state->dataPlnt->PlantLoop(state->dataWaterToAirHeatPumpSimple->SimpleWatertoAirHP(HPNum).plantLoc.loopNum).FluidIndex = 1;
+    state->dataPlnt->PlantLoop(state->dataWaterToAirHeatPumpSimple->SimpleWatertoAirHP(HPNum).plantLoc.loopNum).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(state->dataWaterToAirHeatPumpSimple->SimpleWatertoAirHP(HPNum).plantLoc.loopNum).glycol = FluidProperties::GetWater(*state);
     auto &SupplySideloop(state->dataPlnt->PlantLoop(LoopNum).LoopSide(EnergyPlus::DataPlant::LoopSideLocation::Supply));
     SupplySideloop.TotalBranches = 1;
     SupplySideloop.Branch.allocate(BranchNum);
@@ -5635,6 +5637,8 @@ TEST_F(EnergyPlusFixture, MixedTank_PVT_Per_VolumeSizing_PerSolarCollectorArea)
     state->dataPlnt->PlantLoop.allocate(1);
 
     auto &plantLoop = state->dataPlnt->PlantLoop(1);
+    plantLoop.FluidName = "WATER";
+    plantLoop.glycol = FluidProperties::GetWater(*state);
     auto &supplySide = plantLoop.LoopSide(DataPlant::LoopSideLocation::Supply);
     supplySide.TotalBranches = 1;
     supplySide.Branch.allocate(1);
