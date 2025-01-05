@@ -109,6 +109,7 @@ TEST_F(EnergyPlusFixture, HWBaseboardRadiator_CalcHWBaseboard)
     state->dataPlnt->PlantLoop(1).FluidName = "Water";
     state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).FluidType = DataLoopNode::NodeFluidType::Water;
+    state->dataPlnt->PlantLoop(1).glycol = FluidProperties::GetWater(*state);
 
     CalcHWBaseboard(*state, BBNum, LoadMet);
 
@@ -129,6 +130,8 @@ TEST_F(EnergyPlusFixture, HWBaseboardRadiator_HWBaseboardWaterFlowResetTest)
     Real64 LoadMet;
     int BBNum;
 
+    state->dataFluidProps->init_state(*state);
+    
     BBNum = 1;
     LoadMet = 0.0;
     auto &HWBaseboard = state->dataHWBaseboardRad->HWBaseboard;
@@ -163,6 +166,7 @@ TEST_F(EnergyPlusFixture, HWBaseboardRadiator_HWBaseboardWaterFlowResetTest)
     state->dataPlnt->PlantLoop(1).FluidName = "Water";
     state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).FluidType = DataLoopNode::NodeFluidType::Water;
+    state->dataPlnt->PlantLoop(1).glycol = FluidProperties::GetWater(*state);
 
     state->dataLoopNodes->Node(HWBaseboard(1).WaterInletNode).MassFlowRate = 0.2;
     state->dataLoopNodes->Node(HWBaseboard(1).WaterInletNode).MassFlowRateMax = 0.4;
@@ -180,9 +184,9 @@ TEST_F(EnergyPlusFixture, HWBaseboardRadiator_HWBaseboardWaterFlowResetTest)
         loopsidebranch.Comp.allocate(1);
     }
     state->dataPlnt->PlantLoop(1).Name = "HotWaterLoop";
-    state->dataPlnt->PlantLoop(1).FluidName = "HotWater";
     state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(1).glycol = FluidProperties::GetWater(*state);
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = HWBaseboard(1).Name;
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type = HWBaseboard(1).EquipType;
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).NodeNumIn = HWBaseboard(1).WaterInletNode;

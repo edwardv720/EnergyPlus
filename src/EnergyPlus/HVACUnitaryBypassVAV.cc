@@ -1378,10 +1378,8 @@ namespace HVACUnitaryBypassVAV {
                     cBVAV.MaxHeatCoilFluidFlow = WaterCoils::GetCoilMaxWaterFlowRate(state, "Coil:Heating:Water", cBVAV.HeatCoilName, ErrorsFound);
 
                     if (cBVAV.MaxHeatCoilFluidFlow > 0.0) {
-                        Real64 FluidDensity = FluidProperties::GetDensityGlycol(state,
-                                                                                state.dataPlnt->PlantLoop(cBVAV.plantLoc.loopNum).FluidName,
+                      Real64 FluidDensity = state.dataPlnt->PlantLoop(cBVAV.plantLoc.loopNum).glycol->getDensity(state, 
                                                                                 Constant::HWInitConvTemp,
-                                                                                state.dataPlnt->PlantLoop(cBVAV.plantLoc.loopNum).FluidIndex,
                                                                                 RoutineName);
                         cBVAV.MaxHeatCoilFluidFlow =
                             WaterCoils::GetCoilMaxWaterFlowRate(state, "Coil:Heating:Water", cBVAV.HeatCoilName, ErrorsFound) * FluidDensity;
@@ -1476,11 +1474,9 @@ namespace HVACUnitaryBypassVAV {
                             ShowContinueError(state, format("Occurs in {} = {}", "AirLoopHVAC:UnitaryHeatCool:VAVChangeoverBypass", cBVAV.Name));
                         }
                         if (CoilMaxVolFlowRate != DataSizing::AutoSize) {
-                            Real64 FluidDensity = FluidProperties::GetDensityGlycol(state,
-                                                                                    state.dataPlnt->PlantLoop(cBVAV.plantLoc.loopNum).FluidName,
-                                                                                    Constant::HWInitConvTemp,
-                                                                                    state.dataPlnt->PlantLoop(cBVAV.plantLoc.loopNum).FluidIndex,
-                                                                                    RoutineName);
+                            Real64 FluidDensity = state.dataPlnt->PlantLoop(cBVAV.plantLoc.loopNum).glycol->getDensity(state, 
+                                                                                                                       Constant::HWInitConvTemp,
+                                                                                                                       RoutineName);
                             cBVAV.MaxHeatCoilFluidFlow = CoilMaxVolFlowRate * FluidDensity;
                         }
                     }

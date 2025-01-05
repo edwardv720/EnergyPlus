@@ -1254,11 +1254,9 @@ void CalcVRFCondenser(EnergyPlusData &state, int const VRFCond)
         //            VRF( VRFCond ).CondenserInletTemp = state.dataLoopNodes->Node(VRF(VRFCond).CondenserNodeNum).Temp;
         vrf.WaterCondenserMassFlow = state.dataLoopNodes->Node(vrf.CondenserNodeNum).MassFlowRate;
 
-        CpCond = FluidProperties::GetSpecificHeatGlycol(state,
-                                                        state.dataPlnt->PlantLoop(vrf.SourcePlantLoc.loopNum).FluidName,
-                                                        vrf.CondenserInletTemp,
-                                                        state.dataPlnt->PlantLoop(vrf.SourcePlantLoc.loopNum).FluidIndex,
-                                                        RoutineName);
+        CpCond = state.dataPlnt->PlantLoop(vrf.SourcePlantLoc.loopNum).glycol->getSpecificHeat(state, 
+                                                                                               vrf.CondenserInletTemp,
+                                                                                               RoutineName);
         if (CondWaterMassFlow > 0.0) {
             CondOutletTemp = vrf.QCondenser / (CondWaterMassFlow * CpCond) + CondInletTemp;
         } else {
@@ -5641,12 +5639,9 @@ void InitVRF(EnergyPlusData &state, int const VRFTUNum, int const ZoneNum, bool 
                 state, "Coil:Heating:Water", state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilName, ErrorsFound);
 
             if (state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilFluidMaxFlow > 0.0) {
-                rho = FluidProperties::GetDensityGlycol(
-                    state,
-                    state.dataPlnt->PlantLoop(state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilPlantLoc.loopNum).FluidName,
-                    Constant::HWInitConvTemp,
-                    state.dataPlnt->PlantLoop(state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilPlantLoc.loopNum).FluidIndex,
-                    RoutineName);
+                rho = state.dataPlnt->PlantLoop(state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilPlantLoc.loopNum).glycol->getDensity(state, 
+                                                                                                                                           Constant::HWInitConvTemp,
+                                                                                                                                           RoutineName);
                 state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilFluidMaxFlow =
                     state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilFluidMaxFlow * rho;
             }
@@ -6254,11 +6249,9 @@ void InitVRF(EnergyPlusData &state, int const VRFTUNum, int const ZoneNum, bool 
 
         if (state.dataHVACVarRefFlow->VRF(VRFCond).CondenserType == DataHeatBalance::RefrigCondenserType::Water) {
             rho =
-                FluidProperties::GetDensityGlycol(state,
-                                                  state.dataPlnt->PlantLoop(state.dataHVACVarRefFlow->VRF(VRFCond).SourcePlantLoc.loopNum).FluidName,
-                                                  Constant::CWInitConvTemp,
-                                                  state.dataPlnt->PlantLoop(state.dataHVACVarRefFlow->VRF(VRFCond).SourcePlantLoc.loopNum).FluidIndex,
-                                                  RoutineName);
+              state.dataPlnt->PlantLoop(state.dataHVACVarRefFlow->VRF(VRFCond).SourcePlantLoc.loopNum).glycol->getDensity(state, 
+                                                                                                                          Constant::CWInitConvTemp,
+                                                                                                                          RoutineName);
             state.dataHVACVarRefFlow->VRF(VRFCond).WaterCondenserDesignMassFlow = state.dataHVACVarRefFlow->VRF(VRFCond).WaterCondVolFlowRate * rho;
 
             InitComponentNodes(state,
@@ -6285,12 +6278,9 @@ void InitVRF(EnergyPlusData &state, int const VRFTUNum, int const ZoneNum, bool 
                     Real64 CoilMaxVolFlowRate = WaterCoils::GetCoilMaxWaterFlowRate(
                         state, "Coil:Heating:Water", state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilName, ErrorsFound);
                     if (CoilMaxVolFlowRate != DataSizing::AutoSize) {
-                        rho = FluidProperties::GetDensityGlycol(
-                            state,
-                            state.dataPlnt->PlantLoop(state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilPlantLoc.loopNum).FluidName,
-                            Constant::HWInitConvTemp,
-                            state.dataPlnt->PlantLoop(state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilPlantLoc.loopNum).FluidIndex,
-                            RoutineName);
+                      rho = state.dataPlnt->PlantLoop(state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilPlantLoc.loopNum).glycol->getDensity(state, 
+                                                                                                                                                 Constant::HWInitConvTemp,
+                                                                                                                                                 RoutineName);
                         state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilFluidMaxFlow = CoilMaxVolFlowRate * rho;
                     }
                 }
@@ -8895,17 +8885,13 @@ void VRFCondenserEquipment::SizeVRFCondenser(EnergyPlusData &state)
             int PltSizCondNum = 0;
             if (this->SourcePlantLoc.loopNum > 0) PltSizCondNum = state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).PlantSizNum;
             if (PltSizCondNum > 0) {
-                rho = FluidProperties::GetDensityGlycol(state,
-                                                        state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).FluidName,
-                                                        state.dataSize->PlantSizData(PltSizCondNum).ExitTemp,
-                                                        state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).FluidIndex,
-                                                        RoutineName);
+                rho = state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).glycol->getDensity(state, 
+                                                                                                 state.dataSize->PlantSizData(PltSizCondNum).ExitTemp,
+                                                                                                 RoutineName);
 
-                Cp = FluidProperties::GetSpecificHeatGlycol(state,
-                                                            state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).FluidName,
-                                                            state.dataSize->PlantSizData(PltSizCondNum).ExitTemp,
-                                                            state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).FluidIndex,
-                                                            RoutineName);
+                Cp = state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).glycol->getSpecificHeat(state, 
+                                                                                                     state.dataSize->PlantSizData(PltSizCondNum).ExitTemp,
+                                                                                                     RoutineName);
                 tmpCondVolFlowRate =
                     max(this->CoolingCapacity, this->HeatingCapacity) / (state.dataSize->PlantSizData(PltSizCondNum).DeltaT * Cp * rho);
                 if (this->HeatingCapacity != DataSizing::AutoSize && this->CoolingCapacity != DataSizing::AutoSize) {
@@ -8917,11 +8903,9 @@ void VRFCondenserEquipment::SizeVRFCondenser(EnergyPlusData &state)
                                                  this->WaterCondVolFlowRate);
                 }
 
-                rho = FluidProperties::GetDensityGlycol(state,
-                                                        state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).FluidName,
-                                                        Constant::CWInitConvTemp,
-                                                        state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).FluidIndex,
-                                                        RoutineName);
+                rho = state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).glycol->getDensity(state, 
+                                                                                                 Constant::CWInitConvTemp,
+                                                                                                 RoutineName);
                 this->WaterCondenserDesignMassFlow = this->WaterCondVolFlowRate * rho;
                 PlantUtilities::InitComponentNodes(
                     state, 0.0, this->WaterCondenserDesignMassFlow, this->CondenserNodeNum, this->CondenserOutletNodeNum);
