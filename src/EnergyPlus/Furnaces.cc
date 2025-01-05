@@ -4772,11 +4772,9 @@ namespace Furnaces {
                     thisFurnace.MaxHeatCoilFluidFlow =
                         WaterCoils::GetCoilMaxWaterFlowRate(state, "Coil:Heating:Water", thisFurnace.HeatingCoilName, ErrorsFound);
                     if (thisFurnace.MaxHeatCoilFluidFlow > 0.0) {
-                        rho = FluidProperties::GetDensityGlycol(state,
-                                                                state.dataPlnt->PlantLoop(thisFurnace.plantLoc.loopNum).FluidName,
-                                                                Constant::HWInitConvTemp,
-                                                                state.dataPlnt->PlantLoop(thisFurnace.plantLoc.loopNum).FluidIndex,
-                                                                RoutineName);
+                        rho = state.dataPlnt->PlantLoop(thisFurnace.plantLoc.loopNum).glycol->getDensity(state, 
+                                                                                                         Constant::HWInitConvTemp,
+                                                                                                         RoutineName);
                         thisFurnace.MaxHeatCoilFluidFlow *= rho;
                     }
                 } else if (thisFurnace.HeatingCoilType_Num == HVAC::Coil_HeatingSteam) {
@@ -4833,11 +4831,9 @@ namespace Furnaces {
                     thisFurnace.MaxSuppCoilFluidFlow =
                         WaterCoils::GetCoilMaxWaterFlowRate(state, "Coil:Heating:Water", thisFurnace.SuppHeatCoilName, ErrorsFound);
                     if (thisFurnace.MaxSuppCoilFluidFlow > 0.0) {
-                        rho = FluidProperties::GetDensityGlycol(state,
-                                                                state.dataPlnt->PlantLoop(thisFurnace.SuppPlantLoc.loopNum).FluidName,
-                                                                Constant::HWInitConvTemp,
-                                                                state.dataPlnt->PlantLoop(thisFurnace.SuppPlantLoc.loopNum).FluidIndex,
-                                                                RoutineName);
+                        rho = state.dataPlnt->PlantLoop(thisFurnace.SuppPlantLoc.loopNum).glycol->getDensity(state, 
+                                                                                                             Constant::HWInitConvTemp,
+                                                                                                             RoutineName);
                         thisFurnace.MaxSuppCoilFluidFlow *= rho;
                     }
                 } else if (thisFurnace.SuppHeatCoilType_Num == HVAC::Coil_HeatingSteam) {
@@ -4899,11 +4895,9 @@ namespace Furnaces {
                         CoilMaxVolFlowRate =
                             WaterCoils::GetCoilMaxWaterFlowRate(state, "Coil:Heating:Water", thisFurnace.HeatingCoilName, ErrorsFound);
                         if (CoilMaxVolFlowRate != DataSizing::AutoSize) {
-                            rho = FluidProperties::GetDensityGlycol(state,
-                                                                    state.dataPlnt->PlantLoop(thisFurnace.plantLoc.loopNum).FluidName,
-                                                                    Constant::HWInitConvTemp,
-                                                                    state.dataPlnt->PlantLoop(thisFurnace.plantLoc.loopNum).FluidIndex,
-                                                                    RoutineName);
+                            rho = state.dataPlnt->PlantLoop(thisFurnace.plantLoc.loopNum).glycol->getDensity(state, 
+                                                                                                             Constant::HWInitConvTemp,
+                                                                                                             RoutineName);
                             thisFurnace.MaxHeatCoilFluidFlow = CoilMaxVolFlowRate * rho;
                         }
                     }
@@ -4935,11 +4929,9 @@ namespace Furnaces {
                         CoilMaxVolFlowRate =
                             WaterCoils::GetCoilMaxWaterFlowRate(state, "Coil:Heating:Water", thisFurnace.SuppHeatCoilName, ErrorsFound);
                         if (CoilMaxVolFlowRate != DataSizing::AutoSize) {
-                            rho = FluidProperties::GetDensityGlycol(state,
-                                                                    state.dataPlnt->PlantLoop(thisFurnace.SuppPlantLoc.loopNum).FluidName,
-                                                                    Constant::HWInitConvTemp,
-                                                                    state.dataPlnt->PlantLoop(thisFurnace.SuppPlantLoc.loopNum).FluidIndex,
-                                                                    RoutineName);
+                            rho = state.dataPlnt->PlantLoop(thisFurnace.SuppPlantLoc.loopNum).glycol->getDensity(state, 
+                                                                                                                 Constant::HWInitConvTemp,
+                                                                                                                 RoutineName);
                             thisFurnace.MaxSuppCoilFluidFlow = CoilMaxVolFlowRate * rho;
                         }
                     }

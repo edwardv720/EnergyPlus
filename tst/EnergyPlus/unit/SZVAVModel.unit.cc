@@ -718,9 +718,9 @@ TEST_F(EnergyPlusFixture, SZVAV_FanCoilUnit_Testing)
     // chilled water plant loop
     auto &CWLoop(state->dataPlnt->PlantLoop(1));
     CWLoop.Name = "ChilledWaterLoop";
-    CWLoop.FluidName = "ChilledWater";
     CWLoop.FluidIndex = 1;
     CWLoop.FluidName = "WATER";
+    CWLoop.glycol = FluidProperties::GetWater(*state);
     CWLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = CWCoil.Name;
     CWLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type = DataPlant::PlantEquipmentType::CoilWaterCooling;
     CWLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).NodeNumIn = CWCoil.WaterInletNodeNum;
