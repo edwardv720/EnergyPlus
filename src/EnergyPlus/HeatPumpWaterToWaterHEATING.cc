@@ -479,20 +479,16 @@ void GshpPeHeatingSpecs::initialize(EnergyPlusData &state)
         this->MustRun = true;
 
         this->beginEnvironFlag = false;
-        Real64 rho = FluidProperties::GetDensityGlycol(state,
-                                                       state.dataPlnt->PlantLoop(this->LoadPlantLoc.loopNum).FluidName,
-                                                       Constant::CWInitConvTemp,
-                                                       state.dataPlnt->PlantLoop(this->LoadPlantLoc.loopNum).FluidIndex,
-                                                       RoutineName);
+        Real64 rho = state.dataPlnt->PlantLoop(this->LoadPlantLoc.loopNum).glycol->getDensity(state, 
+                                                                                              Constant::CWInitConvTemp,
+                                                                                              RoutineName);
         this->LoadSideDesignMassFlow = this->LoadSideVolFlowRate * rho;
 
         PlantUtilities::InitComponentNodes(state, 0.0, this->LoadSideDesignMassFlow, this->LoadSideInletNodeNum, this->LoadSideOutletNodeNum);
 
-        rho = FluidProperties::GetDensityGlycol(state,
-                                                state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).FluidName,
-                                                Constant::CWInitConvTemp,
-                                                state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).FluidIndex,
-                                                RoutineName);
+        rho = state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).glycol->getDensity(state, 
+                                                                                         Constant::CWInitConvTemp,
+                                                                                         RoutineName);
         this->SourceSideDesignMassFlow = this->SourceSideVolFlowRate * rho;
 
         PlantUtilities::InitComponentNodes(state, 0.0, this->SourceSideDesignMassFlow, this->SourceSideInletNodeNum, this->SourceSideOutletNodeNum);
@@ -613,17 +609,13 @@ void GshpPeHeatingSpecs::calculate(EnergyPlusData &state, Real64 &MyLoad)
     Real64 initialQLoad = 0.0;
     int IterationCount = 0;
 
-    Real64 CpSourceSide = FluidProperties::GetSpecificHeatGlycol(state,
-                                                                 state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).FluidName,
-                                                                 this->SourceSideWaterInletTemp,
-                                                                 state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).FluidIndex,
-                                                                 RoutineName);
+    Real64 CpSourceSide = state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).glycol->getSpecificHeat(state, 
+                                                                                                          this->SourceSideWaterInletTemp,
+                                                                                                          RoutineName);
 
-    Real64 CpLoadSide = FluidProperties::GetSpecificHeatGlycol(state,
-                                                               state.dataPlnt->PlantLoop(this->LoadPlantLoc.loopNum).FluidName,
-                                                               this->LoadSideWaterInletTemp,
-                                                               state.dataPlnt->PlantLoop(this->LoadPlantLoc.loopNum).FluidIndex,
-                                                               RoutineName);
+    Real64 CpLoadSide = state.dataPlnt->PlantLoop(this->LoadPlantLoc.loopNum).glycol->getSpecificHeat(state, 
+                                                                                                      this->LoadSideWaterInletTemp,
+                                                                                                      RoutineName);
 
     // Determine effectiveness of Source Side (the Evaporator in heating mode)
     Real64 SourceSideEffect = 1.0 - std::exp(-this->SourceSideUACoeff / (CpSourceSide * this->SourceSideWaterMassFlowRate));

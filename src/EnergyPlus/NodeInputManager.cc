@@ -960,8 +960,6 @@ void CalcMoreNodeInfo(EnergyPlusData &state)
     // stored in MoreNodeInfo.
 
     // Using/Aliasing
-    using FluidProperties::GetDensityGlycol;
-    using FluidProperties::GetSpecificHeatGlycol;
     using Psychrometrics::CPCW;
     using Psychrometrics::PsyCpAirFnW;
     using Psychrometrics::PsyHFnTdbW;
@@ -986,7 +984,7 @@ void CalcMoreNodeInfo(EnergyPlusData &state)
     auto &NodeSpecificHeatRepReq = state.dataNodeInputMgr->NodeSpecificHeatRepReq;
     auto &NodeSpecificHeatSchedPtr = state.dataNodeInputMgr->NodeSpecificHeatSchedPtr;
     auto &nodeReportingStrings = state.dataNodeInputMgr->nodeReportingStrings;
-    auto &nodeFluidNames = state.dataNodeInputMgr->nodeFluidNames;
+    auto &nodeFluids = state.dataNodeInputMgr->nodeFluids;
     Real64 SteamDensity;
     Real64 EnthSteamInDry;
     Real64 RhoAirCurrent; // temporary value for current air density f(baro, db , W)
@@ -1006,7 +1004,7 @@ void CalcMoreNodeInfo(EnergyPlusData &state)
         NodeSpecificHeatRepReq.allocate(state.dataLoopNodes->NumOfNodes);
         NodeSpecificHeatSchedPtr.allocate(state.dataLoopNodes->NumOfNodes);
         nodeReportingStrings.reserve(state.dataLoopNodes->NumOfNodes);
-        nodeFluidNames.reserve(state.dataLoopNodes->NumOfNodes);
+        nodeFluids.reserve(state.dataLoopNodes->NumOfNodes);
         state.dataNodeInputMgr->NodeWetBulbRepReq = false;
         NodeWetBulbSchedPtr = 0;
         NodeRelHumidityRepReq = false;
@@ -1018,7 +1016,9 @@ void CalcMoreNodeInfo(EnergyPlusData &state)
 
         for (int iNode = 1; iNode <= state.dataLoopNodes->NumOfNodes; ++iNode) {
             nodeReportingStrings.push_back(std::string(NodeReportingCalc + state.dataLoopNodes->NodeID(iNode)));
-            nodeFluidNames.push_back(FluidProperties::GetGlycolNameByIndex(state, state.dataLoopNodes->Node(iNode).FluidIndex));
+            nodeFluids.push_back((state.dataLoopNodes->Node(iNode).FluidIndex == 0) ?
+                                 nullptr :
+                                 state.dataFluidProps->glycols(state.dataLoopNodes->Node(iNode).FluidIndex));
 
             for (auto const *reqVar : state.dataOutputProcessor->reqVars) {
                 if (Util::SameString(reqVar->key, state.dataLoopNodes->NodeID(iNode)) || reqVar->key.empty()) {
@@ -1135,21 +1135,15 @@ void CalcMoreNodeInfo(EnergyPlusData &state)
                 rhoStd = RhoWaterStdInit;
                 Cp = CPCW(state.dataLoopNodes->Node(iNode).Temp);
             } else {
-                Cp = GetSpecificHeatGlycol(state,
-                                           nodeFluidNames[iNode - 1],
-                                           state.dataLoopNodes->Node(iNode).Temp,
-                                           state.dataLoopNodes->Node(iNode).FluidIndex,
-                                           nodeReportingStrings[iNode - 1]);
-                rhoStd = GetDensityGlycol(state,
-                                          nodeFluidNames[iNode - 1],
-                                          Constant::InitConvTemp,
-                                          state.dataLoopNodes->Node(iNode).FluidIndex,
-                                          nodeReportingStrings[iNode - 1]);
-                rho = GetDensityGlycol(state,
-                                       nodeFluidNames[iNode - 1],
-                                       state.dataLoopNodes->Node(iNode).Temp,
-                                       state.dataLoopNodes->Node(iNode).FluidIndex,
-                                       nodeReportingStrings[iNode - 1]);
+                Cp = nodeFluids[iNode - 1]->getSpecificHeat(state, 
+                                                            state.dataLoopNodes->Node(iNode).Temp,
+                                                            nodeReportingStrings[iNode - 1]);
+                rhoStd = nodeFluids[iNode - 1]->getDensity(state, 
+                                                           Constant::InitConvTemp,
+                                                           nodeReportingStrings[iNode - 1]);
+                rho = nodeFluids[iNode - 1]->getDensity(state, 
+                                                        state.dataLoopNodes->Node(iNode).Temp,
+                                                        nodeReportingStrings[iNode - 1]);
             }
 
             state.dataLoopNodes->MoreNodeInfo(iNode).VolFlowRateStdRho = state.dataLoopNodes->Node(iNode).MassFlowRate / rhoStd;
