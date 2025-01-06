@@ -385,15 +385,26 @@ void GetPlantLoopData(EnergyPlusData &state)
         this_loop.Name = Alpha(1); // Load the Plant Loop Name
 
         if (Util::SameString(Alpha(2), "STEAM")) {
+            // A steam loop needs both the refrigerant (i.e.,
+            // liquid-vapor mixture) properties and the glycol (liquid
+            // properties) for the condensate.  The way this was done
+            // is that both Water (glycol) and Steam (refrig) were at
+            // index 1 in their respective arrays and so they could
+            // use a single index, and because the index was pre-set
+            // the FluidName was never consulted.  That's not a very
+            // robust way of doing things.
             this_loop.FluidType = DataLoopNode::NodeFluidType::Steam;
             this_loop.FluidName = Alpha(2);
-            this_loop.FluidIndex = 0;
+            this_loop.FluidIndex = 1;
+            this_loop.glycol = FluidProperties::GetWater(state);
             this_loop.steam = FluidProperties::GetSteam(state);
+
         } else if (Util::SameString(Alpha(2), "WATER")) {
             this_loop.FluidType = DataLoopNode::NodeFluidType::Water;
             this_loop.FluidName = Alpha(2);
-            this_loop.FluidIndex = FluidProperties::GetGlycolNum(state, Alpha(2));
+            this_loop.FluidIndex = 1;
             this_loop.glycol = FluidProperties::GetWater(state);
+
         } else if (Util::SameString(Alpha(2), "USERDEFINEDFLUIDTYPE")) {
             this_loop.FluidType = DataLoopNode::NodeFluidType::Water;
             this_loop.FluidName = Alpha(3);
@@ -404,15 +415,13 @@ void GetPlantLoopData(EnergyPlusData &state)
                 ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(3), Alpha(3));
                 ErrorsFound = true;
             }
+            
         } else {
-            ShowWarningError(state,
-                             "Input error: " + state.dataIPShortCut->cAlphaFieldNames(2) + '=' + Alpha(2) + " entered, in " + CurrentModuleObject +
-                                 '=' + Alpha(1));
-            ShowContinueError(state, "Will default to Water.");
+            ShowWarningInvalidKey(state, eoh, state.dataIPShortCut->cAlphaFieldNames(2), Alpha(2), "Water");
 
             this_loop.FluidType = DataLoopNode::NodeFluidType::Water;
             this_loop.FluidName = "WATER";
-            this_loop.FluidIndex = FluidProperties::GetGlycolNum(state, "WATER");
+            this_loop.FluidIndex = 1;
             this_loop.glycol = FluidProperties::GetWater(state);
         }
 
