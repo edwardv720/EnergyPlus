@@ -84,6 +84,7 @@ TEST_F(EnergyPlusFixture, GTChiller_HeatRecoveryAutosizeTest)
     state->dataPlnt->PlantLoop(1).PlantSizNum = 1;
     state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(1).glycol = FluidProperties::GetWater(*state);
     state->dataSize->PlantSizData(1).DesVolFlowRate = 1.0;
     state->dataSize->PlantSizData(1).DeltaT = 5.0;
     state->dataPlnt->PlantFirstSizesOkayToFinalize = true;
@@ -121,6 +122,7 @@ TEST_F(EnergyPlusFixture, EngineDrivenChiller_HeatRecoveryAutosizeTest)
     state->dataPlnt->PlantLoop(1).PlantSizNum = 1;
     state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(1).glycol = FluidProperties::GetWater(*state);
     state->dataSize->PlantSizData(1).DesVolFlowRate = 1.0;
     state->dataSize->PlantSizData(1).DeltaT = 5.0;
     state->dataPlnt->PlantFirstSizesOkayToFinalize = true;

@@ -59,6 +59,7 @@
 #include <EnergyPlus/DataHVACGlobals.hh>
 #include <EnergyPlus/DataHeatBalance.hh>
 #include <EnergyPlus/EnergyPlus.hh>
+#include <EnergyPlus/FluidProperties.hh>
 #include <EnergyPlus/HVACUnitaryBypassVAV.hh>
 
 namespace EnergyPlus {
@@ -322,7 +323,9 @@ namespace PackagedThermalStorageCoil {
         // TES tank
         MediaType StorageMedia;             // water/fluid or ice based TES
         std::string StorageFluidName;       // if user defined, name of fluid type
-        int StorageFluidIndex;              // if user defined, index of fluid type
+        int StorageFluidIndex = 0;          // if user defined, index of fluid type
+        FluidProperties::GlycolProps *glycol = nullptr;
+      
         Real64 FluidStorageVolume;          // volume of water in storage tank for water systems [m3/s]
         Real64 IceStorageCapacity;          // capacity of storage in J
         Real64 StorageCapacitySizingFactor; // storage time used to autocalculate capacity [hr]

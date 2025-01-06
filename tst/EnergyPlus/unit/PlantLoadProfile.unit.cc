@@ -131,6 +131,7 @@ TEST_F(EnergyPlusFixture, LoadProfile_initandsimulate_Waterloop)
     auto &thisWaterLoop(state->dataPlnt->PlantLoop(1));
     thisWaterLoop.FluidName = "WATER";
     thisWaterLoop.FluidIndex = 1;
+    thisWaterLoop.glycol = FluidProperties::GetWater(*state);
     thisWaterLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch.allocate(1);
     thisWaterLoop.LoopSide(DataPlant::LoopSideLocation::Demand).TotalBranches = 1;
     thisWaterLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).TotalComponents = 1;
@@ -179,9 +180,8 @@ TEST_F(EnergyPlusFixture, LoadProfile_initandsimulate_Waterloop)
     std::string_view RoutineName("PlantLoadProfileTests");
     thisLoadProfileWaterLoop.simulate(*state, locWater, firstHVAC, curLoad, runFlag);
 
-    Real64 rhoWater = FluidProperties::GetDensityGlycol(*state, thisWaterLoop.FluidName, 60, thisWaterLoop.FluidIndex, RoutineName);
-    Real64 Cp = FluidProperties::GetSpecificHeatGlycol(
-        *state, thisWaterLoop.FluidName, thisLoadProfileWaterLoop.InletTemp, thisWaterLoop.FluidIndex, RoutineName);
+    Real64 rhoWater = thisWaterLoop.glycol->getDensity(*state, 60, RoutineName);
+    Real64 Cp = thisWaterLoop.glycol->getSpecificHeat(*state, thisLoadProfileWaterLoop.InletTemp, RoutineName);
     Real64 deltaTemp = curLoad / (rhoWater * thisLoadProfileWaterLoop.VolFlowRate * Cp);
     Real64 calOutletTemp = thisLoadProfileWaterLoop.InletTemp - deltaTemp;
 
@@ -200,6 +200,8 @@ TEST_F(EnergyPlusFixture, LoadProfile_initandsimulate_Steamloop)
     auto &thisSteamLoop(state->dataPlnt->PlantLoop(1));
     thisSteamLoop.FluidName = "STEAM";
     thisSteamLoop.FluidIndex = 1;
+    thisSteamLoop.steam = FluidProperties::GetSteam(*state);
+    thisSteamLoop.glycol = FluidProperties::GetWater(*state);
     thisSteamLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch.allocate(1);
     thisSteamLoop.LoopSide(DataPlant::LoopSideLocation::Demand).TotalBranches = 1;
     thisSteamLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).TotalComponents = 1;
@@ -253,7 +255,7 @@ TEST_F(EnergyPlusFixture, LoadProfile_initandsimulate_Steamloop)
     bool runFlag = true;
     thisLoadProfileSteamLoop.simulate(*state, locSteam, firstHVAC, curLoad, runFlag);
 
-    Real64 EnthSteamIn =
+    Real64 EnthSteamIn = 
         FluidProperties::GetSatEnthalpyRefrig(*state, thisSteamLoop.FluidName, SatTempAtmPress, 1.0, thisSteamLoop.FluidIndex, RoutineName);
     Real64 EnthSteamOut =
         FluidProperties::GetSatEnthalpyRefrig(*state, thisSteamLoop.FluidName, SatTempAtmPress, 0.0, thisSteamLoop.FluidIndex, RoutineName);

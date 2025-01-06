@@ -369,8 +369,6 @@ void BranchPressureDrop(EnergyPlusData &state,
     // Using/Aliasing
     using Curve::CurveValue;
     using Curve::PressureCurveValue;
-    using FluidProperties::GetDensityGlycol;
-    using FluidProperties::GetViscosityGlycol;
 
     // SUBROUTINE PARAMETER DEFINITIONS:
     static constexpr std::string_view RoutineName("CalcPlantPressureSystem");
@@ -402,8 +400,8 @@ void BranchPressureDrop(EnergyPlusData &state,
     // Get nodal conditions
     NodeMassFlow = state.dataLoopNodes->Node(InletNodeNum).MassFlowRate;
     NodeTemperature = state.dataLoopNodes->Node(InletNodeNum).Temp;
-    NodeDensity = GetDensityGlycol(state, std::string(), NodeTemperature, FluidIndex, RoutineName);
-    NodeViscosity = GetViscosityGlycol(state, std::string(), NodeTemperature, FluidIndex, RoutineName);
+    NodeDensity = state.dataPlnt->PlantLoop(LoopNum).glycol->getDensity(state, NodeTemperature, RoutineName);
+    NodeViscosity = state.dataPlnt->PlantLoop(LoopNum).glycol->getViscosity(state, NodeTemperature, RoutineName);
 
     // Call the appropriate pressure calculation routine
     switch (pressureCurveType) {
@@ -829,8 +827,6 @@ Real64 ResolveLoopFlowVsPressure(EnergyPlusData &state,
 
     // Using/Aliasing
     using Curve::CurveValue;
-    using FluidProperties::GetDensityGlycol;
-    using FluidProperties::GetViscosityGlycol;
 
     // Return value
     Real64 ResolvedLoopMassFlowRate;
@@ -866,7 +862,7 @@ Real64 ResolveLoopFlowVsPressure(EnergyPlusData &state,
 
     // Read data off the node data structure
     NodeTemperature = state.dataLoopNodes->Node(state.dataPlnt->PlantLoop(LoopNum).LoopSide(DataPlant::LoopSideLocation::Supply).NodeNumIn).Temp;
-    NodeDensity = GetDensityGlycol(state, std::string(), NodeTemperature, FluidIndex, RoutineName);
+    NodeDensity = state.dataPlnt->PlantLoop(LoopNum).glycol->getDensity(state, NodeTemperature, RoutineName);
 
     // Store the passed in (requested, design) flow to the local value for performing iterations
     LocalSystemMassFlow = SystemMassFlow;
