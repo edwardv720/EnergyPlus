@@ -1205,30 +1205,20 @@ TEST_F(LowTempRadiantSystemTest, AutosizeLowTempRadiantVariableFlowTest)
                       state->dataLowTempRadSys->HydrRadSys(RadSysNum).ScaledCoolingCapacity;
     // hot water flow rate sizing calculation
     Density =
-        FluidProperties::GetDensityGlycol(*state,
-                                          state->dataPlnt->PlantLoop(state->dataLowTempRadSys->HydrRadSys(RadSysNum).HWPlantLoc.loopNum).FluidName,
-                                          60.0,
-                                          state->dataPlnt->PlantLoop(state->dataLowTempRadSys->HydrRadSys(RadSysNum).HWPlantLoc.loopNum).FluidIndex,
-                                          "AutosizeLowTempRadiantVariableFlowTest");
-    Cp = FluidProperties::GetSpecificHeatGlycol(
-        *state,
-        state->dataPlnt->PlantLoop(state->dataLowTempRadSys->HydrRadSys(RadSysNum).HWPlantLoc.loopNum).FluidName,
-        60.0,
-        state->dataPlnt->PlantLoop(state->dataLowTempRadSys->HydrRadSys(RadSysNum).HWPlantLoc.loopNum).FluidIndex,
-        "AutosizeLowTempRadiantVariableFlowTest");
+      state->dataPlnt->PlantLoop(state->dataLowTempRadSys->HydrRadSys(RadSysNum).HWPlantLoc.loopNum).glycol->getDensity(*state, 
+                                                                                                                        60.0,
+                                                                                                                        "AutosizeLowTempRadiantVariableFlowTest");
+    Cp = state->dataPlnt->PlantLoop(state->dataLowTempRadSys->HydrRadSys(RadSysNum).HWPlantLoc.loopNum).glycol->getSpecificHeat(*state, 
+                                                                                                                                60.0,
+                                                                                                                                "AutosizeLowTempRadiantVariableFlowTest");
     HotWaterFlowRate = HeatingCapacity / (state->dataSize->PlantSizData(1).DeltaT * Cp * Density);
     // chilled water flow rate sizing calculation
     Density =
-        FluidProperties::GetDensityGlycol(*state,
-                                          state->dataPlnt->PlantLoop(state->dataLowTempRadSys->HydrRadSys(RadSysNum).CWPlantLoc.loopNum).FluidName,
-                                          5.05,
-                                          state->dataPlnt->PlantLoop(state->dataLowTempRadSys->HydrRadSys(RadSysNum).CWPlantLoc.loopNum).FluidIndex,
-                                          "AutosizeLowTempRadiantVariableFlowTest");
-    Cp = FluidProperties::GetSpecificHeatGlycol(
-        *state,
-        state->dataPlnt->PlantLoop(state->dataLowTempRadSys->HydrRadSys(RadSysNum).CWPlantLoc.loopNum).FluidName,
+      state->dataPlnt->PlantLoop(state->dataLowTempRadSys->HydrRadSys(RadSysNum).CWPlantLoc.loopNum).glycol->getDensity(*state, 
+                                                                                                                        5.05,
+                                                                                                                        "AutosizeLowTempRadiantVariableFlowTest");
+    Cp = state->dataPlnt->PlantLoop(state->dataLowTempRadSys->HydrRadSys(RadSysNum).CWPlantLoc.loopNum).glycol->getSpecificHeat(*state, 
         5.05,
-        state->dataPlnt->PlantLoop(state->dataLowTempRadSys->HydrRadSys(RadSysNum).CWPlantLoc.loopNum).FluidIndex,
         "AutosizeLowTempRadiantVariableFlowTest");
     ChilledWaterFlowRate = CoolingCapacity / (state->dataSize->PlantSizData(2).DeltaT * Cp * Density);
     // tuble length sizing calculation

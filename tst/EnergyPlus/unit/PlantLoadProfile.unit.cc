@@ -213,8 +213,7 @@ TEST_F(EnergyPlusFixture, LoadProfile_initandsimulate_Steamloop)
 
     std::string_view RoutineName("PlantLoadProfileTests");
 
-    Real64 SatTempAtmPress = FluidProperties::GetSatTemperatureRefrig(
-        *state, state->dataPlnt->PlantLoop(1).FluidName, DataEnvironment::StdPressureSeaLevel, state->dataPlnt->PlantLoop(1).FluidIndex, RoutineName);
+    Real64 SatTempAtmPress = state->dataPlnt->PlantLoop(1).steam->getSatTemperature(*state, DataEnvironment::StdPressureSeaLevel, RoutineName);
 
     state->dataLoopNodes->Node(1).Temp = SatTempAtmPress;
     state->dataLoopNodes->Node(1).MassFlowRateMax = 1;
@@ -255,13 +254,10 @@ TEST_F(EnergyPlusFixture, LoadProfile_initandsimulate_Steamloop)
     bool runFlag = true;
     thisLoadProfileSteamLoop.simulate(*state, locSteam, firstHVAC, curLoad, runFlag);
 
-    Real64 EnthSteamIn = 
-        FluidProperties::GetSatEnthalpyRefrig(*state, thisSteamLoop.FluidName, SatTempAtmPress, 1.0, thisSteamLoop.FluidIndex, RoutineName);
-    Real64 EnthSteamOut =
-        FluidProperties::GetSatEnthalpyRefrig(*state, thisSteamLoop.FluidName, SatTempAtmPress, 0.0, thisSteamLoop.FluidIndex, RoutineName);
+    Real64 EnthSteamIn = thisSteamLoop.steam->getSatEnthalpy(*state, SatTempAtmPress, 1.0, RoutineName);
+    Real64 EnthSteamOut = thisSteamLoop.steam->getSatEnthalpy(*state, SatTempAtmPress, 0.0, RoutineName);
     Real64 LatentHeatSteam = EnthSteamIn - EnthSteamOut;
-    Real64 CpCondensate =
-        FluidProperties::GetSpecificHeatGlycol(*state, thisSteamLoop.FluidName, SatTempAtmPress, thisSteamLoop.FluidIndex, RoutineName);
+    Real64 CpCondensate = thisSteamLoop.glycol->getSpecificHeat(*state, SatTempAtmPress, RoutineName);
     Real64 calOutletMdot = curLoad / (LatentHeatSteam + thisLoadProfileSteamLoop.DegOfSubcooling * CpCondensate);
 
     EXPECT_EQ(thisLoadProfileSteamLoop.MassFlowRate, calOutletMdot);

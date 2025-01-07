@@ -138,6 +138,7 @@ TEST_F(AutoSizingFixture, WaterHeatingCoilUASizingGauntlet)
     state->dataSize->PlantSizData(1).ExitTemp = 60.0;
     state->dataPlnt->PlantLoop.allocate(1);
     state->dataPlnt->PlantLoop(1).FluidIndex = 1;
+    state->dataPlnt->PlantLoop(1).glycol = FluidProperties::GetWater(*state);
 
     state->dataSize->ZoneSizingRunDone = true;
 

@@ -691,10 +691,8 @@ TEST_F(EnergyPlusFixture, OutdoorAirUnit_WaterCoolingCoilAutoSizeTest)
 
     Real64 DesWaterCoolingCoilLoad = DesAirMassFlow * (EnthalpyAirIn - EnthalpyAirOut) + FanCoolLoad;
     Real64 CoilDesWaterDeltaT = state->dataSize->PlantSizData(1).DeltaT;
-    Real64 Cp = FluidProperties::GetSpecificHeatGlycol(
-        *state, state->dataPlnt->PlantLoop(1).FluidName, Constant::CWInitConvTemp, state->dataPlnt->PlantLoop(1).FluidIndex, " ");
-    Real64 rho = FluidProperties::GetDensityGlycol(
-        *state, state->dataPlnt->PlantLoop(1).FluidName, Constant::CWInitConvTemp, state->dataPlnt->PlantLoop(1).FluidIndex, " ");
+    Real64 Cp = state->dataPlnt->PlantLoop(1).glycol->getSpecificHeat(*state, Constant::CWInitConvTemp, " ");
+    Real64 rho = state->dataPlnt->PlantLoop(1).glycol->getDensity(*state, Constant::CWInitConvTemp, " ");
     Real64 DesCoolingCoilWaterVolFlowRate = DesWaterCoolingCoilLoad / (CoilDesWaterDeltaT * Cp * rho);
     // check water coil water flow rate calc
     EXPECT_EQ(DesWaterCoolingCoilLoad, state->dataWaterCoils->WaterCoil(1).DesWaterCoolingCoilRate);
@@ -924,8 +922,9 @@ TEST_F(EnergyPlusFixture, OutdoorAirUnit_SteamHeatingCoilAutoSizeTest)
     state->dataSteamCoils->SteamCoil(1).plantLoc.compNum = 1;
 
     state->dataPlnt->PlantLoop(1).Name = "SteamLoop";
-    state->dataPlnt->PlantLoop(1).FluidIndex = 0;
+    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).FluidName = "STEAM";
+    state->dataPlnt->PlantLoop(1).steam = FluidProperties::GetSteam(*state);
     state->dataPlnt->PlantLoop(1).glycol = FluidProperties::GetWater(*state);
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = state->dataSteamCoils->SteamCoil(1).Name;
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type =

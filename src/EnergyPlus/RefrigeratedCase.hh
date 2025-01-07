@@ -55,6 +55,7 @@
 #include <EnergyPlus/Data/BaseData.hh>
 #include <EnergyPlus/DataGlobals.hh>
 #include <EnergyPlus/EnergyPlus.hh>
+#include <EnergyPlus/FluidProperties.hh>
 #include <EnergyPlus/PlantComponent.hh>
 
 namespace EnergyPlus {
@@ -556,6 +557,7 @@ namespace RefrigeratedCase {
     {
         std::string Name;                    // Name of refrigeration system
         std::string RefrigerantName;         // Name of refrigerant, must match name in FluidName
+        FluidProperties::RefrigProps *refrig = nullptr; 
         std::string EndUseSubcategory;       // Used for reporting purposes
         bool SystemRejectHeatToZone = false; // Flag to show air-cooled condenser located inside zone
         bool CoilFlag = false;               // Flag to show if coil type load on system (even if below in a secondary)
@@ -589,7 +591,6 @@ namespace RefrigeratedCase {
         int NumNonCascadeLoads = 0;    // Sum of NumCases, NumWalk-Ins, NumCoils, and NumSecondarys
         int NumCascadeLoads = 0;       // Number of cascade condensers cooled by this system
         int NumTransferLoads = 0;      // Sum of NumCascadeLoads and NumSecondarys
-        int RefIndex = 0;              // Index number of refrigerant, automatically assigned on first call to fluid property
         //   and used thereafter
         int SuctionPipeActualZoneNum = 0;      // ID number for zone where suction pipes gain heat
         int SuctionPipeZoneNodeNum = 0;        // ID number for zone node where suction pipes gain heat
@@ -699,6 +700,8 @@ namespace RefrigeratedCase {
         std::string Name;            // Name of transcritical CO2 refrigeration system
         std::string RefrigerantName; // Name of refrigerant, must match name in FluidName
         //    (see fluidpropertiesrefdata.idf)
+        FluidProperties::RefrigProps *refrig = nullptr;
+      
         std::string EndUseSubcategory;       // Used for reporting purposes
         bool SystemRejectHeatToZone = false; // Flag to show air-cooled gas cooler located inside zone
         Array1D_int CaseNumMT;               // absolute Index of medium temperature cases (allocated NumCasesMT)
@@ -715,7 +718,6 @@ namespace RefrigeratedCase {
         int NumGasCoolers = 1;               // Number of gas coolers on this system
         int NumWalkInsLT = 0;                // Number of low temperature walk in coolers on this system
         int NumWalkInsMT = 0;                // Number of medium temperature walk in coolers on this system
-        int RefIndex = 0;                    // Index number of refrigerant, automatically assigned on first call to fluid property
         //   and used thereafter
         int SuctionPipeActualZoneNumMT = 0;     // ID number for zone where medium temperature suction pipes gain heat
         int SuctionPipeZoneNodeNumMT = 0;       // ID number for zone node where medium temperature suction pipes gain heat
@@ -1092,6 +1094,7 @@ namespace RefrigeratedCase {
         std::string FluidName;                              // Name of circulating fluid
         int FluidIndex = 0;                                 // Numerical ID used for calls to properties subroutine
         FluidProperties::GlycolProps *glycol = nullptr;
+        FluidProperties::RefrigProps *refrig = nullptr;
         std::string EndUseSubcategory;                      // Used for reporting purposes
         Array1D_int CaseNum;                                // Absolute Index of cases (dimensioned 1 to NumCases)
         Array1D_int CoilNum;                                // Absolute Index of coils (dimensioned 1 to NumCoils)

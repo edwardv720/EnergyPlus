@@ -779,8 +779,7 @@ TEST_F(EnergyPlusFixture, HPWHEnergyBalance)
     state->dataOutRptPredefined->pdstHeatCoil = -1;
     state->dataWaterThermalTanks->mdotAir = 0.0993699992873531;
 
-    int GlycolIndex = 0;
-    const Real64 Cp = FluidProperties::GetSpecificHeatGlycol(*state, "WATER", Tank.TankTemp, GlycolIndex, "HPWHEnergyBalance");
+    const Real64 Cp = FluidProperties::GetWater(*state)->getSpecificHeat(*state, Tank.TankTemp, "HPWHEnergyBalance");
 
     Tank.CalcHeatPumpWaterHeater(*state, false);
 
@@ -2026,7 +2025,7 @@ TEST_F(EnergyPlusFixture, StratifiedTankCalc)
         auto &node = Tank.Node[i];
         TankNodeEnergy += node.Mass * (NodeTemps[i] - PrevNodeTemps[i]);
     }
-    Real64 Cp = FluidProperties::GetSpecificHeatGlycol(*state, "WATER", 60.0, DummyIndex, "StratifiedTankCalcNoDraw");
+    Real64 Cp = FluidProperties::GetWater(*state)->getSpecificHeat(*state, 60.0, "StratifiedTankCalcNoDraw");
     TankNodeEnergy *= Cp;
     EXPECT_NEAR(Tank.NetHeatTransferRate * state->dataHVACGlobal->TimeStepSysSec, TankNodeEnergy, fabs(TankNodeEnergy * 0.0001));
 
@@ -2165,7 +2164,7 @@ TEST_F(EnergyPlusFixture, StratifiedTankSourceFlowRateCalc)
     Tank.SourceMassFlowRate = 6.30901964e-5 * 997; // 1 gal/min
 
     int DummyIndex = 1;
-    Real64 Cp = FluidProperties::GetSpecificHeatGlycol(*state, "WATER", 60.0, DummyIndex, "StratifiedTankCalcNoDraw");
+    Real64 Cp = FluidProperties::GetWater(*state)->getSpecificHeat(*state, 60.0, "StratifiedTankCalcNoDraw");
 
     Tank.CalcWaterThermalTankStratified(*state);
 
@@ -3144,8 +3143,6 @@ TEST_F(EnergyPlusFixture, Desuperheater_Multispeed_Coil_Test)
 
 TEST_F(EnergyPlusFixture, MixedTankAlternateSchedule)
 {
-    using FluidProperties::GetDensityGlycol;
-
     std::string const idf_objects = delimited_string({
         "Schedule:Constant, Inlet Water Temperature, , 10.0;",
         "Schedule:Constant, Water Heater Setpoint Temperature, ,55.0;",
@@ -3232,7 +3229,7 @@ TEST_F(EnergyPlusFixture, MixedTankAlternateSchedule)
     // Source side is in the demand side of the plant loop
     Tank.SrcSidePlantLoc.loopSideNum = EnergyPlus::DataPlant::LoopSideLocation::Demand;
     Tank.SavedSourceOutletTemp = 60.0;
-    rho = FluidProperties::GetDensityGlycol(*state, "Water", Tank.TankTemp, WaterIndex, "MixedTankAlternateSchedule");
+    rho = FluidProperties::GetWater(*state)->getDensity(*state, Tank.TankTemp, "MixedTankAlternateSchedule");
 
     // Set the available max flow rates for tank and node
     Tank.PlantSourceMassFlowRateMax = Tank.SourceDesignVolFlowRate * rho;
