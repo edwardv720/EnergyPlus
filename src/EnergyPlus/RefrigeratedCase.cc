@@ -4422,6 +4422,8 @@ void GetRefrigerationInput(EnergyPlusData &state)
                                                                          lAlphaBlanks,
                                                                          cAlphaFieldNames,
                                                                          cNumericFieldNames);
+
+                ErrorObjectHeader eoh{routineName, CurrentModuleObject, Alphas(1)};
                 Util::IsNameEmpty(state, Alphas(1), CurrentModuleObject, ErrorsFound);
 
                 Secondary(SecondaryNum).Name = Alphas(1);
@@ -4595,6 +4597,16 @@ void GetRefrigerationInput(EnergyPlusData &state)
 
                 AlphaNum = 4;
                 Secondary(SecondaryNum).FluidName = Alphas(AlphaNum);
+                if (Secondary(SecondaryNum).FluidName.empty()) {
+                    ShowSevereEmptyField(state, eoh, cAlphaFieldNames(AlphaNum));
+                    ErrorsFound = true;
+                } else if ((Secondary(SecondaryNum).glycol = FluidProperties::GetGlycol(state, Secondary(SecondaryNum).FluidName)) != nullptr) {
+                } else if ((Secondary(SecondaryNum).refrig = FluidProperties::GetRefrig(state, Secondary(SecondaryNum).FluidName)) != nullptr) {
+                } else {
+                    ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(AlphaNum), Alphas(AlphaNum));
+                    ErrorsFound = true;
+                }
+                
                 // Error messages for refrigerants and glycols already found in fluidproperties
 
                 // Note remainder of inputs for secondary don't follow IDD input order because of different interpretations
