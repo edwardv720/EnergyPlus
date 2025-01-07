@@ -214,7 +214,6 @@ void GetPumpInput(EnergyPlusData &state)
     using Curve::GetCurveIndex;
     using Curve::GetCurveMinMaxValues;
     using DataSizing::AutoSize;
-    using FluidProperties::GetDensityGlycol;
     using NodeInputManager::GetOnlySingleNode;
     using ScheduleManager::CheckScheduleValueMinMax;
     using ScheduleManager::GetScheduleIndex;
@@ -1348,7 +1347,6 @@ void InitializePumps(EnergyPlusData &state, int const PumpNum)
     // This subroutine does one-time and begin-envrn inits for the pump
 
     // Using/Aliasing
-    using FluidProperties::GetDensityGlycol;
 
     using PlantUtilities::InitComponentNodes;
     using PlantUtilities::ScanPlantLoopsForObject;
@@ -1504,7 +1502,7 @@ void InitializePumps(EnergyPlusData &state, int const PumpNum)
 
         } else {
             auto &thisPumpPlant = state.dataPlnt->PlantLoop(thisPump.plantLoc.loopNum);
-            TempWaterDensity = GetDensityGlycol(state, thisPumpPlant.FluidName, Constant::InitConvTemp, thisPumpPlant.FluidIndex, RoutineName);
+            TempWaterDensity = thisPumpPlant.glycol->getDensity(state, Constant::InitConvTemp, RoutineName);
             mdotMax = thisPump.NomVolFlowRate * TempWaterDensity;
             // mdotMin = PumpEquip(PumpNum)%MinVolFlowRate * TempWaterDensity
             // see note above
@@ -1564,7 +1562,6 @@ void SetupPumpMinMaxFlows(EnergyPlusData &state, int const LoopNum, int const Pu
     //  These values are also bounded by EMS overridable limit of max flow rate.
 
     // Using/Aliasing
-    using FluidProperties::GetDensityGlycol;
     using PlantPressureSystem::ResolveLoopFlowVsPressure;
     using PlantUtilities::BoundValueToWithinTwoValues;
     using ScheduleManager::GetCurrentScheduleValue;
@@ -1741,9 +1738,6 @@ void CalcPumps(EnergyPlusData &state, int const PumpNum, Real64 const FlowReques
     // Energy Calculations, ASHRAE, 1993, pp2-10 to 2-15
 
     // Using/Aliasing
-    using FluidProperties::GetDensityGlycol;
-    using FluidProperties::GetSpecificHeatGlycol;
-
     using PlantUtilities::SetComponentFlowRate;
     using ScheduleManager::GetCurrentScheduleValue;
 
@@ -1872,7 +1866,7 @@ void CalcPumps(EnergyPlusData &state, int const PumpNum, Real64 const FlowReques
     }
 
     // density used for volumetric flow calculations
-    LoopDensity = GetDensityGlycol(state, thisPumpPlant.FluidName, thisInNode.Temp, thisPumpPlant.FluidIndex, RoutineName);
+    LoopDensity = thisPumpPlant.glycol->getDensity(state, thisInNode.Temp, RoutineName);
 
     //****************************!
     //***** CALCULATE POWER (1) **!
@@ -2002,9 +1996,6 @@ void SizePump(EnergyPlusData &state, int const PumpNum)
     // METHODOLOGY EMPLOYED:
     // Obtains flow rates from the plant sizing array.
 
-    // Using/Aliasing
-    using FluidProperties::GetDensityGlycol;
-
     // SUBROUTINE PARAMETER DEFINITIONS:
     Real64 constexpr StartTemp(100.0); // Standard Temperature across code to calculated Steam density
     static constexpr std::string_view RoutineName("PlantPumps::InitSimVars ");
@@ -2026,7 +2017,7 @@ void SizePump(EnergyPlusData &state, int const PumpNum)
     // Calculate density at InitConvTemp once here, to remove RhoH2O calls littered throughout
     if (thisPump.plantLoc.loopNum > 0) {
         auto &thisPumpPlant = state.dataPlnt->PlantLoop(thisPump.plantLoc.loopNum);
-        TempWaterDensity = GetDensityGlycol(state, thisPumpPlant.FluidName, Constant::InitConvTemp, thisPumpPlant.FluidIndex, RoutineName);
+        TempWaterDensity = thisPumpPlant.glycol->getDensity(state, Constant::InitConvTemp, RoutineName);
     } else {
         TempWaterDensity = FluidProperties::GetWater(state)->getDensity(state, Constant::InitConvTemp, RoutineName);
     }
@@ -2309,9 +2300,6 @@ void GetRequiredMassFlowRate(EnergyPlusData &state,
                              Real64 &PumpMaxMassFlowRateVFDRange)
 {
     // Using/Aliasing
-    using FluidProperties::GetDensityGlycol;
-    using FluidProperties::GetSpecificHeatGlycol;
-
     using PlantPressureSystem::ResolveLoopFlowVsPressure;
     using PlantUtilities::SetComponentFlowRate;
     using ScheduleManager::GetCurrentScheduleValue;

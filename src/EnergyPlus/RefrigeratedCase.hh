@@ -1090,6 +1090,8 @@ namespace RefrigeratedCase {
         bool CoilFlag = false;                              // Flag to show if coil type load on secondary system
         std::string Name;                                   // Name of refrigeration system
         std::string FluidName;                              // Name of circulating fluid
+        int FluidIndex = 0;                                 // Numerical ID used for calls to properties subroutine
+        FluidProperties::GlycolProps *glycol = nullptr;
         std::string EndUseSubcategory;                      // Used for reporting purposes
         Array1D_int CaseNum;                                // Absolute Index of cases (dimensioned 1 to NumCases)
         Array1D_int CoilNum;                                // Absolute Index of coils (dimensioned 1 to NumCoils)
@@ -1098,7 +1100,6 @@ namespace RefrigeratedCase {
         int DistPipeZoneNodeNum = 0;                        // ID number for zone node where distribution pipe gain heat
         Real64 DistPipeZoneHeatGain = 0.0;                  // ! sensible heat gain rate to zone with pipe
         SecFluidType FluidType = SecFluidType::Invalid;     // Indicates whether fluid always liquid or undergoes phase change
-        int FluidID = 0;                                    // Numerical ID used for calls to properties subroutine
         int NumSysAttach = 0;                               // Used to check for non-unique and unused secondary loops
         int NumPumps = 0;                                   // Number of pumps (or pump stages) serving this system
         int NumCases = 0;                                   // Number of Cases served by this secondary loop
