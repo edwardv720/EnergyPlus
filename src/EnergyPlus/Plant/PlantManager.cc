@@ -408,12 +408,13 @@ void GetPlantLoopData(EnergyPlusData &state)
         } else if (Util::SameString(Alpha(2), "USERDEFINEDFLUIDTYPE")) {
             this_loop.FluidType = DataLoopNode::NodeFluidType::Water;
             this_loop.FluidName = Alpha(3);
-            this_loop.FluidIndex = 0;
             // check for valid fluid name
             this_loop.glycol = FluidProperties::GetGlycol(state, Alpha(3));
             if (this_loop.glycol == nullptr) {
                 ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(3), Alpha(3));
                 ErrorsFound = true;
+            } else {
+              this_loop.FluidIndex = this_loop.glycol->Num;
             }
             
         } else {

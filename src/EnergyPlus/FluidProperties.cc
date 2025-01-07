@@ -4002,6 +4002,7 @@ namespace FluidProperties {
             cTsh.sh = this->getSpecificHeat_raw(state, Temperature, CalledFrom);
         }
 
+        // print(state.files.eio, "SH,{},{},{}\n", this->Num, CalledFrom, cTsh.sh);
         return cTsh.sh; // saturation pressure {Pascals}
     }
 
@@ -4235,6 +4236,7 @@ namespace FluidProperties {
             }
         }
 
+        // print(state.files.eio, "D,{},{},{}\n", this->Num, CalledFrom, Rho);
         return Rho;
     }
 
