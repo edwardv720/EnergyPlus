@@ -82,7 +82,7 @@ namespace PlantManager {
         state->dataPlnt->PlantLoop(1).CirculationTime = 2;
         state->dataPlnt->PlantLoop(1).FluidType = DataLoopNode::NodeFluidType::Water;
         state->dataPlnt->PlantLoop(1).FluidIndex = 1;
-        state->dataPlnt->PlantLoop(1).glycol = FluidProperties::GetWater(*state);
+        state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
         SizePlantLoop(*state, 1, true);
         int TestVolume = 600;
         EXPECT_EQ(TestVolume, state->dataPlnt->PlantLoop(1).Volume);

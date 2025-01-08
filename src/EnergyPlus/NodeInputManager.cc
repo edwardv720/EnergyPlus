@@ -1018,7 +1018,7 @@ void CalcMoreNodeInfo(EnergyPlusData &state)
             nodeReportingStrings.push_back(std::string(NodeReportingCalc + state.dataLoopNodes->NodeID(iNode)));
             nodeFluids.push_back((state.dataLoopNodes->Node(iNode).FluidIndex == 0) ?
                                  nullptr :
-                                 state.dataFluidProps->glycols(state.dataLoopNodes->Node(iNode).FluidIndex));
+                                 state.dataFluid->glycols(state.dataLoopNodes->Node(iNode).FluidIndex));
 
             for (auto const *reqVar : state.dataOutputProcessor->reqVars) {
                 if (Util::SameString(reqVar->key, state.dataLoopNodes->NodeID(iNode)) || reqVar->key.empty()) {
@@ -1130,7 +1130,7 @@ void CalcMoreNodeInfo(EnergyPlusData &state)
         } else if (state.dataLoopNodes->Node(iNode).FluidType == DataLoopNode::NodeFluidType::Water) {
 
             if (!((state.dataLoopNodes->Node(iNode).FluidIndex > 0) &&
-                  (state.dataLoopNodes->Node(iNode).FluidIndex <= state.dataFluidProps->glycols.isize()))) {
+                  (state.dataLoopNodes->Node(iNode).FluidIndex <= state.dataFluid->glycols.isize()))) {
                 rho = RhoWaterStdInit;
                 rhoStd = RhoWaterStdInit;
                 Cp = CPCW(state.dataLoopNodes->Node(iNode).Temp);
@@ -1155,7 +1155,7 @@ void CalcMoreNodeInfo(EnergyPlusData &state)
             state.dataLoopNodes->MoreNodeInfo(iNode).RelHumidity = 100.0;
         } else if (state.dataLoopNodes->Node(iNode).FluidType == DataLoopNode::NodeFluidType::Steam) {
             if (state.dataLoopNodes->Node(iNode).Quality == 1.0) {
-                auto *steam = FluidProperties::GetSteam(state);
+                auto *steam = Fluid::GetSteam(state);
                 SteamDensity = steam->getSatDensity(state, state.dataLoopNodes->Node(iNode).Temp, state.dataLoopNodes->Node(iNode).Quality, RoutineName);
                 EnthSteamInDry = steam->getSatEnthalpy(state, state.dataLoopNodes->Node(iNode).Temp, state.dataLoopNodes->Node(iNode).Quality, RoutineName);
                 state.dataLoopNodes->MoreNodeInfo(iNode).VolFlowRateStdRho = state.dataLoopNodes->Node(iNode).MassFlowRate / SteamDensity;

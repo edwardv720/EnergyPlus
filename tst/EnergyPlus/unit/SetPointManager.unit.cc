@@ -189,8 +189,8 @@ TEST_F(EnergyPlusFixture, SetPointManager_DefineReturnWaterChWSetPointManager_Fl
 
     ASSERT_TRUE(process_idf(idf_objects));
 
-    EXPECT_EQ(2, state->dataFluidProps->glycols.isize());
-    const auto *glycol = state->dataFluidProps->glycols(2);
+    EXPECT_EQ(2, state->dataFluid->glycols.isize());
+    const auto *glycol = state->dataFluid->glycols(2);
     EXPECT_EQ("ETHYLENEGLYCOL40PERCENT", glycol->Name);
     EXPECT_EQ("ETHYLENEGLYCOL", glycol->GlycolName);
 

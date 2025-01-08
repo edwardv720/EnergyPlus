@@ -217,7 +217,7 @@ namespace LowTempRadiantSystem {
         int ColdWaterInNode = 0;    // cold water inlet node
         int ColdWaterOutNode = 0;   // cold water outlet node
         PlantLocation CWPlantLoc{};
-        FluidProperties::GlycolProps *water = nullptr; // Water properties
+        Fluid::GlycolProps *water = nullptr; // Water properties
             
         int CondErrIndex = 0;            // Error index for recurring warning messages
         Real64 CondCausedTimeOff = 0.0;  // Amount of time condensation did or could have turned system off

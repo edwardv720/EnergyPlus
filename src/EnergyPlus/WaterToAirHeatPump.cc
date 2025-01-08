@@ -197,7 +197,7 @@ namespace WaterToAirHeatPump {
         // Using/Aliasing
         using namespace NodeInputManager;
         using BranchNodeConnections::TestCompSet;
-        using FluidProperties::CheckFluidPropertyName;
+        using Fluid::CheckFluidPropertyName;
         using GlobalNames::VerifyUniqueCoilName;
         using PlantUtilities::RegisterPlantCompDesignFlow;
         using namespace OutputReportPredefined;
@@ -292,7 +292,7 @@ namespace WaterToAirHeatPump {
             if (heatPump.Refrigerant.empty()) {
                 ShowSevereEmptyField(state, eoh, cAlphaFields(3));
                 ErrorsFound = true;
-            } else if ((heatPump.refrig = FluidProperties::GetRefrig(state, heatPump.Refrigerant)) == nullptr) {
+            } else if ((heatPump.refrig = Fluid::GetRefrig(state, heatPump.Refrigerant)) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(3), AlphArray(3));
                 ErrorsFound = true;
             }
@@ -548,7 +548,7 @@ namespace WaterToAirHeatPump {
             if (heatPump.Refrigerant.empty()) {
                 ShowSevereEmptyField(state, eoh, cAlphaFields(3));
                 ErrorsFound = true;
-            } else if ((heatPump.refrig = FluidProperties::GetRefrig(state, heatPump.Refrigerant)) == nullptr) {
+            } else if ((heatPump.refrig = Fluid::GetRefrig(state, heatPump.Refrigerant)) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(3), AlphArray(3));
                 ErrorsFound = true;
             }
@@ -1442,7 +1442,7 @@ namespace WaterToAirHeatPump {
                                                                                                            heatPump.InletWaterTemp,
                                                                                                            RoutineNameSourceSideInletTemp);
 
-                    if (state.dataPlnt->PlantLoop(heatPump.plantLoc.loopNum).glycol->Num == FluidProperties::GlycolNum_Water) { 
+                    if (state.dataPlnt->PlantLoop(heatPump.plantLoc.loopNum).glycol->Num == Fluid::GlycolNum_Water) { 
                         SourceSideEffect = 1.0 - std::exp(-heatPump.SourceSideUACoeff / (CpFluid * heatPump.InletWaterMassFlowRate));
                     } else {
                         DegradFactor = DegradF(state, state.dataPlnt->PlantLoop(heatPump.plantLoc.loopNum).glycol, heatPump.InletWaterTemp);
@@ -1892,7 +1892,7 @@ namespace WaterToAirHeatPump {
                                                                                                        heatPump.InletWaterTemp,
                                                                                                        RoutineNameSourceSideInletTemp);
 
-                if (state.dataPlnt->PlantLoop(heatPump.plantLoc.loopNum).glycol->Num == FluidProperties::GlycolNum_Water) {
+                if (state.dataPlnt->PlantLoop(heatPump.plantLoc.loopNum).glycol->Num == Fluid::GlycolNum_Water) {
                     SourceSideEffect =
                         1.0 - std::exp(-heatPump.SourceSideUACoeff / (CpFluid * heatPump.InletWaterMassFlowRate)); 
                 } else {
@@ -2378,7 +2378,7 @@ namespace WaterToAirHeatPump {
     }
 
     Real64 DegradF(EnergyPlusData &state,
-                   FluidProperties::GlycolProps *glycol, 
+                   Fluid::GlycolProps *glycol, 
                    Real64 &Temp           // Temperature of the fluid
     )
     {
@@ -2415,7 +2415,7 @@ namespace WaterToAirHeatPump {
         Real64 CpCoolant;      // Specific heat of water [J/kg-K]
         Real64 CondCoolant;    // Conductivity of water [W/m-K]
 
-        auto *water = FluidProperties::GetWater(state);
+        auto *water = Fluid::GetWater(state);
         
         VisWater = water->getViscosity(state, Temp, CalledFrom);
         DensityWater = water->getDensity(state, Temp, CalledFrom);

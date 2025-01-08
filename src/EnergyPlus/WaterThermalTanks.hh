@@ -652,7 +652,7 @@ namespace WaterThermalTanks {
         int FreezingErrorIndex;        // recurring error index for freeze conditions
         WaterHeaterSizingData Sizing;  // ancillary data for autosizing
 
-        FluidProperties::GlycolProps *water = nullptr; // Water properties
+        Fluid::GlycolProps *water = nullptr; // Water properties
             
         bool MyOneTimeFlagWH;          // first pass log
         bool MyTwoTimeFlagWH;          // second pass do input check

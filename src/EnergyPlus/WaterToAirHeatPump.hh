@@ -80,7 +80,7 @@ namespace WaterToAirHeatPump {
         std::string WatertoAirHPType;           // Type of WatertoAirHP ie. Heating or Cooling
         DataPlant::PlantEquipmentType WAHPType; // type of component in plant
         std::string Refrigerant;                // Refrigerant name
-        FluidProperties::RefrigProps *refrig = nullptr;
+        Fluid::RefrigProps *refrig = nullptr;
         bool SimFlag;
         Real64 InletAirMassFlowRate;       // Inlet Air Mass Flow through the Water to Air Heat Pump being Simulated [kg/s]
         Real64 OutletAirMassFlowRate;      // Outlet Air Mass Flow through the Water to Air Heat Pump being Simulated [kg/s]
@@ -221,7 +221,7 @@ namespace WaterToAirHeatPump {
     );
 
     Real64 DegradF(EnergyPlusData &state,
-                   FluidProperties::GlycolProps *glycol, 
+                   Fluid::GlycolProps *glycol, 
                    Real64 &Temp           // Temperature of the fluid
     );
 

@@ -198,9 +198,9 @@ void GetTESCoilInput(EnergyPlusData &state)
     // Using/Aliasing
     using BranchNodeConnections::TestCompSet;
     using DataZoneEquipment::FindControlledZoneIndexFromSystemNodeNumberForZone;
-    using FluidProperties::CheckFluidPropertyName;
-    using FluidProperties::GetFluidDensityTemperatureLimits;
-    using FluidProperties::GetFluidSpecificHeatTemperatureLimits;
+    using Fluid::CheckFluidPropertyName;
+    using Fluid::GetFluidDensityTemperatureLimits;
+    using Fluid::GetFluidSpecificHeatTemperatureLimits;
     using GlobalNames::VerifyUniqueCoilName;
     using NodeInputManager::GetOnlySingleNode;
     using ScheduleManager::GetScheduleIndex;
@@ -290,8 +290,8 @@ void GetTESCoilInput(EnergyPlusData &state)
             break;
         case MediaType::Water:
             thisTESCoil.StorageFluidName = "WATER";
-            thisTESCoil.StorageFluidIndex = FluidProperties::GetGlycolNum(state, "WATER");
-            thisTESCoil.glycol = FluidProperties::GetWater(state);
+            thisTESCoil.StorageFluidIndex = Fluid::GetGlycolNum(state, "WATER");
+            thisTESCoil.glycol = Fluid::GetWater(state);
             break;
         default:
             ShowSevereError(state, format("{}{}=\"{}\", invalid", RoutineName, cCurrentModuleObject, thisTESCoil.Name));
@@ -305,7 +305,7 @@ void GetTESCoilInput(EnergyPlusData &state)
             if (!state.dataIPShortCut->lAlphaFieldBlanks(6)) {
                 ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaFieldNames(6));
                 ErrorsFound = true;
-            } else if ((thisTESCoil.glycol = FluidProperties::GetGlycol(state, state.dataIPShortCut->cAlphaArgs(6))) == nullptr) {
+            } else if ((thisTESCoil.glycol = Fluid::GetGlycol(state, state.dataIPShortCut->cAlphaArgs(6))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(6), state.dataIPShortCut->cAlphaArgs(6));
                 ErrorsFound = true;
             } 

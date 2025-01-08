@@ -122,7 +122,7 @@ namespace SteamCoils {
         int SteamOutletNodeNum;                                // SteamOutletNodeNum
         int TempSetPointNodeNum;                               // If applicable : node number that the temp setpoint exists.
         CoilControlType TypeOfCoil = CoilControlType::Invalid; // Control of Coil , temperature or Zone load
-        FluidProperties::RefrigProps *steam = nullptr;                                        // FluidProperties (Steam)
+        Fluid::RefrigProps *steam = nullptr;                                        // FluidProperties (Steam)
         PlantLocation plantLoc;                                // Location object for plant component for steam coil
         DataPlant::PlantEquipmentType CoilType;                // plant level index for coil type
         Real64 OperatingCapacity;                              // capacity of steam coil at operating conditions (W)

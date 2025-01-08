@@ -357,7 +357,7 @@ void GetGshpInput(EnergyPlusData &state)
         thisGSHP.IsOn = false;
         thisGSHP.MustRun = true;
 
-        if ((thisGSHP.refrig = FluidProperties::GetRefrig(state, GSHPRefrigerant)) == nullptr) {
+        if ((thisGSHP.refrig = Fluid::GetRefrig(state, GSHPRefrigerant)) == nullptr) {
             ShowSevereItemNotFound(state, eoh, "Refrigerant", GSHPRefrigerant);
             ErrorsFound = true;
         }

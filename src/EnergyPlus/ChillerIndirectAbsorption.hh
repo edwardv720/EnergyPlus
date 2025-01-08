@@ -138,7 +138,7 @@ namespace ChillerIndirectAbsorption {
         DataLoopNode::NodeFluidType GenHeatSourceType =
             DataLoopNode::NodeFluidType::Blank;                      // Generator heat source type, DataLoopNode::NodeFluidType::Steam=3 or
                                                                      // DataLoopNode::NodeFluidType::Water=2
-        FluidProperties::RefrigProps *steam = nullptr; // STEAM Fluid Properties
+        Fluid::RefrigProps *steam = nullptr; // STEAM Fluid Properties
         bool Available = false;                                      // need an array of logicals--load identifiers of available equipment
         bool ON = false;                                             // simulate the machine at it's operating part load ratio
         DataPlant::FlowMode FlowMode = DataPlant::FlowMode::Invalid; // one of 3 modes for component flow during operation
@@ -178,7 +178,7 @@ namespace ChillerIndirectAbsorption {
         ReportVars Report;
         DataBranchAirLoopPlant::ControlType EquipFlowCtrl = DataBranchAirLoopPlant::ControlType::Invalid;
 
-        FluidProperties::GlycolProps *water = nullptr;
+        Fluid::GlycolProps *water = nullptr;
 
         static IndirectAbsorberSpecs *factory(EnergyPlusData &state, std::string const &objectName);
 

@@ -138,7 +138,7 @@ namespace Pumps {
         int InletNodeNum = 0;                                              // Node number on the inlet side of the plant
         int OutletNodeNum = 0;                                             // Node number on the outlet side of the plant
         PumpBankControlSeq SequencingScheme = PumpBankControlSeq::Invalid; // Optimal, Sequential, User-Defined
-        // FluidProperties::RefrigProps *fluid = nullptr;                                                // Index for Fluid Properties
+        // Fluid::RefrigProps *fluid = nullptr;                                                // Index for Fluid Properties
         int NumPumpsInBank = 0;                                            // Node number on the inlet side of the plant
         int PowerErrIndex1 = 0;                                            // for recurring errors
         int PowerErrIndex2 = 0;                                            // for recurring errors

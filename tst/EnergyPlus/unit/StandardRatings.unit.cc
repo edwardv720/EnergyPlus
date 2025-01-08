@@ -1286,7 +1286,7 @@ TEST_F(EnergyPlusFixture, ChillerIPLVTestWaterCooledReform)
     state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).PlantSizNum = 1;
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
-    state->dataPlnt->PlantLoop(1).glycol = FluidProperties::GetWater(*state);
+    state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
 
     Real64 IPLVSI = 0.0;
     Real64 IPLVIP = 0.0;

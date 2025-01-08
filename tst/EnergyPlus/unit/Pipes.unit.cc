@@ -97,7 +97,7 @@ TEST_F(EnergyPlusFixture, CalcPipeHeatTransCoef)
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Supply).TotalBranches = 0; // just skip the supply side search
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
     state->dataPlnt->PlantLoop(1).FluidIndex = 1;
-    state->dataPlnt->PlantLoop(1).glycol = FluidProperties::GetWater(*state);
+    state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
 
     state->dataPipeHT->nsvNumOfPipeHT = 1;
     state->dataPipeHT->PipeHT.allocate(state->dataPipeHT->nsvNumOfPipeHT);

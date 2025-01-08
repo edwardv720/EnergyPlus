@@ -206,7 +206,7 @@ void GetPondGroundHeatExchanger(EnergyPlusData &state)
                                                                  state.dataIPShortCut->cAlphaFieldNames,
                                                                  state.dataIPShortCut->cNumericFieldNames);
 
-        if ((state.dataPondGHE->PondGHE(Item).water = FluidProperties::GetWater(state)) == nullptr) {
+        if ((state.dataPondGHE->PondGHE(Item).water = Fluid::GetWater(state)) == nullptr) {
             ShowSevereError(state, "Fluid Properties for WATER not found");
             ErrorsFound = true;
         }

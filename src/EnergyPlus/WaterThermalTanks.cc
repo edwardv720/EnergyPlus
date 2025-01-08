@@ -2307,7 +2307,7 @@ bool getWaterHeaterMixedInputs(EnergyPlusData &state)
         Tank.Type = state.dataIPShortCut->cCurrentModuleObject;
         Tank.WaterThermalTankType = DataPlant::PlantEquipmentType::WtrHeaterMixed;
         
-        if ((Tank.water = FluidProperties::GetWater(state)) == nullptr) {
+        if ((Tank.water = Fluid::GetWater(state)) == nullptr) {
             ShowSevereError(state, "Fluid properties for WATER not found");
             ErrorsFound = true;
         }
@@ -2830,7 +2830,7 @@ bool getWaterHeaterStratifiedInput(EnergyPlusData &state)
         Tank.Type = state.dataIPShortCut->cCurrentModuleObject;
         Tank.WaterThermalTankType = DataPlant::PlantEquipmentType::WtrHeaterStratified;
 
-        if ((Tank.water = FluidProperties::GetWater(state)) == nullptr) {
+        if ((Tank.water = Fluid::GetWater(state)) == nullptr) {
             ShowSevereError(state, "Fluid Properties for WATER not found.");
             ErrorsFound = true;
         }
@@ -3477,7 +3477,7 @@ bool getWaterTankMixedInput(EnergyPlusData &state)
         Tank.Type = state.dataIPShortCut->cCurrentModuleObject;
         Tank.WaterThermalTankType = DataPlant::PlantEquipmentType::ChilledWaterTankMixed;
 
-        if ((Tank.water = FluidProperties::GetWater(state)) == nullptr) {
+        if ((Tank.water = Fluid::GetWater(state)) == nullptr) {
             ShowSevereError(state, "Fluid Properties for WATER not found");
             ErrorsFound = true;
         }
@@ -3790,7 +3790,7 @@ bool getWaterTankStratifiedInput(EnergyPlusData &state)
         Tank.Type = state.dataIPShortCut->cCurrentModuleObject;
         Tank.WaterThermalTankType = DataPlant::PlantEquipmentType::ChilledWaterTankStratified;
 
-        if ((Tank.water = FluidProperties::GetWater(state)) == nullptr) {
+        if ((Tank.water = Fluid::GetWater(state)) == nullptr) {
             ShowSevereError(state, "Fluid properties for WATER not found");
             ErrorsFound = true;
         }

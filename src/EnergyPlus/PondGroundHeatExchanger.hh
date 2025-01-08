@@ -103,7 +103,7 @@ namespace PondGroundHeatExchanger {
         bool MyFlag;
         bool setupOutputVarsFlag;
 
-        FluidProperties::GlycolProps *water = nullptr;
+        Fluid::GlycolProps *water = nullptr;
 
         bool firstTimeThrough;
 

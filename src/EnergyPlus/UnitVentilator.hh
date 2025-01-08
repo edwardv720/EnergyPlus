@@ -140,7 +140,7 @@ namespace UnitVentilator {
         std::string HCoilTypeCh;                        // type of heating coil character string (same as type on idf file).
         int HCoil_Index = 0;
         DataPlant::PlantEquipmentType HeatingCoilType = DataPlant::PlantEquipmentType::Invalid;
-        FluidProperties::RefrigProps *HCoil_fluid = nullptr;
+        Fluid::RefrigProps *HCoil_fluid = nullptr;
         int HCoilSchedPtr = 0; // index to schedule
         Real64 HCoilSchedValue = 0.0;
         Real64 MaxVolHotWaterFlow = 0.0; // m3/s

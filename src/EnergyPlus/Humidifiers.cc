@@ -708,7 +708,6 @@ namespace Humidifiers {
 
         // Using/Aliasing
         using DataSizing::AutoSize;
-        using FluidProperties::GetSatEnthalpyRefrig;
 
         using Psychrometrics::PsyRhoAirFnPbTdbW;
         using Psychrometrics::RhoH2O;
@@ -862,8 +861,8 @@ namespace Humidifiers {
 
             NomCap = RhoH2O(Constant::InitConvTemp) * NomCapVol;
 
-            auto *water = FluidProperties::GetWater(state);
-            auto *steam = FluidProperties::GetSteam(state);
+            auto *water = Fluid::GetWater(state);
+            auto *steam = Fluid::GetSteam(state);
             SteamSatEnthalpy = steam->getSatEnthalpy(state, TSteam, 1.0, CalledFrom);
             WaterSatEnthalpy = steam->getSatEnthalpy(state, TSteam, 0.0, CalledFrom);
             WaterSpecHeatAvg = 0.5 * (water->getSpecificHeat(state, TSteam, CalledFrom) + water->getSpecificHeat(state, Tref, CalledFrom));
@@ -1145,8 +1144,6 @@ namespace Humidifiers {
 
         // Using/Aliasing
         using Curve::CurveValue;
-        using FluidProperties::GetSatEnthalpyRefrig;
-        using FluidProperties::GetSpecificHeatGlycol;
         using Psychrometrics::PsyHFnTdbW;
         using Psychrometrics::PsyTdbFnHW;
         using Psychrometrics::PsyWFnTdbRhPb;
@@ -1234,8 +1231,8 @@ namespace Humidifiers {
                 }
                 Tref = CurMakeupWaterTemp;
 
-                auto *water = FluidProperties::GetWater(state);
-                auto *steam = FluidProperties::GetSteam(state);
+                auto *water = Fluid::GetWater(state);
+                auto *steam = Fluid::GetSteam(state);
                 SteamSatEnthalpy = steam->getSatEnthalpy(state, TSteam, 1.0, RoutineName);
                 WaterSatEnthalpy = steam->getSatEnthalpy(state, TSteam, 0.0, RoutineName);
                 WaterSpecHeatAvg = 0.5 * (water->getSpecificHeat(state, TSteam, RoutineName) + water->getSpecificHeat(state, Tref, RoutineName));

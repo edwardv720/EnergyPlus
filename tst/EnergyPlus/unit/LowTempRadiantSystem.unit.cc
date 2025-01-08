@@ -111,7 +111,7 @@ protected:
     {
         EnergyPlusFixture::SetUp(); // Sets up the base fixture first.
 
-        state->dataFluidProps->init_state(*state);
+        state->dataFluid->init_state(*state);
         
         state->dataLowTempRadSys->ElecRadSys.allocate(1);
         state->dataLowTempRadSys->HydrRadSys.allocate(1);
@@ -149,12 +149,12 @@ protected:
         state->dataPlnt->PlantLoop(1).Name = "Hot Water Loop";
         state->dataPlnt->PlantLoop(1).FluidName = "WATER";
         state->dataPlnt->PlantLoop(1).FluidIndex = 1;
-        state->dataPlnt->PlantLoop(1).glycol = FluidProperties::GetWater(*state);
+        state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
 
         state->dataPlnt->PlantLoop(2).Name = "Chilled Water Loop";
         state->dataPlnt->PlantLoop(2).FluidName = "WATER";
         state->dataPlnt->PlantLoop(2).FluidIndex = 1;
-        state->dataPlnt->PlantLoop(2).glycol = FluidProperties::GetWater(*state);
+        state->dataPlnt->PlantLoop(2).glycol = Fluid::GetWater(*state);
 
         state->dataSize->PlantSizData(1).PlantLoopName = "Hot Water Loop";
         state->dataSize->PlantSizData(1).ExitTemp = 80.0;

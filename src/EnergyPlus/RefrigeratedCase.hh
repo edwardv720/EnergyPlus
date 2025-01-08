@@ -557,7 +557,7 @@ namespace RefrigeratedCase {
     {
         std::string Name;                    // Name of refrigeration system
         std::string RefrigerantName;         // Name of refrigerant, must match name in FluidName
-        FluidProperties::RefrigProps *refrig = nullptr; 
+        Fluid::RefrigProps *refrig = nullptr; 
         std::string EndUseSubcategory;       // Used for reporting purposes
         bool SystemRejectHeatToZone = false; // Flag to show air-cooled condenser located inside zone
         bool CoilFlag = false;               // Flag to show if coil type load on system (even if below in a secondary)
@@ -700,7 +700,7 @@ namespace RefrigeratedCase {
         std::string Name;            // Name of transcritical CO2 refrigeration system
         std::string RefrigerantName; // Name of refrigerant, must match name in FluidName
         //    (see fluidpropertiesrefdata.idf)
-        FluidProperties::RefrigProps *refrig = nullptr;
+        Fluid::RefrigProps *refrig = nullptr;
       
         std::string EndUseSubcategory;       // Used for reporting purposes
         bool SystemRejectHeatToZone = false; // Flag to show air-cooled gas cooler located inside zone
@@ -1093,8 +1093,8 @@ namespace RefrigeratedCase {
         std::string Name;                                   // Name of refrigeration system
         std::string FluidName;                              // Name of circulating fluid
         int FluidIndex = 0;                                 // Numerical ID used for calls to properties subroutine
-        FluidProperties::GlycolProps *glycol = nullptr;
-        FluidProperties::RefrigProps *refrig = nullptr;
+        Fluid::GlycolProps *glycol = nullptr;
+        Fluid::RefrigProps *refrig = nullptr;
         std::string EndUseSubcategory;                      // Used for reporting purposes
         Array1D_int CaseNum;                                // Absolute Index of cases (dimensioned 1 to NumCases)
         Array1D_int CoilNum;                                // Absolute Index of coils (dimensioned 1 to NumCoils)

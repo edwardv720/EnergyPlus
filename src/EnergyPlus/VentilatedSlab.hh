@@ -189,7 +189,7 @@ namespace VentilatedSlab {
         std::string heatingCoilTypeCh; // type of heating coil (character string)
         int heatingCoil_Index;
         DataPlant::PlantEquipmentType heatingCoilType;
-        FluidProperties::RefrigProps *heatingCoil_fluid = nullptr;
+        Fluid::RefrigProps *heatingCoil_fluid = nullptr;
         int heatingCoilSchedPtr; // index to schedule
         Real64 heatingCoilSchedValue;
         Real64 MaxVolHotWaterFlow; // m3/s

@@ -4600,8 +4600,8 @@ void GetRefrigerationInput(EnergyPlusData &state)
                 if (Secondary(SecondaryNum).FluidName.empty()) {
                     ShowSevereEmptyField(state, eoh, cAlphaFieldNames(AlphaNum));
                     ErrorsFound = true;
-                } else if ((Secondary(SecondaryNum).glycol = FluidProperties::GetGlycol(state, Secondary(SecondaryNum).FluidName)) != nullptr) {
-                } else if ((Secondary(SecondaryNum).refrig = FluidProperties::GetRefrig(state, Secondary(SecondaryNum).FluidName)) != nullptr) {
+                } else if ((Secondary(SecondaryNum).glycol = Fluid::GetGlycol(state, Secondary(SecondaryNum).FluidName)) != nullptr) {
+                } else if ((Secondary(SecondaryNum).refrig = Fluid::GetRefrig(state, Secondary(SecondaryNum).FluidName)) != nullptr) {
                 } else {
                     ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(AlphaNum), Alphas(AlphaNum));
                     ErrorsFound = true;
@@ -5988,7 +5988,7 @@ void GetRefrigerationInput(EnergyPlusData &state)
             if (System(RefrigSysNum).RefrigerantName.empty()) {
                 ShowSevereEmptyField(state, eoh, Alphas(AlphaNum));
                 ErrorsFound = true;
-            } else if ((System(RefrigSysNum).refrig = FluidProperties::GetRefrig(state, System(RefrigSysNum).RefrigerantName)) == nullptr) {
+            } else if ((System(RefrigSysNum).refrig = Fluid::GetRefrig(state, System(RefrigSysNum).RefrigerantName)) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(AlphaNum), Alphas(AlphaNum));
                 ErrorsFound = true;
             }
@@ -6489,7 +6489,7 @@ void GetRefrigerationInput(EnergyPlusData &state)
             if (TransSystem(TransRefrigSysNum).RefrigerantName.empty()) {
                 ShowSevereEmptyField(state, eoh, Alphas(AlphaNum));
                 ErrorsFound = true;
-            } else if ((TransSystem(TransRefrigSysNum).refrig = FluidProperties::GetRefrig(state, TransSystem(TransRefrigSysNum).RefrigerantName)) == nullptr) {
+            } else if ((TransSystem(TransRefrigSysNum).refrig = Fluid::GetRefrig(state, TransSystem(TransRefrigSysNum).RefrigerantName)) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(AlphaNum), Alphas(AlphaNum));
                 ErrorsFound = true;
             }
@@ -13429,11 +13429,11 @@ void RefrigSystemData::CalculateCompressors(EnergyPlusData &state)
             TsatforPdisch = this->TCondense + DelTDischPipes;
             TsatforPsuct = this->TIntercooler;
             HsatVaporforTevapneeded = this->refrig->getSatEnthalpy(state, this->TIntercooler, 1.0, RoutineName);
-            //                HSatLiqCond = FluidProperties::GetSatEnthalpyRefrig(state, RefrigerantName, TCondense, 0.0, RefIndex,
+            //                HSatLiqCond = Fluid::GetSatEnthalpyRefrig(state, RefrigerantName, TCondense, 0.0, RefIndex,
             // RoutineName
             //);
             ////Autodesk:Tuned These don't change for 2nd stage
-            //                CpSatLiqCond = FluidProperties::GetSatSpecificHeatRefrig(RefrigerantName, TCondense, 0.0, RefIndex,
+            //                CpSatLiqCond = Fluid::GetSatSpecificHeatRefrig(RefrigerantName, TCondense, 0.0, RefIndex,
             // RoutineName );
             ////Autodesk:Tuned These don't change for 2nd stage
             this->HCaseIn = this->HSatLiqCond - this->CpSatLiqCond * Condenser1.RatedSubcool;

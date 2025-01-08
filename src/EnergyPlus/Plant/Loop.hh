@@ -92,8 +92,8 @@ namespace DataPlant {
         DataLoopNode::NodeFluidType FluidType; // Type of fluid in the loop
         int FluidIndex = 0;
 
-        FluidProperties::GlycolProps *glycol = nullptr;
-        FluidProperties::RefrigProps *steam = nullptr;
+        Fluid::GlycolProps *glycol = nullptr;
+        Fluid::RefrigProps *steam = nullptr;
       
         int MFErrIndex;                        // for recurring mass flow errors
         int MFErrIndex1;                       // for recurring mass flow errors

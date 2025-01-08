@@ -184,7 +184,7 @@ TEST_F(EnergyPlusFixture, GroundHeatExchangerTest_Slinky_CalcHXResistance)
 
     state->dataPlnt->PlantLoop(thisGLHE.plantLoc.loopNum).FluidName = "WATER";
     state->dataPlnt->PlantLoop(thisGLHE.plantLoc.loopNum).FluidIndex = 1;
-    state->dataPlnt->PlantLoop(thisGLHE.plantLoc.loopNum).glycol = FluidProperties::GetWater(*state);
+    state->dataPlnt->PlantLoop(thisGLHE.plantLoc.loopNum).glycol = Fluid::GetWater(*state);
 
     thisGLHE.inletTemp = 5.0;
     thisGLHE.massFlowRate = 0.01;

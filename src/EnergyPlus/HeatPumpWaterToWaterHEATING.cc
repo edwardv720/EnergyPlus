@@ -347,7 +347,7 @@ void GetGshpInput(EnergyPlusData &state)
         // save the design source side flow rate for use by plant loop sizing algorithms
         PlantUtilities::RegisterPlantCompDesignFlow(state, thisGSHP.SourceSideInletNodeNum, 0.5 * thisGSHP.SourceSideVolFlowRate);
 
-        if ((thisGSHP.refrig = FluidProperties::GetRefrig(state, GSHPRefrigerant)) == nullptr) { 
+        if ((thisGSHP.refrig = Fluid::GetRefrig(state, GSHPRefrigerant)) == nullptr) { 
             ShowSevereItemNotFound(state, eoh, "Refrigerant", GSHPRefrigerant);
             ErrorsFound = true;
         }

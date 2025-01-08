@@ -109,7 +109,7 @@ namespace UnitHeater {
         std::string HCoilName;                    // name of heating coil
         int HCoil_Index;
         DataPlant::PlantEquipmentType HeatingCoilType;
-        FluidProperties::RefrigProps *HCoil_fluid = nullptr;
+        Fluid::RefrigProps *HCoil_fluid = nullptr;
         Real64 MaxVolHotWaterFlow; // m3/s
         Real64 MaxVolHotSteamFlow; // m3/s
         Real64 MaxHotWaterFlow;    // kg/s

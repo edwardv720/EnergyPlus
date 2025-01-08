@@ -368,7 +368,7 @@ namespace SteamCoils {
             TestCompSet(state, CurrentModuleObject, AlphArray(1), AlphArray(3), AlphArray(4), "Steam Nodes");
             TestCompSet(state, CurrentModuleObject, AlphArray(1), AlphArray(5), AlphArray(6), "Air Nodes");
 
-            state.dataSteamCoils->SteamCoil(CoilNum).steam = FluidProperties::GetSteam(state);
+            state.dataSteamCoils->SteamCoil(CoilNum).steam = Fluid::GetSteam(state);
             if (state.dataSteamCoils->SteamCoil(CoilNum).steam == nullptr && CoilNum == 1) {
                 ShowSevereError(state, format("{}Steam Properties for {} not found.", RoutineName, AlphArray(1)));
                 ShowContinueError(state, "Steam Fluid Properties should have been included in the input file.");
@@ -559,7 +559,7 @@ namespace SteamCoils {
 
             state.dataLoopNodes->Node(SteamInletNode).Temp = 100.0;
             state.dataLoopNodes->Node(SteamInletNode).Press = 101325.0;
-            auto *steam = FluidProperties::GetSteam(state);
+            auto *steam = Fluid::GetSteam(state);
             SteamDensity = steam->getSatDensity(state, state.dataLoopNodes->Node(SteamInletNode).Temp, 1.0, RoutineName);
             StartEnthSteam = steam->getSatEnthalpy(state, state.dataLoopNodes->Node(SteamInletNode).Temp, 1.0, RoutineName);
             state.dataLoopNodes->Node(SteamInletNode).Enthalpy = StartEnthSteam;

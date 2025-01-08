@@ -121,7 +121,7 @@ TEST_F(EnergyPlusFixture, DistrictCoolingandHeating)
     thisHotWaterLoop.Name = "HotWaterLoop";
     thisHotWaterLoop.FluidName = "WATER";
     thisHotWaterLoop.FluidIndex = 1;
-    thisHotWaterLoop.glycol = FluidProperties::GetWater(*state);
+    thisHotWaterLoop.glycol = Fluid::GetWater(*state);
     thisHotWaterLoop.MinTemp = 1.0;
     thisHotWaterLoop.MaxTemp = 99.0;
     thisHotWaterLoop.MinMassFlowRate = 0.001;
@@ -153,7 +153,7 @@ TEST_F(EnergyPlusFixture, DistrictCoolingandHeating)
     thisChilledWaterLoop.Name = "ChilledWaterLoop";
     thisChilledWaterLoop.FluidName = "WATER";
     thisChilledWaterLoop.FluidIndex = 1;
-    thisChilledWaterLoop.glycol = FluidProperties::GetWater(*state);
+    thisChilledWaterLoop.glycol = Fluid::GetWater(*state);
     
     thisChilledWaterLoop.MinTemp = 1.0;
     thisChilledWaterLoop.MaxTemp = 99.0;
@@ -187,8 +187,8 @@ TEST_F(EnergyPlusFixture, DistrictCoolingandHeating)
     thisSteamLoop.Name = "SteamLoop";
     thisSteamLoop.FluidName = "STEAM";
     thisSteamLoop.FluidIndex = 1;
-    thisSteamLoop.steam = FluidProperties::GetSteam(*state);
-    thisSteamLoop.glycol = FluidProperties::GetWater(*state);
+    thisSteamLoop.steam = Fluid::GetSteam(*state);
+    thisSteamLoop.glycol = Fluid::GetWater(*state);
     thisSteamLoop.MinMassFlowRate = 0.00001;
     thisSteamLoop.MaxMassFlowRate = 20;
     thisSteamLoop.TempSetPointNodeNum = thisDistrictHeatingSteam.OutletNodeNum;

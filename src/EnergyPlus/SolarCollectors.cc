@@ -2040,7 +2040,7 @@ namespace SolarCollectors {
         Real64 TReference = TAbsorber - 0.25 * (TAbsorber - TWater);
         // record fluid prop index for water
 
-        auto *water = FluidProperties::GetWater(state);
+        auto *water = Fluid::GetWater(state);
         // find properties of water - always assume water
         Real64 WaterSpecHeat = water->getSpecificHeat(state, max(TReference, 0.0), CalledFrom);
         Real64 CondOfWater = water->getConductivity(state, max(TReference, 0.0), CalledFrom);

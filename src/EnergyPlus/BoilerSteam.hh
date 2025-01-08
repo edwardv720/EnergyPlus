@@ -98,7 +98,7 @@ namespace BoilerSteam {
         int TypeNum = 0;                                     // Plant loop type identifier
         PlantLocation plantLoc;
         int PressErrIndex = 0;         // index pointer for recurring errors
-        FluidProperties::RefrigProps *fluid = nullptr;            // Steam fluid properties
+        Fluid::RefrigProps *fluid = nullptr;            // Steam fluid properties
         std::string EndUseSubcategory; // identifier use for the end use subcategory
         bool myFlag = true;
         bool myEnvrnFlag = true;

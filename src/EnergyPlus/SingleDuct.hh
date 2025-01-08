@@ -389,7 +389,7 @@ struct SingleDuctData : BaseGlobalStruct
     int CoilWaterOutletNodeSS = 0;
     int CoilSteamInletNodeSS = 0;
     int CoilSteamOutletNodeSS = 0;
-    FluidProperties::GlycolProps *water = nullptr;
+    Fluid::GlycolProps *water = nullptr;
     Real64 UserInputMaxHeatAirVolFlowRateSS = 0.0; // user input for MaxHeatAirVolFlowRate
     Real64 MinAirMassFlowRevActSVAV = 0.0;         // minimum air mass flow rate used in "reverse action" air mass flow rate calculation
     Real64 MaxAirMassFlowRevActSVAV = 0.0;         // maximum air mass flow rate used in "reverse action" air mass flow rate calculation

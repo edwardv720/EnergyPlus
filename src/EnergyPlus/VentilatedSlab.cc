@@ -1033,7 +1033,7 @@ namespace VentilatedSlab {
                     }
                     case HeatingCoilType::Steam: {
                         ventSlab.heatingCoilType = DataPlant::PlantEquipmentType::CoilSteamAirHeating;
-                        ventSlab.heatingCoil_fluid = FluidProperties::GetSteam(state);
+                        ventSlab.heatingCoil_fluid = Fluid::GetSteam(state);
                         if (ventSlab.heatingCoil_fluid == nullptr) {
                             ShowSevereError(state, format("{}=\"{}Steam Properties not found.", CurrentModuleObject, ventSlab.Name));
                             if (SteamMessageNeeded) ShowContinueError(state, "Steam Fluid Properties should have been included in the input file.");
@@ -1646,7 +1646,7 @@ namespace VentilatedSlab {
                 if (ventSlab.heatingCoilType == DataPlant::PlantEquipmentType::CoilSteamAirHeating &&
                     !state.dataVentilatedSlab->MyPlantScanFlag(Item)) {
                     TempSteamIn = 100.00;
-                    SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, TempSteamIn, 1.0, RoutineName);
+                    SteamDensity = Fluid::GetSteam(state)->getSatDensity(state, TempSteamIn, 1.0, RoutineName);
                     ventSlab.MaxHotSteamFlow = SteamDensity * ventSlab.MaxVolHotSteamFlow;
                     ventSlab.MinHotSteamFlow = SteamDensity * ventSlab.MinVolHotSteamFlow;
 
@@ -2232,14 +2232,14 @@ namespace VentilatedSlab {
                                     DesCoilLoad = sizerHeatingCapacity.size(state, TempSize, ErrorsFound);
                                 }
                                 TempSteamIn = 100.00;
-                                auto *steam = FluidProperties::GetSteam(state);
+                                auto *steam = Fluid::GetSteam(state);
                                 EnthSteamInDry = steam->getSatEnthalpy(state, TempSteamIn, 1.0, RoutineName);
                                 EnthSteamOutWet = steam->getSatEnthalpy(state, TempSteamIn, 0.0, RoutineName);
                                 LatentHeatSteam = EnthSteamInDry - EnthSteamOutWet;
                                 SteamDensity = steam->getSatDensity(state, TempSteamIn, 1.0, RoutineName);
                                 int DummyWaterIndex = 1;
 
-                                auto *water = FluidProperties::GetWater(state);
+                                auto *water = Fluid::GetWater(state);
                                 Cp = water->getSpecificHeat(state, Constant::HWInitConvTemp, RoutineName);
                                 rho = water->getDensity(state, Constant::HWInitConvTemp, RoutineName);
                                 MaxVolHotSteamFlowDes =

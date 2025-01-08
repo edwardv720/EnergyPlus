@@ -81,7 +81,7 @@ TEST_F(EnergyPlusFixture, ReportCoilSelection_ChWCoil)
     state->dataPlnt->PlantLoop(1).Name = "Chilled Water Loop";
     state->dataPlnt->PlantLoop(1).FluidName = "Water";
     state->dataPlnt->PlantLoop(1).FluidIndex = 1;
-    state->dataPlnt->PlantLoop(1).glycol = FluidProperties::GetWater(*state);
+    state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
     state->dataPlnt->PlantLoop(1).MaxMassFlowRate = 0.1;
 
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch.allocate(1);
@@ -237,8 +237,8 @@ TEST_F(EnergyPlusFixture, ReportCoilSelection_SteamCoil)
     state->dataPlnt->PlantLoop(1).Name = "Steam Loop";
     state->dataPlnt->PlantLoop(1).FluidName = "Steam";
     state->dataPlnt->PlantLoop(1).FluidIndex = 1;
-    state->dataPlnt->PlantLoop(1).steam = FluidProperties::GetSteam(*state);
-    state->dataPlnt->PlantLoop(1).glycol = FluidProperties::GetWater(*state);
+    state->dataPlnt->PlantLoop(1).steam = Fluid::GetSteam(*state);
+    state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
     
     state->dataPlnt->PlantLoop(1).MaxMassFlowRate = 0.1;
 

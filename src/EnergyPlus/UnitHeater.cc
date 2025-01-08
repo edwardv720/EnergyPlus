@@ -391,7 +391,7 @@ namespace UnitHeater {
                         } else { // its a steam coil
                             unitHeat.HCoil_Index = SteamCoils::GetSteamCoilIndex(state, "COIL:HEATING:STEAM", unitHeat.HCoilName, errFlag);
                             unitHeat.HotControlNode = SteamCoils::GetCoilSteamInletNode(state, unitHeat.HCoil_Index, unitHeat.HCoilName, errFlag);
-                            unitHeat.HCoil_fluid = FluidProperties::GetSteam(state);
+                            unitHeat.HCoil_fluid = Fluid::GetSteam(state);
                         }
                         // Other error checks should trap before it gets to this point in the code, but including just in case.
                         if (errFlag) {
@@ -1153,7 +1153,7 @@ namespace UnitHeater {
                             }
                             if (DesCoilLoad >= HVAC::SmallLoad) {
                                 TempSteamIn = 100.00;
-                                auto *steam = FluidProperties::GetSteam(state);
+                                auto *steam = Fluid::GetSteam(state);
                                 EnthSteamInDry = steam->getSatEnthalpy(state, TempSteamIn, 1.0, RoutineName);
                                 EnthSteamOutWet = steam->getSatEnthalpy(state, TempSteamIn, 0.0, RoutineName);
                                 LatentHeatSteam = EnthSteamInDry - EnthSteamOutWet;

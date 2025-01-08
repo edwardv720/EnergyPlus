@@ -160,7 +160,7 @@ namespace PoweredInductionUnits {
         DataPlant::PlantEquipmentType HCoil_PlantType;
         std::string HCoil; // name of heating coil component
         int HCoil_Index;   // index to this heating coil
-        FluidProperties::RefrigProps *HCoil_fluid = nullptr;
+        Fluid::RefrigProps *HCoil_fluid = nullptr;
         Real64 MaxVolHotWaterFlow; // m3/s
         Real64 MaxVolHotSteamFlow; // m3/s
         Real64 MaxHotWaterFlow;    // kg/s

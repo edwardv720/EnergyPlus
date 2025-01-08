@@ -373,7 +373,7 @@ namespace LowTempRadiantSystem {
 
         state.dataLowTempRadSys->HydrRadSys.allocate(state.dataLowTempRadSys->NumOfHydrLowTempRadSys);
         if (state.dataLowTempRadSys->NumOfHydrLowTempRadSys > 0) {
-            auto *water = FluidProperties::GetWater(state);
+            auto *water = Fluid::GetWater(state);
             if (water == nullptr) {
                 ShowSevereError(state, "Hydronic radiant systems: no water property data found in input");
                 ErrorsFound = true;
@@ -385,7 +385,7 @@ namespace LowTempRadiantSystem {
 
         state.dataLowTempRadSys->CFloRadSys.allocate(state.dataLowTempRadSys->NumOfCFloLowTempRadSys);
         if (state.dataLowTempRadSys->NumOfCFloLowTempRadSys > 0) {
-            auto *water = FluidProperties::GetWater(state);
+            auto *water = Fluid::GetWater(state);
             if (water == nullptr) {
                 ShowSevereError(state, "Constant flow radiant systems: no water property data found in input");
                 ErrorsFound = true;

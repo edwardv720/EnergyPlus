@@ -71,7 +71,7 @@ namespace HeatPumpWaterToWaterCOOLING {
         std::string Name; // user identifier
         DataPlant::PlantEquipmentType WWHPPlantTypeOfNum;
 
-        FluidProperties::RefrigProps *refrig = nullptr;
+        Fluid::RefrigProps *refrig = nullptr;
         bool Available;                  // need an array of logicals--load identifiers of available equipment
         bool ON;                         // simulate the machine at it's operating part load ratio
         Real64 COP;                      // Coefficient of Performance of the machine

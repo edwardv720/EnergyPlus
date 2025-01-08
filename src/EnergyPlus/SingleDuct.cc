@@ -2551,7 +2551,7 @@ void SingleDuctAirTerminal::InitSys(EnergyPlusData &state, bool const FirstHVACI
 
         if (this->ReheatComp_Num == HeatingCoilType::SteamAirHeating) {
             SteamTemp = 100.0;
-            SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, SteamTemp, 1.0, RoutineNameFull);
+            SteamDensity = Fluid::GetSteam(state)->getSatDensity(state, SteamTemp, 1.0, RoutineNameFull);
             this->MaxReheatSteamFlow = SteamDensity * this->MaxReheatSteamVolFlow;
             this->MinReheatSteamFlow = SteamDensity * this->MinReheatSteamVolFlow;
         }
@@ -3573,13 +3573,13 @@ void SingleDuctAirTerminal::SizeSys(EnergyPlusData &state)
                                                                           (state.dataSingleDuct->ZoneDesTempSS - state.dataSingleDuct->CoilInTempSS);
                         if (state.dataSingleDuct->DesCoilLoadSS >= SmallLoad) {
                             TempSteamIn = 100.00;
-                            auto *steam = FluidProperties::GetSteam(state);
+                            auto *steam = Fluid::GetSteam(state);
                             EnthSteamInDry = steam->getSatEnthalpy(state, TempSteamIn, 1.0, RoutineNameFull);
                             EnthSteamOutWet = steam->getSatEnthalpy(state, TempSteamIn, 0.0, RoutineNameFull);
                             LatentHeatSteam = EnthSteamInDry - EnthSteamOutWet;
                             SteamDensity = steam->getSatDensity(state, TempSteamIn, 1.0, RoutineNameFull);
 
-                            Cp = FluidProperties::GetWater(state)->getSpecificHeat(state, state.dataSize->PlantSizData(PltSizHeatNum).ExitTemp, RoutineName);
+                            Cp = Fluid::GetWater(state)->getSpecificHeat(state, state.dataSize->PlantSizData(PltSizHeatNum).ExitTemp, RoutineName);
                             MaxReheatSteamVolFlowDes = state.dataSingleDuct->DesCoilLoadSS /
                                                        (SteamDensity * (LatentHeatSteam + state.dataSize->PlantSizData(PltSizHeatNum).DeltaT * Cp));
                         } else {

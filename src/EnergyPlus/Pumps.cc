@@ -773,8 +773,8 @@ void GetPumpInput(EnergyPlusData &state)
             thisPump.NomVolFlowRateWasAutoSized = true;
         } else {
             // Calc Condensate Pump Water Volume Flow Rate
-            SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, StartTemp, 1.0, RoutineNameNoColon);
-            TempWaterDensity = FluidProperties::GetWater(state)->getDensity(state, Constant::InitConvTemp, RoutineName);
+            SteamDensity = Fluid::GetSteam(state)->getSatDensity(state, StartTemp, 1.0, RoutineNameNoColon);
+            TempWaterDensity = Fluid::GetWater(state)->getDensity(state, Constant::InitConvTemp, RoutineName);
             thisPump.NomVolFlowRate = (thisPump.NomSteamVolFlowRate * SteamDensity) / TempWaterDensity;
         }
 
@@ -1482,8 +1482,8 @@ void InitializePumps(EnergyPlusData &state, int const PumpNum)
     // Begin environment inits
     if (thisPump.PumpInitFlag && state.dataGlobal->BeginEnvrnFlag) {
         if (thisPump.pumpType == PumpType::Cond) {
-            TempWaterDensity = FluidProperties::GetWater(state)->getDensity(state, Constant::InitConvTemp, RoutineName);
-            SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, StartTemp, 1.0, RoutineName);
+            TempWaterDensity = Fluid::GetWater(state)->getDensity(state, Constant::InitConvTemp, RoutineName);
+            SteamDensity = Fluid::GetSteam(state)->getSatDensity(state, StartTemp, 1.0, RoutineName);
             thisPump.NomVolFlowRate = (thisPump.NomSteamVolFlowRate * SteamDensity) / TempWaterDensity;
 
             // set the maximum flow rate on the outlet node
@@ -2019,7 +2019,7 @@ void SizePump(EnergyPlusData &state, int const PumpNum)
         auto &thisPumpPlant = state.dataPlnt->PlantLoop(thisPump.plantLoc.loopNum);
         TempWaterDensity = thisPumpPlant.glycol->getDensity(state, Constant::InitConvTemp, RoutineName);
     } else {
-        TempWaterDensity = FluidProperties::GetWater(state)->getDensity(state, Constant::InitConvTemp, RoutineName);
+        TempWaterDensity = Fluid::GetWater(state)->getDensity(state, Constant::InitConvTemp, RoutineName);
     }
 
     PlantSizNum = 0;
@@ -2065,8 +2065,8 @@ void SizePump(EnergyPlusData &state, int const PumpNum)
                 if (!thisPumpPlant.LoopSide(thisPump.plantLoc.loopSideNum).BranchPumpsExist) {
                     // size pump to full flow of plant loop
                     if (thisPump.pumpType == PumpType::Cond) {
-                        TempWaterDensity = FluidProperties::GetWater(state)->getDensity(state, Constant::InitConvTemp, RoutineName);
-                        SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, StartTemp, 1.0, RoutineNameSizePumps);
+                        TempWaterDensity = Fluid::GetWater(state)->getDensity(state, Constant::InitConvTemp, RoutineName);
+                        SteamDensity = Fluid::GetSteam(state)->getSatDensity(state, StartTemp, 1.0, RoutineNameSizePumps);
                         thisPump.NomSteamVolFlowRate = thisPlantSize.DesVolFlowRate * PumpSizFac;
                         thisPump.NomVolFlowRate = thisPump.NomSteamVolFlowRate * SteamDensity / TempWaterDensity;
                     } else {
@@ -2076,8 +2076,8 @@ void SizePump(EnergyPlusData &state, int const PumpNum)
                     // Distribute sizes evenly across all branch pumps
                     DesVolFlowRatePerBranch = thisPlantSize.DesVolFlowRate / thisPumpPlant.LoopSide(thisPump.plantLoc.loopSideNum).TotalPumps;
                     if (thisPump.pumpType == PumpType::Cond) {
-                        TempWaterDensity = FluidProperties::GetWater(state)->getDensity(state, Constant::InitConvTemp, RoutineName);
-                        SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, StartTemp, 1.0, RoutineNameSizePumps);
+                        TempWaterDensity = Fluid::GetWater(state)->getDensity(state, Constant::InitConvTemp, RoutineName);
+                        SteamDensity = Fluid::GetSteam(state)->getSatDensity(state, StartTemp, 1.0, RoutineNameSizePumps);
                         thisPump.NomSteamVolFlowRate = DesVolFlowRatePerBranch * PumpSizFac;
                         thisPump.NomVolFlowRate = thisPump.NomSteamVolFlowRate * SteamDensity / TempWaterDensity;
                     } else {

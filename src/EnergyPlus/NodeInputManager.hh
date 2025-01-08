@@ -184,7 +184,7 @@ struct NodeInputManagerData : BaseGlobalStruct
     Array1D_bool NodeSpecificHeatRepReq;
     Array1D_int NodeSpecificHeatSchedPtr;
     std::vector<std::string> nodeReportingStrings;
-    std::vector<FluidProperties::GlycolProps *> nodeFluids;
+    std::vector<Fluid::GlycolProps *> nodeFluids;
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

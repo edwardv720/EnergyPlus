@@ -83,8 +83,6 @@ public:
     {
         EnergyPlusFixture::SetUp(); // Sets up individual test cases.
 
-        state->dataFluidProps->init_state(*state);
-        
         // unit test for PlantEquipmentOperation:ChillerHeaterChangeover
         state->dataHeatBal->Zone.allocate(4);
         state->dataZoneEnergyDemand->ZoneSysEnergyDemand.allocate(4);
@@ -127,8 +125,6 @@ public:
                 thisPlantLoop.OperationScheme = "Heating Loop Operation Scheme List";
             }
 
-            thisPlantLoop.FluidName = "WATER";
-            thisPlantLoop.glycol = FluidProperties::GetWater(*state);
             thisPlantLoop.NumOpSchemes = 1;
             thisPlantLoop.OpScheme.allocate(thisPlantLoop.NumOpSchemes);
             auto &opSch1 = thisPlantLoop.OpScheme(1);
@@ -278,6 +274,12 @@ TEST_F(DistributeEquipOpTest, EvaluateChillerHeaterChangeoverOpSchemeTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
 
+    // There is an init_state() ordering issue that will not be addressed in this PR
+    for (auto &thisPlantLoop : state->dataPlnt->PlantLoop) {
+        thisPlantLoop.FluidName = "WATER";
+        thisPlantLoop.glycol = Fluid::GetWater(*state);
+    }
+    
     auto &heatBranch1 = state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Supply).Branch(1);
     auto &heatComp1 = state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Supply).Branch(1).Comp(1);
     heatComp1.Type = DataPlant::PlantEquipmentType::HeatPumpEIRHeating;
@@ -507,6 +509,12 @@ TEST_F(DistributeEquipOpTest, SupervisoryControlLogicForAirSourcePlantsTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
 
+    // There is an init_state() ordering issue that will not be addressed in this PR
+    for (auto &thisPlantLoop : state->dataPlnt->PlantLoop) {
+        thisPlantLoop.FluidName = "WATER";
+        thisPlantLoop.glycol = Fluid::GetWater(*state);
+    }
+    
     auto &heatBranch1 = state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Supply).Branch(1);
     auto &heatComp1 = state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Supply).Branch(1).Comp(1);
     heatComp1.Type = DataPlant::PlantEquipmentType::HeatPumpEIRHeating;

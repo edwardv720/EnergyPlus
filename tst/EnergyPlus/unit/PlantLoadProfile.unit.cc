@@ -131,7 +131,7 @@ TEST_F(EnergyPlusFixture, LoadProfile_initandsimulate_Waterloop)
     auto &thisWaterLoop(state->dataPlnt->PlantLoop(1));
     thisWaterLoop.FluidName = "WATER";
     thisWaterLoop.FluidIndex = 1;
-    thisWaterLoop.glycol = FluidProperties::GetWater(*state);
+    thisWaterLoop.glycol = Fluid::GetWater(*state);
     thisWaterLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch.allocate(1);
     thisWaterLoop.LoopSide(DataPlant::LoopSideLocation::Demand).TotalBranches = 1;
     thisWaterLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).TotalComponents = 1;
@@ -200,8 +200,8 @@ TEST_F(EnergyPlusFixture, LoadProfile_initandsimulate_Steamloop)
     auto &thisSteamLoop(state->dataPlnt->PlantLoop(1));
     thisSteamLoop.FluidName = "STEAM";
     thisSteamLoop.FluidIndex = 1;
-    thisSteamLoop.steam = FluidProperties::GetSteam(*state);
-    thisSteamLoop.glycol = FluidProperties::GetWater(*state);
+    thisSteamLoop.steam = Fluid::GetSteam(*state);
+    thisSteamLoop.glycol = Fluid::GetWater(*state);
     thisSteamLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch.allocate(1);
     thisSteamLoop.LoopSide(DataPlant::LoopSideLocation::Demand).TotalBranches = 1;
     thisSteamLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).TotalComponents = 1;

@@ -471,7 +471,7 @@ namespace DesiccantDehumidifiers {
                     // Get the regeneration heating Coil steam max volume flow rate
                     desicDehum.MaxCoilFluidFlow = SteamCoils::GetCoilMaxSteamFlowRate(state, desicDehum.RegenCoilIndex, errFlag);
                     if (desicDehum.MaxCoilFluidFlow > 0.0) {
-                        Real64 SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, TempSteamIn, 1.0, dehumidifierDesiccantNoFans);
+                        Real64 SteamDensity = Fluid::GetSteam(state)->getSatDensity(state, TempSteamIn, 1.0, dehumidifierDesiccantNoFans);
                         desicDehum.MaxCoilFluidFlow *= SteamDensity;
                     }
 
@@ -978,7 +978,7 @@ namespace DesiccantDehumidifiers {
                         // Get the regeneration heating Coil steam max volume flow rate
                         desicDehum.MaxCoilFluidFlow = SteamCoils::GetCoilMaxSteamFlowRate(state, desicDehum.RegenCoilIndex, errFlag);
                         if (desicDehum.MaxCoilFluidFlow > 0.0) {
-                            Real64 SteamDensity = FluidProperties::GetSteam(state)->getSatDensity(state, TempSteamIn, 1.0, dehumidifierDesiccantNoFans);
+                            Real64 SteamDensity = Fluid::GetSteam(state)->getSatDensity(state, TempSteamIn, 1.0, dehumidifierDesiccantNoFans);
                             desicDehum.MaxCoilFluidFlow *= SteamDensity;
                         }
 
@@ -1674,7 +1674,7 @@ namespace DesiccantDehumidifiers {
                     desicDehum.MaxCoilFluidFlow = SteamCoils::GetCoilMaxSteamFlowRate(state, desicDehum.RegenCoilIndex, ErrorFlag);
 
                     if (desicDehum.MaxCoilFluidFlow > 0.0) {
-                        Real64 FluidDensity = FluidProperties::GetSteam(state)->getSatDensity(state, TempSteamIn, 1.0, RoutineName);
+                        Real64 FluidDensity = Fluid::GetSteam(state)->getSatDensity(state, TempSteamIn, 1.0, RoutineName);
                         desicDehum.MaxCoilFluidFlow *= FluidDensity;
                     }
                 }
@@ -1779,7 +1779,7 @@ namespace DesiccantDehumidifiers {
                             //    ErrorsFound = true;
                             //}
                             if (CoilMaxVolFlowRate != DataSizing::AutoSize) {
-                                Real64 FluidDensity = FluidProperties::GetSteam(state)->getSatDensity(state, TempSteamIn, 1.0, RoutineName);
+                                Real64 FluidDensity = Fluid::GetSteam(state)->getSatDensity(state, TempSteamIn, 1.0, RoutineName);
                                 desicDehum.MaxCoilFluidFlow = CoilMaxVolFlowRate * FluidDensity;
                             }
                         }

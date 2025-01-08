@@ -266,7 +266,7 @@ namespace BoilerSteam {
                                                state.dataIPShortCut->cAlphaArgs(4),
                                                "Hot Steam Nodes");
 
-            thisBoiler.fluid = FluidProperties::GetSteam(state);
+            thisBoiler.fluid = Fluid::GetSteam(state);
             if (thisBoiler.fluid == nullptr && BoilerNum == 1) {
                 ShowSevereError(state, "Fluid Properties for STEAM not found.");
                 ErrorsFound = true;

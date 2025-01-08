@@ -73,7 +73,7 @@ TEST_F(EnergyPlusFixture, FluidProperties_GetDensityGlycol)
     ASSERT_TRUE(process_idf(idf_objects));
     EXPECT_FALSE(has_err_output());
 
-    auto *fluid = FluidProperties::GetGlycol(*state, "GLHXFLUID");
+    auto *fluid = Fluid::GetGlycol(*state, "GLHXFLUID");
     
     EXPECT_NEAR(1037.89, fluid->getDensity(*state, -35.0, "UnitTest"), 0.01);
     EXPECT_NEAR(1037.89, fluid->getDensity(*state, -15.0, "UnitTest"), 0.01);
@@ -101,7 +101,7 @@ TEST_F(EnergyPlusFixture, FluidProperties_GetSpecificHeatGlycol)
     ASSERT_TRUE(process_idf(idf_objects));
     EXPECT_FALSE(has_err_output());
 
-    auto *fluid = FluidProperties::GetGlycol(*state, "GLHXFLUID");
+    auto *fluid = Fluid::GetGlycol(*state, "GLHXFLUID");
 
     EXPECT_NEAR(3779, fluid->getSpecificHeat(*state, -35.0, "UnitTest"), 0.01);
     EXPECT_NEAR(3779, fluid->getSpecificHeat(*state, -15.0, "UnitTest"), 0.01);
@@ -141,7 +141,7 @@ TEST_F(EnergyPlusFixture, FluidProperties_InterpValuesForGlycolConc)
     Result.allocate(NumTemp);
 
     // Test interpolation for the single-concentration scenario
-    FluidProperties::InterpValuesForGlycolConc(*state,
+    Fluid::InterpValuesForGlycolConc(*state,
                                                NumCon,   // number of concentrations (dimension of raw data)
                                                NumTemp,  // number of temperatures (dimension of raw data)
                                                ConData,  // concentrations for raw data

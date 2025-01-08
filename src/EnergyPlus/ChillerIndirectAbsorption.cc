@@ -353,7 +353,7 @@ void GetIndirectAbsorberInput(EnergyPlusData &state)
                 //       Default to Steam if left blank
             } else if (Util::SameString(state.dataIPShortCut->cAlphaArgs(16), "STEAM") || state.dataIPShortCut->cAlphaArgs(16).empty()) {
                 thisChiller.GenHeatSourceType = DataLoopNode::NodeFluidType::Steam;
-                thisChiller.steam = FluidProperties::GetSteam(state);
+                thisChiller.steam = Fluid::GetSteam(state);
             } else {
                 ShowWarningError(state, format("{}, Name={}", state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)));
                 ShowContinueError(state, "...Generator heat source type must be Steam or Hot Water.");
@@ -363,7 +363,7 @@ void GetIndirectAbsorberInput(EnergyPlusData &state)
         } else {
             //     Default to Steam if not entered as input
             thisChiller.GenHeatSourceType = DataLoopNode::NodeFluidType::Steam;
-            thisChiller.steam = FluidProperties::GetSteam(state);
+            thisChiller.steam = Fluid::GetSteam(state);
         }
 
         if ((!state.dataIPShortCut->cAlphaArgs(9).empty()) && (!state.dataIPShortCut->cAlphaArgs(10).empty())) {
@@ -395,7 +395,7 @@ void GetIndirectAbsorberInput(EnergyPlusData &state)
                                                    state.dataIPShortCut->cAlphaArgs(10),
                                                    "Hot Water Nodes");
             } else {
-                if ((thisChiller.steam = FluidProperties::GetSteam(state)) == nullptr) {
+                if ((thisChiller.steam = Fluid::GetSteam(state)) == nullptr) {
                     ShowSevereError(state, "Fluid Properties for STEAM not found.");
                     ErrorsFound = true;
                 }
@@ -1389,7 +1389,7 @@ void IndirectAbsorberSpecs::sizeChiller(EnergyPlusData &state)
                 Real64 EnthSteamOutWet = this->steam->getSatEnthalpy(state, state.dataSize->PlantSizData(PltSizSteamNum).ExitTemp, 0.0,
                                                                      std::string{SizeChillerAbsorptionIndirect} + this->Name);
 
-                auto *water = FluidProperties::GetWater(state);
+                auto *water = Fluid::GetWater(state);
                 Real64 CpWater = water->getSpecificHeat(state, GeneratorOutletTemp, RoutineName);
                 Real64 HfgSteam = EnthSteamOutDry - EnthSteamOutWet;
                 //         calculate the mass flow rate through the generator
@@ -2012,7 +2012,7 @@ void IndirectAbsorberSpecs::calculate(EnergyPlusData &state, Real64 MyLoad, bool
 
             // heat of vaporization of steam
             Real64 HfgSteam = EnthSteamOutDry - EnthSteamOutWet;
-            CpFluid = FluidProperties::GetWater(state)->getSpecificHeat(state, SteamOutletTemp, std::string{calcChillerAbsorptionIndirect} + this->Name);
+            CpFluid = Fluid::GetWater(state)->getSpecificHeat(state, SteamOutletTemp, std::string{calcChillerAbsorptionIndirect} + this->Name);
             this->GenMassFlowRate = this->QGenerator / (HfgSteam + CpFluid * SteamDeltaT);
             PlantUtilities::SetComponentFlowRate(
                 state, this->GenMassFlowRate, this->GeneratorInletNodeNum, this->GeneratorOutletNodeNum, this->GenPlantLoc);
@@ -2024,7 +2024,7 @@ void IndirectAbsorberSpecs::calculate(EnergyPlusData &state, Real64 MyLoad, bool
                 this->GenOutletTemp = state.dataLoopNodes->Node(this->GeneratorInletNodeNum).Temp - SteamDeltaT;
                 this->SteamOutletEnthalpy = this->steam->getSatEnthalpy(state, state.dataLoopNodes->Node(this->GeneratorInletNodeNum).Temp, 0.0,
                                                                         std::string{LoopLossesChillerAbsorptionIndirect} + this->Name);
-                CpFluid = FluidProperties::GetWater(state)->getSpecificHeat(state, state.dataLoopNodes->Node(this->GeneratorInletNodeNum).Temp, std::string{calcChillerAbsorptionIndirect} + this->Name);
+                CpFluid = Fluid::GetWater(state)->getSpecificHeat(state, state.dataLoopNodes->Node(this->GeneratorInletNodeNum).Temp, std::string{calcChillerAbsorptionIndirect} + this->Name);
 
                 this->SteamOutletEnthalpy -= CpFluid * SteamDeltaT;
 

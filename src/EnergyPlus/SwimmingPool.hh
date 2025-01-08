@@ -107,7 +107,7 @@ namespace SwimmingPool {
         std::string PeopleHeatGainSchedName; // Name of people heat gain schedule
         int PeopleHeatGainSchedPtr;          // People heat gain schedule index
         Real64 PeopleHeatGain;               // Current heat gain from people
-        FluidProperties::GlycolProps *glycol = nullptr;
+        Fluid::GlycolProps *glycol = nullptr;
         Real64 WaterMass;                    // pool water mass
         Real64 SatPressPoolWaterTemp;        // Saturation pressure at the pool water temperature
         Real64 PartPressZoneAirTemp;         // Partial pressure of water vapor in the air

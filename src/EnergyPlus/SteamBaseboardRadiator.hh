@@ -79,7 +79,7 @@ namespace SteamBaseboardRadiator {
         int SteamInletNode;   // Inlet steam baseboard node
         int SteamOutletNode;  // Outlet steam baseboard node
         int TotSurfToDistrib; // Total numbers of the surfaces that the radiant heat gets distributed
-        FluidProperties::RefrigProps *steam = nullptr;
+        Fluid::RefrigProps *steam = nullptr;
         int ControlCompTypeNum;
         int CompErrIndex;
         Real64 DegOfSubcooling;      // Temperature differences due to subcooling of the condensate [C]

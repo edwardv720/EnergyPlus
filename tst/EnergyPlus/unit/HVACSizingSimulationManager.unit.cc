@@ -78,7 +78,7 @@ protected:
     {
         EnergyPlusFixture::SetUp(); // Sets up the base fixture first.
 
-        state->dataFluidProps->init_state(*state);
+        state->dataFluid->init_state(*state);
         
         // setup weather manager state needed
         state->dataWeather->NumOfEnvrn = 2;
@@ -110,7 +110,7 @@ protected:
         state->dataPlnt->PlantLoop(1).VolumeWasAutoSized = true;
         state->dataPlnt->PlantLoop(1).FluidName = "WATER";
         state->dataPlnt->PlantLoop(1).FluidIndex = 1;
-        state->dataPlnt->PlantLoop(1).glycol = FluidProperties::GetWater(*state);
+        state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
         
         state->dataPlnt->PlantLoop(1).LoopSide(LoopSideLocation::Supply).NodeNumIn = 1;
 

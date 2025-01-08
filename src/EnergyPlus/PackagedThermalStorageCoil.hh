@@ -324,7 +324,7 @@ namespace PackagedThermalStorageCoil {
         MediaType StorageMedia;             // water/fluid or ice based TES
         std::string StorageFluidName;       // if user defined, name of fluid type
         int StorageFluidIndex = 0;          // if user defined, index of fluid type
-        FluidProperties::GlycolProps *glycol = nullptr;
+        Fluid::GlycolProps *glycol = nullptr;
       
         Real64 FluidStorageVolume;          // volume of water in storage tank for water systems [m3/s]
         Real64 IceStorageCapacity;          // capacity of storage in J

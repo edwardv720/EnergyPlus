@@ -67,7 +67,7 @@ namespace EnergyPlus {
 // Forward declarations
 struct EnergyPlusData;
 
-namespace FluidProperties {
+namespace Fluid {
 
     constexpr int GlycolNum_Water = 1;
     constexpr int RefrigNum_Steam = 1;
@@ -416,7 +416,7 @@ namespace FluidProperties {
     void ReportAndTestGlycols(EnergyPlusData &state);
 
     void ReportAndTestRefrigerants(EnergyPlusData &state);
-
+#ifdef GET_OUT
     Real64 GetQualityRefrig(EnergyPlusData &state,
                             std::string const &Refrigerant, // carries in substance name
                             Real64 Temperature,             // actual temperature given as input
@@ -524,7 +524,8 @@ namespace FluidProperties {
                               int &GlycolIndex,           // Index to Glycol Properties
                               std::string_view CalledFrom // routine this function was called from (error messages)
     );
-
+#endif // GET_OUT
+  
     inline Real64 GetInterpValue(Real64 const Tact, // actual temperature at which we want the property of interest
                                  Real64 const Tlo,  // temperature below Tact for which we have property data
                                  Real64 const Thi,  // temperature above Tact for which we have property data
@@ -579,6 +580,7 @@ namespace FluidProperties {
 
     void GetFluidSpecificHeatTemperatureLimits(EnergyPlusData &state, int FluidIndex, Real64 &MinTempLimit, Real64 &MaxTempLimit);
 
+#ifdef GET_OUT  
     struct GlycolAPI
     {
         std::string glycolName;
@@ -608,7 +610,8 @@ namespace FluidProperties {
         Real64 superHeatedPressure(EnergyPlusData &state, Real64 temperature, Real64 enthalpy);
         Real64 superHeatedDensity(EnergyPlusData &state, Real64 temperature, Real64 pressure);
     };
-
+#endif // GET_OUT
+  
 } // namespace FluidProperties
 
 struct FluidData : BaseGlobalStruct
@@ -618,11 +621,11 @@ struct FluidData : BaseGlobalStruct
     int GlycolErrorLimitTest = 1; // how many times error is printed with details before recurring called
     int RefrigErrorLimitTest = 1; // how many times error is printed with details before recurring called
 
-    Array1D<FluidProperties::RefrigProps *> refrigs;
-    Array1D<FluidProperties::GlycolRawProps *> glycolsRaw;
-    Array1D<FluidProperties::GlycolProps *> glycols;
+    Array1D<Fluid::RefrigProps *> refrigs;
+    Array1D<Fluid::GlycolRawProps *> glycolsRaw;
+    Array1D<Fluid::GlycolProps *> glycols;
 
-    std::array<int, (int)FluidProperties::GlycolError::Num> glycolErrorLimits = {0, 0, 0, 0, 0, 0, 0, 0};
+    std::array<int, (int)Fluid::GlycolError::Num> glycolErrorLimits = {0, 0, 0, 0, 0, 0, 0, 0};
 
     int SatErrCountGetSupHeatEnthalpyRefrig = 0;
     int SatErrCountGetSupHeatDensityRefrig = 0;
@@ -632,12 +635,12 @@ struct FluidData : BaseGlobalStruct
     int TempRangeErrIndexGetInterpolatedSatProp = 0;
 
 #ifdef EP_cache_GlycolSpecificHeat
-    std::array<FluidProperties::cached_tsh, FluidProperties::t_sh_cache_size> cached_t_sh;
+    std::array<Fluid::cached_tsh, Fluid::t_sh_cache_size> cached_t_sh;
 #endif
 
     void init_state(EnergyPlusData &state) override
     {
-        FluidProperties::GetFluidPropertiesData(state);
+        Fluid::GetFluidPropertiesData(state);
     }
 
     void clear_state() override
