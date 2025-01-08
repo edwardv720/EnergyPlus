@@ -119,7 +119,6 @@ TEST_F(EnergyPlusFixture, ChillerHeater_Autosize)
     // Chilled Water Loop
     int PltSizNum = 1;
     state->dataPlnt->PlantLoop(PltSizNum).PlantSizNum = 1;
-    state->dataPlnt->PlantLoop(PltSizNum).FluidIndex = 1;
     state->dataPlnt->PlantLoop(PltSizNum).FluidName = "WATER";
     state->dataPlnt->PlantLoop(PltSizNum).glycol = Fluid::GetWater(*state);
     state->dataSize->PlantSizData(PltSizNum).DesVolFlowRate = 1.0;
@@ -131,7 +130,6 @@ TEST_F(EnergyPlusFixture, ChillerHeater_Autosize)
     // Condenser Loop
     int PltSizCondNum = 2;
     state->dataPlnt->PlantLoop(PltSizCondNum).PlantSizNum = PltSizCondNum;
-    state->dataPlnt->PlantLoop(PltSizCondNum).FluidIndex = 1;
     state->dataPlnt->PlantLoop(PltSizCondNum).FluidName = "WATER";
     state->dataPlnt->PlantLoop(PltSizCondNum).glycol = Fluid::GetWater(*state);
     state->dataSize->PlantSizData(PltSizCondNum).DeltaT = 5.6;
@@ -368,7 +366,6 @@ TEST_F(EnergyPlusFixture, Test_CentralHeatPumpSystem_adjustChillerHeaterCondFlow
     auto &thisCH = thisWrap.ChillerHeater(1);
     state->dataPlnt->PlantLoop.allocate(1);
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
-    state->dataPlnt->PlantLoop(1).FluidIndex = Fluid::GetGlycolNum(*state, state->dataPlnt->PlantLoop(1).FluidName);
     state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
     thisWrap.HWPlantLoc.loopNum = 1;
 
@@ -453,7 +450,6 @@ TEST_F(EnergyPlusFixture, Test_CentralHeatPumpSystem_adjustChillerHeaterEvapFlow
     auto &thisCH = thisWrap.ChillerHeater(1);
     state->dataPlnt->PlantLoop.allocate(1);
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
-    state->dataPlnt->PlantLoop(1).FluidIndex = Fluid::GetGlycolNum(*state, state->dataPlnt->PlantLoop(1).FluidName);
     state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
     thisWrap.HWPlantLoc.loopNum = 1;
 

@@ -109,7 +109,6 @@ protected:
         state->dataPlnt->PlantLoop(1).MaxMassFlowRate = 2.0;
         state->dataPlnt->PlantLoop(1).VolumeWasAutoSized = true;
         state->dataPlnt->PlantLoop(1).FluidName = "WATER";
-        state->dataPlnt->PlantLoop(1).FluidIndex = 1;
         state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
         
         state->dataPlnt->PlantLoop(1).LoopSide(LoopSideLocation::Supply).NodeNumIn = 1;

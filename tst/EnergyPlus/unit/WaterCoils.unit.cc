@@ -189,7 +189,6 @@ TEST_F(WaterCoilsTest, WaterCoolingCoilSizing)
     }
     state->dataPlnt->PlantLoop(1).Name = "WaterLoop";
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
-    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
 
     // set up sizing data
@@ -424,7 +423,6 @@ TEST_F(WaterCoilsTest, CoilHeatingWaterUASizing)
     }
     state->dataPlnt->PlantLoop(1).Name = "HotWaterLoop";
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
-    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
 
     // set up sizing data
@@ -577,7 +575,6 @@ TEST_F(WaterCoilsTest, CoilHeatingWaterLowAirFlowUASizing)
     }
     state->dataPlnt->PlantLoop(1).Name = "HotWaterLoop";
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
-    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
 
     // set up sizing data
@@ -733,7 +730,6 @@ TEST_F(WaterCoilsTest, CoilHeatingWaterUASizingLowHwaterInletTemp)
     }
     state->dataPlnt->PlantLoop(1).Name = "HotWaterLoop";
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
-    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
 
     // set up sizing data
@@ -846,7 +842,6 @@ TEST_F(WaterCoilsTest, CoilCoolingWaterSimpleSizing)
     }
     state->dataPlnt->PlantLoop(1).Name = "WaterLoop";
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
-    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
 
     // set up sizing data
@@ -946,7 +941,6 @@ TEST_F(WaterCoilsTest, CoilCoolingWaterDetailedSizing)
     }
     state->dataPlnt->PlantLoop(1).Name = "WaterLoop";
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
-    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
 
     // set up sizing data
@@ -1056,7 +1050,6 @@ TEST_F(WaterCoilsTest, CoilCoolingWaterDetailed_WarningMath)
     }
     state->dataPlnt->PlantLoop(1).Name = "WaterLoop";
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
-    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
 
     // set up sizing data
@@ -1238,7 +1231,6 @@ TEST_F(WaterCoilsTest, CoilHeatingWaterSimpleSizing)
     }
     state->dataPlnt->PlantLoop(1).Name = "WaterLoop";
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
-    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
 
     // set up sizing data
@@ -1333,7 +1325,6 @@ TEST_F(WaterCoilsTest, HotWaterHeatingCoilAutoSizeTempTest)
     }
     state->dataPlnt->PlantLoop(1).Name = "HotWaterLoop";
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
-    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
 
     // set up sizing data
@@ -1685,7 +1676,6 @@ TEST_F(WaterCoilsTest, FanCoilCoolingWaterFlowTest)
     state->dataWaterCoils->WaterCoil(1).WaterPlantLoc.compNum = 1;
 
     state->dataPlnt->PlantLoop(2).Name = "ChilledWaterLoop";
-    state->dataPlnt->PlantLoop(2).FluidIndex = 1;
     state->dataPlnt->PlantLoop(2).FluidName = "WATER";
     state->dataPlnt->PlantLoop(2).glycol = Fluid::GetWater(*state);
     state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = state->dataWaterCoils->WaterCoil(2).Name;
@@ -1698,7 +1688,6 @@ TEST_F(WaterCoilsTest, FanCoilCoolingWaterFlowTest)
     state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Demand).FlowLock = DataPlant::FlowLock::Unlocked;
 
     state->dataPlnt->PlantLoop(1).Name = "HotWaterLoop";
-    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
     state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = state->dataWaterCoils->WaterCoil(1).Name;

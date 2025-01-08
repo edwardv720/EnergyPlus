@@ -375,18 +375,23 @@ namespace Fluid {
         Real64 getViscosity(EnergyPlusData &state,
                             Real64 Temperature,           // actual temperature given as input
                             std::string_view CalledFrom); // routine this function was called from (error messages)
+
+        void getDensityTemperatureLimits(EnergyPlusData &state,
+                                         Real64 &MinTempLimit,
+                                         Real64 &MaxTempLimit);
+
+        void getSpecificHeatTemperatureLimits(EnergyPlusData &state,
+                                              Real64 &MinTempLimit,
+                                              Real64 &MaxTempLimit);
+
+
     };
 
     struct cached_tsh
     {
         // Members
-        std::uint64_t iT;
-        Real64 sh;
-
-        // Default Constructor
-        cached_tsh() : iT(1000), sh(0.0)
-        {
-        }
+        std::uint64_t iT = 1000;
+        Real64 sh = 0.0;
     };
 
     void GetFluidPropertiesData(EnergyPlusData &state);
@@ -571,48 +576,8 @@ namespace Fluid {
                                   int UpperBound                    // Valid values upper bound (set by calling program)
     );
 
-    bool CheckFluidPropertyName(EnergyPlusData const &state,
-                                std::string const &NameToCheck); // Name from input(?) to be checked against valid FluidPropertyNames
-
     void ReportOrphanFluids(EnergyPlusData &state);
-
-    void GetFluidDensityTemperatureLimits(EnergyPlusData &state, int FluidIndex, Real64 &MinTempLimit, Real64 &MaxTempLimit);
-
-    void GetFluidSpecificHeatTemperatureLimits(EnergyPlusData &state, int FluidIndex, Real64 &MinTempLimit, Real64 &MaxTempLimit);
-
-#ifdef GET_OUT  
-    struct GlycolAPI
-    {
-        std::string glycolName;
-        int glycolIndex;
-        std::string cf;
-        explicit GlycolAPI(EnergyPlusData &state, std::string const &glycolName);
-        ~GlycolAPI() = default;
-        Real64 specificHeat(EnergyPlusData &state, Real64 temperature);
-        Real64 density(EnergyPlusData &state, Real64 temperature);
-        Real64 conductivity(EnergyPlusData &state, Real64 temperature);
-        Real64 viscosity(EnergyPlusData &state, Real64 temperature);
-    };
-
-    struct RefrigerantAPI
-    {
-        std::string rName;
-        int rIndex;
-        std::string cf;
-        explicit RefrigerantAPI(EnergyPlusData &state, std::string const &refrigName);
-        ~RefrigerantAPI() = default;
-        Real64 saturationPressure(EnergyPlusData &state, Real64 temperature);
-        Real64 saturationTemperature(EnergyPlusData &state, Real64 pressure);
-        Real64 saturatedEnthalpy(EnergyPlusData &state, Real64 temperature, Real64 quality);
-        Real64 saturatedDensity(EnergyPlusData &state, Real64 temperature, Real64 quality);
-        Real64 saturatedSpecificHeat(EnergyPlusData &state, Real64 temperature, Real64 quality);
-        Real64 superHeatedEnthalpy(EnergyPlusData &state, Real64 temperature, Real64 pressure);
-        Real64 superHeatedPressure(EnergyPlusData &state, Real64 temperature, Real64 enthalpy);
-        Real64 superHeatedDensity(EnergyPlusData &state, Real64 temperature, Real64 pressure);
-    };
-#endif // GET_OUT
-  
-} // namespace FluidProperties
+} // namespace Fluid
 
 struct FluidData : BaseGlobalStruct
 {

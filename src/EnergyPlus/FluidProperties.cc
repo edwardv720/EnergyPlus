@@ -4852,27 +4852,6 @@ namespace Fluid {
 
     //*****************************************************************************
 
-    bool CheckFluidPropertyName(EnergyPlusData const &state,
-                                std::string const &name) // Name from input(?) to be checked against valid FluidPropertyNames
-    {
-
-        // FUNCTION INFORMATION:
-        //       AUTHOR         Linda K. Lawrie
-        //       DATE WRITTEN   October 2002
-
-        // PURPOSE OF THIS FUNCTION:
-        // This function checks on an input fluid property to make sure it is valid.
-        auto const &df = state.dataFluid;
-
-        auto foundRefrig = std::find_if(df->refrigs.begin(), df->refrigs.end(), [name](RefrigProps const *refrig) { return refrig->Name == name; });
-        if (foundRefrig != df->refrigs.end()) return true;
-
-        auto foundGlycol = std::find_if(df->glycols.begin(), df->glycols.end(), [name](GlycolProps const *glycol) { return glycol->Name == name; });
-        if (foundGlycol != df->glycols.end()) return true;
-
-        return false;
-    }
-
     void ReportOrphanFluids(EnergyPlusData &state)
     {
 
@@ -4930,93 +4909,18 @@ namespace Fluid {
         }
     }
 
-    void GetFluidDensityTemperatureLimits(EnergyPlusData &state, int const FluidIndex, Real64 &MinTempLimit, Real64 &MaxTempLimit)
+    void GlycolProps::getDensityTemperatureLimits(EnergyPlusData &state, Real64 &MinTempLimit, Real64 &MaxTempLimit)
     {
-        if (FluidIndex > 0) {
-            auto const &df = state.dataFluid->glycols(FluidIndex);
-            MinTempLimit = df->RhoLowTempValue;
-            MaxTempLimit = df->RhoHighTempValue;
-        }
+        MinTempLimit = this->RhoLowTempValue;
+        MaxTempLimit = this->RhoHighTempValue;
     }
 
-    void GetFluidSpecificHeatTemperatureLimits(EnergyPlusData &state, int const FluidIndex, Real64 &MinTempLimit, Real64 &MaxTempLimit)
+    void GlycolProps::getSpecificHeatTemperatureLimits(EnergyPlusData &state, Real64 &MinTempLimit, Real64 &MaxTempLimit)
     {
-        if (FluidIndex > 0) {
-            auto const &df = state.dataFluid->glycols(FluidIndex);
-            MinTempLimit = df->CpLowTempValue;
-            MaxTempLimit = df->CpHighTempValue;
-        }
+        MinTempLimit = this->CpLowTempValue;
+        MaxTempLimit = this->CpHighTempValue;
     }
 
-#ifdef GET_OUT  
-    GlycolAPI::GlycolAPI(EnergyPlusData &state, std::string const &glycolName)
-    {
-        this->glycolName = EnergyPlus::Util::makeUPPER(glycolName);
-        this->glycolIndex = 0;
-        this->cf = "GlycolAPI:Instance";
-        if (this->glycolName != "WATER") {
-            EnergyPlus::ShowFatalError(state, "Can only do water right now");
-        }
-    }
-    Real64 GlycolAPI::specificHeat(EnergyPlusData &state, Real64 temperature)
-    {
-        return Fluid::GetSpecificHeatGlycol(state, this->glycolName, temperature, this->glycolIndex, this->cf);
-    }
-    Real64 GlycolAPI::density(EnergyPlusData &state, Real64 temperature)
-    {
-        return Fluid::GetDensityGlycol(state, this->glycolName, temperature, this->glycolIndex, this->cf);
-    }
-    Real64 GlycolAPI::conductivity(EnergyPlusData &state, Real64 temperature)
-    {
-        return Fluid::GetConductivityGlycol(state, this->glycolName, temperature, this->glycolIndex, this->cf);
-    }
-    Real64 GlycolAPI::viscosity(EnergyPlusData &state, Real64 temperature)
-    {
-        return Fluid::GetViscosityGlycol(state, this->glycolName, temperature, this->glycolIndex, this->cf);
-    }
-
-    RefrigerantAPI::RefrigerantAPI(EnergyPlusData &state, std::string const &refrigName)
-    {
-        this->rName = EnergyPlus::Util::makeUPPER(refrigName);
-        this->rIndex = 0;
-        this->cf = "RefrigerantAPI:Instance";
-        if (this->rName != "STEAM") {
-            EnergyPlus::ShowFatalError(state, "Can only do steam right now");
-        }
-    }
-    Real64 RefrigerantAPI::saturationPressure(EnergyPlusData &state, Real64 temperature)
-    {
-        return Fluid::GetSatPressureRefrig(state, this->rName, temperature, this->rIndex, this->cf);
-    }
-    Real64 RefrigerantAPI::saturationTemperature(EnergyPlusData &state, Real64 pressure)
-    {
-        return Fluid::GetSatTemperatureRefrig(state, this->rName, pressure, this->rIndex, this->cf);
-    }
-    Real64 RefrigerantAPI::saturatedEnthalpy(EnergyPlusData &state, Real64 temperature, Real64 quality)
-    {
-        return Fluid::GetSatEnthalpyRefrig(state, this->rName, temperature, quality, this->rIndex, this->cf);
-    }
-    Real64 RefrigerantAPI::saturatedDensity(EnergyPlusData &state, Real64 temperature, Real64 quality)
-    {
-        return Fluid::GetSatDensityRefrig(state, this->rName, temperature, quality, this->rIndex, this->cf);
-    }
-    Real64 RefrigerantAPI::saturatedSpecificHeat(EnergyPlusData &state, Real64 temperature, Real64 quality)
-    {
-        return Fluid::GetSatSpecificHeatRefrig(state, this->rName, temperature, quality, this->rIndex, this->cf);
-    }
-    Real64 RefrigerantAPI::superHeatedEnthalpy(EnergyPlusData &state, Real64 temperature, Real64 pressure)
-    {
-        return Fluid::GetSupHeatEnthalpyRefrig(state, this->rName, temperature, pressure, this->rIndex, this->cf);
-    }
-    Real64 RefrigerantAPI::superHeatedPressure(EnergyPlusData &state, Real64 temperature, Real64 enthalpy)
-    {
-        return Fluid::GetSupHeatPressureRefrig(state, this->rName, temperature, enthalpy, this->rIndex, this->cf);
-    }
-    Real64 RefrigerantAPI::superHeatedDensity(EnergyPlusData &state, Real64 temperature, Real64 pressure)
-    {
-        return Fluid::GetSupHeatDensityRefrig(state, this->rName, temperature, pressure, this->rIndex, this->cf);
-    }
-#endif // GET_OUT
   
 #ifdef UNUSED_FLUID_PROPS
     static constexpr std::array<std::array<Real64, DefaultNumSteamSuperheatedTemps>, DefaultNumSteamSuperheatedPressure>

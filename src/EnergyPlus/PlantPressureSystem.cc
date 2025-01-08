@@ -374,7 +374,6 @@ void BranchPressureDrop(EnergyPlusData &state,
     static constexpr std::string_view RoutineName("CalcPlantPressureSystem");
 
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-    int FluidIndex;                                              // Plant loop level Fluid Index
     int InletNodeNum;                                            // Component inlet node number
     DataBranchAirLoopPlant::PressureCurveType pressureCurveType; // Type of curve used to evaluate pressure drop
     int PressureCurveIndex;                                      // Curve index for PerfCurve structure
@@ -392,7 +391,6 @@ void BranchPressureDrop(EnergyPlusData &state,
     }
 
     // Get data from data structure
-    FluidIndex = state.dataPlnt->PlantLoop(LoopNum).FluidIndex;
     InletNodeNum = state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideNum).Branch(BranchNum).NodeNumIn;
     pressureCurveType = state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideNum).Branch(BranchNum).PressureCurveType;
     PressureCurveIndex = state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideNum).Branch(BranchNum).PressureCurveIndex;
@@ -845,7 +843,6 @@ Real64 ResolveLoopFlowVsPressure(EnergyPlusData &state,
     Real64 PhiPump;
     Real64 PhiSystem;
     Real64 PsiPump;
-    int FluidIndex;
     int Iteration;
     Real64 LocalSystemMassFlow;
     Real64 LoopEffectiveK;
@@ -856,7 +853,6 @@ Real64 ResolveLoopFlowVsPressure(EnergyPlusData &state,
     Real64 DampingFactor;
 
     // Get loop level data
-    FluidIndex = state.dataPlnt->PlantLoop(LoopNum).FluidIndex;
     LoopEffectiveK = state.dataPlnt->PlantLoop(LoopNum).PressureEffectiveK;
     SystemPressureDrop = LoopEffectiveK * pow_2(SystemMassFlow);
 

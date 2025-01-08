@@ -150,7 +150,6 @@ TEST_F(EnergyPlusFixture, ChillerElectricReformulatedEIR_WaterCooledChillerVaria
     state->dataLoopNodes->Node.allocate(4);
 
     state->dataPlnt->PlantLoop(1).Name = "ChilledWaterLoop";
-    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).PlantSizNum = 1;
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
     state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
@@ -169,7 +168,6 @@ TEST_F(EnergyPlusFixture, ChillerElectricReformulatedEIR_WaterCooledChillerVaria
     state->dataSize->PlantSizData(1).DeltaT = 5.0;
 
     state->dataPlnt->PlantLoop(2).Name = "CondenserWaterLoop";
-    state->dataPlnt->PlantLoop(2).FluidIndex = 1;
     state->dataPlnt->PlantLoop(2).PlantSizNum = 1;
     state->dataPlnt->PlantLoop(2).FluidName = "WATER";
     state->dataPlnt->PlantLoop(2).glycol = Fluid::GetWater(*state);

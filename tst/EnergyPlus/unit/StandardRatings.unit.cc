@@ -1283,7 +1283,6 @@ TEST_F(EnergyPlusFixture, ChillerIPLVTestWaterCooledReform)
     loopsidebranch.TotalComponents = 1;
     loopsidebranch.Comp.allocate(1);
     state->dataPlnt->PlantLoop(1).Name = "ChilledWaterLoop";
-    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).PlantSizNum = 1;
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
     state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);

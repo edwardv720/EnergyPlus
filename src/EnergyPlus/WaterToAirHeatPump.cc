@@ -197,7 +197,6 @@ namespace WaterToAirHeatPump {
         // Using/Aliasing
         using namespace NodeInputManager;
         using BranchNodeConnections::TestCompSet;
-        using Fluid::CheckFluidPropertyName;
         using GlobalNames::VerifyUniqueCoilName;
         using PlantUtilities::RegisterPlantCompDesignFlow;
         using namespace OutputReportPredefined;

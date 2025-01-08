@@ -130,7 +130,6 @@ TEST_F(EnergyPlusFixture, LoadProfile_initandsimulate_Waterloop)
     // Test setup for a load profile in a water loop
     auto &thisWaterLoop(state->dataPlnt->PlantLoop(1));
     thisWaterLoop.FluidName = "WATER";
-    thisWaterLoop.FluidIndex = 1;
     thisWaterLoop.glycol = Fluid::GetWater(*state);
     thisWaterLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch.allocate(1);
     thisWaterLoop.LoopSide(DataPlant::LoopSideLocation::Demand).TotalBranches = 1;
@@ -199,7 +198,6 @@ TEST_F(EnergyPlusFixture, LoadProfile_initandsimulate_Steamloop)
     // Test setup for a load profile in a steam loop
     auto &thisSteamLoop(state->dataPlnt->PlantLoop(1));
     thisSteamLoop.FluidName = "STEAM";
-    thisSteamLoop.FluidIndex = 1;
     thisSteamLoop.steam = Fluid::GetSteam(*state);
     thisSteamLoop.glycol = Fluid::GetWater(*state);
     thisSteamLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch.allocate(1);

@@ -153,10 +153,8 @@ namespace BoilerSteam {
         int NumAlphas;       // Number of elements in the alpha array
         int NumNums;         // Number of elements in the numeric array
         int IOStat;          // IO Status when calling get input subroutine
-        int SteamFluidIndex; // Fluid Index for Steam
         bool ErrorsFound(false);
 
-        SteamFluidIndex = 0;
         state.dataIPShortCut->cCurrentModuleObject = "Boiler:Steam";
         int numBoilers = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, state.dataIPShortCut->cCurrentModuleObject);
 

@@ -183,8 +183,6 @@ namespace SurfaceGroundHeatExchanger {
 
         // Using/Aliasing
         using BranchNodeConnections::TestCompSet;
-        using Fluid::CheckFluidPropertyName;
-
         using NodeInputManager::GetOnlySingleNode;
         using namespace DataLoopNode;
 

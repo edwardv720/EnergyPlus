@@ -1944,7 +1944,6 @@ TEST_F(EnergyPlusFixture, ChillerAbsorption_Autosize)
         auto &thisLoop = chwLoop;
         auto &thisLoopSizing = chwLoopSizing;
         thisLoop.Name = "ChilledWaterLoop";
-        thisLoop.FluidIndex = 1;
         thisLoop.FluidName = "WATER";
         thisLoop.glycol = Fluid::GetWater(*state);
         thisLoop.PlantSizNum = chwLoopNum;
@@ -1971,7 +1970,6 @@ TEST_F(EnergyPlusFixture, ChillerAbsorption_Autosize)
         auto &thisLoop = cndLoop;
         auto &thisLoopSizing = cndLoopSizing;
         thisLoop.Name = "CondenserWaterLoop";
-        thisLoop.FluidIndex = 1;
         thisLoop.FluidName = "WATER";
         thisLoop.glycol = Fluid::GetWater(*state);
         thisLoop.PlantSizNum = cndLoopNum;
@@ -1998,7 +1996,6 @@ TEST_F(EnergyPlusFixture, ChillerAbsorption_Autosize)
         auto &thisLoop = genLoop;
         auto &thisLoopSizing = genLoopSizing;
         thisLoop.Name = "Generator HW Loop";
-        thisLoop.FluidIndex = 1;
         thisLoop.FluidName = "WATER";
         thisLoop.glycol = Fluid::GetWater(*state);
         thisLoop.PlantSizNum = genLoopNum;

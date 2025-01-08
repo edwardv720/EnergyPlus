@@ -198,9 +198,6 @@ void GetTESCoilInput(EnergyPlusData &state)
     // Using/Aliasing
     using BranchNodeConnections::TestCompSet;
     using DataZoneEquipment::FindControlledZoneIndexFromSystemNodeNumberForZone;
-    using Fluid::CheckFluidPropertyName;
-    using Fluid::GetFluidDensityTemperatureLimits;
-    using Fluid::GetFluidSpecificHeatTemperatureLimits;
     using GlobalNames::VerifyUniqueCoilName;
     using NodeInputManager::GetOnlySingleNode;
     using ScheduleManager::GetScheduleIndex;
@@ -290,7 +287,6 @@ void GetTESCoilInput(EnergyPlusData &state)
             break;
         case MediaType::Water:
             thisTESCoil.StorageFluidName = "WATER";
-            thisTESCoil.StorageFluidIndex = Fluid::GetGlycolNum(state, "WATER");
             thisTESCoil.glycol = Fluid::GetWater(state);
             break;
         default:
@@ -1549,15 +1545,15 @@ void GetTESCoilInput(EnergyPlusData &state)
             if (!state.dataIPShortCut->lNumericFieldBlanks(42)) {
                 thisTESCoil.MinimumFluidTankTempLimit = state.dataIPShortCut->rNumericArgs(42);
             } else {
-                GetFluidDensityTemperatureLimits(state, thisTESCoil.StorageFluidIndex, TminRho, TmaxRho);
-                GetFluidSpecificHeatTemperatureLimits(state, thisTESCoil.StorageFluidIndex, TminCp, TmaxCp);
+                thisTESCoil.glycol->getDensityTemperatureLimits(state, TminRho, TmaxRho);
+                thisTESCoil.glycol->getSpecificHeatTemperatureLimits(state, TminCp, TmaxCp);
                 thisTESCoil.MinimumFluidTankTempLimit = max(TminRho, TminCp);
             }
             if (!state.dataIPShortCut->lNumericFieldBlanks(43)) {
                 thisTESCoil.MaximumFluidTankTempLimit = state.dataIPShortCut->rNumericArgs(43);
             } else {
-                GetFluidDensityTemperatureLimits(state, thisTESCoil.StorageFluidIndex, TminRho, TmaxRho);
-                GetFluidSpecificHeatTemperatureLimits(state, thisTESCoil.StorageFluidIndex, TminCp, TmaxCp);
+                thisTESCoil.glycol->getDensityTemperatureLimits(state, TminRho, TmaxRho);
+                thisTESCoil.glycol->getSpecificHeatTemperatureLimits(state, TminCp, TmaxCp);
                 thisTESCoil.MaximumFluidTankTempLimit = min(TmaxRho, TmaxCp);
             }
         }

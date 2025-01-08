@@ -120,7 +120,6 @@ TEST_F(EnergyPlusFixture, DistrictCoolingandHeating)
     PlantLocation locHotWater(1, DataPlant::LoopSideLocation::Supply, 1, 1);
     thisHotWaterLoop.Name = "HotWaterLoop";
     thisHotWaterLoop.FluidName = "WATER";
-    thisHotWaterLoop.FluidIndex = 1;
     thisHotWaterLoop.glycol = Fluid::GetWater(*state);
     thisHotWaterLoop.MinTemp = 1.0;
     thisHotWaterLoop.MaxTemp = 99.0;
@@ -152,7 +151,6 @@ TEST_F(EnergyPlusFixture, DistrictCoolingandHeating)
     PlantLocation locChilledWater(2, DataPlant::LoopSideLocation::Supply, 1, 1);
     thisChilledWaterLoop.Name = "ChilledWaterLoop";
     thisChilledWaterLoop.FluidName = "WATER";
-    thisChilledWaterLoop.FluidIndex = 1;
     thisChilledWaterLoop.glycol = Fluid::GetWater(*state);
     
     thisChilledWaterLoop.MinTemp = 1.0;
@@ -186,7 +184,6 @@ TEST_F(EnergyPlusFixture, DistrictCoolingandHeating)
     PlantLocation locSteam(3, DataPlant::LoopSideLocation::Supply, 1, 1);
     thisSteamLoop.Name = "SteamLoop";
     thisSteamLoop.FluidName = "STEAM";
-    thisSteamLoop.FluidIndex = 1;
     thisSteamLoop.steam = Fluid::GetSteam(*state);
     thisSteamLoop.glycol = Fluid::GetWater(*state);
     thisSteamLoop.MinMassFlowRate = 0.00001;

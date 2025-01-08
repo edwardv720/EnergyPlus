@@ -1092,7 +1092,6 @@ namespace RefrigeratedCase {
         bool CoilFlag = false;                              // Flag to show if coil type load on secondary system
         std::string Name;                                   // Name of refrigeration system
         std::string FluidName;                              // Name of circulating fluid
-        int FluidIndex = 0;                                 // Numerical ID used for calls to properties subroutine
         Fluid::GlycolProps *glycol = nullptr;
         Fluid::RefrigProps *refrig = nullptr;
         std::string EndUseSubcategory;                      // Used for reporting purposes
