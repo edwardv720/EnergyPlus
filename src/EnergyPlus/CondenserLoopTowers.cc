@@ -52,7 +52,7 @@
 // ObjexxFCL Headers
 #include <ObjexxFCL/Array.functions.hh>
 #include <ObjexxFCL/Fmath.hh>
-#include <ObjexxFCL/string.functions.hh>
+// #include <ObjexxFCL/string.functions.hh>
 
 // EnergyPlus Headers
 #include <EnergyPlus/Autosizing/Base.hh>
@@ -6324,11 +6324,8 @@ namespace CondenserLoopTowers {
         Real64 constexpr designWetBulb = 25.56;
         Real64 constexpr airFlowRateRatio = 1.0;
         Real64 constexpr waterFlowRateRatio = 1.0;
-        Real64 const CpWater = FluidProperties::GetSpecificHeatGlycol(state,
-                                                                      state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidName,
-                                                                      state.dataLoopNodes->Node(this->WaterInletNodeNum).Temp,
-                                                                      state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidIndex,
-                                                                      routineName);
+        Real64 const CpWater = state.dataPlnt->PlantLoop(this->plantLoc.loopNum)
+                                   .glycol->getSpecificHeat(state, state.dataLoopNodes->Node(this->WaterInletNodeNum).Temp, routineName);
         // use operating max (i.e., at current plant flow rates, could be 0 if plant is off) or max available capacity?
         // Real64 waterMassFlowRate = state.dataLoopNodes->Node(this->WaterInletNodeNum).MassFlowRateMaxAvail;
         Real64 waterMassFlowRate = this->DesWaterMassFlowRate;
