@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -1254,11 +1254,7 @@ void CalcVRFCondenser(EnergyPlusData &state, int const VRFCond)
         //            VRF( VRFCond ).CondenserInletTemp = state.dataLoopNodes->Node(VRF(VRFCond).CondenserNodeNum).Temp;
         vrf.WaterCondenserMassFlow = state.dataLoopNodes->Node(vrf.CondenserNodeNum).MassFlowRate;
 
-        CpCond = FluidProperties::GetSpecificHeatGlycol(state,
-                                                        state.dataPlnt->PlantLoop(vrf.SourcePlantLoc.loopNum).FluidName,
-                                                        vrf.CondenserInletTemp,
-                                                        state.dataPlnt->PlantLoop(vrf.SourcePlantLoc.loopNum).FluidIndex,
-                                                        RoutineName);
+        CpCond = state.dataPlnt->PlantLoop(vrf.SourcePlantLoc.loopNum).glycol->getSpecificHeat(state, vrf.CondenserInletTemp, RoutineName);
         if (CondWaterMassFlow > 0.0) {
             CondOutletTemp = vrf.QCondenser / (CondWaterMassFlow * CpCond) + CondInletTemp;
         } else {
@@ -2473,7 +2469,7 @@ void GetVRFInputData(EnergyPlusData &state, bool &ErrorsFound)
 
         // Refrigerant type
         thisVrfFluidCtrl.refrigName = cAlphaArgs(4);
-        thisVrfFluidCtrl.refrig = FluidProperties::GetRefrig(state, thisVrfFluidCtrl.refrigName);
+        thisVrfFluidCtrl.refrig = Fluid::GetRefrig(state, thisVrfFluidCtrl.refrigName);
         if (thisVrfFluidCtrl.refrig == nullptr) {
             ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(4), cAlphaArgs(4));
             ErrorsFound = true;
@@ -2871,7 +2867,7 @@ void GetVRFInputData(EnergyPlusData &state, bool &ErrorsFound)
 
         // Refrigerant type
         thisVrfFluidCtrlHR.refrigName = cAlphaArgs(4);
-        if ((thisVrfFluidCtrlHR.refrig = FluidProperties::GetRefrig(state, thisVrfFluidCtrlHR.refrigName)) == nullptr) {
+        if ((thisVrfFluidCtrlHR.refrig = Fluid::GetRefrig(state, thisVrfFluidCtrlHR.refrigName)) == nullptr) {
             ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(4), cAlphaArgs(4));
             ErrorsFound = true;
         }
@@ -2881,6 +2877,7 @@ void GetVRFInputData(EnergyPlusData &state, bool &ErrorsFound)
         thisVrfFluidCtrlHR.RatedCompPower = thisVrfFluidCtrlHR.RatedCompPowerPerCapcity * thisVrfFluidCtrlHR.RatedEvapCapacity;
         thisVrfFluidCtrlHR.CoolingCapacity = thisVrfFluidCtrlHR.RatedEvapCapacity;
         thisVrfFluidCtrlHR.HeatingCapacity = thisVrfFluidCtrlHR.RatedEvapCapacity * (1 + thisVrfFluidCtrlHR.RatedCompPowerPerCapcity);
+        thisVrfFluidCtrlHR.RatedHeatCapacity = thisVrfFluidCtrlHR.HeatingCapacity;
 
         // Reference system COP
         thisVrfFluidCtrlHR.CoolingCOP = 1 / thisVrfFluidCtrlHR.RatedCompPowerPerCapcity;
@@ -4278,9 +4275,8 @@ void GetVRFInputData(EnergyPlusData &state, bool &ErrorsFound)
                     // Get the supplemental heating coil steam max volume flow rate
                     thisVrfTU.SuppHeatCoilFluidMaxFlow = SteamCoils::GetCoilMaxSteamFlowRate(state, thisVrfTU.SuppHeatCoilIndex, errFlag);
                     if (thisVrfTU.SuppHeatCoilFluidMaxFlow > 0.0) {
-                        int SteamIndex = 0; // fluid type index of 0 is passed if steam
                         Real64 TempSteamIn = 100.0;
-                        Real64 SteamDensity = FluidProperties::GetSatDensityRefrig(state, fluidNameSteam, TempSteamIn, 1.0, SteamIndex, RoutineName);
+                        Real64 SteamDensity = Fluid::GetSteam(state)->getSatDensity(state, TempSteamIn, 1.0, RoutineName);
                         thisVrfTU.SuppHeatCoilFluidMaxFlow =
                             SteamCoils::GetCoilMaxSteamFlowRate(state, thisVrfTU.SuppHeatCoilIndex, errFlag) * SteamDensity;
                     }
@@ -5641,12 +5637,8 @@ void InitVRF(EnergyPlusData &state, int const VRFTUNum, int const ZoneNum, bool 
                 state, "Coil:Heating:Water", state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilName, ErrorsFound);
 
             if (state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilFluidMaxFlow > 0.0) {
-                rho = FluidProperties::GetDensityGlycol(
-                    state,
-                    state.dataPlnt->PlantLoop(state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilPlantLoc.loopNum).FluidName,
-                    Constant::HWInitConvTemp,
-                    state.dataPlnt->PlantLoop(state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilPlantLoc.loopNum).FluidIndex,
-                    RoutineName);
+                rho = state.dataPlnt->PlantLoop(state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilPlantLoc.loopNum)
+                          .glycol->getDensity(state, Constant::HWInitConvTemp, RoutineName);
                 state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilFluidMaxFlow =
                     state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilFluidMaxFlow * rho;
             }
@@ -5675,9 +5667,8 @@ void InitVRF(EnergyPlusData &state, int const VRFTUNum, int const ZoneNum, bool 
             state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilFluidMaxFlow =
                 SteamCoils::GetCoilMaxSteamFlowRate(state, state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilIndex, ErrorsFound);
             if (state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilFluidMaxFlow > 0.0) {
-                int SteamIndex = 0; // fluid type index of 0 is passed if steam
                 Real64 TempSteamIn = 100.0;
-                Real64 SteamDensity = FluidProperties::GetSatDensityRefrig(state, fluidNameSteam, TempSteamIn, 1.0, SteamIndex, RoutineName);
+                Real64 SteamDensity = Fluid::GetSteam(state)->getSatDensity(state, TempSteamIn, 1.0, RoutineName);
                 state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilFluidMaxFlow =
                     state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilFluidMaxFlow * SteamDensity;
             }
@@ -6254,12 +6245,8 @@ void InitVRF(EnergyPlusData &state, int const VRFTUNum, int const ZoneNum, bool 
         state.dataHVACVarRefFlow->MyEnvrnFlag(VRFTUNum) = false;
 
         if (state.dataHVACVarRefFlow->VRF(VRFCond).CondenserType == DataHeatBalance::RefrigCondenserType::Water) {
-            rho =
-                FluidProperties::GetDensityGlycol(state,
-                                                  state.dataPlnt->PlantLoop(state.dataHVACVarRefFlow->VRF(VRFCond).SourcePlantLoc.loopNum).FluidName,
-                                                  Constant::CWInitConvTemp,
-                                                  state.dataPlnt->PlantLoop(state.dataHVACVarRefFlow->VRF(VRFCond).SourcePlantLoc.loopNum).FluidIndex,
-                                                  RoutineName);
+            rho = state.dataPlnt->PlantLoop(state.dataHVACVarRefFlow->VRF(VRFCond).SourcePlantLoc.loopNum)
+                      .glycol->getDensity(state, Constant::CWInitConvTemp, RoutineName);
             state.dataHVACVarRefFlow->VRF(VRFCond).WaterCondenserDesignMassFlow = state.dataHVACVarRefFlow->VRF(VRFCond).WaterCondVolFlowRate * rho;
 
             InitComponentNodes(state,
@@ -6286,12 +6273,8 @@ void InitVRF(EnergyPlusData &state, int const VRFTUNum, int const ZoneNum, bool 
                     Real64 CoilMaxVolFlowRate = WaterCoils::GetCoilMaxWaterFlowRate(
                         state, "Coil:Heating:Water", state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilName, ErrorsFound);
                     if (CoilMaxVolFlowRate != DataSizing::AutoSize) {
-                        rho = FluidProperties::GetDensityGlycol(
-                            state,
-                            state.dataPlnt->PlantLoop(state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilPlantLoc.loopNum).FluidName,
-                            Constant::HWInitConvTemp,
-                            state.dataPlnt->PlantLoop(state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilPlantLoc.loopNum).FluidIndex,
-                            RoutineName);
+                        rho = state.dataPlnt->PlantLoop(state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilPlantLoc.loopNum)
+                                  .glycol->getDensity(state, Constant::HWInitConvTemp, RoutineName);
                         state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilFluidMaxFlow = CoilMaxVolFlowRate * rho;
                     }
                 }
@@ -6308,9 +6291,8 @@ void InitVRF(EnergyPlusData &state, int const VRFTUNum, int const ZoneNum, bool 
                     Real64 CoilMaxVolFlowRate =
                         SteamCoils::GetCoilMaxSteamFlowRate(state, state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilIndex, ErrorsFound);
                     if (CoilMaxVolFlowRate != DataSizing::AutoSize) {
-                        int SteamIndex = 0; // fluid type index of 0 is passed if steam
                         Real64 TempSteamIn = 100.0;
-                        Real64 SteamDensity = FluidProperties::GetSatDensityRefrig(state, fluidNameSteam, TempSteamIn, 1.0, SteamIndex, RoutineName);
+                        Real64 SteamDensity = Fluid::GetSteam(state)->getSatDensity(state, TempSteamIn, 1.0, RoutineName);
                         state.dataHVACVarRefFlow->VRFTU(VRFTUNum).SuppHeatCoilFluidMaxFlow = CoilMaxVolFlowRate * SteamDensity;
                     }
                 }
@@ -8897,17 +8879,11 @@ void VRFCondenserEquipment::SizeVRFCondenser(EnergyPlusData &state)
             int PltSizCondNum = 0;
             if (this->SourcePlantLoc.loopNum > 0) PltSizCondNum = state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).PlantSizNum;
             if (PltSizCondNum > 0) {
-                rho = FluidProperties::GetDensityGlycol(state,
-                                                        state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).FluidName,
-                                                        state.dataSize->PlantSizData(PltSizCondNum).ExitTemp,
-                                                        state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).FluidIndex,
-                                                        RoutineName);
+                rho = state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum)
+                          .glycol->getDensity(state, state.dataSize->PlantSizData(PltSizCondNum).ExitTemp, RoutineName);
 
-                Cp = FluidProperties::GetSpecificHeatGlycol(state,
-                                                            state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).FluidName,
-                                                            state.dataSize->PlantSizData(PltSizCondNum).ExitTemp,
-                                                            state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).FluidIndex,
-                                                            RoutineName);
+                Cp = state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum)
+                         .glycol->getSpecificHeat(state, state.dataSize->PlantSizData(PltSizCondNum).ExitTemp, RoutineName);
                 tmpCondVolFlowRate =
                     max(this->CoolingCapacity, this->HeatingCapacity) / (state.dataSize->PlantSizData(PltSizCondNum).DeltaT * Cp * rho);
                 if (this->HeatingCapacity != DataSizing::AutoSize && this->CoolingCapacity != DataSizing::AutoSize) {
@@ -8919,11 +8895,7 @@ void VRFCondenserEquipment::SizeVRFCondenser(EnergyPlusData &state)
                                                  this->WaterCondVolFlowRate);
                 }
 
-                rho = FluidProperties::GetDensityGlycol(state,
-                                                        state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).FluidName,
-                                                        Constant::CWInitConvTemp,
-                                                        state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).FluidIndex,
-                                                        RoutineName);
+                rho = state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).glycol->getDensity(state, Constant::CWInitConvTemp, RoutineName);
                 this->WaterCondenserDesignMassFlow = this->WaterCondVolFlowRate * rho;
                 PlantUtilities::InitComponentNodes(
                     state, 0.0, this->WaterCondenserDesignMassFlow, this->CondenserNodeNum, this->CondenserOutletNodeNum);
@@ -13700,35 +13672,68 @@ void VRFCondenserEquipment::VRFOU_CompSpd(
     } else {
         // Capacity to meet is for condenser
 
+        // derivation process
+        // let
+        // k be the speed level
+        // C be the short form for C_cap_operation
+        // PWR(.) be the short form of CompEvaporatingPWRSpd(.)
+        // CAP(.) be the short form of CompEvaporatingCAPSpd(.)
+        // spd(.) be the short form of this->CompressorSpeed(.)
+        // deltaPWR be PWR(k) - PWR(k - 1)
+        // deltaCAP be CAP(k) - CAP(k - 1)
+        //
+        // compressor heat = deltaPWR * r + PWR(k - 1)
+        // so
+        // Q_cond_req = Q_req = Q_evap_req + deltaPWR * r + PWR(k - 1) <---- eq 1
+        //
+        // we also know this from the CompSpdActual calculation equation that
+        // CompSpdActual = Spd(k - 1) + deltaSpd / deltaCAP * (Q_evap_req * C - CAP(k - 1))
+        // so we call the following r
+        // r = (Q_evap_req * C - CAP(k - 1)) / deltaCAP
+        // so
+        // CompSpdActual = Spd(k - 1) + deltaSpd * r
+        //
+        // arranging terms in eq 1
+        // Q_cond_req - deltaPWR * r - PWR(k - 1) = Q_evap_req
+        // (Q_cond_req - deltaPWR * r - PWR(k - 1)) * C - CAP(k - 1) = Q_evap_req * C - CAP(k - 1)
+        // ((Q_cond_req - deltaPWR * r - PWR(k - 1)) * C - CAP(k - 1)) / deltaCAP = (Q_evap_req * C - CAP(k - 1)) / deltaCAP
+        // ((Q_cond_req - deltaPWR * r - PWR(k - 1)) * C - CAP(k - 1)) / deltaCAP = r
+        // (Q_cond_req - deltaPWR * r - PWR(k - 1)) * C - CAP(k - 1) = deltaCAP * r
+        // (Q_cond_req - PWR(k - 1)) * C - CAP(k - 1) = deltaCAP * r + deltaPWR * r * C
+        // so
+        // r = ((Q_cond_req - PWR(k - 1)) * C - CAP(k - 1)) / (deltaCAP + deltaPWR * C)
+        //   = ((Q_cond_req - PWR(k - 1)) - CAP(k - 1)/C) / (deltaCAP/C + deltaPWR)
+        //
+        // in the special case where k = 1, then k - 1, PWR(k - 1) and CAP(k - 1) will all be 0
+        // r = ((Q_cond_req) * C) / (CAP(1) - PWR(1) * C)
+        //   = (Q_cond_req) / (CAP(1)/C - PWR(1))
+
         Q_cond_req = Q_req;
 
-        for (CounterCompSpdTemp = 1; CounterCompSpdTemp <= NumOfCompSpdInput; CounterCompSpdTemp++) {
-            // Iteration to find the VRF speed that can meet the required load, Iteration DoName1
-
-            CompEvaporatingPWRSpd(CounterCompSpdTemp) =
-                this->RatedCompPower * CurveValue(state, this->OUCoolingPWRFT(CounterCompSpdTemp), T_discharge, T_suction);
-            CompEvaporatingCAPSpd(CounterCompSpdTemp) =
-                this->CoffEvapCap * this->RatedEvapCapacity * CurveValue(state, this->OUCoolingCAPFT(CounterCompSpdTemp), T_discharge, T_suction);
-
-            Q_evap_req = Q_cond_req - CompEvaporatingPWRSpd(CounterCompSpdTemp);
-
-            if (Q_evap_req * C_cap_operation <= CompEvaporatingCAPSpd(CounterCompSpdTemp)) {
-                // Compressor speed stage CounterCompSpdTemp need not to be increased, finish Iteration DoName1
-
-                if (CounterCompSpdTemp > 1) {
-
-                    CompSpdLB = CounterCompSpdTemp - 1;
-                    CompSpdUB = CounterCompSpdTemp;
-
-                    CompSpdActual = this->CompressorSpeed(CompSpdLB) + (this->CompressorSpeed(CompSpdUB) - this->CompressorSpeed(CompSpdLB)) /
-                                                                           (CompEvaporatingCAPSpd(CompSpdUB) - CompEvaporatingCAPSpd(CompSpdLB)) *
-                                                                           (Q_evap_req * C_cap_operation - CompEvaporatingCAPSpd(CompSpdLB));
-
-                } else {
-                    CompSpdActual = this->CompressorSpeed(1) * (Q_evap_req * C_cap_operation) / CompEvaporatingCAPSpd(1);
+        CounterCompSpdTemp = 1;
+        CompEvaporatingPWRSpd(1) = this->RatedCompPower * CurveValue(state, this->OUCoolingPWRFT(1), T_discharge, T_suction);
+        CompEvaporatingCAPSpd(1) = this->CoffEvapCap * this->RatedEvapCapacity * CurveValue(state, this->OUCoolingCAPFT(1), T_discharge, T_suction);
+        Real64 r = (Q_cond_req * C_cap_operation) / (CompEvaporatingCAPSpd(1) + CompEvaporatingPWRSpd(1) * C_cap_operation);
+        if (r < 1.0) {
+            CompSpdActual = this->CompressorSpeed(1) * r;
+            Q_evap_req = Q_cond_req - CompEvaporatingPWRSpd(1) * r;
+        } else {
+            for (CounterCompSpdTemp = 2; CounterCompSpdTemp <= NumOfCompSpdInput; CounterCompSpdTemp++) {
+                CompEvaporatingPWRSpd(CounterCompSpdTemp) =
+                    this->RatedCompPower * CurveValue(state, this->OUCoolingPWRFT(CounterCompSpdTemp), T_discharge, T_suction);
+                CompEvaporatingCAPSpd(CounterCompSpdTemp) =
+                    this->CoffEvapCap * this->RatedEvapCapacity * CurveValue(state, this->OUCoolingCAPFT(CounterCompSpdTemp), T_discharge, T_suction);
+                CompSpdLB = CounterCompSpdTemp - 1;
+                CompSpdUB = CounterCompSpdTemp;
+                Real64 deltaCAP = CompEvaporatingCAPSpd(CompSpdUB) - CompEvaporatingCAPSpd(CompSpdLB);
+                Real64 deltaPWR = CompEvaporatingPWRSpd(CompSpdUB) - CompEvaporatingPWRSpd(CompSpdLB);
+                Real64 r = ((Q_cond_req - CompEvaporatingPWRSpd(CompSpdLB)) * C_cap_operation - CompEvaporatingCAPSpd(CompSpdLB)) /
+                           (deltaCAP + deltaPWR * C_cap_operation);
+                if (r < 1.0) {
+                    CompSpdActual = this->CompressorSpeed(CompSpdLB) + (this->CompressorSpeed(CompSpdUB) - this->CompressorSpeed(CompSpdLB)) * r;
+                    Q_evap_req = Q_cond_req - deltaPWR * r - CompEvaporatingPWRSpd(CompSpdLB);
+                    break;
                 }
-
-                break; // EXIT DoName1
             }
         } // End: Iteration DoName1
 
@@ -13740,13 +13745,13 @@ void VRFCondenserEquipment::VRFOU_CompSpd(
 
 void VRFCondenserEquipment::VRFOU_CompCap(
     EnergyPlusData &state,
-    int const CompSpdActual,   // Given compressor speed
-    Real64 const T_suction,    // Compressor suction temperature Te' [C]
-    Real64 const T_discharge,  // Compressor discharge temperature Tc' [C]
-    Real64 const h_IU_evap_in, // Enthalpy of IU at inlet, for C_cap_operation calculation [kJ/kg]
-    Real64 const h_comp_in,    // Enthalpy after piping loss (compressor inlet), for C_cap_operation calculation [kJ/kg]
-    Real64 &Q_c_tot,           // Compressor evaporative capacity [W]
-    Real64 &Ncomp              // Compressor power [W]
+    Real64 const CompSpdActual, // Given compressor speed
+    Real64 const T_suction,     // Compressor suction temperature Te' [C]
+    Real64 const T_discharge,   // Compressor discharge temperature Tc' [C]
+    Real64 const h_IU_evap_in,  // Enthalpy of IU at inlet, for C_cap_operation calculation [kJ/kg]
+    Real64 const h_comp_in,     // Enthalpy after piping loss (compressor inlet), for C_cap_operation calculation [kJ/kg]
+    Real64 &Q_c_tot,            // Compressor evaporative capacity [W]
+    Real64 &Ncomp               // Compressor power [W]
 )
 {
 
@@ -14934,7 +14939,7 @@ void VRFCondenserEquipment::VRFOU_PipeLossC(
         Pipe_Coe_k1 = Pipe_Num_Nu * Pipe_viscosity_ref;
         Pipe_Coe_k3 = RefPipInsH * (this->RefPipDiaSuc + 2 * this->RefPipInsThi);
         if (this->RefPipInsThi >= 0.0) {
-            Pipe_Coe_k2 = 2 * this->RefPipInsCon / std::log(1.0 + 2 * this->RefPipInsThi / this->RefPipDiaSuc);
+            Pipe_Coe_k2 = 2 * this->RefPipInsCon / std::log1p(2 * this->RefPipInsThi / this->RefPipDiaSuc);
         } else {
             Pipe_Coe_k2 = 9999.9;
         }

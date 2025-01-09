@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -159,7 +159,7 @@ namespace Dayltg {
     // sky is conveniently given by SurfAnisoSkyMult.  NOTE:  The solar shading code was modified to allow sunlit
     // fraction, sunlit area, SurfAnisoSkyMult, etc. to be calculated for attached shading surfaces.
     // Future shelf model improvements:
-    // 1. Allow beam and downgoing flux to pass the end of the inside shelf depending on actual shelf goemetry.
+    // 1. Allow beam and downgoing flux to pass the end of the inside shelf depending on actual shelf geometry.
     // 2. Reduce outside shelf view factor to sky (for daylighting) by taking into account anisotropic sky
     //    distribution and shading, i.e. the daylighting equivalent of SurfAnisoSkyMult.
     // 3. Expand view factor to shelf calculation to handle more complicated geometry.
@@ -1400,7 +1400,7 @@ namespace Dayltg {
         // REFERENCES: na
 
         // Using/Aliasing
-        using FluidProperties::FindArrayIndex; // USEd code could be copied here to eliminate dependence on FluidProperties
+        using Fluid::FindArrayIndex; // USEd code could be copied here to eliminate dependence on FluidProperties
 
         // Return value
         Real64 InterpolatePipeTransBeam;
@@ -1789,7 +1789,7 @@ namespace Dayltg {
         //       DATE WRITTEN   Dec 2011
 
         // PURPOSE OF THIS SUBROUTINE:
-        // intialize zone gains at begin new environment
+        // initialize zone gains at begin new environment
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
 

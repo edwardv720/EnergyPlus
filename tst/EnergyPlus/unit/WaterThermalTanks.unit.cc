@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -779,8 +779,7 @@ TEST_F(EnergyPlusFixture, HPWHEnergyBalance)
     state->dataOutRptPredefined->pdstHeatCoil = -1;
     state->dataWaterThermalTanks->mdotAir = 0.0993699992873531;
 
-    int GlycolIndex = 0;
-    const Real64 Cp = FluidProperties::GetSpecificHeatGlycol(*state, "WATER", Tank.TankTemp, GlycolIndex, "HPWHEnergyBalance");
+    const Real64 Cp = Fluid::GetWater(*state)->getSpecificHeat(*state, Tank.TankTemp, "HPWHEnergyBalance");
 
     Tank.CalcHeatPumpWaterHeater(*state, false);
 
@@ -2026,7 +2025,7 @@ TEST_F(EnergyPlusFixture, StratifiedTankCalc)
         auto &node = Tank.Node[i];
         TankNodeEnergy += node.Mass * (NodeTemps[i] - PrevNodeTemps[i]);
     }
-    Real64 Cp = FluidProperties::GetSpecificHeatGlycol(*state, "WATER", 60.0, DummyIndex, "StratifiedTankCalcNoDraw");
+    Real64 Cp = Fluid::GetWater(*state)->getSpecificHeat(*state, 60.0, "StratifiedTankCalcNoDraw");
     TankNodeEnergy *= Cp;
     EXPECT_NEAR(Tank.NetHeatTransferRate * state->dataHVACGlobal->TimeStepSysSec, TankNodeEnergy, fabs(TankNodeEnergy * 0.0001));
 
@@ -2165,7 +2164,7 @@ TEST_F(EnergyPlusFixture, StratifiedTankSourceFlowRateCalc)
     Tank.SourceMassFlowRate = 6.30901964e-5 * 997; // 1 gal/min
 
     int DummyIndex = 1;
-    Real64 Cp = FluidProperties::GetSpecificHeatGlycol(*state, "WATER", 60.0, DummyIndex, "StratifiedTankCalcNoDraw");
+    Real64 Cp = Fluid::GetWater(*state)->getSpecificHeat(*state, 60.0, "StratifiedTankCalcNoDraw");
 
     Tank.CalcWaterThermalTankStratified(*state);
 
@@ -2395,7 +2394,7 @@ TEST_F(EnergyPlusFixture, DesuperheaterTimeAdvanceCheck)
     WaterThermalTanks::WaterThermalTankData &Tank = state->dataWaterThermalTanks->WaterThermalTank(TankNum);
     WaterThermalTanks::WaterHeaterDesuperheaterData &Desuperheater = state->dataWaterThermalTanks->WaterHeaterDesuperheater(Tank.DesuperheaterNum);
 
-    // Inititate tank conditions
+    // Initialize tank conditions
     state->dataGlobal->HourOfDay = 0;
     state->dataGlobal->TimeStep = 1;
     state->dataGlobal->TimeStepZone = 1;
@@ -2687,7 +2686,8 @@ TEST_F(EnergyPlusFixture, StratifiedTank_GSHP_DesuperheaterSourceHeat)
     // Plant loop must be initialized
     state->dataWaterToAirHeatPumpSimple->SimpleWatertoAirHP(HPNum).plantLoc.loopNum = 1;
     state->dataPlnt->PlantLoop.allocate(LoopNum);
-    state->dataPlnt->PlantLoop(state->dataWaterToAirHeatPumpSimple->SimpleWatertoAirHP(HPNum).plantLoc.loopNum).FluidIndex = 1;
+    state->dataPlnt->PlantLoop(state->dataWaterToAirHeatPumpSimple->SimpleWatertoAirHP(HPNum).plantLoc.loopNum).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(state->dataWaterToAirHeatPumpSimple->SimpleWatertoAirHP(HPNum).plantLoc.loopNum).glycol = Fluid::GetWater(*state);
     auto &SupplySideloop(state->dataPlnt->PlantLoop(LoopNum).LoopSide(EnergyPlus::DataPlant::LoopSideLocation::Supply));
     SupplySideloop.TotalBranches = 1;
     SupplySideloop.Branch.allocate(BranchNum);
@@ -2762,7 +2762,7 @@ TEST_F(EnergyPlusFixture, StratifiedTank_GSHP_DesuperheaterSourceHeat)
     EXPECT_EQ(Desuperheater.DXSysPLR, 0.8);
     // The heater rate is correctly calculated
     EXPECT_EQ(Desuperheater.HeaterRate, 1000 * 0.25 / Desuperheater.DXSysPLR * Desuperheater.DesuperheaterPLR);
-    // The source rate calculated in stratified tank calculation function is near the heater rate calcualted in desuperheater function
+    // The source rate calculated in stratified tank calculation function is near the heater rate calculated in desuperheater function
     EXPECT_NEAR(Tank.SourceRate, Desuperheater.HeaterRate, Tank.SourceRate * 0.05);
 }
 
@@ -3087,7 +3087,7 @@ TEST_F(EnergyPlusFixture, Desuperheater_Multispeed_Coil_Test)
     // Calculate multispeed DX cooling coils
     DXCoils::CalcMultiSpeedDXCoilCooling(*state, DXNum, 1, 1, 2, HVAC::FanOp::Cycling, HVAC::CompressorOp::On, 1);
 
-    // Source availably heat successfully passed to DataHeatBalance::HeatReclaimDXCoil data struct
+    // Source available heat successfully passed to DataHeatBalance::HeatReclaimDXCoil data struct
     EXPECT_EQ(state->dataHeatBal->HeatReclaimDXCoil(DXNum).AvailCapacity,
               state->dataDXCoils->DXCoil(DXNum).TotalCoolingEnergyRate + state->dataDXCoils->DXCoil(DXNum).ElecCoolingPower);
 
@@ -3095,7 +3095,7 @@ TEST_F(EnergyPlusFixture, Desuperheater_Multispeed_Coil_Test)
     WaterThermalTanks::WaterThermalTankData &Tank = state->dataWaterThermalTanks->WaterThermalTank(TankNum);
     WaterThermalTanks::WaterHeaterDesuperheaterData &Desuperheater = state->dataWaterThermalTanks->WaterHeaterDesuperheater(Tank.DesuperheaterNum);
 
-    // Inititate tank conditions
+    // Initialize tank conditions
     state->dataGlobal->HourOfDay = 0;
     state->dataGlobal->TimeStep = 1;
     state->dataGlobal->TimeStepZone = 1;
@@ -3142,8 +3142,6 @@ TEST_F(EnergyPlusFixture, Desuperheater_Multispeed_Coil_Test)
 
 TEST_F(EnergyPlusFixture, MixedTankAlternateSchedule)
 {
-    using FluidProperties::GetDensityGlycol;
-
     std::string const idf_objects = delimited_string({
         "Schedule:Constant, Inlet Water Temperature, , 10.0;",
         "Schedule:Constant, Water Heater Setpoint Temperature, ,55.0;",
@@ -3230,7 +3228,7 @@ TEST_F(EnergyPlusFixture, MixedTankAlternateSchedule)
     // Source side is in the demand side of the plant loop
     Tank.SrcSidePlantLoc.loopSideNum = EnergyPlus::DataPlant::LoopSideLocation::Demand;
     Tank.SavedSourceOutletTemp = 60.0;
-    rho = FluidProperties::GetDensityGlycol(*state, "Water", Tank.TankTemp, WaterIndex, "MixedTankAlternateSchedule");
+    rho = Fluid::GetWater(*state)->getDensity(*state, Tank.TankTemp, "MixedTankAlternateSchedule");
 
     // Set the available max flow rates for tank and node
     Tank.PlantSourceMassFlowRateMax = Tank.SourceDesignVolFlowRate * rho;
@@ -5635,6 +5633,8 @@ TEST_F(EnergyPlusFixture, MixedTank_PVT_Per_VolumeSizing_PerSolarCollectorArea)
     state->dataPlnt->PlantLoop.allocate(1);
 
     auto &plantLoop = state->dataPlnt->PlantLoop(1);
+    plantLoop.FluidName = "WATER";
+    plantLoop.glycol = Fluid::GetWater(*state);
     auto &supplySide = plantLoop.LoopSide(DataPlant::LoopSideLocation::Supply);
     supplySide.TotalBranches = 1;
     supplySide.Branch.allocate(1);

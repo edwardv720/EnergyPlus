@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -621,12 +621,8 @@ namespace HVACSingleDuctInduc {
             int HotConNode = state.dataHVACSingleDuctInduc->IndUnit(IUNum).HWControlNode;
             if (HotConNode > 0 && !state.dataHVACSingleDuctInduc->MyPlantScanFlag(IUNum)) {
 
-                rho = FluidProperties::GetDensityGlycol(
-                    state,
-                    state.dataPlnt->PlantLoop(state.dataHVACSingleDuctInduc->IndUnit(IUNum).HWPlantLoc.loopNum).FluidName,
-                    Constant::HWInitConvTemp,
-                    state.dataPlnt->PlantLoop(state.dataHVACSingleDuctInduc->IndUnit(IUNum).HWPlantLoc.loopNum).FluidIndex,
-                    RoutineName);
+                rho = state.dataPlnt->PlantLoop(state.dataHVACSingleDuctInduc->IndUnit(IUNum).HWPlantLoc.loopNum)
+                          .glycol->getDensity(state, Constant::HWInitConvTemp, RoutineName);
                 state.dataHVACSingleDuctInduc->IndUnit(IUNum).MaxHotWaterFlow =
                     rho * state.dataHVACSingleDuctInduc->IndUnit(IUNum).MaxVolHotWaterFlow;
                 state.dataHVACSingleDuctInduc->IndUnit(IUNum).MinHotWaterFlow =
@@ -642,12 +638,8 @@ namespace HVACSingleDuctInduc {
 
             int ColdConNode = state.dataHVACSingleDuctInduc->IndUnit(IUNum).CWControlNode;
             if (ColdConNode > 0) {
-                rho = FluidProperties::GetDensityGlycol(
-                    state,
-                    state.dataPlnt->PlantLoop(state.dataHVACSingleDuctInduc->IndUnit(IUNum).CWPlantLoc.loopNum).FluidName,
-                    Constant::CWInitConvTemp,
-                    state.dataPlnt->PlantLoop(state.dataHVACSingleDuctInduc->IndUnit(IUNum).CWPlantLoc.loopNum).FluidIndex,
-                    RoutineName);
+                rho = state.dataPlnt->PlantLoop(state.dataHVACSingleDuctInduc->IndUnit(IUNum).CWPlantLoc.loopNum)
+                          .glycol->getDensity(state, Constant::CWInitConvTemp, RoutineName);
                 state.dataHVACSingleDuctInduc->IndUnit(IUNum).MaxColdWaterFlow =
                     rho * state.dataHVACSingleDuctInduc->IndUnit(IUNum).MaxVolColdWaterFlow;
                 state.dataHVACSingleDuctInduc->IndUnit(IUNum).MinColdWaterFlow =
@@ -733,11 +725,11 @@ namespace HVACSingleDuctInduc {
         Real64 RhoAir = state.dataEnvrn->StdRhoAir;
         bool ErrorsFound = false;
         bool IsAutoSize = false;
-        Real64 MaxTotAirVolFlowDes = 0.0;     // Desing size maximum air volume flow for reproting
+        Real64 MaxTotAirVolFlowDes = 0.0;     // Design size maximum air volume flow for reporting
         Real64 MaxTotAirVolFlowUser = 0.0;    // User hard-sized maximum air volume flow for reporting
-        Real64 MaxVolHotWaterFlowDes = 0.0;   // Desing size maximum hot water flow for reproting
+        Real64 MaxVolHotWaterFlowDes = 0.0;   // Design size maximum hot water flow for reporting
         Real64 MaxVolHotWaterFlowUser = 0.0;  // User hard-sized maximum hot water flow for reporting
-        Real64 MaxVolColdWaterFlowDes = 0.0;  // Desing size maximum cold water flow for reproting
+        Real64 MaxVolColdWaterFlowDes = 0.0;  // Design size maximum cold water flow for reporting
         Real64 MaxVolColdWaterFlowUser = 0.0; // User hard-sized maximum cold water flow for reporting
 
         if (state.dataHVACSingleDuctInduc->IndUnit(IUNum).MaxTotAirVolFlow == DataSizing::AutoSize) {
@@ -851,19 +843,11 @@ namespace HVACSingleDuctInduc {
                                                    state.dataSize->TermUnitFinalZoneSizing(state.dataSize->CurTermUnitSizingNum).DesHeatCoilInTempTU);
                                 }
                                 state.dataHVACSingleDuctInduc->IndUnit(IUNum).DesHeatingLoad = DesCoilLoad;
-                                Cp = FluidProperties::GetSpecificHeatGlycol(
-                                    state,
-                                    state.dataPlnt->PlantLoop(state.dataHVACSingleDuctInduc->IndUnit(IUNum).HWPlantLoc.loopNum).FluidName,
-                                    Constant::HWInitConvTemp,
-                                    state.dataPlnt->PlantLoop(state.dataHVACSingleDuctInduc->IndUnit(IUNum).HWPlantLoc.loopNum).FluidIndex,
-                                    RoutineName);
+                                Cp = state.dataPlnt->PlantLoop(state.dataHVACSingleDuctInduc->IndUnit(IUNum).HWPlantLoc.loopNum)
+                                         .glycol->getSpecificHeat(state, Constant::HWInitConvTemp, RoutineName);
 
-                                rho = FluidProperties::GetDensityGlycol(
-                                    state,
-                                    state.dataPlnt->PlantLoop(state.dataHVACSingleDuctInduc->IndUnit(IUNum).HWPlantLoc.loopNum).FluidName,
-                                    Constant::HWInitConvTemp,
-                                    state.dataPlnt->PlantLoop(state.dataHVACSingleDuctInduc->IndUnit(IUNum).HWPlantLoc.loopNum).FluidIndex,
-                                    RoutineName);
+                                rho = state.dataPlnt->PlantLoop(state.dataHVACSingleDuctInduc->IndUnit(IUNum).HWPlantLoc.loopNum)
+                                          .glycol->getDensity(state, Constant::HWInitConvTemp, RoutineName);
 
                                 MaxVolHotWaterFlowDes = DesCoilLoad / (state.dataSize->PlantSizData(PltSizHeatNum).DeltaT * Cp * rho);
                                 MaxVolHotWaterFlowDes = max(MaxVolHotWaterFlowDes, 0.0);
@@ -986,19 +970,11 @@ namespace HVACSingleDuctInduc {
                                                    state.dataSize->TermUnitFinalZoneSizing(state.dataSize->CurTermUnitSizingNum).ZoneSizThermSetPtHi);
                                 }
                                 state.dataHVACSingleDuctInduc->IndUnit(IUNum).DesCoolingLoad = DesCoilLoad;
-                                Cp = FluidProperties::GetSpecificHeatGlycol(
-                                    state,
-                                    state.dataPlnt->PlantLoop(state.dataHVACSingleDuctInduc->IndUnit(IUNum).CWPlantLoc.loopNum).FluidName,
-                                    5.0,
-                                    state.dataPlnt->PlantLoop(state.dataHVACSingleDuctInduc->IndUnit(IUNum).CWPlantLoc.loopNum).FluidIndex,
-                                    RoutineName);
+                                Cp = state.dataPlnt->PlantLoop(state.dataHVACSingleDuctInduc->IndUnit(IUNum).CWPlantLoc.loopNum)
+                                         .glycol->getSpecificHeat(state, 5.0, RoutineName);
 
-                                rho = FluidProperties::GetDensityGlycol(
-                                    state,
-                                    state.dataPlnt->PlantLoop(state.dataHVACSingleDuctInduc->IndUnit(IUNum).CWPlantLoc.loopNum).FluidName,
-                                    5.0,
-                                    state.dataPlnt->PlantLoop(state.dataHVACSingleDuctInduc->IndUnit(IUNum).CWPlantLoc.loopNum).FluidIndex,
-                                    RoutineName);
+                                rho = state.dataPlnt->PlantLoop(state.dataHVACSingleDuctInduc->IndUnit(IUNum).CWPlantLoc.loopNum)
+                                          .glycol->getDensity(state, 5.0, RoutineName);
 
                                 MaxVolColdWaterFlowDes = DesCoilLoad / (state.dataSize->PlantSizData(PltSizCoolNum).DeltaT * Cp * rho);
                                 MaxVolColdWaterFlowDes = max(MaxVolColdWaterFlowDes, 0.0);

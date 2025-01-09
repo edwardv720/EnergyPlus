@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -118,9 +118,9 @@ void InitializeRuntimeLanguage(EnergyPlusData &state)
     // value(7)   Seconds (0-59)
     // value(8)   Milliseconds (0-999)
 
-    std::string datestring; // supposedly returns blank when no date available.
-
     if (state.dataRuntimeLangProcessor->InitializeOnce) {
+
+        std::string datestring; // supposedly returns blank when no date available.
 
         state.dataRuntimeLang->emsVarBuiltInStart = state.dataRuntimeLang->NumErlVariables + 1;
 

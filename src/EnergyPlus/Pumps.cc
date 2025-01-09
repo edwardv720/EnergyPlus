@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -107,9 +107,6 @@ using HVAC::SmallWaterVolFlow;
 static constexpr std::array<std::string_view, static_cast<int>(PumpType::Num)> pumpTypeIDFNames = {
     "Pump:VariableSpeed", "Pump:ConstantSpeed", "Pump:VariableSpeed:Condensate", "HeaderedPumps:VariableSpeed", "HeaderedPumps:ConstantSpeed"};
 
-static constexpr std::string_view fluidNameSteam("STEAM");
-static constexpr std::string_view fluidNameWater("WATER");
-
 void SimPumps(EnergyPlusData &state,
               std::string const &PumpName, // Name of pump to be managed
               int const LoopNum,           // Plant loop number
@@ -217,8 +214,6 @@ void GetPumpInput(EnergyPlusData &state)
     using Curve::GetCurveIndex;
     using Curve::GetCurveMinMaxValues;
     using DataSizing::AutoSize;
-    using FluidProperties::GetDensityGlycol;
-    using FluidProperties::GetSatDensityRefrig;
     using NodeInputManager::GetOnlySingleNode;
     using ScheduleManager::CheckScheduleValueMinMax;
     using ScheduleManager::GetScheduleIndex;
@@ -240,7 +235,6 @@ void GetPumpInput(EnergyPlusData &state)
     int IOStat;    // IO Status when calling get input subroutine
     bool ErrorsFound;
     int TempCurveIndex;
-    std::string TempCurveType;
     int NumVarSpeedPumps = 0;
     int NumConstSpeedPumps = 0;
     int NumCondensatePumps = 0;
@@ -779,8 +773,8 @@ void GetPumpInput(EnergyPlusData &state)
             thisPump.NomVolFlowRateWasAutoSized = true;
         } else {
             // Calc Condensate Pump Water Volume Flow Rate
-            SteamDensity = GetSatDensityRefrig(state, fluidNameSteam, StartTemp, 1.0, thisPump.FluidIndex, RoutineNameNoColon);
-            TempWaterDensity = GetDensityGlycol(state, fluidNameWater, Constant::InitConvTemp, DummyWaterIndex, RoutineName);
+            SteamDensity = Fluid::GetSteam(state)->getSatDensity(state, StartTemp, 1.0, RoutineNameNoColon);
+            TempWaterDensity = Fluid::GetWater(state)->getDensity(state, Constant::InitConvTemp, RoutineName);
             thisPump.NomVolFlowRate = (thisPump.NomSteamVolFlowRate * SteamDensity) / TempWaterDensity;
         }
 
@@ -1353,8 +1347,6 @@ void InitializePumps(EnergyPlusData &state, int const PumpNum)
     // This subroutine does one-time and begin-envrn inits for the pump
 
     // Using/Aliasing
-    using FluidProperties::GetDensityGlycol;
-    using FluidProperties::GetSatDensityRefrig;
 
     using PlantUtilities::InitComponentNodes;
     using PlantUtilities::ScanPlantLoopsForObject;
@@ -1365,46 +1357,38 @@ void InitializePumps(EnergyPlusData &state, int const PumpNum)
     static constexpr std::string_view RoutineName("PlantPumps::InitializePumps ");
 
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-    int InletNode;  // pump inlet node number
-    int OutletNode; // pump outlet node number
     Real64 TotalEffic;
     Real64 SteamDensity; // Density of working fluid
-    int DummyWaterIndex(1);
     Real64 TempWaterDensity;
-    bool errFlag;
     Real64 mdotMax; // local fluid mass flow rate maximum
     Real64 mdotMin; // local fluid mass flow rate minimum
-    int plloopnum;
     DataPlant::LoopSideLocation lsnum;
-    int brnum;
-    int cpnum;
 
     // Set some variables for convenience
     auto &thisPump = state.dataPumps->PumpEquip(PumpNum);
-    InletNode = thisPump.InletNodeNum;
-    OutletNode = thisPump.OutletNodeNum;
+    int InletNode = thisPump.InletNodeNum;
+    int OutletNode = thisPump.OutletNodeNum;
 
     // One time inits
     if (thisPump.PumpOneTimeFlag) {
 
-        errFlag = false;
+        bool errFlag = false;
         ScanPlantLoopsForObject(state, thisPump.Name, thisPump.TypeOf_Num, thisPump.plantLoc, errFlag, _, _, _, _, _);
-        plloopnum = thisPump.plantLoc.loopNum;
+        int plloopnum = thisPump.plantLoc.loopNum;
         lsnum = thisPump.plantLoc.loopSideNum;
-        brnum = thisPump.plantLoc.branchNum;
-        cpnum = thisPump.plantLoc.compNum;
+        int brnum = thisPump.plantLoc.branchNum;
+        int cpnum = thisPump.plantLoc.compNum;
         if (plloopnum > 0 && lsnum != DataPlant::LoopSideLocation::Invalid && brnum > 0 && cpnum > 0) {
             auto &thisPumpLoc = state.dataPlnt->PlantLoop(plloopnum).LoopSide(lsnum).Branch(brnum);
-            auto &thisLoopNodeID = state.dataLoopNodes->NodeID;
             if (thisPumpLoc.Comp(cpnum).NodeNumIn != InletNode || thisPumpLoc.Comp(cpnum).NodeNumOut != OutletNode) {
                 ShowSevereError(
                     state,
                     format("InitializePumps: {}=\"{}\", non-matching nodes.", pumpTypeIDFNames[static_cast<int>(thisPump.pumpType)], thisPump.Name));
                 ShowContinueError(state, format("...in Branch={}, Component referenced with:", thisPumpLoc.Name));
-                ShowContinueError(state, format("...Inlet Node={}", thisLoopNodeID(thisPumpLoc.Comp(cpnum).NodeNumIn)));
-                ShowContinueError(state, format("...Outlet Node={}", thisLoopNodeID(thisPumpLoc.Comp(cpnum).NodeNumOut)));
-                ShowContinueError(state, format("...Pump Inlet Node={}", thisLoopNodeID(InletNode)));
-                ShowContinueError(state, format("...Pump Outlet Node={}", thisLoopNodeID(OutletNode)));
+                ShowContinueError(state, format("...Inlet Node={}", state.dataLoopNodes->NodeID(thisPumpLoc.Comp(cpnum).NodeNumIn)));
+                ShowContinueError(state, format("...Outlet Node={}", state.dataLoopNodes->NodeID(thisPumpLoc.Comp(cpnum).NodeNumOut)));
+                ShowContinueError(state, format("...Pump Inlet Node={}", state.dataLoopNodes->NodeID(InletNode)));
+                ShowContinueError(state, format("...Pump Outlet Node={}", state.dataLoopNodes->NodeID(OutletNode)));
                 errFlag = true;
             }
         } else { // CR9292
@@ -1498,9 +1482,8 @@ void InitializePumps(EnergyPlusData &state, int const PumpNum)
     // Begin environment inits
     if (thisPump.PumpInitFlag && state.dataGlobal->BeginEnvrnFlag) {
         if (thisPump.pumpType == PumpType::Cond) {
-
-            TempWaterDensity = GetDensityGlycol(state, fluidNameWater, Constant::InitConvTemp, DummyWaterIndex, RoutineName);
-            SteamDensity = GetSatDensityRefrig(state, fluidNameSteam, StartTemp, 1.0, thisPump.FluidIndex, RoutineName);
+            TempWaterDensity = Fluid::GetWater(state)->getDensity(state, Constant::InitConvTemp, RoutineName);
+            SteamDensity = Fluid::GetSteam(state)->getSatDensity(state, StartTemp, 1.0, RoutineName);
             thisPump.NomVolFlowRate = (thisPump.NomSteamVolFlowRate * SteamDensity) / TempWaterDensity;
 
             // set the maximum flow rate on the outlet node
@@ -1519,7 +1502,7 @@ void InitializePumps(EnergyPlusData &state, int const PumpNum)
 
         } else {
             auto &thisPumpPlant = state.dataPlnt->PlantLoop(thisPump.plantLoc.loopNum);
-            TempWaterDensity = GetDensityGlycol(state, thisPumpPlant.FluidName, Constant::InitConvTemp, thisPumpPlant.FluidIndex, RoutineName);
+            TempWaterDensity = thisPumpPlant.glycol->getDensity(state, Constant::InitConvTemp, RoutineName);
             mdotMax = thisPump.NomVolFlowRate * TempWaterDensity;
             // mdotMin = PumpEquip(PumpNum)%MinVolFlowRate * TempWaterDensity
             // see note above
@@ -1539,7 +1522,7 @@ void InitializePumps(EnergyPlusData &state, int const PumpNum)
     if (!state.dataGlobal->BeginEnvrnFlag) thisPump.PumpInitFlag = true;
 
     // zero out module level working variables
-    auto &daPumps = state.dataPumps;
+    auto const &daPumps = state.dataPumps;
     daPumps->PumpMassFlowRate = 0.0;
     daPumps->PumpHeattoFluid = 0.0;
     daPumps->Power = 0.0;
@@ -1579,7 +1562,6 @@ void SetupPumpMinMaxFlows(EnergyPlusData &state, int const LoopNum, int const Pu
     //  These values are also bounded by EMS overridable limit of max flow rate.
 
     // Using/Aliasing
-    using FluidProperties::GetDensityGlycol;
     using PlantPressureSystem::ResolveLoopFlowVsPressure;
     using PlantUtilities::BoundValueToWithinTwoValues;
     using ScheduleManager::GetCurrentScheduleValue;
@@ -1638,7 +1620,7 @@ void SetupPumpMinMaxFlows(EnergyPlusData &state, int const LoopNum, int const Pu
         // Let the user know that his input file is overconstrained
     }
 
-    auto &thisPumpPlant = state.dataPlnt->PlantLoop(thisPump.plantLoc.loopNum);
+    auto const &thisPumpPlant = state.dataPlnt->PlantLoop(thisPump.plantLoc.loopNum);
 
     switch (thisPump.pumpType) {
     case PumpType::VarSpeed: {
@@ -1756,9 +1738,6 @@ void CalcPumps(EnergyPlusData &state, int const PumpNum, Real64 const FlowReques
     // Energy Calculations, ASHRAE, 1993, pp2-10 to 2-15
 
     // Using/Aliasing
-    using FluidProperties::GetDensityGlycol;
-    using FluidProperties::GetSpecificHeatGlycol;
-
     using PlantUtilities::SetComponentFlowRate;
     using ScheduleManager::GetCurrentScheduleValue;
 
@@ -1887,7 +1866,7 @@ void CalcPumps(EnergyPlusData &state, int const PumpNum, Real64 const FlowReques
     }
 
     // density used for volumetric flow calculations
-    LoopDensity = GetDensityGlycol(state, thisPumpPlant.FluidName, thisInNode.Temp, thisPumpPlant.FluidIndex, RoutineName);
+    LoopDensity = thisPumpPlant.glycol->getDensity(state, thisInNode.Temp, RoutineName);
 
     //****************************!
     //***** CALCULATE POWER (1) **!
@@ -2017,10 +1996,6 @@ void SizePump(EnergyPlusData &state, int const PumpNum)
     // METHODOLOGY EMPLOYED:
     // Obtains flow rates from the plant sizing array.
 
-    // Using/Aliasing
-    using FluidProperties::GetDensityGlycol;
-    using FluidProperties::GetSatDensityRefrig;
-
     // SUBROUTINE PARAMETER DEFINITIONS:
     Real64 constexpr StartTemp(100.0); // Standard Temperature across code to calculated Steam density
     static constexpr std::string_view RoutineName("PlantPumps::InitSimVars ");
@@ -2042,9 +2017,9 @@ void SizePump(EnergyPlusData &state, int const PumpNum)
     // Calculate density at InitConvTemp once here, to remove RhoH2O calls littered throughout
     if (thisPump.plantLoc.loopNum > 0) {
         auto &thisPumpPlant = state.dataPlnt->PlantLoop(thisPump.plantLoc.loopNum);
-        TempWaterDensity = GetDensityGlycol(state, thisPumpPlant.FluidName, Constant::InitConvTemp, thisPumpPlant.FluidIndex, RoutineName);
+        TempWaterDensity = thisPumpPlant.glycol->getDensity(state, Constant::InitConvTemp, RoutineName);
     } else {
-        TempWaterDensity = GetDensityGlycol(state, fluidNameWater, Constant::InitConvTemp, DummyWaterIndex, RoutineName);
+        TempWaterDensity = Fluid::GetWater(state)->getDensity(state, Constant::InitConvTemp, RoutineName);
     }
 
     PlantSizNum = 0;
@@ -2065,7 +2040,7 @@ void SizePump(EnergyPlusData &state, int const PumpNum)
                 for (int BranchNum = 1; BranchNum <= thisPumpLoop.TotalBranches; ++BranchNum) {
                     auto &thisPumpBranch = thisPumpLoop.Branch(BranchNum);
                     for (int CompNum = 1; CompNum <= thisPumpBranch.TotalComponents; ++CompNum) {
-                        auto &thisPumpComp = thisPumpBranch.Comp(CompNum);
+                        auto const &thisPumpComp = thisPumpBranch.Comp(CompNum);
                         if (thisPump.InletNodeNum == thisPumpComp.NodeNumIn && thisPump.OutletNodeNum == thisPumpComp.NodeNumOut) {
                             if (thisPumpBranch.PumpSizFac > 0.0) {
                                 PumpSizFac = thisPumpBranch.PumpSizFac;
@@ -2090,8 +2065,8 @@ void SizePump(EnergyPlusData &state, int const PumpNum)
                 if (!thisPumpPlant.LoopSide(thisPump.plantLoc.loopSideNum).BranchPumpsExist) {
                     // size pump to full flow of plant loop
                     if (thisPump.pumpType == PumpType::Cond) {
-                        TempWaterDensity = GetDensityGlycol(state, fluidNameWater, Constant::InitConvTemp, DummyWaterIndex, RoutineName);
-                        SteamDensity = GetSatDensityRefrig(state, fluidNameSteam, StartTemp, 1.0, thisPump.FluidIndex, RoutineNameSizePumps);
+                        TempWaterDensity = Fluid::GetWater(state)->getDensity(state, Constant::InitConvTemp, RoutineName);
+                        SteamDensity = Fluid::GetSteam(state)->getSatDensity(state, StartTemp, 1.0, RoutineNameSizePumps);
                         thisPump.NomSteamVolFlowRate = thisPlantSize.DesVolFlowRate * PumpSizFac;
                         thisPump.NomVolFlowRate = thisPump.NomSteamVolFlowRate * SteamDensity / TempWaterDensity;
                     } else {
@@ -2101,8 +2076,8 @@ void SizePump(EnergyPlusData &state, int const PumpNum)
                     // Distribute sizes evenly across all branch pumps
                     DesVolFlowRatePerBranch = thisPlantSize.DesVolFlowRate / thisPumpPlant.LoopSide(thisPump.plantLoc.loopSideNum).TotalPumps;
                     if (thisPump.pumpType == PumpType::Cond) {
-                        TempWaterDensity = GetDensityGlycol(state, fluidNameWater, Constant::InitConvTemp, DummyWaterIndex, RoutineName);
-                        SteamDensity = GetSatDensityRefrig(state, fluidNameSteam, StartTemp, 1.0, thisPump.FluidIndex, RoutineNameSizePumps);
+                        TempWaterDensity = Fluid::GetWater(state)->getDensity(state, Constant::InitConvTemp, RoutineName);
+                        SteamDensity = Fluid::GetSteam(state)->getSatDensity(state, StartTemp, 1.0, RoutineNameSizePumps);
                         thisPump.NomSteamVolFlowRate = DesVolFlowRatePerBranch * PumpSizFac;
                         thisPump.NomVolFlowRate = thisPump.NomSteamVolFlowRate * SteamDensity / TempWaterDensity;
                     } else {
@@ -2223,8 +2198,8 @@ void ReportPumps(EnergyPlusData &state, int const PumpNum)
 
     PumpType = thisPump.pumpType;
     OutletNode = thisPump.OutletNodeNum;
-    auto &thisOutNode = state.dataLoopNodes->Node(OutletNode);
-    auto &daPumps = state.dataPumps;
+    auto const &thisOutNode = state.dataLoopNodes->Node(OutletNode);
+    auto const &daPumps = state.dataPumps;
 
     if (daPumps->PumpMassFlowRate <= DataBranchAirLoopPlant::MassFlowTolerance) {
         new (&(state.dataPumps->PumpEquipReport(PumpNum))) ReportVars();
@@ -2325,9 +2300,6 @@ void GetRequiredMassFlowRate(EnergyPlusData &state,
                              Real64 &PumpMaxMassFlowRateVFDRange)
 {
     // Using/Aliasing
-    using FluidProperties::GetDensityGlycol;
-    using FluidProperties::GetSpecificHeatGlycol;
-
     using PlantPressureSystem::ResolveLoopFlowVsPressure;
     using PlantUtilities::SetComponentFlowRate;
     using ScheduleManager::GetCurrentScheduleValue;
@@ -2348,7 +2320,7 @@ void GetRequiredMassFlowRate(EnergyPlusData &state,
 
     // Calculate maximum and minimum mass flow rate associated with maximun and minimum RPM
     if (thisPump.plantLoc.loopNum > 0) {
-        auto &thisPlantLoop = state.dataPlnt->PlantLoop(thisPump.plantLoc.loopNum);
+        auto const &thisPlantLoop = state.dataPlnt->PlantLoop(thisPump.plantLoc.loopNum);
         if (thisPlantLoop.UsePressureForPumpCalcs && thisPlantLoop.PressureSimType == DataPlant::PressSimType::FlowCorrection &&
             thisPlantLoop.PressureDrop > 0.0) {
             thisPump.PumpMassFlowRateMaxRPM = ResolveLoopFlowVsPressure(state,
@@ -2377,7 +2349,7 @@ void GetRequiredMassFlowRate(EnergyPlusData &state,
 
     // Calculate maximum and minimum mass flow rate associated with operating pressure range
     if (thisPump.plantLoc.loopNum > 0) {
-        auto &thisPlantLoop = state.dataPlnt->PlantLoop(LoopNum);
+        auto const &thisPlantLoop = state.dataPlnt->PlantLoop(LoopNum);
         if (thisPlantLoop.PressureEffectiveK > 0.0) {
             PumpMassFlowRateMaxPress = std::sqrt(MaxPress / thisPlantLoop.PressureEffectiveK);
             PumpMassFlowRateMinPress = std::sqrt(MinPress / thisPlantLoop.PressureEffectiveK);

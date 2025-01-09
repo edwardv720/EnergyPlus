@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -253,7 +253,7 @@ namespace ScheduleManager {
 
     void ExternalInterfaceSetSchedule(EnergyPlusData &state,
                                       int &ScheduleIndex,
-                                      Real64 &Value // The new value for the schedule
+                                      Real64 const Value // The new value for the schedule
     );
 
     void ProcessIntervalFields(EnergyPlusData &state,
@@ -380,7 +380,7 @@ namespace ScheduleManager {
                                 bool const isItLeapYear   // true if it is a leap year containing February 29
     );
 
-    int GetNumberOfSchedules(EnergyPlusData &state);
+    int GetNumberOfSchedules(EnergyPlusData const &state);
 
 } // namespace ScheduleManager
 

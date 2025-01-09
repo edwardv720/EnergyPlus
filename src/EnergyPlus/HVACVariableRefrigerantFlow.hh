@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -128,8 +128,6 @@ namespace HVACVariableRefrigerantFlow {
             return "";
         }
     }
-
-    constexpr const char *fluidNameSteam("STEAM");
 
     // Flag for hex operation
     enum class HXOpMode
@@ -359,7 +357,7 @@ namespace HVACVariableRefrigerantFlow {
         Real64 OUEvapHeatRate;           // Outdoor Unit Evaporator Heat Extract Rate, excluding piping loss  [W]
         Real64 OUFanPower;               // Outdoor unit fan power at real conditions[W]
         std::string refrigName;          // Name of refrigerant, must match name in FluidName (see fluidpropertiesrefdata.idf)
-        FluidProperties::RefrigProps *refrig;
+        Fluid::RefrigProps *refrig;
         Real64 RatedEvapCapacity;         // Rated Evaporative Capacity [W]
         Real64 RatedHeatCapacity;         // Rated Heating Capacity [W]
         Real64 RatedCompPower;            // Rated Compressor Power [W]
@@ -577,13 +575,13 @@ namespace HVACVariableRefrigerantFlow {
         );
 
         void VRFOU_CompCap(EnergyPlusData &state,
-                           int CompSpdActual,   // Given compressor speed
-                           Real64 T_suction,    // Compressor suction temperature Te' [C]
-                           Real64 T_discharge,  // Compressor discharge temperature Tc' [C]
-                           Real64 h_IU_evap_in, // Enthalpy of IU at inlet, for C_cap_operation calculation [kJ/kg]
-                           Real64 h_comp_in,    // Enthalpy after piping loss (compressor inlet), for C_cap_operation calculation [kJ/kg]
-                           Real64 &Q_c_tot,     // Compressor evaporative capacity [W]
-                           Real64 &Ncomp        // Compressor power [W]
+                           Real64 CompSpdActual, // Given compressor speed
+                           Real64 T_suction,     // Compressor suction temperature Te' [C]
+                           Real64 T_discharge,   // Compressor discharge temperature Tc' [C]
+                           Real64 h_IU_evap_in,  // Enthalpy of IU at inlet, for C_cap_operation calculation [kJ/kg]
+                           Real64 h_comp_in,     // Enthalpy after piping loss (compressor inlet), for C_cap_operation calculation [kJ/kg]
+                           Real64 &Q_c_tot,      // Compressor evaporative capacity [W]
+                           Real64 &Ncomp         // Compressor power [W]
         );
 
         void VRFOU_PipeLossC(EnergyPlusData &state,

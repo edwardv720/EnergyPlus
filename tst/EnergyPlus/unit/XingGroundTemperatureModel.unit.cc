@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -67,7 +67,7 @@ TEST_F(EnergyPlusFixture, XingGroundTempsModelTest)
         "	1.08,			!- Soil Thermal Conductivity {W/m-K}",
         "	962,			!- Soil Density {kg/m3}",
         "	2576,			!- Soil Specific Heat {J/kg-K}",
-        "	11.1,			!- Average Soil Surface Tempeature {C}",
+        "	11.1,			!- Average Soil Surface Temperature {C}",
         "	13.4,			!- Soil Surface Temperature Amplitude 1 {deltaC}",
         "	0.7,			!- Soil Surface Temperature Amplitude 2 {deltaC}",
         "	25,			!- Phase Shift of Temperature Amplitude 1 {days}",

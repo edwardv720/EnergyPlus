@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -195,7 +195,6 @@ namespace CondenserLoopTowers {
         int WaterOutletNodeNum = 0;                    // Node number on the water outlet side of the tower
         int OutdoorAirInletNodeNum = 0;                // Node number of outdoor air inlet for the tower
         ModelType TowerModelType = ModelType::Invalid; // Type of empirical model (1=CoolTools)
-        int VSTower = 0;                               // Index to a variable speed tower (otherwise = 0)
         int FanPowerfAirFlowCurve = 0;                 // Index to fan power correlation curve for VS Towers
         int BlowDownSchedulePtr = 0;                   // Pointer to blow down schedule
         int BasinHeaterSchedulePtr = 0;                // Pointer to basin heater schedule

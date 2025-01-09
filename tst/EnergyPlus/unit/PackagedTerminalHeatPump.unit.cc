@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -497,8 +497,6 @@ TEST_F(EnergyPlusFixture, DISABLED_PackagedTerminalHP_VSCoils_Sizing)
         loopsidebranch.Comp.allocate(1);
     }
     state->dataPlnt->PlantLoop(2).Name = "ChilledWaterLoop";
-    state->dataPlnt->PlantLoop(2).FluidName = "ChilledWater";
-    state->dataPlnt->PlantLoop(2).FluidIndex = 1;
     state->dataPlnt->PlantLoop(2).FluidName = "WATER";
     state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name =
         state->dataVariableSpeedCoils->VarSpeedCoil(1).Name;
@@ -510,8 +508,6 @@ TEST_F(EnergyPlusFixture, DISABLED_PackagedTerminalHP_VSCoils_Sizing)
         state->dataVariableSpeedCoils->VarSpeedCoil(1).WaterOutletNodeNum;
 
     state->dataPlnt->PlantLoop(1).Name = "HotWaterLoop";
-    state->dataPlnt->PlantLoop(1).FluidName = "HotWater";
-    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name =
         state->dataVariableSpeedCoils->VarSpeedCoil(2).Name;
@@ -544,7 +540,7 @@ TEST_F(EnergyPlusFixture, DISABLED_PackagedTerminalHP_VSCoils_Sizing)
     EXPECT_EQ(state->dataVariableSpeedCoils->VarSpeedCoil(1).Name, "LOBBY_ZN_1_FLR_2 WSHP COOLING MODE");
 
     // PTHP sized the VS coil differently. The PTHP uses the design air flow to size VS coil capacity
-    // then back calulates air flow rate. The PTHP would read the coil air flow and capacity and report
+    // then back calculates air flow rate. The PTHP would read the coil air flow and capacity and report
     // those values to the eio. The UnitarySystem sizes the air flow rate and then calls the VS coil,
     // which sizes, and uses the VS coil capacity to report UnitarySystem capacity to the eio.
     // This requires and issue to correct.
@@ -1297,7 +1293,7 @@ TEST_F(EnergyPlusFixture, SimPTAC_SZVAVTest)
     ASSERT_NEAR(state->dataHeatingCoils->HeatingCoil(1).HeatingCoilRate, 2668.1427, 0.0001);
 
     // Boundary load for this system in Region 1 at minimum air flow rate is 2006.8 W (lower boundary load in Region 1)
-    // loads below the bounday load should operate at the minimum air flow rate
+    // loads below the boundary load should operate at the minimum air flow rate
     // set heating load to non-zero value below lower boundary load
     state->dataZoneEnergyDemand->ZoneSysEnergyDemand(1).RemainingOutputRequired = 1000.0;
     state->dataZoneEnergyDemand->ZoneSysEnergyDemand(1).RemainingOutputReqToHeatSP = 1000.0;
@@ -1336,7 +1332,7 @@ TEST_F(EnergyPlusFixture, SimPTAC_SZVAVTest)
 
     // Boundary load for this system in Region 1 at maximum air flow rate is 2995.2 W
     // system should operate at maximum air flow rate for loads greater than 2995.2 W
-    // outlet air temperture is allowed to be above the design maximum supply air temperature in heating mode
+    // outlet air temperature is allowed to be above the design maximum supply air temperature in heating mode
     state->dataZoneEnergyDemand->ZoneSysEnergyDemand(1).RemainingOutputRequired = 3000.0; // set heating load to just above upper boundary load
     state->dataZoneEnergyDemand->ZoneSysEnergyDemand(1).RemainingOutputReqToHeatSP = 3000.0;
     thisSys.simulate(*state, thisSys.Name, FirstHVACIteration, 0, PTUnitNum, HeatActive, CoolActive, 0, 0, true, QUnitOut, latOut);

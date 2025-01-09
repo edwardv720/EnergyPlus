@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -278,7 +278,6 @@ namespace WaterUse {
         int IOStatus;            // Used in GetObjectItem
         int NumAlphas;           // Number of Alphas for each GetObjectItem call
         int NumNumbers;          // Number of Numbers for each GetObjectItem call
-        int AlphaNum;
 
         constexpr std::array<std::string_view, static_cast<int>(HeatRecovHX::Num)> HeatRecoverHXNamesUC{"IDEAL", "COUNTERFLOW", "CROSSFLOW"};
 
@@ -525,7 +524,7 @@ namespace WaterUse {
 
                 waterConnection.myWaterEquipArr.allocate(NumAlphas - 9);
 
-                for (AlphaNum = 10; AlphaNum <= NumAlphas; ++AlphaNum) {
+                for (int AlphaNum = 10; AlphaNum <= NumAlphas; ++AlphaNum) {
                     int WaterEquipNum = Util::FindItemInList(state.dataIPShortCut->cAlphaArgs(AlphaNum), state.dataWaterUse->WaterEquipment);
 
                     if (WaterEquipNum == 0) {
@@ -1658,7 +1657,7 @@ namespace WaterUse {
         // PURPOSE OF THIS SUBROUTINE:
         // Calculates the zone internal gains due to water use sensible and latent loads.
 
-        bool MyEnvrnFlagLocal(true);
+        static bool MyEnvrnFlagLocal = true;
 
         if (state.dataWaterUse->numWaterEquipment == 0) return;
 
@@ -1701,8 +1700,7 @@ namespace WaterUse {
         static constexpr std::string_view RoutineName{"calcH2ODensity"};
 
         if (state.dataWaterUse->calcRhoH2O) {
-            int DummyValue = 1;
-            state.dataWaterUse->rhoH2OStd = FluidProperties::GetDensityGlycol(state, "WATER", Constant::InitConvTemp, DummyValue, RoutineName);
+            state.dataWaterUse->rhoH2OStd = Fluid::GetWater(state)->getDensity(state, Constant::InitConvTemp, RoutineName);
             state.dataWaterUse->calcRhoH2O = false;
         }
         return state.dataWaterUse->rhoH2OStd;

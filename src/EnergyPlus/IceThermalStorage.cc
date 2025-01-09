@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -224,11 +224,7 @@ namespace IceThermalStorage {
         }
         Real64 DemandMdot = this->DesignMassFlowRate;
 
-        Real64 Cp = FluidProperties::GetSpecificHeatGlycol(state,
-                                                           state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidName,
-                                                           TempIn,
-                                                           state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidIndex,
-                                                           RoutineName);
+        Real64 Cp = state.dataPlnt->PlantLoop(this->plantLoc.loopNum).glycol->getSpecificHeat(state, TempIn, RoutineName);
 
         Real64 MyLoad2 = (DemandMdot * Cp * (TempIn - TempSetPt));
         MyLoad = MyLoad2;
@@ -361,11 +357,7 @@ namespace IceThermalStorage {
         }
 
         // Calculate the current load on the ice storage unit
-        Real64 Cp = FluidProperties::GetSpecificHeatGlycol(state,
-                                                           state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidName,
-                                                           TempIn,
-                                                           state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidIndex,
-                                                           RoutineName);
+        Real64 Cp = state.dataPlnt->PlantLoop(this->plantLoc.loopNum).glycol->getSpecificHeat(state, TempIn, RoutineName);
 
         // Estimated load on the ice storage unit [W]
         Real64 LocalLoad = this->MassFlowRate * Cp * (TempIn - TempSetPt);
@@ -1525,7 +1517,7 @@ namespace IceThermalStorage {
         // There are three possible to calculate QiceMax
         //   with ChillerCapacity(Chiller+ITS), ITS capacity(ITS), and QchillerMax(Chiller).
         //--------------------------------------------------------
-        // Calcualte QiceMax with QiceMaxByChiller, QiceMaxByITS, QchillerMax
+        // Calculate QiceMax with QiceMaxByChiller, QiceMaxByITS, QchillerMax
         //--------------------------------------------------------
         // Calculate Qice charge max by Chiller with Twb and UAIceCh
         Real64 QiceMaxByChiller;
@@ -1562,7 +1554,7 @@ namespace IceThermalStorage {
         } // Check Uact for Discharging Process
 
         //--------------------------------------------------------
-        // Calcualte possible ITSChargingRate with Uact, Then error check
+        // Calculate possible ITSChargingRate with Uact, Then error check
         //--------------------------------------------------------
         // Calculate possible ITSChargingRate with Uact
         Real64 Qice = Uact * this->ITSNomCap / TimeInterval; //[W]
@@ -1617,7 +1609,7 @@ namespace IceThermalStorage {
         // Qice is maximized when ChillerInletTemp and ChillerOutletTemp(input data) is almost same due to LMTD method.
         // Qice is minimized(=0) when ChillerInletTemp is almost same as FreezTemp(=0).
 
-        // Initilize
+        // Initialize
         Real64 Tfr = FreezTempIP;
         Real64 ChOutletTemp = TempSItoIP(chillerOutletTemp); //[degF] = ConvertSItoIP[degC]
         // Chiller outlet temp must be below freeze temp, or else no charge
@@ -1684,11 +1676,9 @@ namespace IceThermalStorage {
         //----------------------------
         int loopNum = this->plantLoc.loopNum;
 
-        Real64 CpFluid = FluidProperties::GetDensityGlycol(state,
-                                                           state.dataPlnt->PlantLoop(loopNum).FluidName,
-                                                           state.dataLoopNodes->Node(this->PltInletNodeNum).Temp,
-                                                           state.dataPlnt->PlantLoop(loopNum).FluidIndex,
-                                                           RoutineName);
+        // BUG? I think this is supposed to be getSpecificHeat, not getDensity
+        Real64 CpFluid =
+            state.dataPlnt->PlantLoop(loopNum).glycol->getDensity(state, state.dataLoopNodes->Node(this->PltInletNodeNum).Temp, RoutineName);
 
         // Calculate Umyload based on MyLoad from E+
         Real64 Umyload = -myLoad * TimeInterval / this->ITSNomCap;
@@ -1710,7 +1700,7 @@ namespace IceThermalStorage {
 
         // Qice is calculate input U which is within boundary between Umin and Umax.
         Real64 Qice = Uact * this->ITSNomCap / TimeInterval;
-        // Qice cannot exceed MaxCap calulated by CalcIceStorageCapacity
+        // Qice cannot exceed MaxCap calculated by CalcIceStorageCapacity
         // Note Qice is negative here, MaxCap is positive
         Qice = max(Qice, -MaxCap);
 
@@ -1923,7 +1913,7 @@ namespace IceThermalStorage {
         }
     }
 
-    void UpdateIceFractions(EnergyPlusData &state)
+    void UpdateIceFractions(EnergyPlusData const &state)
     {
 
         // SUBROUTINE INFORMATION:

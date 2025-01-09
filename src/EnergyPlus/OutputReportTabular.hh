@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -717,7 +717,7 @@ namespace OutputReportTabular {
                                            Real64 const unitConvMultiplier = 1.0);
 
     // return the table entry of the rowIndex-th row and columnIndex-th col
-    std::string RetrieveEntryFromTableBody(Array2D_string &tableBody, int const rowIndex, int const columnIndex);
+    std::string RetrieveEntryFromTableBody(Array2D_string const &tableBody, int const rowIndex, int const columnIndex);
 
     void WriteHourOfSafetyTable(EnergyPlusData &state,
                                 int const columnNum,
@@ -767,7 +767,7 @@ namespace OutputReportTabular {
 
     void AllocateLoadComponentArrays(EnergyPlusData &state);
 
-    void DeallocateLoadComponentArrays(EnergyPlusData &state);
+    void DeallocateLoadComponentArrays(EnergyPlusData const &state);
 
     void ComputeLoadComponentDecayCurve(EnergyPlusData &state);
 
@@ -824,7 +824,7 @@ namespace OutputReportTabular {
 
     void LoadSummaryUnitConversion(EnergyPlusData &state, CompLoadTablesType &compLoadTotal, UnitsStyle unitsStyle_para);
 
-    void CreateListOfZonesForAirLoop(EnergyPlusData &state, CompLoadTablesType &compLoad, Array1D_int const &zoneToAirLoop, int curAirLoop);
+    void CreateListOfZonesForAirLoop(EnergyPlusData const &state, CompLoadTablesType &compLoad, Array1D_int const &zoneToAirLoop, int curAirLoop);
 
     void OutputCompLoadSummary(EnergyPlusData &state,
                                EnergyPlus::OutputReportTabular::OutputType kind,
@@ -891,13 +891,13 @@ namespace OutputReportTabular {
 
     void ResetMonthlyGathering(EnergyPlusData &state);
 
-    void ResetBinGathering(EnergyPlusData &state);
+    void ResetBinGathering(EnergyPlusData const &state);
 
-    void ResetBEPSGathering(EnergyPlusData &state);
+    void ResetBEPSGathering(EnergyPlusData const &state);
 
-    void ResetSourceEnergyEndUseGathering(EnergyPlusData &state);
+    void ResetSourceEnergyEndUseGathering(EnergyPlusData const &state);
 
-    void ResetPeakDemandGathering(EnergyPlusData &state);
+    void ResetPeakDemandGathering(EnergyPlusData const &state);
 
     void ResetHeatGainGathering(EnergyPlusData &state);
 
