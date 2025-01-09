@@ -2825,7 +2825,7 @@ namespace Fluid {
         return df->refrigs(RefrigIndex)->getSatPressure(state, Temperature, CalledFrom);
     }
 #endif // GET_OUT
-  
+
     //*****************************************************************************
 
     Real64 RefrigProps::getSatTemperature(EnergyPlusData &state,
@@ -2920,7 +2920,7 @@ namespace Fluid {
         return df->refrigs(RefrigIndex)->getSatTemperature(state, Pressure, CalledFrom);
     }
 #endif // GET_OUT
-  
+
     //*****************************************************************************
 
     Real64 RefrigProps::getSatEnthalpy(EnergyPlusData &state,
@@ -2971,7 +2971,7 @@ namespace Fluid {
         return df->refrigs(RefrigIndex)->getSatEnthalpy(state, Temperature, Quality, CalledFrom);
     }
 #endif // GET_OUT
-  
+
     //*****************************************************************************
 
     Real64 RefrigProps::getSatDensity(EnergyPlusData &state,
@@ -3978,7 +3978,7 @@ namespace Fluid {
 
         return df->refrigs(RefrigIndex)->getSupHeatDensity(state, Temperature, Pressure, CalledFrom);
     }
-  
+
 #endif // GET_OUT
 //*****************************************************************************
 #ifdef EP_cache_GlycolSpecificHeat
@@ -4138,7 +4138,7 @@ namespace Fluid {
         return df->glycols(GlycolIndex)->getSpecificHeat(state, Temperature, CalledFrom);
     }
 #endif // GET_OUT
-  
+
     //*****************************************************************************
 
     Real64 GlycolProps::getDensity(EnergyPlusData &state,
@@ -4570,11 +4570,12 @@ namespace Fluid {
         return (refrigNum > 0) ? df->refrigs(refrigNum) : nullptr;
     }
 
-    RefrigProps *GetSteam(EnergyPlusData &state) {
+    RefrigProps *GetSteam(EnergyPlusData &state)
+    {
         assert(state.dataFluid->refrigs.isize() >= RefrigNum_Steam);
         return state.dataFluid->refrigs(RefrigNum_Steam);
     }
-        
+
     //*****************************************************************************
 
     int GetGlycolNum(EnergyPlusData &state, std::string_view const glycolName) // carries in substance name
@@ -4606,11 +4607,12 @@ namespace Fluid {
         return (glycolNum > 0) ? df->glycols(glycolNum) : nullptr;
     }
 
-    GlycolProps *GetWater(EnergyPlusData &state) {
+    GlycolProps *GetWater(EnergyPlusData &state)
+    {
         assert(state.dataFluid->glycols.isize() >= GlycolNum_Water);
         return state.dataFluid->glycols(GlycolNum_Water);
     }
-        
+
     int GetGlycolRawNum(EnergyPlusData &state, std::string_view const glycolRawName) // carries in substance name
     {
         auto const &df = state.dataFluid;
@@ -4921,7 +4923,6 @@ namespace Fluid {
         MaxTempLimit = this->CpHighTempValue;
     }
 
-  
 #ifdef UNUSED_FLUID_PROPS
     static constexpr std::array<std::array<Real64, DefaultNumSteamSuperheatedTemps>, DefaultNumSteamSuperheatedPressure>
         DefaultSteamSuperheatedEnthalpyDataTable = {

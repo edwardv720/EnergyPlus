@@ -149,10 +149,10 @@ namespace BoilerSteam {
         static constexpr std::string_view routineName = "GetBoilerInput";
 
         // LOCAL VARIABLES
-        int BoilerNum;       // boiler identifier
-        int NumAlphas;       // Number of elements in the alpha array
-        int NumNums;         // Number of elements in the numeric array
-        int IOStat;          // IO Status when calling get input subroutine
+        int BoilerNum; // boiler identifier
+        int NumAlphas; // Number of elements in the alpha array
+        int NumNums;   // Number of elements in the numeric array
+        int IOStat;    // IO Status when calling get input subroutine
         bool ErrorsFound(false);
 
         state.dataIPShortCut->cCurrentModuleObject = "Boiler:Steam";
@@ -269,7 +269,6 @@ namespace BoilerSteam {
                 ShowSevereError(state, "Fluid Properties for STEAM not found.");
                 ErrorsFound = true;
             }
-            
 
             if (NumAlphas > 4) {
                 thisBoiler.EndUseSubcategory = state.dataIPShortCut->cAlphaArgs(5);

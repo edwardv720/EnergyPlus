@@ -221,8 +221,8 @@ namespace WaterToAirHeatPump {
     );
 
     Real64 DegradF(EnergyPlusData &state,
-                   Fluid::GlycolProps *glycol, 
-                   Real64 &Temp           // Temperature of the fluid
+                   Fluid::GlycolProps *glycol,
+                   Real64 &Temp // Temperature of the fluid
     );
 
     int GetCoilIndex(EnergyPlusData &state,

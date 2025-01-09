@@ -152,7 +152,7 @@ TEST_F(EnergyPlusFixture, DistrictCoolingandHeating)
     thisChilledWaterLoop.Name = "ChilledWaterLoop";
     thisChilledWaterLoop.FluidName = "WATER";
     thisChilledWaterLoop.glycol = Fluid::GetWater(*state);
-    
+
     thisChilledWaterLoop.MinTemp = 1.0;
     thisChilledWaterLoop.MaxTemp = 99.0;
     thisChilledWaterLoop.MinMassFlowRate = 0.001;

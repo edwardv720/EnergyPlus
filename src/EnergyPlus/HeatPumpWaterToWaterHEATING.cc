@@ -211,7 +211,7 @@ void GetGshpInput(EnergyPlusData &state)
         state.dataInputProcessing->inputProcessor->getObjectItem(state, ModuleCompNameUC, GSHPNum, AlphArray, NumAlphas, NumArray, NumNums, IOStat);
 
         ErrorObjectHeader eoh{routineName, ModuleCompNameUC, AlphArray(1)};
-        
+
         thisGSHP.Name = AlphArray(1);
 
         thisGSHP.WWHPPlantType = DataPlant::PlantEquipmentType::HPWaterPEHeating;
@@ -347,7 +347,7 @@ void GetGshpInput(EnergyPlusData &state)
         // save the design source side flow rate for use by plant loop sizing algorithms
         PlantUtilities::RegisterPlantCompDesignFlow(state, thisGSHP.SourceSideInletNodeNum, 0.5 * thisGSHP.SourceSideVolFlowRate);
 
-        if ((thisGSHP.refrig = Fluid::GetRefrig(state, GSHPRefrigerant)) == nullptr) { 
+        if ((thisGSHP.refrig = Fluid::GetRefrig(state, GSHPRefrigerant)) == nullptr) {
             ShowSevereItemNotFound(state, eoh, "Refrigerant", GSHPRefrigerant);
             ErrorsFound = true;
         }
@@ -482,16 +482,12 @@ void GshpPeHeatingSpecs::initialize(EnergyPlusData &state)
         this->MustRun = true;
 
         this->beginEnvironFlag = false;
-        Real64 rho = state.dataPlnt->PlantLoop(this->LoadPlantLoc.loopNum).glycol->getDensity(state, 
-                                                                                              Constant::CWInitConvTemp,
-                                                                                              RoutineName);
+        Real64 rho = state.dataPlnt->PlantLoop(this->LoadPlantLoc.loopNum).glycol->getDensity(state, Constant::CWInitConvTemp, RoutineName);
         this->LoadSideDesignMassFlow = this->LoadSideVolFlowRate * rho;
 
         PlantUtilities::InitComponentNodes(state, 0.0, this->LoadSideDesignMassFlow, this->LoadSideInletNodeNum, this->LoadSideOutletNodeNum);
 
-        rho = state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).glycol->getDensity(state, 
-                                                                                         Constant::CWInitConvTemp,
-                                                                                         RoutineName);
+        rho = state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).glycol->getDensity(state, Constant::CWInitConvTemp, RoutineName);
         this->SourceSideDesignMassFlow = this->SourceSideVolFlowRate * rho;
 
         PlantUtilities::InitComponentNodes(state, 0.0, this->SourceSideDesignMassFlow, this->SourceSideInletNodeNum, this->SourceSideOutletNodeNum);
@@ -612,13 +608,11 @@ void GshpPeHeatingSpecs::calculate(EnergyPlusData &state, Real64 &MyLoad)
     Real64 initialQLoad = 0.0;
     int IterationCount = 0;
 
-    Real64 CpSourceSide = state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).glycol->getSpecificHeat(state, 
-                                                                                                          this->SourceSideWaterInletTemp,
-                                                                                                          RoutineName);
+    Real64 CpSourceSide =
+        state.dataPlnt->PlantLoop(this->SourcePlantLoc.loopNum).glycol->getSpecificHeat(state, this->SourceSideWaterInletTemp, RoutineName);
 
-    Real64 CpLoadSide = state.dataPlnt->PlantLoop(this->LoadPlantLoc.loopNum).glycol->getSpecificHeat(state, 
-                                                                                                      this->LoadSideWaterInletTemp,
-                                                                                                      RoutineName);
+    Real64 CpLoadSide =
+        state.dataPlnt->PlantLoop(this->LoadPlantLoc.loopNum).glycol->getSpecificHeat(state, this->LoadSideWaterInletTemp, RoutineName);
 
     // Determine effectiveness of Source Side (the Evaporator in heating mode)
     Real64 SourceSideEffect = 1.0 - std::exp(-this->SourceSideUACoeff / (CpSourceSide * this->SourceSideWaterMassFlowRate));

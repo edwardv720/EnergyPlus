@@ -88,7 +88,7 @@ TEST_F(EnergyPlusFixture, Boiler_HotWaterSizingTest)
     state->dataPlnt->PlantLoop(1).PlantSizNum = 1;
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
     state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
-    
+
     state->dataSize->PlantSizData(1).DesVolFlowRate = 1.0;
     state->dataSize->PlantSizData(1).DeltaT = 10.0;
     state->dataPlnt->PlantFirstSizesOkayToFinalize = true;
@@ -140,12 +140,10 @@ TEST_F(EnergyPlusFixture, Boiler_HotWaterAutoSizeTempTest)
     state->dataPlnt->PlantFirstSizesOkayToFinalize = true;
 
     // calculate nominal capacity at 60.0 C hot water temperature
-    Real64 rho = state->dataPlnt->PlantLoop(state->dataBoilers->Boiler(1).plantLoc.loopNum).glycol->getDensity(*state, 
-                                                                                                               60.0,
-                                                                                                               "Boiler_HotWaterAutoSizeTempTest");
-    Real64 Cp = state->dataPlnt->PlantLoop(state->dataBoilers->Boiler(1).plantLoc.loopNum).glycol->getSpecificHeat(*state, 
-                                                                                                                   60.0,
-                                                                                                                   "Boiler_HotWaterAutoSizeTempTest");
+    Real64 rho = state->dataPlnt->PlantLoop(state->dataBoilers->Boiler(1).plantLoc.loopNum)
+                     .glycol->getDensity(*state, 60.0, "Boiler_HotWaterAutoSizeTempTest");
+    Real64 Cp = state->dataPlnt->PlantLoop(state->dataBoilers->Boiler(1).plantLoc.loopNum)
+                    .glycol->getSpecificHeat(*state, 60.0, "Boiler_HotWaterAutoSizeTempTest");
 
     Real64 NomCapBoilerExpected =
         rho * state->dataSize->PlantSizData(1).DesVolFlowRate * Cp * state->dataSize->PlantSizData(1).DeltaT * state->dataBoilers->Boiler(1).SizFac;

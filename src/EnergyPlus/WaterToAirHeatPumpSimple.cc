@@ -1126,9 +1126,8 @@ namespace WaterToAirHeatPumpSimple {
                 simpleWatertoAirHP.PartLoadRatio = 0.0;
 
                 if (simpleWatertoAirHP.RatedWaterVolFlowRate != DataSizing::AutoSize) {
-                    rho = state.dataPlnt->PlantLoop(simpleWatertoAirHP.plantLoc.loopNum).glycol->getDensity(state, 
-                                                                                                            Constant::InitConvTemp,
-                                                                                                            RoutineName);
+                    rho =
+                        state.dataPlnt->PlantLoop(simpleWatertoAirHP.plantLoc.loopNum).glycol->getDensity(state, Constant::InitConvTemp, RoutineName);
 
                     simpleWatertoAirHP.DesignWaterMassFlowRate = rho * simpleWatertoAirHP.RatedWaterVolFlowRate;
                     PlantUtilities::InitComponentNodes(state,
@@ -2869,12 +2868,10 @@ namespace WaterToAirHeatPumpSimple {
                 false);
 
             if (PltSizNum > 0) {
-                rho = state.dataPlnt->PlantLoop(simpleWatertoAirHP.plantLoc.loopNum).glycol->getDensity(state, 
-                                                                                                        state.dataSize->PlantSizData(PltSizNum).ExitTemp,
-                                                                                                        RoutineNameAlt);
-                Cp = state.dataPlnt->PlantLoop(simpleWatertoAirHP.plantLoc.loopNum).glycol->getSpecificHeat(state, 
-                                                                                                            state.dataSize->PlantSizData(PltSizNum).ExitTemp,
-                                                                                                            RoutineNameAlt);
+                rho = state.dataPlnt->PlantLoop(simpleWatertoAirHP.plantLoc.loopNum)
+                          .glycol->getDensity(state, state.dataSize->PlantSizData(PltSizNum).ExitTemp, RoutineNameAlt);
+                Cp = state.dataPlnt->PlantLoop(simpleWatertoAirHP.plantLoc.loopNum)
+                         .glycol->getSpecificHeat(state, state.dataSize->PlantSizData(PltSizNum).ExitTemp, RoutineNameAlt);
 
                 if (simpleWatertoAirHP.WAHPType == WatertoAirHP::Heating) {
                     RatedWaterVolFlowRateDes = simpleWatertoAirHP.RatedCapHeat / (state.dataSize->PlantSizData(PltSizNum).DeltaT * Cp * rho);
@@ -3096,9 +3093,8 @@ namespace WaterToAirHeatPumpSimple {
         state.dataWaterToAirHeatPumpSimple->SourceSideMassFlowRate = simpleWatertoAirHP.WaterMassFlowRate;
         state.dataWaterToAirHeatPumpSimple->SourceSideInletTemp = simpleWatertoAirHP.InletWaterTemp;
         state.dataWaterToAirHeatPumpSimple->SourceSideInletEnth = simpleWatertoAirHP.InletWaterEnthalpy;
-        CpWater = state.dataPlnt->PlantLoop(simpleWatertoAirHP.plantLoc.loopNum).glycol->getSpecificHeat(state, 
-                                                                                                         state.dataWaterToAirHeatPumpSimple->SourceSideInletTemp,
-                                                                                                         RoutineNameSourceSideInletTemp);
+        CpWater = state.dataPlnt->PlantLoop(simpleWatertoAirHP.plantLoc.loopNum)
+                      .glycol->getSpecificHeat(state, state.dataWaterToAirHeatPumpSimple->SourceSideInletTemp, RoutineNameSourceSideInletTemp);
 
         // Check for flows, do not perform simulation if no flow in load side or source side.
         if (state.dataWaterToAirHeatPumpSimple->SourceSideMassFlowRate <= 0.0 || LoadSideFullMassFlowRate <= 0.0) {
@@ -3396,9 +3392,8 @@ namespace WaterToAirHeatPumpSimple {
         state.dataWaterToAirHeatPumpSimple->SourceSideMassFlowRate = simpleWatertoAirHP.WaterMassFlowRate;
         state.dataWaterToAirHeatPumpSimple->SourceSideInletTemp = simpleWatertoAirHP.InletWaterTemp;
         state.dataWaterToAirHeatPumpSimple->SourceSideInletEnth = simpleWatertoAirHP.InletWaterEnthalpy;
-        CpWater = state.dataPlnt->PlantLoop(simpleWatertoAirHP.plantLoc.loopNum).glycol->getSpecificHeat(state, 
-                                                                                                         state.dataWaterToAirHeatPumpSimple->SourceSideInletTemp,
-                                                                                                         RoutineNameSourceSideInletTemp);
+        CpWater = state.dataPlnt->PlantLoop(simpleWatertoAirHP.plantLoc.loopNum)
+                      .glycol->getSpecificHeat(state, state.dataWaterToAirHeatPumpSimple->SourceSideInletTemp, RoutineNameSourceSideInletTemp);
 
         // Check for flows, do not perform simulation if no flow in load side or source side.
         if (state.dataWaterToAirHeatPumpSimple->SourceSideMassFlowRate <= 0.0 || LoadSideFullMassFlowRate <= 0.0) {

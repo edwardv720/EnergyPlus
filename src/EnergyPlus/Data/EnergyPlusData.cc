@@ -579,7 +579,7 @@ void EnergyPlusData::init_state(EnergyPlusData &state)
     // objects that do not reference any other objects, like fluids,
     // schedules, curves, etc.
     this->dataSimulationManager->init_state(state); // GetProjectData
-    this->dataFluid->init_state(state);        // GetFluidPropertiesData
+    this->dataFluid->init_state(state);             // GetFluidPropertiesData
     this->dataPsychrometrics->init_state(state);    // InitializePsychRoutines
 
     this->dataAirLoop->init_state(state);

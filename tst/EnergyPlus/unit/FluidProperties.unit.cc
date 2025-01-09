@@ -74,7 +74,7 @@ TEST_F(EnergyPlusFixture, FluidProperties_GetDensityGlycol)
     EXPECT_FALSE(has_err_output());
 
     auto *fluid = Fluid::GetGlycol(*state, "GLHXFLUID");
-    
+
     EXPECT_NEAR(1037.89, fluid->getDensity(*state, -35.0, "UnitTest"), 0.01);
     EXPECT_NEAR(1037.89, fluid->getDensity(*state, -15.0, "UnitTest"), 0.01);
     EXPECT_NEAR(1034.46, fluid->getDensity(*state, 5.0, "UnitTest"), 0.01);
@@ -142,12 +142,12 @@ TEST_F(EnergyPlusFixture, FluidProperties_InterpValuesForGlycolConc)
 
     // Test interpolation for the single-concentration scenario
     Fluid::InterpValuesForGlycolConc(*state,
-                                               NumCon,   // number of concentrations (dimension of raw data)
-                                               NumTemp,  // number of temperatures (dimension of raw data)
-                                               ConData,  // concentrations for raw data
-                                               PropData, // raw property data (temperature,concentration)
-                                               ActCon,   // concentration of actual fluid mix
-                                               Result);  // interpolated output data at proper concentration
+                                     NumCon,   // number of concentrations (dimension of raw data)
+                                     NumTemp,  // number of temperatures (dimension of raw data)
+                                     ConData,  // concentrations for raw data
+                                     PropData, // raw property data (temperature,concentration)
+                                     ActCon,   // concentration of actual fluid mix
+                                     Result);  // interpolated output data at proper concentration
 
     EXPECT_NEAR(1020.0, Result(1), 1e-6);
     EXPECT_NEAR(1010.0, Result(2), 1e-6);

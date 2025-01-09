@@ -338,7 +338,7 @@ void GetPlantLoopData(EnergyPlusData &state)
 
         ErrorObjectHeader eoh;
         eoh.routineName = routineName;
-        
+
         DataLoopNode::ConnectionObjectType objType;
         if (LoopNum <= state.dataHVACGlobal->NumPlantLoops) {
             PlantLoopNum = LoopNum;
@@ -380,7 +380,7 @@ void GetPlantLoopData(EnergyPlusData &state)
             eoh.objectType = CurrentModuleObject;
             eoh.objectName = Alpha(1);
         }
-        
+
         Util::IsNameEmpty(state, Alpha(1), CurrentModuleObject, ErrorsFound);
         this_loop.Name = Alpha(1); // Load the Plant Loop Name
 
@@ -414,9 +414,9 @@ void GetPlantLoopData(EnergyPlusData &state)
                 ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(3), Alpha(3));
                 ErrorsFound = true;
             } else {
-              this_loop.FluidIndex = this_loop.glycol->Num;
+                this_loop.FluidIndex = this_loop.glycol->Num;
             }
-            
+
         } else {
             ShowWarningInvalidKey(state, eoh, state.dataIPShortCut->cAlphaFieldNames(2), Alpha(2), "Water");
 
@@ -2634,16 +2634,12 @@ void ReInitPlantLoopsAtFirstHVACIteration(EnergyPlusData &state)
                 state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideNum).OutletNode.MassFlowRateHistory = 0.0;
 
                 if (state.dataPlnt->PlantLoop(LoopNum).FluidType != DataLoopNode::NodeFluidType::Steam) {
-                    Cp = state.dataPlnt->PlantLoop(LoopNum).glycol->getSpecificHeat(state, 
-                                                                                    LoopSetPointTemp,
-                                                                                    RoutineNameAlt);
+                    Cp = state.dataPlnt->PlantLoop(LoopNum).glycol->getSpecificHeat(state, LoopSetPointTemp, RoutineNameAlt);
                     StartEnthalpy = Cp * LoopSetPointTemp;
                 }
                 // Use Min/Max flow rates to initialize loop
                 if (state.dataPlnt->PlantLoop(LoopNum).FluidType == DataLoopNode::NodeFluidType::Water) {
-                    rho = state.dataPlnt->PlantLoop(LoopNum).glycol->getDensity(state, 
-                                                                                LoopSetPointTemp,
-                                                                                RoutineNameAlt);
+                    rho = state.dataPlnt->PlantLoop(LoopNum).glycol->getDensity(state, LoopSetPointTemp, RoutineNameAlt);
 
                     LoopMaxMassFlowRate = state.dataPlnt->PlantLoop(LoopNum).MaxVolFlowRate * rho;
                     LoopMinMassFlowRate = state.dataPlnt->PlantLoop(LoopNum).MinVolFlowRate * rho;
@@ -2653,7 +2649,7 @@ void ReInitPlantLoopsAtFirstHVACIteration(EnergyPlusData &state)
                     SteamTemp = 100.0;
                     auto *steam = Fluid::GetSteam(state);
                     state.dataPlnt->PlantLoop(LoopNum).FluidIndex = steam->Num;
-                    
+
                     SteamDensity = steam->getSatDensity(state, SteamTemp, 1.0, RoutineName);
                     LoopMaxMassFlowRate = state.dataPlnt->PlantLoop(LoopNum).MaxVolFlowRate * SteamDensity;
                     StartEnthalpy = steam->getSatEnthalpy(state, LoopSetPointTemp, 0.0, RoutineName);
@@ -3350,9 +3346,7 @@ void SizePlantLoop(EnergyPlusData &state,
     if (state.dataPlnt->PlantLoop(LoopNum).FluidType == DataLoopNode::NodeFluidType::Water) {
         FluidDensity = state.dataPlnt->PlantLoop(LoopNum).glycol->getDensity(state, Constant::InitConvTemp, RoutineName);
         if (PlantSizNum > 0 && allocated(state.dataSize->PlantSizData)) { // method only works if sizing delta T is available
-            Real64 cp = state.dataPlnt->PlantLoop(LoopNum).glycol->getSpecificHeat(state, 
-                                                                                   Constant::InitConvTemp,
-                                                                                   RoutineName);
+            Real64 cp = state.dataPlnt->PlantLoop(LoopNum).glycol->getSpecificHeat(state, Constant::InitConvTemp, RoutineName);
             Real64 DesignPlantCapacity =
                 cp * FluidDensity * state.dataSize->PlantSizData(PlantSizNum).DesVolFlowRate * state.dataSize->PlantSizData(PlantSizNum).DeltaT;
             state.dataSize->PlantSizData(PlantSizNum).DesCapacity = DesignPlantCapacity; // store it for later use in scaling

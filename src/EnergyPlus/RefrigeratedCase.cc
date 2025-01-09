@@ -4606,7 +4606,7 @@ void GetRefrigerationInput(EnergyPlusData &state)
                     ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(AlphaNum), Alphas(AlphaNum));
                     ErrorsFound = true;
                 }
-                
+
                 // Error messages for refrigerants and glycols already found in fluidproperties
 
                 // Note remainder of inputs for secondary don't follow IDD input order because of different interpretations
@@ -4753,18 +4753,11 @@ void GetRefrigerationInput(EnergyPlusData &state)
                     Secondary(SecondaryNum).CircRate = DefaultCircRate;
                     if (!lNumericBlanks(10)) Secondary(SecondaryNum).CircRate = Numbers(10);
 
-                    DensityPhaseChange = Secondary(SecondaryNum).refrig->getSatDensity(state,
-                                                                                       Secondary(SecondaryNum).TCondense,
-                                                                                       0.0,
-                                                                                       TrackMessageAlt);
-                    DeltaHPhaseChange = Secondary(SecondaryNum).refrig->getSatEnthalpy(state,
-                                                                                       Secondary(SecondaryNum).TCondense,
-                                                                                       1.0,
-                                                                                       TrackMessageAlt) -
-                      Secondary(SecondaryNum).refrig->getSatEnthalpy(state,
-                                                                     Secondary(SecondaryNum).TCondense,
-                                                                     0.0,
-                                                                     TrackMessageAlt);
+                    DensityPhaseChange =
+                        Secondary(SecondaryNum).refrig->getSatDensity(state, Secondary(SecondaryNum).TCondense, 0.0, TrackMessageAlt);
+                    DeltaHPhaseChange =
+                        Secondary(SecondaryNum).refrig->getSatEnthalpy(state, Secondary(SecondaryNum).TCondense, 1.0, TrackMessageAlt) -
+                        Secondary(SecondaryNum).refrig->getSatEnthalpy(state, Secondary(SecondaryNum).TCondense, 0.0, TrackMessageAlt);
 
                     // TotRatedFlowVol= capacity*circrate/deltahphasechange/density
                     Real64 CalcTotFlowVol =
@@ -6244,16 +6237,12 @@ void GetRefrigerationInput(EnergyPlusData &state)
 
             // Determine intercooler pressure and temperature at design conditions
             if (System(RefrigSysNum).NumStages == 2) {
-                Real64 PCond = System(RefrigSysNum).refrig->getSatPressure(state, 
-                                                                           Condenser(System(RefrigSysNum).CondenserNum(1)).RatedTCondense,
-                                                                           RoutineName);
-                Real64 PEvap = System(RefrigSysNum).refrig->getSatPressure(state,
-                                                                           System(RefrigSysNum).TEvapDesign,
-                                                                           RoutineName);
+                Real64 PCond =
+                    System(RefrigSysNum).refrig->getSatPressure(state, Condenser(System(RefrigSysNum).CondenserNum(1)).RatedTCondense, RoutineName);
+                Real64 PEvap = System(RefrigSysNum).refrig->getSatPressure(state, System(RefrigSysNum).TEvapDesign, RoutineName);
                 System(RefrigSysNum).PIntercooler = std::sqrt(PCond * PEvap);
-                System(RefrigSysNum).TIntercooler = System(RefrigSysNum).refrig->getSatTemperature(state, 
-                                                                                                   System(RefrigSysNum).PIntercooler,
-                                                                                                   RoutineName);
+                System(RefrigSysNum).TIntercooler =
+                    System(RefrigSysNum).refrig->getSatTemperature(state, System(RefrigSysNum).PIntercooler, RoutineName);
             } // NumStages
 
             // Sum capacity of single-stage compressors or low-stage compressors if two-stage system
@@ -6478,7 +6467,7 @@ void GetRefrigerationInput(EnergyPlusData &state)
                                                                      cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, CurrentModuleObject, Alphas(1)};
-            
+
             Util::IsNameEmpty(state, Alphas(1), CurrentModuleObject, ErrorsFound);
 
             TransSystem(TransRefrigSysNum).Name = Alphas(1);
@@ -6869,11 +6858,11 @@ void GetRefrigerationInput(EnergyPlusData &state)
                     CompNum = TransSystem(TransRefrigSysNum).CompressorNumHP(CompIndex);
 
                     if (Compressor(CompNum).TransFlag) { //  Calculate nominal capacity of transcritical Compressor
-                        Real64 GCOutletH =
-                          TransSystem(TransRefrigSysNum).refrig->getSupHeatEnthalpy(state, 
-                                                                                    GasCooler(TransSystem(TransRefrigSysNum).GasCoolerNum(1)).RatedOutletT,
-                                                                                    GasCooler(TransSystem(TransRefrigSysNum).GasCoolerNum(1)).RatedOutletP,
-                                                                                    RoutineNameNoColon);
+                        Real64 GCOutletH = TransSystem(TransRefrigSysNum)
+                                               .refrig->getSupHeatEnthalpy(state,
+                                                                           GasCooler(TransSystem(TransRefrigSysNum).GasCoolerNum(1)).RatedOutletT,
+                                                                           GasCooler(TransSystem(TransRefrigSysNum).GasCoolerNum(1)).RatedOutletP,
+                                                                           RoutineNameNoColon);
                         Compressor(CompNum).NomCap = Curve::CurveValue(
                             state, Compressor(CompNum).TransCapacityCurvePtr, TransSystem(TransRefrigSysNum).TEvapDesignMT, GCOutletH);
                         NominalTotalCompCapHP += Compressor(CompNum).NomCap;
@@ -6970,8 +6959,8 @@ void GetRefrigerationInput(EnergyPlusData &state)
             }
 
             // Check receiver temperature against minimum condensing temperature (from gas cooler input) and design evaporator temperatures
-            TransSystem(TransRefrigSysNum).TReceiver = 
-              TransSystem(TransRefrigSysNum).refrig->getSatTemperature(state, TransSystem(TransRefrigSysNum).PReceiver, RoutineNameNoColon);
+            TransSystem(TransRefrigSysNum).TReceiver =
+                TransSystem(TransRefrigSysNum).refrig->getSatTemperature(state, TransSystem(TransRefrigSysNum).PReceiver, RoutineNameNoColon);
             if (TransSystem(TransRefrigSysNum).TReceiver > GasCooler(TransSystem(TransRefrigSysNum).GasCoolerNum(NumGasCoolers)).MinCondTemp) {
                 ShowWarningError(state,
                                  format("{}{}=\"{}: The receiver temperature ({:.2R}C) is greater than the minimum condensing temperature "
@@ -10673,9 +10662,7 @@ void InitRefrigerationPlantConnections(EnergyPlusData &state)
                 ShowFatalError(state, "InitRefrigerationPlantConnections: Program terminated due to previous condition(s).");
             }
 
-            Real64 rho = state.dataPlnt->PlantLoop(Condenser(RefCondLoop).plantLoc.loopNum).glycol->getDensity(state, 
-                                                                                                               20.0,
-                                                                                                               RoutineName);
+            Real64 rho = state.dataPlnt->PlantLoop(Condenser(RefCondLoop).plantLoc.loopNum).glycol->getDensity(state, 20.0, RoutineName);
 
             if (Condenser(RefCondLoop).FlowType == CndsrFlowType::ConstantFlow) {
                 Condenser(RefCondLoop).MassFlowRateMax = Condenser(RefCondLoop).DesVolFlowRate * rho;
@@ -10702,9 +10689,7 @@ void InitRefrigerationPlantConnections(EnergyPlusData &state)
                 ShowFatalError(state, "InitRefrigerationPlantConnections: Program terminated due to previous condition(s).");
             }
 
-            Real64 rho = state.dataPlnt->PlantLoop(RefrigRack(RefCompRackLoop).plantLoc.loopNum).glycol->getDensity(state, 
-                                                                                                                    20.0,
-                                                                                                                    RoutineName);
+            Real64 rho = state.dataPlnt->PlantLoop(RefrigRack(RefCompRackLoop).plantLoc.loopNum).glycol->getDensity(state, 20.0, RoutineName);
 
             if (RefrigRack(RefCompRackLoop).FlowType == CndsrFlowType::ConstantFlow) {
                 RefrigRack(RefCompRackLoop).MassFlowRateMax = RefrigRack(RefCompRackLoop).DesVolFlowRate * rho;
@@ -10725,9 +10710,7 @@ void InitRefrigerationPlantConnections(EnergyPlusData &state)
             for (int RefCondLoop = 1; RefCondLoop <= state.dataRefrigCase->NumRefrigCondensers; ++RefCondLoop) {
                 if (Condenser(RefCondLoop).CondenserType != DataHeatBalance::RefrigCondenserType::Water) continue;
 
-                Real64 rho = state.dataPlnt->PlantLoop(Condenser(RefCondLoop).plantLoc.loopNum).glycol->getDensity(state, 
-                                                               20.0,
-                                                               RoutineName);
+                Real64 rho = state.dataPlnt->PlantLoop(Condenser(RefCondLoop).plantLoc.loopNum).glycol->getDensity(state, 20.0, RoutineName);
 
                 if (Condenser(RefCondLoop).FlowType == CndsrFlowType::ConstantFlow) {
                     Condenser(RefCondLoop).MassFlowRateMax = Condenser(RefCondLoop).DesVolFlowRate * rho;
@@ -10741,9 +10724,7 @@ void InitRefrigerationPlantConnections(EnergyPlusData &state)
             for (int RefCompRackLoop = 1; RefCompRackLoop <= state.dataRefrigCase->NumRefrigeratedRacks; ++RefCompRackLoop) {
                 if (RefrigRack(RefCompRackLoop).CondenserType != DataHeatBalance::RefrigCondenserType::Water) continue;
 
-                Real64 rho = state.dataPlnt->PlantLoop(RefrigRack(RefCompRackLoop).plantLoc.loopNum).glycol->getDensity(state, 
-                                                                                                                        20.0,
-                                                                                                                        RoutineName);
+                Real64 rho = state.dataPlnt->PlantLoop(RefrigRack(RefCompRackLoop).plantLoc.loopNum).glycol->getDensity(state, 20.0, RoutineName);
 
                 if (RefrigRack(RefCompRackLoop).FlowType == CndsrFlowType::ConstantFlow) {
                     RefrigRack(RefCompRackLoop).MassFlowRateMax = RefrigRack(RefCompRackLoop).DesVolFlowRate * rho;
@@ -11626,12 +11607,8 @@ void RefrigCondenserData::simulate(EnergyPlusData &state,
     // Make demand request on first HVAC iteration
 
     // get cooling fluid properties
-    Real64 rho = state.dataPlnt->PlantLoop(PlantLoc.loopNum).glycol->getDensity(state, 
-                                                                                this->InletTemp,
-                                                                                RoutineName);
-    Real64 Cp = state.dataPlnt->PlantLoop(PlantLoc.loopNum).glycol->getSpecificHeat(state, 
-                                                                                    this->InletTemp,
-                                                                                    RoutineName);
+    Real64 rho = state.dataPlnt->PlantLoop(PlantLoc.loopNum).glycol->getDensity(state, this->InletTemp, RoutineName);
+    Real64 Cp = state.dataPlnt->PlantLoop(PlantLoc.loopNum).glycol->getSpecificHeat(state, this->InletTemp, RoutineName);
 
     if (this->FlowType == CndsrFlowType::VariableFlow && state.dataRefrigCase->TotalCondenserHeat > 0.0) {
 
@@ -11782,12 +11759,8 @@ void RefrigRackData::simulate(EnergyPlusData &state,
     // Make demand request on first HVAC iteration
 
     // get cooling fluid properties
-    Real64 rho = state.dataPlnt->PlantLoop(PlantLoc.loopNum).glycol->getDensity(state, 
-                                                                                this->InletTemp,
-                                                                                RoutineName);
-    Real64 Cp = state.dataPlnt->PlantLoop(PlantLoc.loopNum).glycol->getSpecificHeat(state, 
-                                                                                    this->InletTemp,
-                                                                                    RoutineName);
+    Real64 rho = state.dataPlnt->PlantLoop(PlantLoc.loopNum).glycol->getDensity(state, this->InletTemp, RoutineName);
+    Real64 Cp = state.dataPlnt->PlantLoop(PlantLoc.loopNum).glycol->getSpecificHeat(state, this->InletTemp, RoutineName);
 
     if (this->FlowType == CndsrFlowType::VariableFlow && state.dataRefrigCase->TotalCondenserHeat > 0.0) {
         this->OutletTemp = ScheduleManager::GetCurrentScheduleValue(state, this->OutletTempSchedPtr);
@@ -12166,8 +12139,8 @@ void SimulateDetailedRefrigerationSystems(EnergyPlusData &state)
                 thisSys.TotalSystemLoad = thisSys.TotalCoolingLoad + thisSys.SumSecondaryLoopLoad + thisSys.SumMechSCLoad + thisSys.SumCascadeLoad;
                 if (thisSys.TotalSystemLoad > 0.0) {
                     thisSys.CpSatVapEvap = thisSys.refrig->getSatSpecificHeat(state, thisSys.TEvapNeeded, 1.0, RoutineName);
-                    thisSys.HCaseOut = thisSys.refrig->getSatEnthalpy(state, thisSys.TEvapNeeded, 1.0, RoutineName) +
-                                       thisSys.CpSatVapEvap * CaseSuperheat;
+                    thisSys.HCaseOut =
+                        thisSys.refrig->getSatEnthalpy(state, thisSys.TEvapNeeded, 1.0, RoutineName) + thisSys.CpSatVapEvap * CaseSuperheat;
                     // Establish estimates to start solution loop
                     switch (Condenser(thisSys.CondenserNum(1)).CondenserType) {
                     case DataHeatBalance::RefrigCondenserType::Air: {
@@ -12477,12 +12450,10 @@ void SimulateDetailedTransRefrigSystems(EnergyPlusData &state)
             if (sys.TotalSystemLoad > 0.0) {
                 if (sys.TransSysType == 2) {
                     sys.CpSatVapEvapLT = sys.refrig->getSatSpecificHeat(state, sys.TEvapNeededLT, 1.0, RoutineName);
-                    sys.HCaseOutLT = sys.refrig->getSatEnthalpy(state, sys.TEvapNeededLT, 1.0, RoutineName) +
-                        sys.CpSatVapEvapLT * TransCaseSuperheat;
+                    sys.HCaseOutLT = sys.refrig->getSatEnthalpy(state, sys.TEvapNeededLT, 1.0, RoutineName) + sys.CpSatVapEvapLT * TransCaseSuperheat;
                 }
                 sys.CpSatVapEvapMT = sys.refrig->getSatSpecificHeat(state, sys.TEvapNeededMT, 1.0, RoutineName);
-                sys.HCaseOutMT = sys.refrig->getSatEnthalpy(state, sys.TEvapNeededMT, 1.0, RoutineName) +
-                    sys.CpSatVapEvapMT * TransCaseSuperheat;
+                sys.HCaseOutMT = sys.refrig->getSatEnthalpy(state, sys.TEvapNeededMT, 1.0, RoutineName) + sys.CpSatVapEvapMT * TransCaseSuperheat;
 
                 // Produce first time step estimates.
                 // Assume no subcoolers and neglect flow through bypass.
@@ -13446,13 +13417,12 @@ void RefrigSystemData::CalculateCompressors(EnergyPlusData &state)
 
         // dispatch compressors to meet load, note they were listed in compressor list in dispatch order
         DensityActual = this->refrig->getSupHeatDensity(state, this->TCompIn, PSuction, RoutineName); // Autodesk:Tuned Hoisted out of CompIndex loop
-        TotalEnthalpyChangeActual = this->HCompIn - this->HCaseIn;             // Autodesk:Tuned Hoisted out of CompIndex loop
-        if (this->NumStages == 2) {                                            // Autodesk:Tuned Hoisted out of CompIndex loop
+        TotalEnthalpyChangeActual = this->HCompIn - this->HCaseIn;                                    // Autodesk:Tuned Hoisted out of CompIndex loop
+        if (this->NumStages == 2) {                                                                   // Autodesk:Tuned Hoisted out of CompIndex loop
             if (StageIndex == 1) {
                 HCaseInRated_base = this->refrig->getSatEnthalpy(state, this->TIntercooler, 0.0, RoutineName);
             } else if (StageIndex == 2) {
-                HCompInRated_base =
-                    this->refrig->getSatEnthalpy(state, this->TIntercooler, 1.0, RoutineName);
+                HCompInRated_base = this->refrig->getSatEnthalpy(state, this->TIntercooler, 1.0, RoutineName);
             }
         }
         for (int CompIndex = 1; CompIndex <= NumComps; ++CompIndex) {

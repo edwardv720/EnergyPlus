@@ -653,9 +653,9 @@ namespace WaterThermalTanks {
         WaterHeaterSizingData Sizing;  // ancillary data for autosizing
 
         Fluid::GlycolProps *water = nullptr; // Water properties
-            
-        bool MyOneTimeFlagWH;          // first pass log
-        bool MyTwoTimeFlagWH;          // second pass do input check
+
+        bool MyOneTimeFlagWH; // first pass log
+        bool MyTwoTimeFlagWH; // second pass do input check
         bool MyEnvrnFlag;
         bool WarmupFlag;
         bool SetLoopIndexFlag;
@@ -711,9 +711,9 @@ namespace WaterThermalTanks {
               HeaterEnergy2(0.0), FuelEnergy(0.0), FuelEnergy1(0.0), FuelEnergy2(0.0), VentEnergy(0.0), OffCycParaFuelEnergy(0.0),
               OffCycParaEnergyToTank(0.0), OnCycParaFuelEnergy(0.0), OnCycParaEnergyToTank(0.0), NetHeatTransferEnergy(0.0), FirstRecoveryDone(false),
               FirstRecoveryFuel(0.0), HeatPumpNum(0), DesuperheaterNum(0), ShowSetPointWarning(true), MaxCycleErrorIndex(0), FreezingErrorIndex(0),
-              MyOneTimeFlagWH(true), MyTwoTimeFlagWH(true), MyEnvrnFlag(true), WarmupFlag(false), SetLoopIndexFlag(true),
-              AlreadyReported(false), AlreadyRated(false), MyHPSizeFlag(true), CheckWTTEquipName(true), myOneTimeInitFlag(true),
-              scanPlantLoopsFlag(true), callerLoopNum(0), waterIndex(1)
+              MyOneTimeFlagWH(true), MyTwoTimeFlagWH(true), MyEnvrnFlag(true), WarmupFlag(false), SetLoopIndexFlag(true), AlreadyReported(false),
+              AlreadyRated(false), MyHPSizeFlag(true), CheckWTTEquipName(true), myOneTimeInitFlag(true), scanPlantLoopsFlag(true), callerLoopNum(0),
+              waterIndex(1)
         {
         }
 

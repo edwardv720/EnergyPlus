@@ -130,7 +130,7 @@ TEST_F(EnergyPlusFixture, HWBaseboardRadiator_HWBaseboardWaterFlowResetTest)
     int BBNum;
 
     state->dataFluid->init_state(*state);
-    
+
     BBNum = 1;
     LoadMet = 0.0;
     auto &HWBaseboard = state->dataHWBaseboardRad->HWBaseboard;

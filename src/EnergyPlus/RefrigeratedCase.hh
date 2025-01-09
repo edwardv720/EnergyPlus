@@ -555,9 +555,9 @@ namespace RefrigeratedCase {
 
     struct RefrigSystemData
     {
-        std::string Name;                    // Name of refrigeration system
-        std::string RefrigerantName;         // Name of refrigerant, must match name in FluidName
-        Fluid::RefrigProps *refrig = nullptr; 
+        std::string Name;            // Name of refrigeration system
+        std::string RefrigerantName; // Name of refrigerant, must match name in FluidName
+        Fluid::RefrigProps *refrig = nullptr;
         std::string EndUseSubcategory;       // Used for reporting purposes
         bool SystemRejectHeatToZone = false; // Flag to show air-cooled condenser located inside zone
         bool CoilFlag = false;               // Flag to show if coil type load on system (even if below in a secondary)
@@ -701,7 +701,7 @@ namespace RefrigeratedCase {
         std::string RefrigerantName; // Name of refrigerant, must match name in FluidName
         //    (see fluidpropertiesrefdata.idf)
         Fluid::RefrigProps *refrig = nullptr;
-      
+
         std::string EndUseSubcategory;       // Used for reporting purposes
         bool SystemRejectHeatToZone = false; // Flag to show air-cooled gas cooler located inside zone
         Array1D_int CaseNumMT;               // absolute Index of medium temperature cases (allocated NumCasesMT)
@@ -1089,9 +1089,9 @@ namespace RefrigeratedCase {
 
     struct SecondaryLoopData
     {
-        bool CoilFlag = false;                              // Flag to show if coil type load on secondary system
-        std::string Name;                                   // Name of refrigeration system
-        std::string FluidName;                              // Name of circulating fluid
+        bool CoilFlag = false; // Flag to show if coil type load on secondary system
+        std::string Name;      // Name of refrigeration system
+        std::string FluidName; // Name of circulating fluid
         Fluid::GlycolProps *glycol = nullptr;
         Fluid::RefrigProps *refrig = nullptr;
         std::string EndUseSubcategory;                      // Used for reporting purposes

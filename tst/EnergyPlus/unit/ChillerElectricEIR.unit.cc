@@ -555,9 +555,8 @@ TEST_F(EnergyPlusFixture, ChillerElectricEIR_WaterCooledChillerVariableSpeedCond
 
     thisChiller.CondenserFlowControl = DataPlant::CondenserFlowControl::ModulatedDeltaTemperature;
     thisChiller.calculate(*state, MyLoad, RunFlag);
-    Real64 Cp = state->dataPlnt->PlantLoop(thisChiller.CWPlantLoc.loopNum).glycol->getSpecificHeat(*state, 
-                                                                                                   thisChiller.CondInletTemp,
-                                                                                                   "ChillerElectricEIR_WaterCooledChillerVariableSpeedCondenser");
+    Real64 Cp = state->dataPlnt->PlantLoop(thisChiller.CWPlantLoc.loopNum)
+                    .glycol->getSpecificHeat(*state, thisChiller.CondInletTemp, "ChillerElectricEIR_WaterCooledChillerVariableSpeedCondenser");
     Real64 ActualCondFlow = 3.0 * std::abs(MyLoad) / (Cp * 10.0);
     EXPECT_NEAR(thisChiller.CondMassFlowRate, ActualCondFlow, 0.00001);
 

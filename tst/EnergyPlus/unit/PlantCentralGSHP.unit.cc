@@ -138,21 +138,15 @@ TEST_F(EnergyPlusFixture, ChillerHeater_Autosize)
     state->dataPlantCentralGSHP->Wrapper(1).GLHEPlantLoc.loopNum = PltSizCondNum;
 
     // Calculate expected values
-    Real64 rho_evap = state->dataPlnt->PlantLoop(PltSizNum).glycol->getDensity(*state, 
-                                                                               Constant::CWInitConvTemp,
-                                                                               "ChillerHeater_Autosize_TEST");
+    Real64 rho_evap = state->dataPlnt->PlantLoop(PltSizNum).glycol->getDensity(*state, Constant::CWInitConvTemp, "ChillerHeater_Autosize_TEST");
 
-    Real64 Cp_evap = state->dataPlnt->PlantLoop(PltSizNum).glycol->getSpecificHeat(*state, 
-                                                                                   Constant::CWInitConvTemp,
-                                                                                   "ChillerHeater_Autosize_TEST");
+    Real64 Cp_evap = state->dataPlnt->PlantLoop(PltSizNum).glycol->getSpecificHeat(*state, Constant::CWInitConvTemp, "ChillerHeater_Autosize_TEST");
 
-    Real64 rho_cond = state->dataPlnt->PlantLoop(PltSizCondNum).glycol->getDensity(*state, 
-                                                                                   Constant::CWInitConvTemp,
-                                                                                   "ChillerHeater_Autosize_TEST");
+    Real64 rho_cond = state->dataPlnt->PlantLoop(PltSizCondNum).glycol->getDensity(*state, Constant::CWInitConvTemp, "ChillerHeater_Autosize_TEST");
 
-    Real64 Cp_cond = state->dataPlnt->PlantLoop(PltSizCondNum).glycol->getSpecificHeat(*state, 
-                                                                                       state->dataPlantCentralGSHP->Wrapper(1).ChillerHeater(1).TempRefCondInCooling,
-                                                                                       "ChillerHeater_Autosize_TEST");
+    Real64 Cp_cond = state->dataPlnt->PlantLoop(PltSizCondNum)
+                         .glycol->getSpecificHeat(
+                             *state, state->dataPlantCentralGSHP->Wrapper(1).ChillerHeater(1).TempRefCondInCooling, "ChillerHeater_Autosize_TEST");
 
     // Note: Each individual chiller heater module is sized to be capable of supporting the total load on the wrapper
 

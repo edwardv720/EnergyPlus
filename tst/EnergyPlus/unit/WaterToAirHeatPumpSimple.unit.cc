@@ -1073,7 +1073,7 @@ TEST_F(EnergyPlusFixture, WaterToAirHeatPumpSimpleTest_CheckSimpleWAHPRatedCurve
 
 TEST_F(EnergyPlusFixture, WaterToAirHeatPumpSimpleTest_SizeHVACWaterToAirRatedConditions)
 {
-  state->dataFluid->init_state(*state);
+    state->dataFluid->init_state(*state);
     // This unit test is intended to check if the power calculated during the sizing routine
     // uses the user-specified COP at rated conditions
 

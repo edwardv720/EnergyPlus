@@ -88,7 +88,7 @@ using namespace EnergyPlus;
 TEST_F(EnergyPlusFixture, SetPointManager_DefineReturnWaterChWSetPointManager)
 {
     state->dataFluid->init_state(*state);
-    
+
     // Set up the required plant loop data
     state->dataPlnt->TotNumLoops = 1;
     state->dataPlnt->PlantLoop.allocate(1);

@@ -71,7 +71,7 @@ namespace Fluid {
 
     constexpr int GlycolNum_Water = 1;
     constexpr int RefrigNum_Steam = 1;
-        
+
 #undef PERFORMANCE_OPT
 
 #ifdef EP_cache_GlycolSpecificHeat
@@ -376,15 +376,9 @@ namespace Fluid {
                             Real64 Temperature,           // actual temperature given as input
                             std::string_view CalledFrom); // routine this function was called from (error messages)
 
-        void getDensityTemperatureLimits(EnergyPlusData &state,
-                                         Real64 &MinTempLimit,
-                                         Real64 &MaxTempLimit);
+        void getDensityTemperatureLimits(EnergyPlusData &state, Real64 &MinTempLimit, Real64 &MaxTempLimit);
 
-        void getSpecificHeatTemperatureLimits(EnergyPlusData &state,
-                                              Real64 &MinTempLimit,
-                                              Real64 &MaxTempLimit);
-
-
+        void getSpecificHeatTemperatureLimits(EnergyPlusData &state, Real64 &MinTempLimit, Real64 &MaxTempLimit);
     };
 
     struct cached_tsh
@@ -530,7 +524,7 @@ namespace Fluid {
                               std::string_view CalledFrom // routine this function was called from (error messages)
     );
 #endif // GET_OUT
-  
+
     inline Real64 GetInterpValue(Real64 const Tact, // actual temperature at which we want the property of interest
                                  Real64 const Tlo,  // temperature below Tact for which we have property data
                                  Real64 const Thi,  // temperature above Tact for which we have property data
@@ -544,7 +538,6 @@ namespace Fluid {
     int GetRefrigNum(EnergyPlusData &state, std::string_view name);
     RefrigProps *GetRefrig(EnergyPlusData &state, std::string_view name);
     RefrigProps *GetSteam(EnergyPlusData &state);
-        
 
     int GetGlycolRawNum(EnergyPlusData &state, std::string_view name);
     GlycolRawProps *GetGlycolRaw(EnergyPlusData &state, std::string_view name);

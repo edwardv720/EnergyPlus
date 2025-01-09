@@ -1016,9 +1016,8 @@ void CalcMoreNodeInfo(EnergyPlusData &state)
 
         for (int iNode = 1; iNode <= state.dataLoopNodes->NumOfNodes; ++iNode) {
             nodeReportingStrings.push_back(std::string(NodeReportingCalc + state.dataLoopNodes->NodeID(iNode)));
-            nodeFluids.push_back((state.dataLoopNodes->Node(iNode).FluidIndex == 0) ?
-                                 nullptr :
-                                 state.dataFluid->glycols(state.dataLoopNodes->Node(iNode).FluidIndex));
+            nodeFluids.push_back(
+                (state.dataLoopNodes->Node(iNode).FluidIndex == 0) ? nullptr : state.dataFluid->glycols(state.dataLoopNodes->Node(iNode).FluidIndex));
 
             for (auto const *reqVar : state.dataOutputProcessor->reqVars) {
                 if (Util::SameString(reqVar->key, state.dataLoopNodes->NodeID(iNode)) || reqVar->key.empty()) {
@@ -1135,15 +1134,9 @@ void CalcMoreNodeInfo(EnergyPlusData &state)
                 rhoStd = RhoWaterStdInit;
                 Cp = CPCW(state.dataLoopNodes->Node(iNode).Temp);
             } else {
-                Cp = nodeFluids[iNode - 1]->getSpecificHeat(state, 
-                                                            state.dataLoopNodes->Node(iNode).Temp,
-                                                            nodeReportingStrings[iNode - 1]);
-                rhoStd = nodeFluids[iNode - 1]->getDensity(state, 
-                                                           Constant::InitConvTemp,
-                                                           nodeReportingStrings[iNode - 1]);
-                rho = nodeFluids[iNode - 1]->getDensity(state, 
-                                                        state.dataLoopNodes->Node(iNode).Temp,
-                                                        nodeReportingStrings[iNode - 1]);
+                Cp = nodeFluids[iNode - 1]->getSpecificHeat(state, state.dataLoopNodes->Node(iNode).Temp, nodeReportingStrings[iNode - 1]);
+                rhoStd = nodeFluids[iNode - 1]->getDensity(state, Constant::InitConvTemp, nodeReportingStrings[iNode - 1]);
+                rho = nodeFluids[iNode - 1]->getDensity(state, state.dataLoopNodes->Node(iNode).Temp, nodeReportingStrings[iNode - 1]);
             }
 
             state.dataLoopNodes->MoreNodeInfo(iNode).VolFlowRateStdRho = state.dataLoopNodes->Node(iNode).MassFlowRate / rhoStd;
@@ -1156,8 +1149,10 @@ void CalcMoreNodeInfo(EnergyPlusData &state)
         } else if (state.dataLoopNodes->Node(iNode).FluidType == DataLoopNode::NodeFluidType::Steam) {
             if (state.dataLoopNodes->Node(iNode).Quality == 1.0) {
                 auto *steam = Fluid::GetSteam(state);
-                SteamDensity = steam->getSatDensity(state, state.dataLoopNodes->Node(iNode).Temp, state.dataLoopNodes->Node(iNode).Quality, RoutineName);
-                EnthSteamInDry = steam->getSatEnthalpy(state, state.dataLoopNodes->Node(iNode).Temp, state.dataLoopNodes->Node(iNode).Quality, RoutineName);
+                SteamDensity =
+                    steam->getSatDensity(state, state.dataLoopNodes->Node(iNode).Temp, state.dataLoopNodes->Node(iNode).Quality, RoutineName);
+                EnthSteamInDry =
+                    steam->getSatEnthalpy(state, state.dataLoopNodes->Node(iNode).Temp, state.dataLoopNodes->Node(iNode).Quality, RoutineName);
                 state.dataLoopNodes->MoreNodeInfo(iNode).VolFlowRateStdRho = state.dataLoopNodes->Node(iNode).MassFlowRate / SteamDensity;
                 state.dataLoopNodes->MoreNodeInfo(iNode).ReportEnthalpy = EnthSteamInDry;
                 state.dataLoopNodes->MoreNodeInfo(iNode).WetBulbTemp = 0.0;

@@ -97,9 +97,9 @@ namespace BoilerSteam {
         std::array<Real64, 3> FullLoadCoef = {0.0};          // Coefficients of the fuel consumption/part load ratio curve
         int TypeNum = 0;                                     // Plant loop type identifier
         PlantLocation plantLoc;
-        int PressErrIndex = 0;         // index pointer for recurring errors
-        Fluid::RefrigProps *fluid = nullptr;            // Steam fluid properties
-        std::string EndUseSubcategory; // identifier use for the end use subcategory
+        int PressErrIndex = 0;               // index pointer for recurring errors
+        Fluid::RefrigProps *fluid = nullptr; // Steam fluid properties
+        std::string EndUseSubcategory;       // identifier use for the end use subcategory
         bool myFlag = true;
         bool myEnvrnFlag = true;
 

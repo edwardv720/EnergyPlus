@@ -206,8 +206,7 @@ void GetTESCoilInput(EnergyPlusData &state)
 
     // SUBROUTINE PARAMETER DEFINITIONS:
     static constexpr std::string_view RoutineName("GetTESCoilInput: "); // include trailing blank space
-    static constexpr std::string_view routineName = "GetTESCoilInput"; 
-
+    static constexpr std::string_view routineName = "GetTESCoilInput";
 
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
     int NumAlphas = 0;       // Number of alphas in input
@@ -240,7 +239,7 @@ void GetTESCoilInput(EnergyPlusData &state)
                                                                  state.dataIPShortCut->cNumericFieldNames);
 
         ErrorObjectHeader eoh{routineName, cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
-        
+
         Util::IsNameEmpty(state, state.dataIPShortCut->cAlphaArgs(1), cCurrentModuleObject, ErrorsFound);
 
         // ErrorsFound will be set to True if problem was found, left untouched otherwise
@@ -304,7 +303,7 @@ void GetTESCoilInput(EnergyPlusData &state)
             } else if ((thisTESCoil.glycol = Fluid::GetGlycol(state, state.dataIPShortCut->cAlphaArgs(6))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(6), state.dataIPShortCut->cAlphaArgs(6));
                 ErrorsFound = true;
-            } 
+            }
         }
 
         switch (thisTESCoil.StorageMedia) {
@@ -4029,9 +4028,9 @@ void CalcTESWaterStorageTank(EnergyPlusData &state, int const TESCoilNum)
 
     if (thisTESCoil.TESPlantConnectionAvailable) {
         // Specific heat of fluid in plant connection (J/kg K)
-        Real64 const CpPlantConnection = state.dataPlnt->PlantLoop(thisTESCoil.TESPlantLoopNum).glycol->getSpecificHeat(state, 
-                                                                                                                        state.dataLoopNodes->Node(thisTESCoil.TESPlantInletNodeNum).Temp,
-                                                                                                                        calcTESIceStorageTank);
+        Real64 const CpPlantConnection =
+            state.dataPlnt->PlantLoop(thisTESCoil.TESPlantLoopNum)
+                .glycol->getSpecificHeat(state, state.dataLoopNodes->Node(thisTESCoil.TESPlantInletNodeNum).Temp, calcTESIceStorageTank);
 
         thisTESCoil.QdotPlant = state.dataLoopNodes->Node(thisTESCoil.TESPlantInletNodeNum).MassFlowRate * CpPlantConnection *
                                 thisTESCoil.TESPlantEffectiveness * (UseInletTemp - NewTankTemp);
@@ -4093,9 +4092,7 @@ void CalcTESIceStorageTank(EnergyPlusData &state, int const TESCoilNum)
     if (thisTESCoil.TESPlantConnectionAvailable) {
 
         auto const &inletNode = state.dataLoopNodes->Node(thisTESCoil.TESPlantInletNodeNum);
-        Real64 const Cp = state.dataPlnt->PlantLoop(thisTESCoil.TESPlantLoopNum).glycol->getSpecificHeat(state,
-                                                                                                         inletNode.Temp,
-                                                                                                         RoutineName);
+        Real64 const Cp = state.dataPlnt->PlantLoop(thisTESCoil.TESPlantLoopNum).glycol->getSpecificHeat(state, inletNode.Temp, RoutineName);
 
         thisTESCoil.QdotPlant = inletNode.MassFlowRate * Cp * thisTESCoil.TESPlantEffectiveness * (inletNode.Temp - FreezingTemp);
         thisTESCoil.Q_Plant = thisTESCoil.QdotPlant * TimeStepSysSec;
