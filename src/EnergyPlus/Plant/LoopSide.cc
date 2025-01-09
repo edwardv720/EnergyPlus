@@ -929,7 +929,7 @@ namespace DataPlant {
                     LoopFlowStatus FlowPriorityStatus = component.FlowPriority;
 
                     // reference
-                    auto &node_with_request(state.dataLoopNodes->Node(NodeToCheckRequest));
+                    auto const &node_with_request = state.dataLoopNodes->Node(NodeToCheckRequest);
 
                     if (!DataPlant::PlantEquipmentTypeIsPump[static_cast<int>(component.Type)]) {
 

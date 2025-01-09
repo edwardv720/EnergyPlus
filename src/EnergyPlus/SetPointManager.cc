@@ -2478,7 +2478,7 @@ void InitSetPointManagers(EnergyPlusData &state)
             } break;
 
             case SPMType::IdealCondenserEnteringTemp: {
-                auto *spmICER = dynamic_cast<SPMIdealCondenserEnteringTemp *>(spm);
+                auto const *spmICER = dynamic_cast<SPMIdealCondenserEnteringTemp *>(spm);
                 assert(spmICER != nullptr);
 
                 if (spmICER->ctrlVar == HVAC::CtrlVarType::Temp) {
@@ -2489,7 +2489,7 @@ void InitSetPointManagers(EnergyPlusData &state)
             } break;
 
             case SPMType::SZOneStageCooling: {
-                auto *spmSZOSC = dynamic_cast<SPMSingleZoneOneStageCooling *>(spm);
+                auto const *spmSZOSC = dynamic_cast<SPMSingleZoneOneStageCooling *>(spm);
                 assert(spmSZOSC != nullptr);
 
                 if (spmSZOSC->ctrlVar == HVAC::CtrlVarType::Temp) {
@@ -2500,7 +2500,7 @@ void InitSetPointManagers(EnergyPlusData &state)
             } break;
 
             case SPMType::SZOneStageHeating: {
-                auto *spmSZOSH = dynamic_cast<SPMSingleZoneOneStageHeating *>(spm);
+                auto const *spmSZOSH = dynamic_cast<SPMSingleZoneOneStageHeating *>(spm);
                 assert(spmSZOSH != nullptr);
 
                 if (spmSZOSH->ctrlVar == HVAC::CtrlVarType::Temp) {
@@ -4516,7 +4516,7 @@ bool GetCoilFreezingCheckFlag(EnergyPlusData &state, int const spmNum)
         state.dataSetPointManager->GetInputFlag = false;
     }
 
-    auto *spmMA = dynamic_cast<SPMMixedAir *>(state.dataSetPointManager->spms(spmNum));
+    auto const *spmMA = dynamic_cast<SPMMixedAir *>(state.dataSetPointManager->spms(spmNum));
     assert(spmMA != nullptr);
     return spmMA->freezeCheckEnable;
 } // GetCoilFreezingCheckFlag()

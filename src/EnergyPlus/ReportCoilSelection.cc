@@ -1239,7 +1239,7 @@ void ReportCoilSelection::setCoilCoolingCapacity(
                                               SysSizPeakDDNum(curSysNum).TimeStepAtCoolFlowPk(SysSizPeakDDNum(curSysNum).CoolFlowPeakDD));
         }
 
-        auto &finalSysSizing = state.dataSize->FinalSysSizing(curSysNum);
+        auto const &finalSysSizing = state.dataSize->FinalSysSizing(curSysNum);
         c->isCoilSizingForTotalLoad = (finalSysSizing.coolingPeakLoad == DataSizing::PeakLoad::TotalCooling);
         c->oaPeakTemp = finalSysSizing.OutTempAtCoolPeak;
         c->oaPeakVolFlow = finalSysSizing.DesOutAirVolFlow;

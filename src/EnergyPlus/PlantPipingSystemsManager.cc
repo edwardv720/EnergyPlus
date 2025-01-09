@@ -2329,7 +2329,7 @@ namespace PlantPipingSystemsManager {
         return (LocalMax < this->SimControls.Convergence_CurrentToPrevIteration);
     }
 
-    bool IsConverged_PipeCurrentToPrevIteration(Circuit *thisCircuit, CartesianCell const &CellToCheck)
+    bool IsConverged_PipeCurrentToPrevIteration(Circuit const *thisCircuit, CartesianCell const &CellToCheck)
     {
 
         // FUNCTION INFORMATION:
@@ -5363,7 +5363,7 @@ namespace PlantPipingSystemsManager {
         cell.PipeCellData.Insulation.Temperature = Numerator / Denominator;
     }
 
-    void SimulateRadialPipeCell(Circuit *thisCircuit, CartesianCell &cell)
+    void SimulateRadialPipeCell(Circuit const *thisCircuit, CartesianCell &cell)
     {
 
         // SUBROUTINE INFORMATION:
@@ -5428,7 +5428,7 @@ namespace PlantPipingSystemsManager {
         cell.PipeCellData.Pipe.Temperature = Numerator / Denominator;
     }
 
-    void SimulateFluidCell(Circuit *thisCircuit, CartesianCell &cell, Real64 const FlowRate, Real64 const EnteringFluidTemp)
+    void SimulateFluidCell(Circuit const *thisCircuit, CartesianCell &cell, Real64 const FlowRate, Real64 const EnteringFluidTemp)
     {
 
         // SUBROUTINE INFORMATION:

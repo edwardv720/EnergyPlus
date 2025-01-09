@@ -2778,7 +2778,7 @@ namespace Fluid {
 
         if (!state.dataGlobal->WarmupFlag && ErrorFlag) {
             ++this->errors[(int)RefrigError::SatTemp].count;
-            auto &df = state.dataFluid;
+            auto const &df = state.dataFluid;
 
             // send warning
             if (this->errors[(int)RefrigError::SatTemp].count <= df->RefrigErrorLimitTest) {
@@ -2874,7 +2874,7 @@ namespace Fluid {
 
         if (!state.dataGlobal->WarmupFlag && ErrorFlag) {
             ++this->errors[(int)RefrigError::SatPress].count;
-            auto &df = state.dataFluid;
+            auto const &df = state.dataFluid;
 
             // send warning
             if (this->errors[(int)RefrigError::SatPress].count <= df->RefrigErrorLimitTest) {
@@ -3049,7 +3049,7 @@ namespace Fluid {
 
         if (!state.dataGlobal->WarmupFlag && ErrorFlag) {
             ++this->errors[(int)RefrigError::SatTempDensity].count;
-            auto &df = state.dataFluid;
+            auto const &df = state.dataFluid;
 
             // send warning
             if (this->errors[(int)RefrigError::SatTempDensity].count <= df->RefrigErrorLimitTest) {
@@ -3546,7 +3546,7 @@ namespace Fluid {
         }
 
         if (ErrCount > 0 && !state.dataGlobal->WarmupFlag) {
-            auto &df = state.dataFluid;
+            auto const &df = state.dataFluid;
 
             // send near saturation warning if flagged
             this->errors[(int)RefrigError::SatSupPress].count += CurSatErrCount;

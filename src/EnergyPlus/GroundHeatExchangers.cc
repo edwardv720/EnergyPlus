@@ -1020,7 +1020,7 @@ void GLHEVert::setupTimeVectors()
 
     this->myRespFactors->LNTTS = tempLNTTS;
     this->myRespFactors->time = tempLNTTS;
-    std::transform(this->myRespFactors->time.begin(), this->myRespFactors->time.end(), this->myRespFactors->time.begin(), [&t_s](auto &c) {
+    std::transform(this->myRespFactors->time.begin(), this->myRespFactors->time.end(), this->myRespFactors->time.begin(), [&t_s](auto const &c) {
         return exp(c) * t_s;
     });
     this->myRespFactors->GFNC = std::vector<Real64>(tempLNTTS.size(), 0.0);
@@ -1315,7 +1315,7 @@ void GLHEVert::calcShortTimestepGFunctions(EnergyPlusData &state)
 
 //******************************************************************************
 
-std::vector<Real64> TDMA(std::vector<Real64> a, std::vector<Real64> b, std::vector<Real64> c, std::vector<Real64> d)
+std::vector<Real64> TDMA(std::vector<Real64> const &a, std::vector<Real64> const &b, std::vector<Real64> &c, std::vector<Real64> &d)
 {
     // from: https://en.wikibooks.org/wiki/Algorithm_Implementation/Linear_Algebra/Tridiagonal_matrix_algorithm#C.2B.2B
 
@@ -1361,7 +1361,7 @@ void GLHEVert::combineShortAndLongTimestepGFunctions()
     }
 
     this->myRespFactors->time = LNTTS_combined;
-    std::transform(this->myRespFactors->time.begin(), this->myRespFactors->time.end(), this->myRespFactors->time.begin(), [&t_s](auto &c) {
+    std::transform(this->myRespFactors->time.begin(), this->myRespFactors->time.end(), this->myRespFactors->time.begin(), [&t_s](auto const &c) {
         return exp(c) * t_s;
     });
 

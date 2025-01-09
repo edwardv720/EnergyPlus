@@ -2275,7 +2275,7 @@ namespace WaterToAirHeatPump {
         //    Hugh I. Henderson, Jr., P.E., Kannan Rengarajan, P.E.
 
         // Using/Aliasing
-        auto &heatPump = state.dataWaterToAirHeatPump->WatertoAirHP(HPNum);
+        auto const &heatPump = state.dataWaterToAirHeatPump->WatertoAirHP(HPNum);
 
         // Return value
         Real64 SHReff; // Effective sensible heat ratio, includes degradation due to cycling effects
