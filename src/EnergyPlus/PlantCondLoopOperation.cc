@@ -106,7 +106,7 @@ using HVAC::SmallLoad;
 
 void ManagePlantLoadDistribution(EnergyPlusData &state,
                                  PlantLocation const &plantLoc, // PlantLoop data structure Location struct
-                                 Real64 &LoopDemand,
+                                 Real64 const LoopDemand,
                                  Real64 &RemLoopDemand,
                                  bool const FirstHVACIteration,
                                  bool &LoopShutDownFlag, // EMS flag to tell loop solver to shut down pumps
@@ -3659,7 +3659,7 @@ void FindCompSPLoad(EnergyPlusData &state,
 
     // load local variables from the data structures
     CompMinLoad = this_component.MinLoad;
-    CompMaxLoad = this_component.MaxLoad;
+    CompMaxLoad = this_component.getDynamicMaxCapacity(state);
     CompOptLoad = this_component.OptLoad;
     DemandNode = state.dataPlnt->PlantLoop(plantLoc.loopNum).OpScheme(OpSchemePtr).EquipList(ListPtr).Comp(CompPtr).DemandNodeNum;
     SetPtNode = state.dataPlnt->PlantLoop(plantLoc.loopNum).OpScheme(OpSchemePtr).EquipList(ListPtr).Comp(CompPtr).SetPointNodeNum;
