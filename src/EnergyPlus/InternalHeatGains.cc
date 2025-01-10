@@ -2827,7 +2827,7 @@ namespace InternalHeatGains {
                             SetPointManager::GetSetPointManagerInputs(state);
                             for (auto *spm : state.dataSetPointManager->spms) {
                                 if (spm->type != SetPointManager::SPMType::SZCooling) continue;
-                                auto *spmSZC = dynamic_cast<SetPointManager::SPMSingleZoneTemp *>(spm);
+                                auto const *spmSZC = dynamic_cast<SetPointManager::SPMSingleZoneTemp *>(spm);
                                 assert(spmSZC != nullptr);
                                 if (spmSZC->ctrlZoneNum == zoneNum) {
                                     TAirInSizing = spmSZC->maxSetTemp;
@@ -7392,7 +7392,7 @@ namespace InternalHeatGains {
         for (int Loop = 1; Loop <= state.dataHeatBal->TotITEquip; ++Loop) {
             // Get schedules
             int NZ = state.dataHeatBal->ZoneITEq(Loop).ZonePtr;
-            auto &thisZoneHB = state.dataZoneTempPredictorCorrector->zoneHeatBalance(NZ);
+            auto const &thisZoneHB = state.dataZoneTempPredictorCorrector->zoneHeatBalance(NZ);
             int spaceNum = state.dataHeatBal->ZoneITEq(Loop).spaceIndex;
             OperSchedFrac = state.dataHeatBal->ZoneITEq(Loop).operSched->getCurrentVal();
             CPULoadSchedFrac = state.dataHeatBal->ZoneITEq(Loop).cpuLoadSched->getCurrentVal();

@@ -356,9 +356,8 @@ TEST_F(EnergyPlusFixture, MultiStage4PipeFanCoilHeatingTest)
     state->dataWaterCoils->WaterCoil(1).WaterPlantLoc.compNum = 1;
 
     state->dataPlnt->PlantLoop(2).Name = "ChilledWaterLoop";
-    state->dataPlnt->PlantLoop(2).FluidName = "ChilledWater";
-    state->dataPlnt->PlantLoop(2).FluidIndex = 1;
     state->dataPlnt->PlantLoop(2).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(2).glycol = Fluid::GetWater(*state);
     state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = state->dataWaterCoils->WaterCoil(2).Name;
     state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type =
         DataPlant::PlantEquipmentType::CoilWaterCooling;
@@ -366,9 +365,8 @@ TEST_F(EnergyPlusFixture, MultiStage4PipeFanCoilHeatingTest)
         state->dataWaterCoils->WaterCoil(2).WaterInletNodeNum;
 
     state->dataPlnt->PlantLoop(1).Name = "HotWaterLoop";
-    state->dataPlnt->PlantLoop(1).FluidName = "HotWater";
-    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = state->dataWaterCoils->WaterCoil(1).Name;
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type =
         DataPlant::PlantEquipmentType::CoilWaterSimpleHeating;
@@ -676,9 +674,8 @@ TEST_F(EnergyPlusFixture, MultiStage4PipeFanCoilCoolingTest)
     state->dataWaterCoils->WaterCoil(1).WaterPlantLoc.compNum = 1;
 
     state->dataPlnt->PlantLoop(2).Name = "ChilledWaterLoop";
-    state->dataPlnt->PlantLoop(2).FluidName = "ChilledWater";
-    state->dataPlnt->PlantLoop(2).FluidIndex = 1;
     state->dataPlnt->PlantLoop(2).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(2).glycol = Fluid::GetWater(*state);
     state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = state->dataWaterCoils->WaterCoil(2).Name;
     state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type =
         DataPlant::PlantEquipmentType::CoilWaterCooling;
@@ -686,9 +683,8 @@ TEST_F(EnergyPlusFixture, MultiStage4PipeFanCoilCoolingTest)
         state->dataWaterCoils->WaterCoil(2).WaterInletNodeNum;
 
     state->dataPlnt->PlantLoop(1).Name = "HotWaterLoop";
-    state->dataPlnt->PlantLoop(1).FluidName = "HotWater";
-    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = state->dataWaterCoils->WaterCoil(1).Name;
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type =
         DataPlant::PlantEquipmentType::CoilWaterSimpleHeating;
@@ -1002,9 +998,7 @@ TEST_F(EnergyPlusFixture, ConstantFanVariableFlowFanCoilHeatingTest)
     state->dataWaterCoils->WaterCoil(1).WaterPlantLoc.compNum = 1;
 
     state->dataPlnt->PlantLoop(2).Name = "ChilledWaterLoop";
-    state->dataPlnt->PlantLoop(2).FluidName = "ChilledWater";
-    state->dataPlnt->PlantLoop(2).FluidIndex = 1;
-    state->dataPlnt->PlantLoop(2).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(2).glycol = Fluid::GetWater(*state);
     state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = state->dataWaterCoils->WaterCoil(2).Name;
     state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type =
         DataPlant::PlantEquipmentType::CoilWaterCooling;
@@ -1015,9 +1009,8 @@ TEST_F(EnergyPlusFixture, ConstantFanVariableFlowFanCoilHeatingTest)
     state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Demand).FlowLock = DataPlant::FlowLock::Unlocked;
 
     state->dataPlnt->PlantLoop(1).Name = "HotWaterLoop";
-    state->dataPlnt->PlantLoop(1).FluidName = "HotWater";
-    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = state->dataWaterCoils->WaterCoil(1).Name;
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type =
         DataPlant::PlantEquipmentType::CoilWaterSimpleHeating;
@@ -1384,9 +1377,8 @@ TEST_F(EnergyPlusFixture, ElectricCoilFanCoilHeatingTest)
     state->dataWaterCoils->WaterCoil(1).WaterPlantLoc.compNum = 1;
 
     state->dataPlnt->PlantLoop(1).Name = "ChilledWaterLoop";
-    state->dataPlnt->PlantLoop(1).FluidName = "ChilledWater";
-    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = state->dataWaterCoils->WaterCoil(1).Name;
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type =
         DataPlant::PlantEquipmentType::CoilWaterCooling;
@@ -1726,9 +1718,8 @@ TEST_F(EnergyPlusFixture, ConstantFanVariableFlowFanCoilCoolingTest)
     state->dataWaterCoils->WaterCoil(1).WaterPlantLoc.compNum = 1;
 
     state->dataPlnt->PlantLoop(2).Name = "ChilledWaterLoop";
-    state->dataPlnt->PlantLoop(2).FluidName = "ChilledWater";
-    state->dataPlnt->PlantLoop(2).FluidIndex = 1;
     state->dataPlnt->PlantLoop(2).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(2).glycol = Fluid::GetWater(*state);
     state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = state->dataWaterCoils->WaterCoil(2).Name;
     state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type =
         DataPlant::PlantEquipmentType::CoilWaterCooling;
@@ -1739,9 +1730,8 @@ TEST_F(EnergyPlusFixture, ConstantFanVariableFlowFanCoilCoolingTest)
     state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Demand).FlowLock = DataPlant::FlowLock::Unlocked;
 
     state->dataPlnt->PlantLoop(1).Name = "HotWaterLoop";
-    state->dataPlnt->PlantLoop(1).FluidName = "HotWater";
-    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = state->dataWaterCoils->WaterCoil(1).Name;
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type =
         DataPlant::PlantEquipmentType::CoilWaterSimpleHeating;
@@ -2086,9 +2076,8 @@ TEST_F(EnergyPlusFixture, FanCoil_ASHRAE90VariableFan)
     state->dataWaterCoils->WaterCoil(1).WaterPlantLoc.compNum = 1;
 
     state->dataPlnt->PlantLoop(2).Name = "ChilledWaterLoop";
-    state->dataPlnt->PlantLoop(2).FluidName = "ChilledWater";
-    state->dataPlnt->PlantLoop(2).FluidIndex = 1;
     state->dataPlnt->PlantLoop(2).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(2).glycol = Fluid::GetWater(*state);
     state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = state->dataWaterCoils->WaterCoil(2).Name;
     state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type =
         DataPlant::PlantEquipmentType::CoilWaterCooling;
@@ -2098,9 +2087,8 @@ TEST_F(EnergyPlusFixture, FanCoil_ASHRAE90VariableFan)
         state->dataWaterCoils->WaterCoil(2).WaterOutletNodeNum;
 
     state->dataPlnt->PlantLoop(1).Name = "HotWaterLoop";
-    state->dataPlnt->PlantLoop(1).FluidName = "HotWater";
-    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = state->dataWaterCoils->WaterCoil(1).Name;
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type =
         DataPlant::PlantEquipmentType::CoilWaterSimpleHeating;
@@ -2339,9 +2327,8 @@ TEST_F(EnergyPlusFixture, Test_TightenWaterFlowLimits)
     state->dataWaterCoils->WaterCoil(1).WaterPlantLoc.compNum = 1;
 
     state->dataPlnt->PlantLoop(2).Name = "ChilledWaterLoop";
-    state->dataPlnt->PlantLoop(2).FluidName = "ChilledWater";
-    state->dataPlnt->PlantLoop(2).FluidIndex = 1;
     state->dataPlnt->PlantLoop(2).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(2).glycol = Fluid::GetWater(*state);
     state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = state->dataWaterCoils->WaterCoil(2).Name;
     state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type =
         DataPlant::PlantEquipmentType::CoilWaterCooling;
@@ -2351,9 +2338,8 @@ TEST_F(EnergyPlusFixture, Test_TightenWaterFlowLimits)
         state->dataWaterCoils->WaterCoil(2).WaterOutletNodeNum;
 
     state->dataPlnt->PlantLoop(1).Name = "HotWaterLoop";
-    state->dataPlnt->PlantLoop(1).FluidName = "HotWater";
-    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = state->dataWaterCoils->WaterCoil(1).Name;
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type =
         DataPlant::PlantEquipmentType::CoilWaterSimpleHeating;
@@ -2808,9 +2794,8 @@ TEST_F(EnergyPlusFixture, FanCoil_CyclingFanMode)
     state->dataWaterCoils->WaterCoil(1).WaterPlantLoc.compNum = 1;
 
     state->dataPlnt->PlantLoop(2).Name = "ChilledWaterLoop";
-    state->dataPlnt->PlantLoop(2).FluidName = "ChilledWater";
-    state->dataPlnt->PlantLoop(2).FluidIndex = 1;
     state->dataPlnt->PlantLoop(2).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(2).glycol = Fluid::GetWater(*state);
     state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = state->dataWaterCoils->WaterCoil(2).Name;
     state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type =
         DataPlant::PlantEquipmentType::CoilWaterCooling;
@@ -2820,9 +2805,8 @@ TEST_F(EnergyPlusFixture, FanCoil_CyclingFanMode)
         state->dataWaterCoils->WaterCoil(2).WaterOutletNodeNum;
 
     state->dataPlnt->PlantLoop(1).Name = "HotWaterLoop";
-    state->dataPlnt->PlantLoop(1).FluidName = "HotWater";
-    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = state->dataWaterCoils->WaterCoil(1).Name;
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type =
         DataPlant::PlantEquipmentType::CoilWaterSimpleHeating;
@@ -3236,9 +3220,8 @@ TEST_F(EnergyPlusFixture, FanCoil_FanSystemModelCyclingFanMode)
     // chilled water plant loop
     auto &CWLoop(state->dataPlnt->PlantLoop(2));
     CWLoop.Name = "ChilledWaterLoop";
-    CWLoop.FluidName = "ChilledWater";
-    CWLoop.FluidIndex = 1;
     CWLoop.FluidName = "WATER";
+    CWLoop.glycol = Fluid::GetWater(*state);
     CWLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = CWCoil.Name;
     CWLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type = DataPlant::PlantEquipmentType::CoilWaterCooling;
     CWLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).NodeNumIn = CWCoil.WaterInletNodeNum;
@@ -3246,9 +3229,8 @@ TEST_F(EnergyPlusFixture, FanCoil_FanSystemModelCyclingFanMode)
     // hot water plant loop
     auto &HWLoop(state->dataPlnt->PlantLoop(1));
     HWLoop.Name = "HotWaterLoop";
-    HWLoop.FluidName = "HotWater";
-    HWLoop.FluidIndex = 1;
     HWLoop.FluidName = "WATER";
+    HWLoop.glycol = Fluid::GetWater(*state);
     HWLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = HWCoil.Name;
     HWLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type = DataPlant::PlantEquipmentType::CoilWaterSimpleHeating;
     HWLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).NodeNumIn = HWCoil.WaterInletNodeNum;
@@ -3613,9 +3595,8 @@ TEST_F(EnergyPlusFixture, FanCoil_ElecHeatCoilMultiSpeedFanCyclingFanMode)
     // chilled water plant loop
     auto &CWLoop(state->dataPlnt->PlantLoop(1));
     CWLoop.Name = "ChilledWaterLoop";
-    CWLoop.FluidName = "ChilledWater";
-    CWLoop.FluidIndex = 1;
     CWLoop.FluidName = "WATER";
+    CWLoop.glycol = Fluid::GetWater(*state);
     CWLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = CWCoil.Name;
     CWLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type = DataPlant::PlantEquipmentType::CoilWaterCooling;
     CWLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).NodeNumIn = CWCoil.WaterInletNodeNum;
@@ -3976,9 +3957,8 @@ TEST_F(EnergyPlusFixture, FanCoil_ElecHeatCoilMultiSpeedFanContFanMode)
     // chilled water plant loop
     auto &CWLoop(state->dataPlnt->PlantLoop(1));
     CWLoop.Name = "ChilledWaterLoop";
-    CWLoop.FluidName = "ChilledWater";
-    CWLoop.FluidIndex = 1;
     CWLoop.FluidName = "WATER";
+    CWLoop.glycol = Fluid::GetWater(*state);
     CWLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = CWCoil.Name;
     CWLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type = DataPlant::PlantEquipmentType::CoilWaterCooling;
     CWLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).NodeNumIn = CWCoil.WaterInletNodeNum;
@@ -4339,9 +4319,8 @@ TEST_F(EnergyPlusFixture, FanCoil_CalcFanCoilElecHeatCoilPLRResidual)
     // chilled water plant loop
     auto &CWLoop(state->dataPlnt->PlantLoop(1));
     CWLoop.Name = "ChilledWaterLoop";
-    CWLoop.FluidName = "ChilledWater";
-    CWLoop.FluidIndex = 1;
     CWLoop.FluidName = "WATER";
+    CWLoop.glycol = Fluid::GetWater(*state);
     CWLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = CWCoil.Name;
     CWLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type = DataPlant::PlantEquipmentType::CoilWaterCooling;
     CWLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).NodeNumIn = CWCoil.WaterInletNodeNum;
@@ -4642,9 +4621,8 @@ TEST_F(EnergyPlusFixture, FanCoil_ElectricHeatingCoilASHRAE90VariableFan)
     // chilled water plant loop
     auto &CWLoop(state->dataPlnt->PlantLoop(1));
     CWLoop.Name = "ChilledWaterLoop";
-    CWLoop.FluidName = "ChilledWater";
-    CWLoop.FluidIndex = 1;
     CWLoop.FluidName = "WATER";
+    CWLoop.glycol = Fluid::GetWater(*state);
     CWLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = CWCoil.Name;
     CWLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type = DataPlant::PlantEquipmentType::CoilWaterCooling;
     CWLoop.LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).NodeNumIn = CWCoil.WaterInletNodeNum;

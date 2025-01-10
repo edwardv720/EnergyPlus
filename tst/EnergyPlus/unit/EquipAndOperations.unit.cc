@@ -125,6 +125,9 @@ public:
                 thisPlantLoop.OperationScheme = "Heating Loop Operation Scheme List";
             }
 
+            thisPlantLoop.FluidName = "WATER";
+            thisPlantLoop.glycol = Fluid::GetWater(*state);
+            
             thisPlantLoop.NumOpSchemes = 1;
             thisPlantLoop.OpScheme.allocate(thisPlantLoop.NumOpSchemes);
             auto &opSch1 = thisPlantLoop.OpScheme(1);
@@ -273,7 +276,8 @@ TEST_F(DistributeEquipOpTest, EvaluateChillerHeaterChangeoverOpSchemeTest)
      )IDF";
 
     ASSERT_TRUE(process_idf(idf_objects));
-    state->init_state(*state);
+
+    state->init_state(*state); 
     
     auto &heatBranch1 = state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Supply).Branch(1);
     auto &heatComp1 = state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Supply).Branch(1).Comp(1);
@@ -503,8 +507,9 @@ TEST_F(DistributeEquipOpTest, SupervisoryControlLogicForAirSourcePlantsTest)
      )IDF";
 
     ASSERT_TRUE(process_idf(idf_objects));
-    state->init_state(*state);
-    
+
+    state->init_state(*state); 
+
     auto &heatBranch1 = state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Supply).Branch(1);
     auto &heatComp1 = state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Supply).Branch(1).Comp(1);
     heatComp1.Type = DataPlant::PlantEquipmentType::HeatPumpEIRHeating;

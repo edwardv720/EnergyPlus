@@ -55,6 +55,7 @@
 #include <EnergyPlus/Data/BaseData.hh>
 #include <EnergyPlus/DataGlobals.hh>
 #include <EnergyPlus/EnergyPlus.hh>
+#include <EnergyPlus/FluidProperties.hh>
 
 namespace EnergyPlus {
 
@@ -77,7 +78,7 @@ namespace SteamBaseboardRadiator {
         int SteamInletNode;   // Inlet steam baseboard node
         int SteamOutletNode;  // Outlet steam baseboard node
         int TotSurfToDistrib; // Total numbers of the surfaces that the radiant heat gets distributed
-        int FluidIndex;       // Fluid index for FluidProperties (Steam)
+        Fluid::RefrigProps *steam = nullptr;
         int ControlCompTypeNum;
         int CompErrIndex;
         Real64 DegOfSubcooling;      // Temperature differences due to subcooling of the condensate [C]
@@ -124,7 +125,7 @@ namespace SteamBaseboardRadiator {
         // Default Constructor
         SteamBaseboardParams()
             : EquipType(DataPlant::PlantEquipmentType::Invalid), DesignObjectPtr(0), ZonePtr(0), SteamInletNode(0), SteamOutletNode(0),
-              TotSurfToDistrib(0), FluidIndex(0), ControlCompTypeNum(0), CompErrIndex(0), DegOfSubcooling(0.0), SteamMassFlowRate(0.0),
+              TotSurfToDistrib(0), ControlCompTypeNum(0), CompErrIndex(0), DegOfSubcooling(0.0), SteamMassFlowRate(0.0),
               SteamMassFlowRateMax(0.0), SteamVolFlowRateMax(0.0), SteamOutletTemp(0.0), SteamInletTemp(0.0), SteamInletEnthalpy(0.0),
               SteamOutletEnthalpy(0.0), SteamInletPress(0.0), SteamOutletPress(0.0), SteamInletQuality(0.0), SteamOutletQuality(0.0),
               FracRadiant(0.0), FracConvect(0.0), FracDistribPerson(0.0), TotPower(0.0), Power(0.0), ConvPower(0.0), RadPower(0.0), TotEnergy(0.0),
@@ -205,7 +206,7 @@ namespace SteamBaseboardRadiator {
                                              const DataPlant::LoopSideLocation LoopSide,  // Plant loop side index for where called from
                                              int &CompIndex,                              // Chiller number pointer
                                              bool const FirstHVACIteration,
-                                             bool &InitLoopEquip // If not zero, calculate the max load for operating conditions
+                                             bool const InitLoopEquip // If not zero, calculate the max load for operating conditions
     );
 
 } // namespace SteamBaseboardRadiator
@@ -217,7 +218,6 @@ struct SteamBaseboardRadiatorData : BaseGlobalStruct
     std::string const cCMO_BBRadiator_Steam_Design = "ZoneHVAC:Baseboard:RadiantConvective:Steam:Design";
     int NumSteamBaseboards = 0;
     int NumSteamBaseboardsDesign = 0;
-    int SteamIndex = 0;
 
     Array1D_bool MySizeFlag;
     Array1D_bool CheckEquipName;
@@ -246,7 +246,6 @@ struct SteamBaseboardRadiatorData : BaseGlobalStruct
     void clear_state() override
     {
         NumSteamBaseboards = 0;
-        SteamIndex = 0;
         MySizeFlag.clear();
         MyEnvrnFlag.clear();
         CheckEquipName.clear();

@@ -91,9 +91,17 @@ TEST_F(EnergyPlusFixture, PlantUtilities_RegisterPlantCompDesignFlowTest1)
 TEST_F(EnergyPlusFixture, TestRegulateCondenserCompFlowReqOp)
 {
     // test consecutive call to fluid properties getInput
-    state->init_state(*state);
-    EXPECT_EQ(1, state->dataFluidProps->refrigs.isize());
-    EXPECT_EQ(1, state->dataFluidProps->glycols.isize());
+    Fluid::GetFluidPropertiesData(*state);
+    EXPECT_EQ(1, state->dataFluid->refrigs.isize());
+    EXPECT_EQ(1, state->dataFluid->glycols.isize());
+
+    // should never happen but if it does it's safe
+
+    // This is the second unit test that does this, when really we
+    // should just ensure that it never happens.
+    Fluid::GetFluidPropertiesData(*state); 
+    EXPECT_EQ(1, state->dataFluid->refrigs.isize());
+    EXPECT_EQ(1, state->dataFluid->glycols.isize());
 
     // This test captures all code paths through the RegulateCondenserCompFlowReqOp function
     // We only need a single component to check here

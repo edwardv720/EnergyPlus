@@ -182,8 +182,6 @@ namespace SurfaceGroundHeatExchanger {
 
         // Using/Aliasing
         using BranchNodeConnections::TestCompSet;
-        using FluidProperties::CheckFluidPropertyName;
-
         using NodeInputManager::GetOnlySingleNode;
         using namespace DataLoopNode;
 
@@ -1075,9 +1073,6 @@ namespace SurfaceGroundHeatExchanger {
         // Heat exchanger information also from Incropera and DeWitt.
         // Code based loosely on code from IBLAST program (research version)
 
-        // Using/Aliasing
-        using FluidProperties::GetSpecificHeatGlycol;
-
         // Return value
         Real64 CalcHXEffectTerm;
 
@@ -1162,11 +1157,7 @@ namespace SurfaceGroundHeatExchanger {
                 this->InletTemp = max(this->InletTemp, 0.0);
             }
         }
-        CpWater = GetSpecificHeatGlycol(state,
-                                        state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidName,
-                                        Temperature,
-                                        state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidIndex,
-                                        RoutineName);
+        CpWater = state.dataPlnt->PlantLoop(this->plantLoc.loopNum).glycol->getSpecificHeat(state, Temperature, RoutineName);
 
         // Calculate the Reynold's number from RE=(4*Mdot)/(Pi*Mu*Diameter)
         ReD = 4.0 * WaterMassFlow / (Constant::Pi * MUactual * this->TubeDiameter * this->TubeCircuits);
@@ -1344,7 +1335,6 @@ namespace SurfaceGroundHeatExchanger {
         // Using/Aliasing
         Real64 SysTimeElapsed = state.dataHVACGlobal->SysTimeElapsed;
         Real64 TimeStepSys = state.dataHVACGlobal->TimeStepSys;
-        using FluidProperties::GetSpecificHeatGlycol;
         using PlantUtilities::SafeCopyPlantNode;
 
         // SUBROUTINE PARAMETER DEFINITIONS:
@@ -1381,11 +1371,7 @@ namespace SurfaceGroundHeatExchanger {
             this->InletTemp = max(this->InletTemp, 0.0);
         }
 
-        CpFluid = GetSpecificHeatGlycol(state,
-                                        state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidName,
-                                        this->InletTemp,
-                                        state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidIndex,
-                                        RoutineName);
+        CpFluid = state.dataPlnt->PlantLoop(this->plantLoc.loopNum).glycol->getSpecificHeat(state, this->InletTemp, RoutineName);
 
         SafeCopyPlantNode(state, this->InletNodeNum, this->OutletNodeNum);
         // check for flow
@@ -1432,7 +1418,6 @@ namespace SurfaceGroundHeatExchanger {
     void SurfaceGroundHeatExchangerData::oneTimeInit_new(EnergyPlusData &state)
     {
 
-        using FluidProperties::GetDensityGlycol;
         using PlantUtilities::InitComponentNodes;
         using PlantUtilities::RegisterPlantCompDesignFlow;
         using PlantUtilities::ScanPlantLoopsForObject;
@@ -1450,11 +1435,7 @@ namespace SurfaceGroundHeatExchanger {
         if (errFlag) {
             ShowFatalError(state, "InitSurfaceGroundHeatExchanger: Program terminated due to previous condition(s).");
         }
-        rho = GetDensityGlycol(state,
-                               state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidName,
-                               DataPrecisionGlobals::constant_zero,
-                               state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidIndex,
-                               RoutineName);
+        rho = state.dataPlnt->PlantLoop(this->plantLoc.loopNum).glycol->getDensity(state, 0.0, RoutineName);
         this->DesignMassFlowRate = Constant::Pi / 4.0 * pow_2(this->TubeDiameter) * DesignVelocity * rho * this->TubeCircuits;
         InitComponentNodes(state, 0.0, this->DesignMassFlowRate, this->InletNodeNum, this->OutletNodeNum);
         RegisterPlantCompDesignFlow(state, this->InletNodeNum, this->DesignMassFlowRate / rho);

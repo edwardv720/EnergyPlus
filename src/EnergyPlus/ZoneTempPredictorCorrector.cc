@@ -5680,7 +5680,7 @@ void AdjustOperativeSetPointsforAdapComfort(EnergyPlusData &state, int const Tem
     // This routine adjust the operative setpoints for each controlled adaptive thermal comfort models.
 
     auto &s_ztpc = state.dataZoneTempPredictorCorrector;
-    auto &tempControlledZone = state.dataZoneCtrls->TempControlledZone(TempControlledZoneID);
+    auto const &tempControlledZone = state.dataZoneCtrls->TempControlledZone(TempControlledZoneID);
     auto const &AdapComfortDailySetPointSchedule = s_ztpc->AdapComfortDailySetPointSchedule;
 
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:

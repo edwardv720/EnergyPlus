@@ -1804,7 +1804,7 @@ namespace ThermalComfort {
                         state.dataThermalComforts->SkinThermCap;
     }
 
-    void RKG(EnergyPlusData &state, int &NEQ, Real64 &H, Real64 &X, Array1D<Real64> &Y, Array1D<Real64> &DY, Array1D<Real64> &C)
+    void RKG(EnergyPlusData &state, int &NEQ, Real64 const H, Real64 &X, Array1D<Real64> &Y, Array1D<Real64> &DY, Array1D<Real64> &C)
     {
 
         // SUBROUTINE INFORMATION:
@@ -2461,8 +2461,8 @@ namespace ThermalComfort {
 
         // Using/Aliasing
         using namespace OutputReportPredefined;
-        auto &deviationFromSetPtThresholdClg = state.dataHVACGlobal->deviationFromSetPtThresholdClg;
-        auto &deviationFromSetPtThresholdHtg = state.dataHVACGlobal->deviationFromSetPtThresholdHtg;
+        Real64 const deviationFromSetPtThresholdClg = state.dataHVACGlobal->deviationFromSetPtThresholdClg;
+        Real64 const deviationFromSetPtThresholdHtg = state.dataHVACGlobal->deviationFromSetPtThresholdHtg;
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         Real64 SensibleLoadPredictedNoAdj;

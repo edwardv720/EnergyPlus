@@ -55,6 +55,7 @@
 #include <EnergyPlus/Data/BaseData.hh>
 #include <EnergyPlus/DataGlobals.hh>
 #include <EnergyPlus/EnergyPlus.hh>
+#include <EnergyPlus/FluidProperties.hh>
 #include <EnergyPlus/Plant/Enums.hh>
 #include <EnergyPlus/Plant/PlantLocation.hh>
 
@@ -188,8 +189,10 @@ namespace VentilatedSlab {
         std::string heatingCoilTypeCh; // type of heating coil (character string)
         int heatingCoil_Index;
         DataPlant::PlantEquipmentType heatingCoilType;
-        int heatingCoil_FluidIndex;
+
+        Fluid::RefrigProps *heatingCoil_fluid = nullptr;
         Sched::Schedule *heatingCoilSched = nullptr; // index to schedule
+      
         Real64 heatingCoilSchedValue;
         Real64 MaxVolHotWaterFlow; // m3/s
         Real64 MaxVolHotSteamFlow; // m3/s
@@ -290,7 +293,8 @@ namespace VentilatedSlab {
               outsideAirControlType(OutsideAirControlType::Invalid), OutsideAirNode(0),
               AirReliefNode(0), OAMixerOutNode(0), OutAirVolFlow(0.0), OutAirMassFlow(0.0), MinOutAirVolFlow(0.0), MinOutAirMassFlow(0.0),
               SysConfg(VentilatedSlabConfig::Invalid), coilOption(CoilType::Invalid), heatingCoilPresent(false), hCoilType(HeatingCoilType::Invalid),
-              heatingCoil_Index(0), heatingCoilType(DataPlant::PlantEquipmentType::Invalid), heatingCoil_FluidIndex(0), 
+
+              heatingCoil_Index(0), heatingCoilType(DataPlant::PlantEquipmentType::Invalid), 
               heatingCoilSchedValue(0.0), MaxVolHotWaterFlow(0.0), MaxVolHotSteamFlow(0.0), MaxHotWaterFlow(0.0), MaxHotSteamFlow(0.0),
               MinHotSteamFlow(0.0), MinVolHotWaterFlow(0.0), MinVolHotSteamFlow(0.0), MinHotWaterFlow(0.0), HotControlNode(0), HotCoilOutNodeNum(0),
               HotControlOffset(0.0), HWPlantLoc{}, 

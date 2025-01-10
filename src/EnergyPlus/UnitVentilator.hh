@@ -57,6 +57,7 @@
 #include <EnergyPlus/DataGlobals.hh>
 #include <EnergyPlus/EPVector.hh>
 #include <EnergyPlus/EnergyPlus.hh>
+#include <EnergyPlus/FluidProperties.hh>
 #include <EnergyPlus/Plant/Enums.hh>
 #include <EnergyPlus/Plant/PlantLocation.hh>
 #include <EnergyPlus/SystemAvailabilityManager.hh>
@@ -139,8 +140,10 @@ namespace UnitVentilator {
         std::string HCoilTypeCh;                        // type of heating coil character string (same as type on idf file).
         int HCoil_Index = 0;
         DataPlant::PlantEquipmentType HeatingCoilType = DataPlant::PlantEquipmentType::Invalid;
-        int HCoil_FluidIndex = 0;
+
+        Fluid::RefrigProps *HCoil_fluid = nullptr;
         Sched::Schedule *hCoilSched = nullptr;
+
         Real64 HCoilSchedValue = 0.0;
         Real64 MaxVolHotWaterFlow = 0.0; // m3/s
         Real64 MaxVolHotSteamFlow = 0.0; // m3/s
@@ -307,9 +310,6 @@ struct UnitVentilatorsData : BaseGlobalStruct
     Array1D_bool MyPlantScanFlag;
     Array1D_bool MyZoneEqFlag;
 
-    int RefrigIndex = 0;
-    int DummyWaterIndex = 1;
-
     int ATMixOutNode = 0;   // outlet node of ATM Mixer
     int ATMixerPriNode = 0; // primary air node of ATM Mixer
     int ZoneNode = 0;       // zone node
@@ -338,8 +338,6 @@ struct UnitVentilatorsData : BaseGlobalStruct
         this->MyEnvrnFlag.deallocate();
         this->MyPlantScanFlag.deallocate();
         this->MyZoneEqFlag.deallocate();
-        this->RefrigIndex = 0;
-        this->DummyWaterIndex = 1;
         this->ATMixOutNode = 0;
         this->ATMixerPriNode = 0;
         this->ZoneNode = 0;

@@ -56,6 +56,7 @@
 #include <EnergyPlus/DataGlobals.hh>
 #include <EnergyPlus/DataLoopNode.hh>
 #include <EnergyPlus/EnergyPlus.hh>
+#include <EnergyPlus/FluidProperties.hh>
 
 namespace EnergyPlus {
 
@@ -183,7 +184,7 @@ struct NodeInputManagerData : BaseGlobalStruct
     Array1D_bool NodeSpecificHeatRepReq;
     Array1D<Sched::Schedule *> NodeSpecificHeatScheds;
     std::vector<std::string> nodeReportingStrings;
-    std::vector<std::string> nodeFluidNames;
+    std::vector<Fluid::GlycolProps *> nodeFluids;
 
     void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
     {

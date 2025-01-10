@@ -3111,7 +3111,7 @@ namespace HeatRecovery {
             } break;
             case HXConfiguration::CrossFlowBothUnmixed: { // CROSS FLOW BOTH UNMIXED
                 Temp = Z * std::pow(NTU, -0.22);
-                Eps = 1.0 - std::exp((std::exp(-NTU * Temp) - 1.0) / Temp);
+                Eps = 1.0 - std::exp(std::expm1(-NTU * Temp) / Temp);
             } break;
             case HXConfiguration::CrossFlowOther: { // CROSS FLOW, Cmax MIXED, Cmin UNMIXED
                 Eps = (1.0 - std::exp(-Z * (1.0 - std::exp(-NTU)))) / Z;
@@ -3199,13 +3199,13 @@ namespace HeatRecovery {
                 }
             } break;
             case HXConfiguration::ParallelFlow: { // PARALLEL FLOW
-                NTU = -std::log(-Eps - Eps * Z + 1.0) / (Z + 1.0);
+                NTU = -std::log1p(-Eps - Eps * Z) / (Z + 1.0);
             } break;
             case HXConfiguration::CrossFlowBothUnmixed: { // CROSS FLOW BOTH UNMIXED
                 NTU = GetNTUforCrossFlowBothUnmixed(state, Eps, Z);
             } break;
             case HXConfiguration::CrossFlowOther: { // CROSS FLOW, Cmax MIXED, Cmin UNMIXED
-                NTU = -std::log(1.0 + std::log(1.0 - Eps * Z) / Z);
+                NTU = -std::log1p(std::log(1.0 - Eps * Z) / Z);
             } break;
             default: {
                 ShowFatalError(state, format("HeatRecovery: Illegal flow arrangement in CalculateNTUfromEpsAndZ, Value={}", FlowArr));
@@ -3251,7 +3251,7 @@ namespace HeatRecovery {
         int SolFla;                  // Flag of solver
         Real64 constexpr NTU0(0.0);  // lower bound for NTU
         Real64 constexpr NTU1(50.0); // upper bound for NTU
-        auto f = [Eps, Z](Real64 const NTU) { return 1.0 - std::exp((std::exp(-std::pow(NTU, 0.78) * Z) - 1.0) / Z * std::pow(NTU, 0.22)) - Eps; };
+        auto f = [Eps, Z](Real64 const NTU) { return 1.0 - std::exp(std::expm1(-std::pow(NTU, 0.78) * Z) / Z * std::pow(NTU, 0.22)) - Eps; };
         General::SolveRoot(state, Acc, MaxIte, SolFla, NTU, f, NTU0, NTU1);
 
         if (SolFla == -2) {

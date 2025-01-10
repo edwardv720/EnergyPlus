@@ -1853,7 +1853,7 @@ void InitAirLoops(EnergyPlusData &state, bool const FirstHVACIteration) // TRUE 
         // now fill out AirLoopZoneInfo for cleaner struct of zones attached to air loop, moved from MixedAir to here for use with Std. 62.1
         int MaxNumAirLoopZones = 0;
         for (int AirLoopNum = 1; AirLoopNum <= numPrimaryAirSys; ++AirLoopNum) {
-            auto &thisAirToZoneNodeInfo = state.dataAirLoop->AirToZoneNodeInfo(AirLoopNum);
+            auto const &thisAirToZoneNodeInfo = state.dataAirLoop->AirToZoneNodeInfo(AirLoopNum);
             int NumAirLoopZones = thisAirToZoneNodeInfo.NumZonesCooled + thisAirToZoneNodeInfo.NumZonesHeated;
             // NumZonesCooled + NumZonesHeated must be > 0 or Fatal error is issued in SimAirServingZones
             MaxNumAirLoopZones = max(MaxNumAirLoopZones, NumAirLoopZones); // Max number of zones on any air loop being simulated
@@ -2055,7 +2055,7 @@ void InitAirLoops(EnergyPlusData &state, bool const FirstHVACIteration) // TRUE 
     if (!state.dataGlobal->SysSizingCalc && state.dataSimAirServingZones->InitAirLoopsBranchSizingFlag) {
 
         for (int AirLoopNum = 1; AirLoopNum <= numPrimaryAirSys; ++AirLoopNum) {
-            auto &thisPrimaryAirSys = state.dataAirSystemsData->PrimaryAirSystems(AirLoopNum);
+            auto const &thisPrimaryAirSys = state.dataAirSystemsData->PrimaryAirSystems(AirLoopNum);
 
             for (int BranchNum = 1; BranchNum <= thisPrimaryAirSys.NumBranches; ++BranchNum) {
                 SizeAirLoopBranches(state, AirLoopNum, BranchNum);
@@ -3254,7 +3254,7 @@ void ReSolveAirLoopControllers(
     // Note that it is not used by ManageControllers() in the WARM_RESTART mode.
     bool IsUpToDateFlag;
 
-    auto &PrimaryAirSystems = state.dataAirSystemsData->PrimaryAirSystems;
+    auto &primaryAirSystems = state.dataAirSystemsData->PrimaryAirSystems(AirLoopNum);
 
     // To track number of calls to SimAirLoopComponents() for each air loop
     // Represents the most computationally expensive operation in the iteration.
@@ -3267,16 +3267,16 @@ void ReSolveAirLoopControllers(
     state.dataSimAirServingZones->BypassOAControllerRSALC =
         false; // not exactly sure of this but it seems all controllers need to be simulated -- don't bypass
     IsUpToDateFlag = false;
-    PrimaryAirSystems(AirLoopNum).ControlConverged = false;
+    primaryAirSystems.ControlConverged = false;
 
     // This call to ManageControllers reinitializes the controllers actuated variables to zero
     // E.g., actuator inlet water flow
-    for (AirLoopControlNum = 1; AirLoopControlNum <= PrimaryAirSystems(AirLoopNum).NumControllers; ++AirLoopControlNum) {
+    for (AirLoopControlNum = 1; AirLoopControlNum <= primaryAirSystems.NumControllers; ++AirLoopControlNum) {
 
         // BypassOAController is false here since we want to simulate the controller during ReSolveAirLoopControllers calls ?
         ManageControllers(state,
-                          PrimaryAirSystems(AirLoopNum).ControllerName(AirLoopControlNum),
-                          PrimaryAirSystems(AirLoopNum).ControllerIndex(AirLoopControlNum),
+                          primaryAirSystems.ControllerName(AirLoopControlNum),
+                          primaryAirSystems.ControllerIndex(AirLoopControlNum),
                           FirstHVACIteration,
                           AirLoopNum,
                           ControllerOperation::WarmRestart,
@@ -3292,13 +3292,13 @@ void ReSolveAirLoopControllers(
 
     // Check that all active controllers are still convergence
     // Check that actuated variables are within min/max constraints
-    for (AirLoopControlNum = 1; AirLoopControlNum <= PrimaryAirSystems(AirLoopNum).NumControllers; ++AirLoopControlNum) {
+    for (AirLoopControlNum = 1; AirLoopControlNum <= primaryAirSystems.NumControllers; ++AirLoopControlNum) {
 
         ControllerConvergedFlag = false;
 
         ManageControllers(state,
-                          PrimaryAirSystems(AirLoopNum).ControllerName(AirLoopControlNum),
-                          PrimaryAirSystems(AirLoopNum).ControllerIndex(AirLoopControlNum),
+                          primaryAirSystems.ControllerName(AirLoopControlNum),
+                          primaryAirSystems.ControllerIndex(AirLoopControlNum),
                           FirstHVACIteration,
                           AirLoopNum,
                           ControllerOperation::End,
@@ -3306,7 +3306,7 @@ void ReSolveAirLoopControllers(
                           IsUpToDateFlag,
                           state.dataSimAirServingZones->BypassOAControllerRSALC);
 
-        PrimaryAirSystems(AirLoopNum).ControlConverged(AirLoopControlNum) = ControllerConvergedFlag;
+        primaryAirSystems.ControlConverged(AirLoopControlNum) = ControllerConvergedFlag;
 
         AirLoopConvergedFlag = AirLoopConvergedFlag && ControllerConvergedFlag;
 
@@ -3341,29 +3341,29 @@ void SimAirLoopComponents(EnergyPlusData &state,
     // Sets duct type of current branch to CurDuctType defined in MODULE DataSizing
     // Upon exiting, resets both counters to 0.
 
-    auto &PrimaryAirSystems = state.dataAirSystemsData->PrimaryAirSystems;
+    auto &primaryAirSystems = state.dataAirSystemsData->PrimaryAirSystems(AirLoopNum);
 
-    for (int BranchNum = 1; BranchNum <= PrimaryAirSystems(AirLoopNum).NumBranches; ++BranchNum) { // loop over all branches in air system
+    for (int BranchNum = 1; BranchNum <= primaryAirSystems.NumBranches; ++BranchNum) { // loop over all branches in air system
 
         UpdateBranchConnections(state, AirLoopNum, BranchNum, BeforeBranchSim);
 
         state.dataSize->CurBranchNum = BranchNum;
-        state.dataSize->CurDuctType = PrimaryAirSystems(AirLoopNum).Branch(BranchNum).DuctType;
+        state.dataSize->CurDuctType = primaryAirSystems.Branch(BranchNum).DuctType;
 
         // Loop over components in branch
-        for (int CompNum = 1; CompNum <= PrimaryAirSystems(AirLoopNum).Branch(BranchNum).TotalComponents; ++CompNum) {
+        for (int CompNum = 1; CompNum <= primaryAirSystems.Branch(BranchNum).TotalComponents; ++CompNum) {
             // CompType = PrimaryAirSystem( AirLoopNum ).Branch( BranchNum ).Comp( CompNum ).TypeOf;
             // CompName = PrimaryAirSystem( AirLoopNum ).Branch( BranchNum ).Comp( CompNum ).Name;
-            CompType CompType_Num = PrimaryAirSystems(AirLoopNum).Branch(BranchNum).Comp(CompNum).CompType_Num;
+            CompType CompType_Num = primaryAirSystems.Branch(BranchNum).Comp(CompNum).CompType_Num;
 
             // Simulate each component on PrimaryAirSystem(AirLoopNum)%Branch(BranchNum)%Name
             SimAirLoopComponent(state,
-                                PrimaryAirSystems(AirLoopNum).Branch(BranchNum).Comp(CompNum).Name,
+                                primaryAirSystems.Branch(BranchNum).Comp(CompNum).Name,
                                 CompType_Num,
                                 FirstHVACIteration,
                                 AirLoopNum,
-                                PrimaryAirSystems(AirLoopNum).Branch(BranchNum).Comp(CompNum).CompIndex,
-                                PrimaryAirSystems(AirLoopNum).Branch(BranchNum).Comp(CompNum).compPointer,
+                                primaryAirSystems.Branch(BranchNum).Comp(CompNum).CompIndex,
+                                primaryAirSystems.Branch(BranchNum).Comp(CompNum).compPointer,
                                 AirLoopNum,
                                 BranchNum,
                                 CompNum);
@@ -3430,7 +3430,7 @@ void SimAirLoopComponent(EnergyPlusData &state,
     bool CoolingActive = false;
     bool HeatingActive = false;
 
-    auto &AirLoopControlInfo = state.dataAirLoop->AirLoopControlInfo;
+    auto &airLoopControlInfo = state.dataAirLoop->AirLoopControlInfo(AirLoopNum);
 
     switch (CompType_Num) {
     case CompType::OAMixer_Num: { // 'OUTSIDE AIR SYSTEM'
@@ -3596,13 +3596,13 @@ void SimAirLoopComponent(EnergyPlusData &state,
                         CompName,
                         FirstHVACIteration,
                         CompIndex,
-                        AirLoopControlInfo(AirLoopNum).fanOp,
+                        airLoopControlInfo.fanOp,
                         state.dataAirLoop->AirLoopFlow(AirLoopNum).FanPLR,
                         _,
                         _,
                         _,
-                        AirLoopControlInfo(AirLoopNum).EconoActive,
-                        AirLoopControlInfo(AirLoopNum).HighHumCtrlActive);
+                        airLoopControlInfo.EconoActive,
+                        airLoopControlInfo.HighHumCtrlActive);
 
         // Ducts
     } break;
@@ -3637,8 +3637,8 @@ void SimAirLoopComponent(EnergyPlusData &state,
     // Set AirLoopControlInfo flag to identify coil operation for "Air Loop Coils"
     // Any coil operation from multiple coils causes flag to be TRUE
     // Flag is reset at beginning of each iteration (Subroutine SimHVAC)
-    AirLoopControlInfo(AirLoopNum).CoolingActiveFlag = AirLoopControlInfo(AirLoopNum).CoolingActiveFlag || CoolingActive;
-    AirLoopControlInfo(AirLoopNum).HeatingActiveFlag = AirLoopControlInfo(AirLoopNum).HeatingActiveFlag || HeatingActive;
+    airLoopControlInfo.CoolingActiveFlag = airLoopControlInfo.CoolingActiveFlag || CoolingActive;
+    airLoopControlInfo.HeatingActiveFlag = airLoopControlInfo.HeatingActiveFlag || HeatingActive;
 }
 
 void UpdateBranchConnections(EnergyPlusData &state,
@@ -6256,7 +6256,7 @@ void UpdateSysSizing(EnergyPlusData &state, Constant::CallIndicator const CallIn
             // cooling flow rates and associated data
 
             for (DDNum = 1; DDNum <= state.dataEnvrn->TotDesDays + state.dataEnvrn->TotRunDesPersDays; ++DDNum) {
-                auto &sysSizing = state.dataSize->SysSizing(DDNum, AirLoopNum);
+                auto const &sysSizing = state.dataSize->SysSizing(DDNum, AirLoopNum);
                 if (sysSizing.SensCoolCap > state.dataSize->SensCoolCapTemp(AirLoopNum)) {
                     state.dataSize->SysSizPeakDDNum(AirLoopNum).SensCoolPeakDD = DDNum;
                     state.dataSize->SysSizPeakDDNum(AirLoopNum).cSensCoolPeakDDDate = state.dataSize->DesDayWeath(DDNum).DateString;
@@ -6389,7 +6389,7 @@ void UpdateSysSizing(EnergyPlusData &state, Constant::CallIndicator const CallIn
 
             for (int ZonesCooledNum = 1; ZonesCooledNum <= NumZonesCooled; ++ZonesCooledNum) { // loop over cooled zones
                 int TermUnitSizingIndex = state.dataAirLoop->AirToZoneNodeInfo(AirLoopNum).TermUnitCoolSizingIndex(ZonesCooledNum);
-                auto &termUnitSizing = state.dataSize->TermUnitSizing(TermUnitSizingIndex);
+                auto const &termUnitSizing = state.dataSize->TermUnitSizing(TermUnitSizingIndex);
                 // save the system cooling supply air temp
                 state.dataSize->TermUnitFinalZoneSizing(TermUnitSizingIndex).DesCoolCoilInTempTU =
                     state.dataSize->CalcSysSizing(AirLoopNum).CoolSupTemp;
@@ -6407,7 +6407,7 @@ void UpdateSysSizing(EnergyPlusData &state, Constant::CallIndicator const CallIn
                 CoolDDNum = state.dataSize->TermUnitFinalZoneSizing(TermUnitSizingIndex).CoolDDNum;
                 CoolTimeStepNum = state.dataSize->TermUnitFinalZoneSizing(TermUnitSizingIndex).TimeStepNumAtCoolMax;
                 if (CoolDDNum == 0) {
-                    auto &zoneCFS = state.dataSize->CalcFinalZoneSizing(state.dataSize->TermUnitFinalZoneSizing(TermUnitSizingIndex).ZoneNum);
+                    auto const &zoneCFS = state.dataSize->CalcFinalZoneSizing(state.dataSize->TermUnitFinalZoneSizing(TermUnitSizingIndex).ZoneNum);
                     OutAirTemp += zoneCFS.CoolOutTemp * coolMassFlow / (1.0 + termUnitSizing.InducRat);
                     OutAirHumRat += zoneCFS.CoolOutHumRat * coolMassFlow / (1.0 + termUnitSizing.InducRat);
                 } else {
@@ -6458,7 +6458,7 @@ void UpdateSysSizing(EnergyPlusData &state, Constant::CallIndicator const CallIn
 
                 for (int ZonesHeatedNum = 1; ZonesHeatedNum <= NumZonesHeated; ++ZonesHeatedNum) { // loop over the heated zones
                     int TermUnitSizingIndex = state.dataAirLoop->AirToZoneNodeInfo(AirLoopNum).TermUnitHeatSizingIndex(ZonesHeatedNum);
-                    auto &termUnitSizing = state.dataSize->TermUnitSizing(TermUnitSizingIndex);
+                    auto const &termUnitSizing = state.dataSize->TermUnitSizing(TermUnitSizingIndex);
                     // save the system heating supply air temp
                     state.dataSize->TermUnitFinalZoneSizing(TermUnitSizingIndex).DesHeatCoilInTempTU =
                         state.dataSize->CalcSysSizing(AirLoopNum).HeatSupTemp;
@@ -6477,7 +6477,8 @@ void UpdateSysSizing(EnergyPlusData &state, Constant::CallIndicator const CallIn
                     HeatDDNum = state.dataSize->TermUnitFinalZoneSizing(TermUnitSizingIndex).HeatDDNum;
                     HeatTimeStepNum = state.dataSize->TermUnitFinalZoneSizing(TermUnitSizingIndex).TimeStepNumAtHeatMax;
                     if (HeatDDNum == 0) {
-                        auto &zoneCFS = state.dataSize->CalcFinalZoneSizing(state.dataSize->TermUnitFinalZoneSizing(TermUnitSizingIndex).ZoneNum);
+                        auto const &zoneCFS =
+                            state.dataSize->CalcFinalZoneSizing(state.dataSize->TermUnitFinalZoneSizing(TermUnitSizingIndex).ZoneNum);
                         OutAirTemp += zoneCFS.HeatOutTemp * heatMassFlow / (1.0 + termUnitSizing.InducRat);
                         OutAirHumRat += zoneCFS.HeatOutHumRat * heatMassFlow / (1.0 + termUnitSizing.InducRat);
                     } else {
@@ -6512,7 +6513,7 @@ void UpdateSysSizing(EnergyPlusData &state, Constant::CallIndicator const CallIn
 
                 for (int ZonesCooledNum = 1; ZonesCooledNum <= NumZonesCooled; ++ZonesCooledNum) { // loop over the cooled zones
                     int TermUnitSizingIndex = state.dataAirLoop->AirToZoneNodeInfo(AirLoopNum).TermUnitCoolSizingIndex(ZonesCooledNum);
-                    auto &termUnitSizing = state.dataSize->TermUnitSizing(TermUnitSizingIndex);
+                    auto const &termUnitSizing = state.dataSize->TermUnitSizing(TermUnitSizingIndex);
                     // save the system heating supply air temp
                     state.dataSize->TermUnitFinalZoneSizing(TermUnitSizingIndex).DesHeatCoilInTempTU =
                         state.dataSize->CalcSysSizing(AirLoopNum).HeatSupTemp;
@@ -6531,7 +6532,8 @@ void UpdateSysSizing(EnergyPlusData &state, Constant::CallIndicator const CallIn
                     HeatDDNum = state.dataSize->TermUnitFinalZoneSizing(TermUnitSizingIndex).HeatDDNum;
                     HeatTimeStepNum = state.dataSize->TermUnitFinalZoneSizing(TermUnitSizingIndex).TimeStepNumAtHeatMax;
                     if (HeatDDNum == 0) {
-                        auto &zoneCFS = state.dataSize->CalcFinalZoneSizing(state.dataSize->TermUnitFinalZoneSizing(TermUnitSizingIndex).ZoneNum);
+                        auto const &zoneCFS =
+                            state.dataSize->CalcFinalZoneSizing(state.dataSize->TermUnitFinalZoneSizing(TermUnitSizingIndex).ZoneNum);
                         OutAirTemp += zoneCFS.HeatOutTemp * heatMassFlow / (1.0 + termUnitSizing.InducRat);
                         OutAirHumRat += zoneCFS.HeatOutHumRat * heatMassFlow / (1.0 + termUnitSizing.InducRat);
                     } else {
@@ -7445,8 +7447,6 @@ bool CheckWaterCoilOnPrimaryAirLoopBranch(EnergyPlusData &state, SimAirServingZo
     // primary air loop branch. Searches for water coil name and type that match
     // components list in primary air systems.
 
-    auto &PrimaryAirSystems = state.dataAirSystemsData->PrimaryAirSystems;
-
     if (state.dataSimAirServingZones->GetAirLoopInputFlag) { // First time subroutine has been entered
         GetAirPathData(state);                               // Get air loop descriptions from input file
         state.dataSimAirServingZones->GetAirLoopInputFlag = false;
@@ -7454,10 +7454,11 @@ bool CheckWaterCoilOnPrimaryAirLoopBranch(EnergyPlusData &state, SimAirServingZo
 
     if (state.dataHVACGlobal->NumPrimaryAirSys > 0) {
         for (int AirSysNum = 1; AirSysNum <= state.dataHVACGlobal->NumPrimaryAirSys; ++AirSysNum) {
-            for (int BranchNum = 1; BranchNum <= PrimaryAirSystems(AirSysNum).NumBranches; ++BranchNum) {
-                for (int CompNum = 1; CompNum <= PrimaryAirSystems(AirSysNum).Branch(BranchNum).TotalComponents; ++CompNum) {
-                    if ((CompTypeNum == PrimaryAirSystems(AirSysNum).Branch(BranchNum).Comp(CompNum).CompType_Num) &&
-                        Util::SameString(CompName, PrimaryAirSystems(AirSysNum).Branch(BranchNum).Comp(CompNum).Name)) {
+            auto const &primaryAirSystems = state.dataAirSystemsData->PrimaryAirSystems(AirSysNum);
+            for (int BranchNum = 1; BranchNum <= primaryAirSystems.NumBranches; ++BranchNum) {
+                for (int CompNum = 1; CompNum <= primaryAirSystems.Branch(BranchNum).TotalComponents; ++CompNum) {
+                    if ((CompTypeNum == primaryAirSystems.Branch(BranchNum).Comp(CompNum).CompType_Num) &&
+                        Util::SameString(CompName, primaryAirSystems.Branch(BranchNum).Comp(CompNum).Name)) {
                         return true;
                     }
                 }
@@ -7478,8 +7479,6 @@ bool CheckWaterCoilOnOASystem(EnergyPlusData &state, SimAirServingZones::CompTyp
     using MixedAir::GetNumOASystems;
     using MixedAir::GetOutsideAirSysInputs;
 
-    auto &OutsideAirSys = state.dataAirLoop->OutsideAirSys;
-
     if (state.dataMixedAir->GetOASysInputFlag) {
         GetOutsideAirSysInputs(state);
         state.dataMixedAir->GetOASysInputFlag = false;
@@ -7487,9 +7486,10 @@ bool CheckWaterCoilOnOASystem(EnergyPlusData &state, SimAirServingZones::CompTyp
     int NumOASys = GetNumOASystems(state);
     if (NumOASys > 0) {
         for (int OASysNum = 1; OASysNum <= NumOASys; ++OASysNum) {
-            for (int OACompNum = 1; OACompNum <= OutsideAirSys(OASysNum).NumComponents; ++OACompNum) {
-                if ((CompTypeNum == OutsideAirSys(OASysNum).ComponentTypeEnum(OACompNum)) &&
-                    (Util::SameString(CompName, OutsideAirSys(OASysNum).ComponentName(OACompNum)))) {
+            auto &outsideAirSys = state.dataAirLoop->OutsideAirSys(OASysNum);
+            for (int OACompNum = 1; OACompNum <= outsideAirSys.NumComponents; ++OACompNum) {
+                if ((CompTypeNum == outsideAirSys.ComponentTypeEnum(OACompNum)) &&
+                    (Util::SameString(CompName, outsideAirSys.ComponentName(OACompNum)))) {
                     return true;
                 }
             }

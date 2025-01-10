@@ -367,8 +367,10 @@ int wrapUpEnergyPlus(EnergyPlus::EnergyPlusData &state)
         Psychrometrics::ShowPsychrometricSummary(state, state.files.audit);
 
         state.dataInputProcessing->inputProcessor->reportOrphanRecordObjects(state);
-        FluidProperties::ReportOrphanFluids(state);
+
+        Fluid::ReportOrphanFluids(state);
         Sched::ReportOrphanSchedules(state);
+
         if (state.dataSQLiteProcedures->sqlite) {
             state.dataSQLiteProcedures->sqlite.reset();
         }

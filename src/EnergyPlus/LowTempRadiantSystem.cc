@@ -146,7 +146,6 @@ namespace LowTempRadiantSystem {
     constexpr std::string_view cConstantFlowSystem("ZoneHVAC:LowTemperatureRadiant:ConstantFlow");
     constexpr std::string_view OnePerSurf("OnePerSurface");
     constexpr std::string_view CalcFromLength("CalculateFromCircuitLength");
-    constexpr std::string_view fluidNameWater("WATER");
 
     // DERIVED TYPE DEFINITIONS:
 
@@ -299,7 +298,6 @@ namespace LowTempRadiantSystem {
         Array1D_bool AssignedAsRadiantSurface; // Set to true when a surface is part of a radiant system
         int CheckSurfNum;                      // Surface number to check to see if it has already been used by a radiant system
         bool ErrorsFound(false);               // Set to true if errors in input, fatal at end of routine
-        int GlycolIndex;                       // Index of 'Water' in glycol data structure
         int IOStatus;                          // Used in GetObjectItem
         int Item;                              // Item to be "gotten"
         int MaxAlphas;                         // Maximum number of alphas for these input keywords
@@ -376,30 +374,26 @@ namespace LowTempRadiantSystem {
 
         state.dataLowTempRadSys->HydrRadSys.allocate(state.dataLowTempRadSys->NumOfHydrLowTempRadSys);
         if (state.dataLowTempRadSys->NumOfHydrLowTempRadSys > 0) {
-            GlycolIndex = FluidProperties::GetGlycolNum(state, fluidNameWater);
-            for (auto &e : state.dataLowTempRadSys->HydrRadSys)
-                e.GlycolIndex = GlycolIndex;
-            if (GlycolIndex == 0) {
+            auto *water = Fluid::GetWater(state);
+            if (water == nullptr) {
                 ShowSevereError(state, "Hydronic radiant systems: no water property data found in input");
                 ErrorsFound = true;
             }
-        } else {
+
             for (auto &e : state.dataLowTempRadSys->HydrRadSys)
-                e.GlycolIndex = 0;
+                e.water = water;
         }
 
         state.dataLowTempRadSys->CFloRadSys.allocate(state.dataLowTempRadSys->NumOfCFloLowTempRadSys);
         if (state.dataLowTempRadSys->NumOfCFloLowTempRadSys > 0) {
-            GlycolIndex = FluidProperties::GetGlycolNum(state, fluidNameWater);
-            for (auto &e : state.dataLowTempRadSys->CFloRadSys)
-                e.GlycolIndex = GlycolIndex;
-            if (GlycolIndex == 0) {
+            auto *water = Fluid::GetWater(state);
+            if (water == nullptr) {
                 ShowSevereError(state, "Constant flow radiant systems: no water property data found in input");
                 ErrorsFound = true;
             }
-        } else {
+
             for (auto &e : state.dataLowTempRadSys->CFloRadSys)
-                e.GlycolIndex = 0;
+                e.water = water;
         }
 
         state.dataLowTempRadSys->ElecRadSys.allocate(state.dataLowTempRadSys->NumOfElecLowTempRadSys);
@@ -1866,7 +1860,6 @@ namespace LowTempRadiantSystem {
 
         using DataSizing::AutoSize;
         using DataZoneEquipment::CheckZoneEquipmentList;
-        using FluidProperties::GetDensityGlycol;
 
         using PlantUtilities::InitComponentNodes;
         using PlantUtilities::ScanPlantLoopsForObject;
@@ -2128,11 +2121,8 @@ namespace LowTempRadiantSystem {
 
                 // set design mass flow rates
                 if (state.dataLowTempRadSys->HydrRadSys(RadSysNum).HotWaterInNode > 0) {
-                    rho = GetDensityGlycol(state,
-                                           state.dataPlnt->PlantLoop(state.dataLowTempRadSys->HydrRadSys(RadSysNum).HWPlantLoc.loopNum).FluidName,
-                                           Constant::HWInitConvTemp,
-                                           state.dataPlnt->PlantLoop(state.dataLowTempRadSys->HydrRadSys(RadSysNum).HWPlantLoc.loopNum).FluidIndex,
-                                           RoutineName);
+                    rho = state.dataPlnt->PlantLoop(state.dataLowTempRadSys->HydrRadSys(RadSysNum).HWPlantLoc.loopNum)
+                              .glycol->getDensity(state, Constant::HWInitConvTemp, RoutineName);
                     state.dataLowTempRadSys->HydrRadSys(RadSysNum).WaterFlowMaxHeat =
                         rho * state.dataLowTempRadSys->HydrRadSys(RadSysNum).WaterVolFlowMaxHeat;
                     InitComponentNodes(state,
@@ -2142,11 +2132,8 @@ namespace LowTempRadiantSystem {
                                        state.dataLowTempRadSys->HydrRadSys(RadSysNum).HotWaterOutNode);
                 }
                 if (state.dataLowTempRadSys->HydrRadSys(RadSysNum).ColdWaterInNode > 0) {
-                    rho = GetDensityGlycol(state,
-                                           state.dataPlnt->PlantLoop(state.dataLowTempRadSys->HydrRadSys(RadSysNum).CWPlantLoc.loopNum).FluidName,
-                                           Constant::CWInitConvTemp,
-                                           state.dataPlnt->PlantLoop(state.dataLowTempRadSys->HydrRadSys(RadSysNum).CWPlantLoc.loopNum).FluidIndex,
-                                           RoutineName);
+                    rho = state.dataPlnt->PlantLoop(state.dataLowTempRadSys->HydrRadSys(RadSysNum).CWPlantLoc.loopNum)
+                              .glycol->getDensity(state, Constant::CWInitConvTemp, RoutineName);
                     state.dataLowTempRadSys->HydrRadSys(RadSysNum).WaterFlowMaxCool =
                         rho * state.dataLowTempRadSys->HydrRadSys(RadSysNum).WaterVolFlowMaxCool;
                     InitComponentNodes(state,
@@ -2165,11 +2152,8 @@ namespace LowTempRadiantSystem {
 
                 // set design mass flow rates
                 if (state.dataLowTempRadSys->CFloRadSys(RadSysNum).HotWaterInNode > 0) {
-                    rho = GetDensityGlycol(state,
-                                           state.dataPlnt->PlantLoop(state.dataLowTempRadSys->CFloRadSys(RadSysNum).HWPlantLoc.loopNum).FluidName,
-                                           Constant::HWInitConvTemp,
-                                           state.dataPlnt->PlantLoop(state.dataLowTempRadSys->CFloRadSys(RadSysNum).HWPlantLoc.loopNum).FluidIndex,
-                                           RoutineName);
+                    rho = state.dataPlnt->PlantLoop(state.dataLowTempRadSys->CFloRadSys(RadSysNum).HWPlantLoc.loopNum)
+                              .glycol->getDensity(state, Constant::HWInitConvTemp, RoutineName);
                     state.dataLowTempRadSys->CFloRadSys(RadSysNum).HotDesignWaterMassFlowRate =
                         rho * state.dataLowTempRadSys->CFloRadSys(RadSysNum).WaterVolFlowMax;
                     InitComponentNodes(state,
@@ -2179,11 +2163,8 @@ namespace LowTempRadiantSystem {
                                        state.dataLowTempRadSys->CFloRadSys(RadSysNum).HotWaterOutNode);
                 }
                 if (state.dataLowTempRadSys->CFloRadSys(RadSysNum).ColdWaterInNode > 0) {
-                    rho = GetDensityGlycol(state,
-                                           state.dataPlnt->PlantLoop(state.dataLowTempRadSys->CFloRadSys(RadSysNum).CWPlantLoc.loopNum).FluidName,
-                                           Constant::CWInitConvTemp,
-                                           state.dataPlnt->PlantLoop(state.dataLowTempRadSys->CFloRadSys(RadSysNum).CWPlantLoc.loopNum).FluidIndex,
-                                           RoutineName);
+                    rho = state.dataPlnt->PlantLoop(state.dataLowTempRadSys->CFloRadSys(RadSysNum).CWPlantLoc.loopNum)
+                              .glycol->getDensity(state, Constant::CWInitConvTemp, RoutineName);
                     state.dataLowTempRadSys->CFloRadSys(RadSysNum).ColdDesignWaterMassFlowRate =
                         rho * state.dataLowTempRadSys->CFloRadSys(RadSysNum).WaterVolFlowMax;
                     InitComponentNodes(state,
@@ -2592,8 +2573,6 @@ namespace LowTempRadiantSystem {
 
         // Using/Aliasing
         using namespace DataSizing;
-        using FluidProperties::GetDensityGlycol;
-        using FluidProperties::GetSpecificHeatGlycol;
         using HVAC::AutoCalculateSizing;
         using HVAC::CoolingCapacitySizing;
         using HVAC::HeatingCapacitySizing;
@@ -2863,18 +2842,10 @@ namespace LowTempRadiantSystem {
                                                            ErrorsFound);
                         if (PltSizHeatNum > 0) {
                             if (DesCoilLoad >= SmallLoad) {
-                                rho = GetDensityGlycol(
-                                    state,
-                                    state.dataPlnt->PlantLoop(state.dataLowTempRadSys->HydrRadSys(RadSysNum).HWPlantLoc.loopNum).FluidName,
-                                    Constant::HWInitConvTemp,
-                                    state.dataPlnt->PlantLoop(state.dataLowTempRadSys->HydrRadSys(RadSysNum).HWPlantLoc.loopNum).FluidIndex,
-                                    RoutineName);
-                                Cp = GetSpecificHeatGlycol(
-                                    state,
-                                    state.dataPlnt->PlantLoop(state.dataLowTempRadSys->HydrRadSys(RadSysNum).HWPlantLoc.loopNum).FluidName,
-                                    Constant::HWInitConvTemp,
-                                    state.dataPlnt->PlantLoop(state.dataLowTempRadSys->HydrRadSys(RadSysNum).HWPlantLoc.loopNum).FluidIndex,
-                                    RoutineName);
+                                rho = state.dataPlnt->PlantLoop(state.dataLowTempRadSys->HydrRadSys(RadSysNum).HWPlantLoc.loopNum)
+                                          .glycol->getDensity(state, Constant::HWInitConvTemp, RoutineName);
+                                Cp = state.dataPlnt->PlantLoop(state.dataLowTempRadSys->HydrRadSys(RadSysNum).HWPlantLoc.loopNum)
+                                         .glycol->getSpecificHeat(state, Constant::HWInitConvTemp, RoutineName);
                                 WaterVolFlowMaxHeatDes = DesCoilLoad / (state.dataSize->PlantSizData(PltSizHeatNum).DeltaT * Cp * rho);
                             } else {
                                 WaterVolFlowMaxHeatDes = 0.0;
@@ -3042,18 +3013,10 @@ namespace LowTempRadiantSystem {
                                                            ErrorsFound);
                         if (PltSizCoolNum > 0) {
                             if (DesCoilLoad >= SmallLoad) {
-                                rho = GetDensityGlycol(
-                                    state,
-                                    state.dataPlnt->PlantLoop(state.dataLowTempRadSys->HydrRadSys(RadSysNum).CWPlantLoc.loopNum).FluidName,
-                                    Constant::CWInitConvTemp,
-                                    state.dataPlnt->PlantLoop(state.dataLowTempRadSys->HydrRadSys(RadSysNum).CWPlantLoc.loopNum).FluidIndex,
-                                    RoutineName);
-                                Cp = GetSpecificHeatGlycol(
-                                    state,
-                                    state.dataPlnt->PlantLoop(state.dataLowTempRadSys->HydrRadSys(RadSysNum).CWPlantLoc.loopNum).FluidName,
-                                    Constant::CWInitConvTemp,
-                                    state.dataPlnt->PlantLoop(state.dataLowTempRadSys->HydrRadSys(RadSysNum).CWPlantLoc.loopNum).FluidIndex,
-                                    RoutineName);
+                                rho = state.dataPlnt->PlantLoop(state.dataLowTempRadSys->HydrRadSys(RadSysNum).CWPlantLoc.loopNum)
+                                          .glycol->getDensity(state, Constant::CWInitConvTemp, RoutineName);
+                                Cp = state.dataPlnt->PlantLoop(state.dataLowTempRadSys->HydrRadSys(RadSysNum).CWPlantLoc.loopNum)
+                                         .glycol->getSpecificHeat(state, Constant::CWInitConvTemp, RoutineName);
                                 WaterVolFlowMaxCoolDes = DesCoilLoad / (state.dataSize->PlantSizData(PltSizCoolNum).DeltaT * Cp * rho);
                             } else {
                                 WaterVolFlowMaxCoolDes = 0.0;
@@ -3221,18 +3184,10 @@ namespace LowTempRadiantSystem {
                     }
                     if (PltSizHeatNum > 0) {
                         if (state.dataSize->FinalZoneSizing(state.dataSize->CurZoneEqNum).NonAirSysDesHeatLoad >= SmallLoad) {
-                            rho = GetDensityGlycol(
-                                state,
-                                state.dataPlnt->PlantLoop(state.dataLowTempRadSys->CFloRadSys(RadSysNum).HWPlantLoc.loopNum).FluidName,
-                                Constant::HWInitConvTemp,
-                                state.dataPlnt->PlantLoop(state.dataLowTempRadSys->CFloRadSys(RadSysNum).HWPlantLoc.loopNum).FluidIndex,
-                                "SizeLowTempRadiantSystem");
-                            Cp = GetSpecificHeatGlycol(
-                                state,
-                                state.dataPlnt->PlantLoop(state.dataLowTempRadSys->CFloRadSys(RadSysNum).HWPlantLoc.loopNum).FluidName,
-                                Constant::HWInitConvTemp,
-                                state.dataPlnt->PlantLoop(state.dataLowTempRadSys->CFloRadSys(RadSysNum).HWPlantLoc.loopNum).FluidIndex,
-                                "SizeLowTempRadiantSystem");
+                            rho = state.dataPlnt->PlantLoop(state.dataLowTempRadSys->CFloRadSys(RadSysNum).HWPlantLoc.loopNum)
+                                      .glycol->getDensity(state, Constant::HWInitConvTemp, "SizeLowTempRadiantSystem");
+                            Cp = state.dataPlnt->PlantLoop(state.dataLowTempRadSys->CFloRadSys(RadSysNum).HWPlantLoc.loopNum)
+                                     .glycol->getSpecificHeat(state, Constant::HWInitConvTemp, "SizeLowTempRadiantSystem");
                             WaterVolFlowMaxHeatDes = state.dataSize->FinalZoneSizing(state.dataSize->CurZoneEqNum).NonAirSysDesHeatLoad /
                                                      (state.dataSize->PlantSizData(PltSizHeatNum).DeltaT * Cp * rho);
                         } else {
@@ -3259,18 +3214,10 @@ namespace LowTempRadiantSystem {
                     }
                     if (PltSizCoolNum > 0) {
                         if (state.dataSize->FinalZoneSizing(state.dataSize->CurZoneEqNum).NonAirSysDesCoolLoad >= SmallLoad) {
-                            rho = GetDensityGlycol(
-                                state,
-                                state.dataPlnt->PlantLoop(state.dataLowTempRadSys->CFloRadSys(RadSysNum).CWPlantLoc.loopNum).FluidName,
-                                Constant::CWInitConvTemp,
-                                state.dataPlnt->PlantLoop(state.dataLowTempRadSys->CFloRadSys(RadSysNum).CWPlantLoc.loopNum).FluidIndex,
-                                "SizeLowTempRadiantSystem");
-                            Cp = GetSpecificHeatGlycol(
-                                state,
-                                state.dataPlnt->PlantLoop(state.dataLowTempRadSys->CFloRadSys(RadSysNum).CWPlantLoc.loopNum).FluidName,
-                                Constant::CWInitConvTemp,
-                                state.dataPlnt->PlantLoop(state.dataLowTempRadSys->CFloRadSys(RadSysNum).CWPlantLoc.loopNum).FluidIndex,
-                                "SizeLowTempRadiantSystem");
+                            rho = state.dataPlnt->PlantLoop(state.dataLowTempRadSys->CFloRadSys(RadSysNum).CWPlantLoc.loopNum)
+                                      .glycol->getDensity(state, Constant::CWInitConvTemp, "SizeLowTempRadiantSystem");
+                            Cp = state.dataPlnt->PlantLoop(state.dataLowTempRadSys->CFloRadSys(RadSysNum).CWPlantLoc.loopNum)
+                                     .glycol->getSpecificHeat(state, Constant::CWInitConvTemp, "SizeLowTempRadiantSystem");
                             WaterVolFlowMaxCoolDes = state.dataSize->FinalZoneSizing(state.dataSize->CurZoneEqNum).NonAirSysDesCoolLoad /
                                                      (state.dataSize->PlantSizData(PltSizCoolNum).DeltaT * Cp * rho);
                         } else {
@@ -4109,7 +4056,6 @@ namespace LowTempRadiantSystem {
 
         // Using/Aliasing
         using DataHeatBalance::ZoneData;
-        using FluidProperties::GetSpecificHeatGlycol;
         using HVAC::SmallLoad;
         using PlantUtilities::SetComponentFlowRate;
 
@@ -4258,7 +4204,7 @@ namespace LowTempRadiantSystem {
         }
 
         if (SysRunning) {
-            CpFluid = GetSpecificHeatGlycol(state, fluidNameWater, RadInTemp, this->GlycolIndex, RoutineName);
+            CpFluid = this->water->getSpecificHeat(state, RadInTemp, RoutineName);
         }
 
         if ((!SysRunning) || (CpFluid < LowCpFluidValue)) {
@@ -4609,7 +4555,6 @@ namespace LowTempRadiantSystem {
         auto &Zone = state.dataHeatBal->Zone;
 
         // Using/Aliasing
-        using FluidProperties::GetSpecificHeatGlycol;
         using PlantUtilities::SetComponentFlowRate;
 
         // SUBROUTINE PARAMETER DEFINITIONS:
@@ -4779,7 +4724,7 @@ namespace LowTempRadiantSystem {
                 Cl = Ch + ((Ci * (Cc + Cb * Cf) + Cj * (Cf + Ce * Cc)) / (1.0 - Ce * Cb));
 
                 Mdot = WaterMassFlow * this->SurfaceFrac(RadSurfNum);
-                Cp = GetSpecificHeatGlycol(state, fluidNameWater, WaterTempIn, this->GlycolIndex, RoutineName);
+                Cp = this->water->getSpecificHeat(state, WaterTempIn, RoutineName);
 
                 if (!Iteration) {
 
@@ -5041,7 +4986,7 @@ namespace LowTempRadiantSystem {
             TotalRadSysPower *= ZoneMult;
 
             if (this->WaterMassFlowRate > 0.0) {
-                Cp = GetSpecificHeatGlycol(state, fluidNameWater, WaterTempIn, this->GlycolIndex, RoutineName);
+                Cp = this->water->getSpecificHeat(state, WaterTempIn, RoutineName);
                 this->WaterOutletTemp = this->WaterInletTemp - (TotalRadSysPower / (this->WaterMassFlowRate * Cp));
                 if ((std::abs(this->WaterOutletTemp - WaterOutletTempCheck) > TempCheckLimit) && (std::abs(TotalRadSysPower) > ZeroSystemResp)) {
                     // If the total system power is zero, that means we have shut down and the temperatures won't match because of that
@@ -5239,7 +5184,6 @@ namespace LowTempRadiantSystem {
     {
 
         // Using/Aliasing
-        using FluidProperties::GetSpecificHeatGlycol;
         using PlantUtilities::SafeCopyPlantNode;
         using PlantUtilities::SetComponentFlowRate;
 
@@ -5272,11 +5216,7 @@ namespace LowTempRadiantSystem {
             waterOutletNode = this->HotWaterOutNode;
             waterMassFlow = Node(waterInletNode).MassFlowRate;
 
-            cpWater = GetSpecificHeatGlycol(state,
-                                            state.dataPlnt->PlantLoop(this->HWPlantLoc.loopNum).FluidName,
-                                            Node(waterInletNode).Temp,
-                                            state.dataPlnt->PlantLoop(this->HWPlantLoc.loopNum).FluidIndex,
-                                            RoutineName);
+            cpWater = state.dataPlnt->PlantLoop(this->HWPlantLoc.loopNum).glycol->getSpecificHeat(state, Node(waterInletNode).Temp, RoutineName);
 
             if (this->OperatingMode == HeatingMode) {
                 if ((cpWater > 0.0) && (waterMassFlow > 0.0)) {
@@ -5299,11 +5239,7 @@ namespace LowTempRadiantSystem {
             waterOutletNode = this->ColdWaterOutNode;
             waterMassFlow = Node(waterInletNode).MassFlowRate;
 
-            cpWater = GetSpecificHeatGlycol(state,
-                                            state.dataPlnt->PlantLoop(this->CWPlantLoc.loopNum).FluidName,
-                                            Node(waterInletNode).Temp,
-                                            state.dataPlnt->PlantLoop(this->CWPlantLoc.loopNum).FluidIndex,
-                                            RoutineName);
+            cpWater = state.dataPlnt->PlantLoop(this->CWPlantLoc.loopNum).glycol->getSpecificHeat(state, Node(waterInletNode).Temp, RoutineName);
 
             if (this->OperatingMode == CoolingMode) {
                 if ((cpWater > 0.0) && (waterMassFlow > 0.0)) {
@@ -5325,7 +5261,6 @@ namespace LowTempRadiantSystem {
     {
 
         // Using/Aliasing
-        using FluidProperties::GetSpecificHeatGlycol;
         using PlantUtilities::SafeCopyPlantNode;
         using PlantUtilities::SetComponentFlowRate;
 
@@ -5555,9 +5490,6 @@ namespace LowTempRadiantSystem {
         // Heat exchanger information also from Incropera and DeWitt.
         // Code based loosely on code from IBLAST program (research version)
 
-        // Using/Aliasing
-        using FluidProperties::GetSpecificHeatGlycol;
-
         // Return value
         Real64 calculateHXEffectivenessTerm;
 
@@ -5644,18 +5576,10 @@ namespace LowTempRadiantSystem {
         // arguments are glycol name, temperature, and concentration
         switch (this->OperatingMode) {
         case HeatingMode: {
-            CpWater = GetSpecificHeatGlycol(state,
-                                            state.dataPlnt->PlantLoop(this->HWPlantLoc.loopNum).FluidName,
-                                            Temperature,
-                                            state.dataPlnt->PlantLoop(this->HWPlantLoc.loopNum).FluidIndex,
-                                            RoutineName);
+            CpWater = state.dataPlnt->PlantLoop(this->HWPlantLoc.loopNum).glycol->getSpecificHeat(state, Temperature, RoutineName);
         } break;
         case CoolingMode: {
-            CpWater = GetSpecificHeatGlycol(state,
-                                            state.dataPlnt->PlantLoop(this->CWPlantLoc.loopNum).FluidName,
-                                            Temperature,
-                                            state.dataPlnt->PlantLoop(this->CWPlantLoc.loopNum).FluidIndex,
-                                            RoutineName);
+            CpWater = state.dataPlnt->PlantLoop(this->CWPlantLoc.loopNum).glycol->getSpecificHeat(state, Temperature, RoutineName);
         } break;
         default: {
             assert(false);
@@ -5891,7 +5815,6 @@ namespace LowTempRadiantSystem {
 
         // Using/Aliasing
         Real64 TimeStepSysSec = state.dataHVACGlobal->TimeStepSysSec;
-        using FluidProperties::GetSpecificHeatGlycol;
 
         constexpr std::string_view routineName("ReportConstantFlowSystem");
         Real64 cpFluid;               // Specific heat of the fluid in the radiant system
@@ -5914,11 +5837,8 @@ namespace LowTempRadiantSystem {
         // in another routine, but just in case...).
 
         if (this->OperatingMode == HeatingMode) {
-            cpFluid = GetSpecificHeatGlycol(state,
-                                            state.dataPlnt->PlantLoop(this->HWPlantLoc.loopNum).FluidName,
-                                            state.dataLoopNodes->Node(this->HotWaterInNode).Temp,
-                                            state.dataPlnt->PlantLoop(this->HWPlantLoc.loopNum).FluidIndex,
-                                            routineName);
+            cpFluid = state.dataPlnt->PlantLoop(this->HWPlantLoc.loopNum)
+                          .glycol->getSpecificHeat(state, state.dataLoopNodes->Node(this->HotWaterInNode).Temp, routineName);
 
             this->HeatPower = totalRadSysPower;
             if (this->PumpMassFlowRate > 0.0) {
@@ -5928,11 +5848,8 @@ namespace LowTempRadiantSystem {
             }
 
         } else if (this->OperatingMode == CoolingMode) {
-            cpFluid = GetSpecificHeatGlycol(state,
-                                            state.dataPlnt->PlantLoop(this->CWPlantLoc.loopNum).FluidName,
-                                            state.dataLoopNodes->Node(this->ColdWaterInNode).Temp,
-                                            state.dataPlnt->PlantLoop(this->CWPlantLoc.loopNum).FluidIndex,
-                                            routineName);
+            cpFluid = state.dataPlnt->PlantLoop(this->CWPlantLoc.loopNum)
+                          .glycol->getSpecificHeat(state, state.dataLoopNodes->Node(this->ColdWaterInNode).Temp, routineName);
 
             this->CoolPower = -totalRadSysPower;
             this->PumpInletTemp = this->WaterInletTemp - (this->PumpHeattoFluid / (this->PumpMassFlowRate * cpFluid));
