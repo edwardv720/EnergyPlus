@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -1792,6 +1792,17 @@ TEST_F(EnergyPlusFixture, FillPredefinedTableOnThermostatSchedules_Test)
     using namespace EnergyPlus::OutputReportPredefined;
 
     state->dataScheduleMgr->Schedule.allocate(5);
+    constexpr int SingleHeatingSchIndex = 1;
+    constexpr int SingleCoolingSchIndex = 2;
+    constexpr int SingleHeatCoolSchIndex = 3;
+    constexpr int DualSetPointWDeadBandHeatSchIndex = 4;
+    constexpr int DualSetPointWDeadBandCoolSchIndex = 5;
+    state->dataScheduleMgr->Schedule(SingleHeatingSchIndex).Name = "SINGLEHEATINGSCH";
+    state->dataScheduleMgr->Schedule(SingleCoolingSchIndex).Name = "SINGLECOOLINGSCH";
+    state->dataScheduleMgr->Schedule(SingleHeatCoolSchIndex).Name = "SINGLEHEATCOOLSCH";
+    state->dataScheduleMgr->Schedule(DualSetPointWDeadBandHeatSchIndex).Name = "DUALSETPOINTWDEADBANDHEATSCH";
+    state->dataScheduleMgr->Schedule(DualSetPointWDeadBandCoolSchIndex).Name = "DUALSETPOINTWDEADBANDCOOLSCH";
+
     state->dataScheduleMgr->ScheduleInputProcessed = true;
 
     auto &orp = *state->dataOutRptPredefined;
@@ -1810,8 +1821,7 @@ TEST_F(EnergyPlusFixture, FillPredefinedTableOnThermostatSchedules_Test)
     dzc.TempControlledZone(1).ControlTypeName.allocate(dzc.TempControlledZone(1).NumControlTypes);
     dzc.TempControlledZone(1).ControlTypeEnum(1) = HVAC::ThermostatType::SingleHeating;
     dzc.TempControlledZone(1).ControlTypeName(1) = "control A";
-    dzc.TempControlledZone(1).SchIndx_SingleHeatSetPoint = 1;
-    state->dataScheduleMgr->Schedule(1).Name = "schA";
+    dzc.TempControlledZone(1).SchIndx_SingleHeatSetPoint = SingleHeatingSchIndex;
 
     dzc.TempControlledZone(2).ZoneName = "zoneB";
     dzc.TempControlledZone(2).Name = "stat B";
@@ -1821,8 +1831,7 @@ TEST_F(EnergyPlusFixture, FillPredefinedTableOnThermostatSchedules_Test)
     dzc.TempControlledZone(2).ControlTypeName.allocate(dzc.TempControlledZone(1).NumControlTypes);
     dzc.TempControlledZone(2).ControlTypeEnum(1) = HVAC::ThermostatType::SingleCooling;
     dzc.TempControlledZone(2).ControlTypeName(1) = "control B";
-    dzc.TempControlledZone(2).SchIndx_SingleCoolSetPoint = 2;
-    state->dataScheduleMgr->Schedule(2).Name = "schB";
+    dzc.TempControlledZone(2).SchIndx_SingleCoolSetPoint = SingleCoolingSchIndex;
 
     dzc.TempControlledZone(3).ZoneName = "zoneC";
     dzc.TempControlledZone(3).Name = "stat C";
@@ -1832,8 +1841,7 @@ TEST_F(EnergyPlusFixture, FillPredefinedTableOnThermostatSchedules_Test)
     dzc.TempControlledZone(3).ControlTypeName.allocate(dzc.TempControlledZone(1).NumControlTypes);
     dzc.TempControlledZone(3).ControlTypeEnum(1) = HVAC::ThermostatType::SingleHeatCool;
     dzc.TempControlledZone(3).ControlTypeName(1) = "control C";
-    dzc.TempControlledZone(3).SchIndx_SingleHeatCoolSetPoint = 3;
-    state->dataScheduleMgr->Schedule(3).Name = "schC";
+    dzc.TempControlledZone(3).SchIndx_SingleHeatCoolSetPoint = SingleHeatCoolSchIndex;
 
     dzc.TempControlledZone(4).ZoneName = "zoneD";
     dzc.TempControlledZone(4).Name = "stat D";
@@ -1843,10 +1851,8 @@ TEST_F(EnergyPlusFixture, FillPredefinedTableOnThermostatSchedules_Test)
     dzc.TempControlledZone(4).ControlTypeName.allocate(dzc.TempControlledZone(1).NumControlTypes);
     dzc.TempControlledZone(4).ControlTypeEnum(1) = HVAC::ThermostatType::DualSetPointWithDeadBand;
     dzc.TempControlledZone(4).ControlTypeName(1) = "control D";
-    dzc.TempControlledZone(4).SchIndx_DualSetPointWDeadBandHeat = 4;
-    dzc.TempControlledZone(4).SchIndx_DualSetPointWDeadBandCool = 5;
-    state->dataScheduleMgr->Schedule(4).Name = "schD";
-    state->dataScheduleMgr->Schedule(5).Name = "schE";
+    dzc.TempControlledZone(4).SchIndx_DualSetPointWDeadBandHeat = DualSetPointWDeadBandHeatSchIndex;
+    dzc.TempControlledZone(4).SchIndx_DualSetPointWDeadBandCool = DualSetPointWDeadBandCoolSchIndex;
 
     FillPredefinedTableOnThermostatSchedules(*state);
 
@@ -1854,27 +1860,114 @@ TEST_F(EnergyPlusFixture, FillPredefinedTableOnThermostatSchedules_Test)
     EXPECT_EQ("control schedule A", RetrievePreDefTableEntry(*state, orp.pdchStatCtrlTypeSchd, "zoneA"));
     EXPECT_EQ("SingleHeating", RetrievePreDefTableEntry(*state, orp.pdchStatSchdType1, "zoneA"));
     EXPECT_EQ("control A", RetrievePreDefTableEntry(*state, orp.pdchStatSchdTypeName1, "zoneA"));
-    EXPECT_EQ("schA", RetrievePreDefTableEntry(*state, orp.pdchStatSchdCoolName, "zoneA"));
-    EXPECT_EQ("NOT FOUND", RetrievePreDefTableEntry(*state, orp.pdchStatSchdHeatName, "zoneA"));
+    EXPECT_EQ("SINGLEHEATINGSCH", RetrievePreDefTableEntry(*state, orp.pdchStatSchdHeatName, "zoneA"));
+    EXPECT_EQ("NOT FOUND", RetrievePreDefTableEntry(*state, orp.pdchStatSchdCoolName, "zoneA"));
 
     EXPECT_EQ("stat B", RetrievePreDefTableEntry(*state, orp.pdchStatName, "zoneB"));
     EXPECT_EQ("control schedule B", RetrievePreDefTableEntry(*state, orp.pdchStatCtrlTypeSchd, "zoneB"));
     EXPECT_EQ("SingleCooling", RetrievePreDefTableEntry(*state, orp.pdchStatSchdType1, "zoneB"));
     EXPECT_EQ("control B", RetrievePreDefTableEntry(*state, orp.pdchStatSchdTypeName1, "zoneB"));
-    EXPECT_EQ("NOT FOUND", RetrievePreDefTableEntry(*state, orp.pdchStatSchdCoolName, "zoneB"));
-    EXPECT_EQ("schB", RetrievePreDefTableEntry(*state, orp.pdchStatSchdHeatName, "zoneB"));
+    EXPECT_EQ("NOT FOUND", RetrievePreDefTableEntry(*state, orp.pdchStatSchdHeatName, "zoneB"));
+    EXPECT_EQ("SINGLECOOLINGSCH", RetrievePreDefTableEntry(*state, orp.pdchStatSchdCoolName, "zoneB"));
 
     EXPECT_EQ("stat C", RetrievePreDefTableEntry(*state, orp.pdchStatName, "zoneC"));
     EXPECT_EQ("control schedule C", RetrievePreDefTableEntry(*state, orp.pdchStatCtrlTypeSchd, "zoneC"));
     EXPECT_EQ("SingleHeatCool", RetrievePreDefTableEntry(*state, orp.pdchStatSchdType1, "zoneC"));
     EXPECT_EQ("control C", RetrievePreDefTableEntry(*state, orp.pdchStatSchdTypeName1, "zoneC"));
-    EXPECT_EQ("schC", RetrievePreDefTableEntry(*state, orp.pdchStatSchdCoolName, "zoneC"));
-    EXPECT_EQ("schC", RetrievePreDefTableEntry(*state, orp.pdchStatSchdHeatName, "zoneC"));
+    EXPECT_EQ("SINGLEHEATCOOLSCH", RetrievePreDefTableEntry(*state, orp.pdchStatSchdHeatName, "zoneC"));
+    EXPECT_EQ("SINGLEHEATCOOLSCH", RetrievePreDefTableEntry(*state, orp.pdchStatSchdCoolName, "zoneC"));
 
     EXPECT_EQ("stat D", RetrievePreDefTableEntry(*state, orp.pdchStatName, "zoneD"));
     EXPECT_EQ("control schedule D", RetrievePreDefTableEntry(*state, orp.pdchStatCtrlTypeSchd, "zoneD"));
     EXPECT_EQ("DualSetPointWithDeadBand", RetrievePreDefTableEntry(*state, orp.pdchStatSchdType1, "zoneD"));
     EXPECT_EQ("control D", RetrievePreDefTableEntry(*state, orp.pdchStatSchdTypeName1, "zoneD"));
-    EXPECT_EQ("schE", RetrievePreDefTableEntry(*state, orp.pdchStatSchdCoolName, "zoneD"));
-    EXPECT_EQ("schD", RetrievePreDefTableEntry(*state, orp.pdchStatSchdHeatName, "zoneD"));
+    EXPECT_EQ("DUALSETPOINTWDEADBANDHEATSCH", RetrievePreDefTableEntry(*state, orp.pdchStatSchdHeatName, "zoneD"));
+    EXPECT_EQ("DUALSETPOINTWDEADBANDCOOLSCH", RetrievePreDefTableEntry(*state, orp.pdchStatSchdCoolName, "zoneD"));
+}
+
+TEST_F(EnergyPlusFixture, FillPredefinedTableOnThermostatSchedules_MultipleControls)
+{
+    using namespace EnergyPlus::OutputReportPredefined;
+
+    state->dataScheduleMgr->Schedule.allocate(6);
+    constexpr int SingleHeatingSchIndex = 1;
+    constexpr int SingleCoolingSchIndex = 2;
+    constexpr int SingleHeatCoolSchIndex = 3;
+    constexpr int DualSetPointWDeadBandHeatSchIndex = 4;
+    constexpr int DualSetPointWDeadBandCoolSchIndex = 5;
+    constexpr int CTSchedIndex = 6;
+    state->dataScheduleMgr->Schedule(SingleHeatingSchIndex).Name = "SINGLEHEATINGSCH";
+    state->dataScheduleMgr->Schedule(SingleCoolingSchIndex).Name = "SINGLECOOLINGSCH";
+    state->dataScheduleMgr->Schedule(SingleHeatCoolSchIndex).Name = "SINGLEHEATCOOLSCH";
+    state->dataScheduleMgr->Schedule(DualSetPointWDeadBandHeatSchIndex).Name = "DUALSETPOINTWDEADBANDHEATSCH";
+    state->dataScheduleMgr->Schedule(DualSetPointWDeadBandCoolSchIndex).Name = "DUALSETPOINTWDEADBANDCOOLSCH";
+    state->dataScheduleMgr->Schedule(CTSchedIndex).Name = "CONTROL SCHEDULE";
+
+    state->dataScheduleMgr->ScheduleInputProcessed = true;
+
+    auto &orp = *state->dataOutRptPredefined;
+    auto &dzc = *state->dataZoneCtrls;
+
+    SetPredefinedTables(*state);
+
+    constexpr int NumControlTypes = 4;
+    dzc.NumTempControlledZones = NumControlTypes;
+    dzc.TempControlledZone.allocate(dzc.NumTempControlledZones);
+
+    // [1, 2, 3, 4]
+    std::vector<int> order(NumControlTypes);
+    std::iota(order.begin(), order.end(), 1);
+    for (size_t i = 0; i < order.size(); ++i) {
+        char zoneLetter = char(int('A') + i);
+        // Simple left rotate: [2, 3, 4, 1], etc
+        std::rotate(order.begin(), std::next(order.begin()), order.end());
+        auto &tcz = dzc.TempControlledZone(i + 1);
+
+        const std::string ZoneName = fmt::format("ZONE {}", zoneLetter);
+        tcz.ZoneName = ZoneName;
+        tcz.Name = fmt::format("TSTAT {}", zoneLetter);
+        tcz.ControlTypeSchedName = state->dataScheduleMgr->Schedule(CTSchedIndex).Name;
+        tcz.CTSchedIndex = CTSchedIndex;
+        tcz.NumControlTypes = NumControlTypes;
+        tcz.ControlTypeEnum.allocate(NumControlTypes);
+        tcz.ControlTypeName.allocate(NumControlTypes);
+
+        tcz.ControlTypeEnum(order.at(0)) = HVAC::ThermostatType::SingleHeating;
+        tcz.ControlTypeName(order.at(0)) = "SINGLEHEATING CTRL";
+        tcz.SchIndx_SingleHeatSetPoint = SingleHeatingSchIndex;
+
+        tcz.ControlTypeEnum(order.at(1)) = HVAC::ThermostatType::SingleCooling;
+        tcz.ControlTypeName(order.at(1)) = "SINGLECOOLING CTRL";
+        tcz.SchIndx_SingleCoolSetPoint = SingleCoolingSchIndex;
+
+        tcz.ControlTypeEnum(order.at(2)) = HVAC::ThermostatType::SingleHeatCool;
+        tcz.ControlTypeName(order.at(2)) = "SINGLEHEATCOOL CTRL";
+        tcz.SchIndx_SingleHeatCoolSetPoint = SingleHeatCoolSchIndex;
+
+        tcz.ControlTypeEnum(order.at(3)) = HVAC::ThermostatType::DualSetPointWithDeadBand;
+        tcz.ControlTypeName(order.at(3)) = "DUALSETPOINTWITHDEADBAND CTRL";
+        tcz.SchIndx_DualSetPointWDeadBandHeat = DualSetPointWDeadBandHeatSchIndex;
+        tcz.SchIndx_DualSetPointWDeadBandCool = DualSetPointWDeadBandCoolSchIndex;
+    }
+
+    FillPredefinedTableOnThermostatSchedules(*state);
+
+    for (size_t i = 0; i < order.size(); ++i) {
+        char zoneLetter = char(int('A') + i);
+        const std::string ZoneName = fmt::format("ZONE {}", zoneLetter);
+        EXPECT_EQ(fmt::format("TSTAT {}", zoneLetter), RetrievePreDefTableEntry(*state, orp.pdchStatName, ZoneName)) << "Failed for " << ZoneName;
+        EXPECT_EQ("CONTROL SCHEDULE", RetrievePreDefTableEntry(*state, orp.pdchStatCtrlTypeSchd, ZoneName)) << "Failed for " << ZoneName;
+        EXPECT_EQ("DualSetPointWithDeadBand, SingleCooling, SingleHeatCool, SingleHeating",
+                  RetrievePreDefTableEntry(*state, orp.pdchStatSchdType1, ZoneName))
+            << "Failed for " << ZoneName;
+        EXPECT_EQ("DUALSETPOINTWITHDEADBAND CTRL, SINGLECOOLING CTRL, SINGLEHEATCOOL CTRL, SINGLEHEATING CTRL",
+                  RetrievePreDefTableEntry(*state, orp.pdchStatSchdTypeName1, ZoneName))
+            << "Failed for " << ZoneName;
+        EXPECT_EQ("DUALSETPOINTWDEADBANDHEATSCH, SINGLEHEATCOOLSCH, SINGLEHEATINGSCH",
+                  RetrievePreDefTableEntry(*state, orp.pdchStatSchdHeatName, ZoneName))
+            << "Failed for " << ZoneName;
+        EXPECT_EQ("DUALSETPOINTWDEADBANDCOOLSCH, SINGLECOOLINGSCH, SINGLEHEATCOOLSCH",
+                  RetrievePreDefTableEntry(*state, orp.pdchStatSchdCoolName, ZoneName))
+            << "Failed for " << ZoneName;
+    }
 }
