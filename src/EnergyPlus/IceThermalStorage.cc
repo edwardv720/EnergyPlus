@@ -1676,9 +1676,8 @@ namespace IceThermalStorage {
         //----------------------------
         int loopNum = this->plantLoc.loopNum;
 
-        // BUG? I think this is supposed to be getSpecificHeat, not getDensity
         Real64 CpFluid =
-            state.dataPlnt->PlantLoop(loopNum).glycol->getDensity(state, state.dataLoopNodes->Node(this->PltInletNodeNum).Temp, RoutineName);
+            state.dataPlnt->PlantLoop(loopNum).glycol->getSpecificHeat(state, state.dataLoopNodes->Node(this->PltInletNodeNum).Temp, RoutineName);
 
         // Calculate Umyload based on MyLoad from E+
         Real64 Umyload = -myLoad * TimeInterval / this->ITSNomCap;
