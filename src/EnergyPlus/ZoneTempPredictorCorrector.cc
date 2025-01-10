@@ -547,7 +547,7 @@ void GetZoneAirSetPoints(EnergyPlusData &state)
                 }
             }
         } // NumTStatStatements
-    } // Check on number of TempControlledZones
+    }     // Check on number of TempControlledZones
 
     cCurrentModuleObject = ValidControlTypesUC[static_cast<int>(HVAC::ThermostatType::SingleHeating)];
     state.dataZoneTempPredictorCorrector->NumSingleTempHeatingControls = inputProcessor->getNumObjectsFound(state, cCurrentModuleObject);
@@ -2051,9 +2051,9 @@ void GetZoneAirSetPoints(EnergyPlusData &state)
                                         OutputProcessor::StoreType::Average,
                                         state.dataHeatBal->Zone(TempControlledZone.ActualZoneNum).Name);
                 } // TStat Objects Loop
-            } // found thermostat reference
-        } // loop over NumOpTempControlledZones
-    } // NumOpTempControlledZones > 0
+            }     // found thermostat reference
+        }         // loop over NumOpTempControlledZones
+    }             // NumOpTempControlledZones > 0
 
     // Overcool dehumidification GetInput starts here
     cCurrentModuleObject = cZControlTypes(static_cast<int>(ZoneControlTypes::TandHStat));
@@ -2249,9 +2249,9 @@ void GetZoneAirSetPoints(EnergyPlusData &state)
                     }
 
                 } // TStat Objects Loop
-            } // found thermostat reference
-        } // loop over NumTempAndHumidityControlledZones
-    } // NumTempAndHumidityControlledZones > 0
+            }     // found thermostat reference
+        }         // loop over NumTempAndHumidityControlledZones
+    }             // NumTempAndHumidityControlledZones > 0
 
     // Staged thermostat control inputs start
     cCurrentModuleObject = cZControlTypes(static_cast<int>(ZoneControlTypes::StagedDual));
