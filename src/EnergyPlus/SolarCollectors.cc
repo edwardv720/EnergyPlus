@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -91,8 +91,6 @@ namespace SolarCollectors {
     // Solar collectors are called as non-zone equipment on the demand side of the plant loop.  The collector object
     // must be connected to a WATER HEATER object on the supply side of the plant loop.  Water is assumed to be
     // the heat transfer fluid.
-
-    static constexpr std::string_view fluidNameWater("WATER");
 
     PlantComponent *CollectorData::factory(EnergyPlusData &state, std::string const &objectName)
     {
@@ -464,7 +462,7 @@ namespace SolarCollectors {
                     ShowSevereError(state, format("{} = {}", CurrentModuleParamObject, state.dataIPShortCut->cAlphaArgs(1)));
                     ShowContinueError(
                         state, format("Illegal {} = {:.2R}", state.dataIPShortCut->cNumericFieldNames(1), state.dataIPShortCut->rNumericArgs(1)));
-                    ShowContinueError(state, " Collector gross area must be always gretaer than zero.");
+                    ShowContinueError(state, " Collector gross area must be always greater than zero.");
                     ErrorsFound = true;
                 }
                 state.dataSolarCollectors->Parameters(ParametersNum).Volume = state.dataIPShortCut->rNumericArgs(2);
@@ -472,7 +470,7 @@ namespace SolarCollectors {
                     ShowSevereError(state, format("{} = {}", CurrentModuleParamObject, state.dataIPShortCut->cAlphaArgs(1)));
                     ShowContinueError(
                         state, format("Illegal {} = {:.2R}", state.dataIPShortCut->cNumericFieldNames(2), state.dataIPShortCut->rNumericArgs(2)));
-                    ShowContinueError(state, " Collector water volume must be always gretaer than zero.");
+                    ShowContinueError(state, " Collector water volume must be always greater than zero.");
                     ErrorsFound = true;
                 }
                 // Note: this value is used to calculate the heat loss through the bottom and side of the collector
@@ -517,7 +515,7 @@ namespace SolarCollectors {
                 }
                 // Solar absorptance of the absorber plate
                 state.dataSolarCollectors->Parameters(ParametersNum).AbsorOfAbsPlate = state.dataIPShortCut->rNumericArgs(16);
-                // thermal emmissivity of the absorber plate
+                // thermal emissivity of the absorber plate
                 state.dataSolarCollectors->Parameters(ParametersNum).EmissOfAbsPlate = state.dataIPShortCut->rNumericArgs(17);
 
             } // end of ParametersNum
@@ -937,11 +935,7 @@ namespace SolarCollectors {
         if (state.dataGlobal->BeginEnvrnFlag && this->Init) {
             // Clear node initial conditions
             if (this->VolFlowRateMax > 0) {
-                Real64 rho = FluidProperties::GetDensityGlycol(state,
-                                                               state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidName,
-                                                               Constant::InitConvTemp,
-                                                               state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidIndex,
-                                                               RoutineName);
+                Real64 rho = state.dataPlnt->PlantLoop(this->plantLoc.loopNum).glycol->getDensity(state, Constant::InitConvTemp, RoutineName);
 
                 this->MassFlowRateMax = this->VolFlowRateMax * rho;
             } else {
@@ -977,8 +971,8 @@ namespace SolarCollectors {
             this->CosTilt = std::cos(Tilt * Constant::DegToRadians);
             this->SinTilt = std::sin(1.8 * Tilt * Constant::DegToRadians);
 
-            // Diffuse reflectance of the cover for solar radiation diffusely reflected back from the absober
-            // plate to the cover.  The diffuse solar radiation reflected back from the absober plate to the
+            // Diffuse reflectance of the cover for solar radiation diffusely reflected back from the absorber
+            // plate to the cover.  The diffuse solar radiation reflected back from the absorber plate to the
             // cover is represented by the 60 degree equivalent incident angle.  This diffuse reflectance is
             // used to calculate the transmittance - absorptance product (Duffie and Beckman, 1991)
             Real64 Theta = 60.0 * Constant::DegToRadians;
@@ -1115,11 +1109,7 @@ namespace SolarCollectors {
         Real64 massFlowRate = this->MassFlowRate;
 
         // Specific heat of collector fluid (J/kg-K)
-        Real64 Cp = FluidProperties::GetSpecificHeatGlycol(state,
-                                                           state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidName,
-                                                           inletTemp,
-                                                           state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidIndex,
-                                                           RoutineName);
+        Real64 Cp = state.dataPlnt->PlantLoop(this->plantLoc.loopNum).glycol->getSpecificHeat(state, inletTemp, RoutineName);
 
         // Gross area of collector (m2)
         Real64 area = state.dataSurface->Surface(SurfNum).Area;
@@ -1405,18 +1395,10 @@ namespace SolarCollectors {
         Real64 massFlowRate = this->MassFlowRate;
 
         // Specific heat of collector fluid (J/kg-K)
-        Real64 Cpw = FluidProperties::GetSpecificHeatGlycol(state,
-                                                            state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidName,
-                                                            inletTemp,
-                                                            state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidIndex,
-                                                            RoutineName);
+        Real64 Cpw = state.dataPlnt->PlantLoop(this->plantLoc.loopNum).glycol->getSpecificHeat(state, inletTemp, RoutineName);
 
         // density of collector fluid (kg/m3)
-        Real64 Rhow = FluidProperties::GetDensityGlycol(state,
-                                                        state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidName,
-                                                        inletTemp,
-                                                        state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidIndex,
-                                                        RoutineName);
+        Real64 Rhow = state.dataPlnt->PlantLoop(this->plantLoc.loopNum).glycol->getDensity(state, inletTemp, RoutineName);
 
         // calculate heat transfer coefficients and covers temperature:
         this->CalcHeatTransCoeffAndCoverTemp(state);
@@ -1660,7 +1642,7 @@ namespace SolarCollectors {
         //       DATE WRITTEN   February 2012
 
         // PURPOSE OF THIS SUBROUTINE:
-        // Calculates the transmitance, reflectance, and absorptance of the collector covers based on
+        // Calculates the transmittance, reflectance, and absorptance of the collector covers based on
         // solar collector optical parameters specified.
 
         // METHODOLOGY EMPLOYED:
@@ -1692,7 +1674,7 @@ namespace SolarCollectors {
         AbsCover1 = 0.0;
         AbsCover2 = 0.0;
 
-        bool DiffRefFlag; // flag for calc. diffuse refl of cover from inside to outsidd
+        bool DiffRefFlag; // flag for calc. diffuse refl of cover from inside to outside
         if (present(InOUTFlag)) {
             DiffRefFlag = InOUTFlag;
         } else {
@@ -2036,9 +2018,9 @@ namespace SolarCollectors {
         // PURPOSE OF THIS FUNCTION:
         //  Calculates the free convection coefficient between the absorber plate and water.
         // METHODOLOGY EMPLOYED:
-        //  The convection coefficient calculation were based on the Fujii and Imura emperical correlations
+        //  The convection coefficient calculation were based on the Fujii and Imura empirical correlations
         // REFERENCES:
-        //  T.Fujii, and H.Imura,Natural convection heat transfer from aplate with arbitrary inclination.
+        //  T.Fujii, and H.Imura,Natural convection heat transfer from a plate with arbitrary inclination.
         //  International Journal of Heat and Mass Transfer: 15(4), (1972), 755-764.
 
         Real64 hConvA2W; // convection coefficient, [W/m2K]
@@ -2049,18 +2031,19 @@ namespace SolarCollectors {
         Real64 DeltaT = std::abs(TAbsorber - TWater);
         Real64 TReference = TAbsorber - 0.25 * (TAbsorber - TWater);
         // record fluid prop index for water
-        int WaterIndex = FluidProperties::GetGlycolNum(state, fluidNameWater);
+
+        auto *water = Fluid::GetWater(state);
         // find properties of water - always assume water
-        Real64 WaterSpecHeat = FluidProperties::GetSpecificHeatGlycol(state, fluidNameWater, max(TReference, 0.0), WaterIndex, CalledFrom);
-        Real64 CondOfWater = FluidProperties::GetConductivityGlycol(state, fluidNameWater, max(TReference, 0.0), WaterIndex, CalledFrom);
-        Real64 VisOfWater = FluidProperties::GetViscosityGlycol(state, fluidNameWater, max(TReference, 0.0), WaterIndex, CalledFrom);
-        Real64 DensOfWater = FluidProperties::GetDensityGlycol(state, fluidNameWater, max(TReference, 0.0), WaterIndex, CalledFrom);
+        Real64 WaterSpecHeat = water->getSpecificHeat(state, max(TReference, 0.0), CalledFrom);
+        Real64 CondOfWater = water->getConductivity(state, max(TReference, 0.0), CalledFrom);
+        Real64 VisOfWater = water->getViscosity(state, max(TReference, 0.0), CalledFrom);
+        Real64 DensOfWater = water->getDensity(state, max(TReference, 0.0), CalledFrom);
         Real64 PrOfWater = VisOfWater * WaterSpecHeat / CondOfWater;
         // Requires a different reference temperature for volumetric expansion coefficient
         TReference = TWater - 0.25 * (TWater - TAbsorber);
-        Real64 VolExpWater = -(FluidProperties::GetDensityGlycol(state, fluidNameWater, max(TReference, 10.0) + 5.0, WaterIndex, CalledFrom) -
-                               FluidProperties::GetDensityGlycol(state, fluidNameWater, max(TReference, 10.0) - 5.0, WaterIndex, CalledFrom)) /
-                             (10.0 * DensOfWater);
+        Real64 VolExpWater =
+            -(water->getDensity(state, max(TReference, 10.0) + 5.0, CalledFrom) - water->getDensity(state, max(TReference, 10.0) - 5.0, CalledFrom)) /
+            (10.0 * DensOfWater);
 
         // Grashof number
         Real64 GrNum = gravity * VolExpWater * DensOfWater * DensOfWater * PrOfWater * DeltaT * pow_3(Lc) / pow_2(VisOfWater);
@@ -2116,11 +2099,7 @@ namespace SolarCollectors {
         PlantUtilities::SafeCopyPlantNode(state, this->InletNode, this->OutletNode);
         // Set outlet node variables that are possibly changed
         state.dataLoopNodes->Node(this->OutletNode).Temp = this->OutletTemp;
-        Real64 Cp = FluidProperties::GetSpecificHeatGlycol(state,
-                                                           state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidName,
-                                                           this->OutletTemp,
-                                                           state.dataPlnt->PlantLoop(this->plantLoc.loopNum).FluidIndex,
-                                                           RoutineName);
+        Real64 Cp = state.dataPlnt->PlantLoop(this->plantLoc.loopNum).glycol->getSpecificHeat(state, this->OutletTemp, RoutineName);
         state.dataLoopNodes->Node(this->OutletNode).Enthalpy = Cp * state.dataLoopNodes->Node(this->OutletNode).Temp;
     }
 

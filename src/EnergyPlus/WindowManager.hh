@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -115,9 +115,9 @@ namespace Window {
                                         Array1A<Real64> aft // System absorptance of each glass layer
     );
 
-    Real64 solarSpectrumAverage(EnergyPlusData &state, gsl::span<Real64 const> p);
+    Real64 solarSpectrumAverage(EnergyPlusData const &state, gsl::span<Real64 const> p);
 
-    Real64 visibleSpectrumAverage(EnergyPlusData &state, gsl::span<Real64 const> p);
+    Real64 visibleSpectrumAverage(EnergyPlusData const &state, gsl::span<Real64 const> p);
 
     Real64 Interpolate(gsl::span<Real64 const> x, // Array of data points for independent variable
                        gsl::span<Real64 const> y, // Array of data points for dependent variable
@@ -238,7 +238,7 @@ namespace Window {
                               Real64 &gr     // Gap gas Grashof number
     );
 
-    void WindowGasPropertiesAtTemp(EnergyPlusData &state,
+    void WindowGasPropertiesAtTemp(EnergyPlusData const &state,
                                    Real64 tmean, // Temperature of gas in gap (K)
                                    int IGap,     // Gap number
                                    Real64 &dens, // Gap gas density at tmean (kg/m3)

@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -207,7 +207,7 @@ namespace PlantChillers {
         int HeatRecInletLimitSchedNum;             // index for schedule for the inlet high limit for heat recovery operation
         PlantLocation HRPlantLoc;                  // heat recovery water plant loop component index
         std::string EndUseSubcategory;             // identifier use for the end use subcategory
-        Real64 CondOutletHumRat;                   // kg/kg - condenser outlet humditiy ratio, air side
+        Real64 CondOutletHumRat;                   // kg/kg - condenser outlet humidity ratio, air side
         Real64 ActualCOP;
         Real64 QHeatRecovery;
         Real64 EnergyHeatRecovery;

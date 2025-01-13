@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -107,8 +107,6 @@ namespace SteamBaseboardRadiator {
     using HVAC::SmallLoad;
 
     using DataZoneEquipment::CheckZoneEquipmentList;
-
-    static constexpr std::string_view fluidNameSteam("STEAM");
 
     void SimSteamBaseboard(EnergyPlusData &state,
                            std::string const &EquipName,
@@ -287,7 +285,7 @@ namespace SteamBaseboardRadiator {
         int constexpr iHeatCapacityPerFloorAreaNumericNum(
             1); // get input index to steam baseboard Radiator system electric heating capacity per floor area sizing
         int constexpr iHeatFracOfAutosizedCapacityNumericNum(
-            2); //  get input index to steam baseboard Radiator system electric heating capacity sizing as fraction of autozized heating capacity
+            2); //  get input index to steam baseboard Radiator system electric heating capacity sizing as fraction of autosized heating capacity
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         int BaseboardNum;          // Baseboard number
@@ -318,7 +316,7 @@ namespace SteamBaseboardRadiator {
         state.dataSteamBaseboardRadiator->SteamBaseboardDesignNumericFields.allocate(state.dataSteamBaseboardRadiator->NumSteamBaseboardsDesign);
         state.dataSteamBaseboardRadiator->SteamBaseboardDesignNames.allocate(state.dataSteamBaseboardRadiator->NumSteamBaseboardsDesign);
 
-        // Get the data from the user input related to baseboard heater designobjects
+        // Get the data from the user input related to baseboard heater design objects
         for (BaseboardDesignNum = 1; BaseboardDesignNum <= state.dataSteamBaseboardRadiator->NumSteamBaseboardsDesign; ++BaseboardDesignNum) {
 
             state.dataInputProcessing->inputProcessor->getObjectItem(state,
@@ -778,16 +776,13 @@ namespace SteamBaseboardRadiator {
                 ShowContinueError(state, "The rest of the radiant energy delivered by the baseboard heater will be lost");
             }
 
-            if (state.dataSteamBaseboardRadiator->SteamIndex == 0 && BaseboardNum == 1) {
-                state.dataSteamBaseboardRadiator->SteamIndex = FluidProperties::GetRefrigNum(state, "STEAM");
-                if (state.dataSteamBaseboardRadiator->SteamIndex == 0) {
-                    ShowSevereError(state, format("{}Steam Properties for {} not found.", RoutineName, state.dataIPShortCut->cAlphaArgs(1)));
-                    if (SteamMessageNeeded) ShowContinueError(state, "Steam Fluid Properties should have been included in the input file.");
-                    ErrorsFound = true;
-                    SteamMessageNeeded = false;
-                }
+            state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).steam = Fluid::GetSteam(state);
+            if (state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).steam == nullptr && BaseboardNum == 1) {
+                ShowSevereError(state, format("{}Steam Properties for {} not found.", RoutineName, state.dataIPShortCut->cAlphaArgs(1)));
+                if (SteamMessageNeeded) ShowContinueError(state, "Steam Fluid Properties should have been included in the input file.");
+                ErrorsFound = true;
+                SteamMessageNeeded = false;
             }
-            state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).FluidIndex = state.dataSteamBaseboardRadiator->SteamIndex;
         }
 
         if (ErrorsFound) {
@@ -901,15 +896,13 @@ namespace SteamBaseboardRadiator {
         // This subroutine initializes the baseboard units.
 
         // METHODOLOGY EMPLOYED:
-        // The initialization subrotines both in high temperature radiant radiator
+        // The initialization subroutines both in high temperature radiant radiator
         // and convective only baseboard radiator are combined and modified.
         // The heater is assumed to be crossflow with both fluids unmixed.
 
         // REFERENCES:
 
         // Using/Aliasing
-        using FluidProperties::GetSatDensityRefrig;
-        using FluidProperties::GetSatEnthalpyRefrig;
         using PlantUtilities::InitComponentNodes;
         using PlantUtilities::ScanPlantLoopsForObject;
 
@@ -981,18 +974,9 @@ namespace SteamBaseboardRadiator {
             SteamInletNode = state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).SteamInletNode;
             state.dataLoopNodes->Node(SteamInletNode).Temp = 100.0;
             state.dataLoopNodes->Node(SteamInletNode).Press = 101325.0;
-            SteamDensity = GetSatDensityRefrig(state,
-                                               fluidNameSteam,
-                                               state.dataLoopNodes->Node(SteamInletNode).Temp,
-                                               1.0,
-                                               state.dataLoopNodes->Node(SteamInletNode).FluidIndex,
-                                               RoutineName);
-            StartEnthSteam = GetSatEnthalpyRefrig(state,
-                                                  fluidNameSteam,
-                                                  state.dataLoopNodes->Node(SteamInletNode).Temp,
-                                                  1.0,
-                                                  state.dataLoopNodes->Node(SteamInletNode).FluidIndex,
-                                                  RoutineName);
+            auto *steam = Fluid::GetSteam(state);
+            SteamDensity = steam->getSatDensity(state, state.dataLoopNodes->Node(SteamInletNode).Temp, 1.0, RoutineName);
+            StartEnthSteam = steam->getSatEnthalpy(state, state.dataLoopNodes->Node(SteamInletNode).Temp, 1.0, RoutineName);
             state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).SteamMassFlowRateMax =
                 SteamDensity * state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).SteamVolFlowRateMax;
             InitComponentNodes(state,
@@ -1068,9 +1052,6 @@ namespace SteamBaseboardRadiator {
 
         // Using/Aliasing
         using namespace DataSizing;
-        using FluidProperties::GetSatDensityRefrig;
-        using FluidProperties::GetSatEnthalpyRefrig;
-        using FluidProperties::GetSatSpecificHeatRefrig;
         using HVAC::HeatingCapacitySizing;
         using PlantUtilities::RegisterPlantCompDesignFlow;
 
@@ -1099,8 +1080,7 @@ namespace SteamBaseboardRadiator {
         bool PrintFlag;                      // TRUE when sizing information is reported in the eio file
         int CapSizingMethod(0); // capacity sizing methods (HeatingDesignCapacity, CapacityPerFloorArea, and FractionOfAutosizedHeatingCapacity )
 
-        auto &ZoneEqSizing(state.dataSize->ZoneEqSizing);
-        auto &CurZoneEqNum(state.dataSize->CurZoneEqNum);
+        int &CurZoneEqNum = state.dataSize->CurZoneEqNum;
 
         SteamBaseboardDesignData SteamBaseboardDesignDataObject{state.dataSteamBaseboardRadiator->SteamBaseboardDesign(
             state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).DesignObjectPtr)}; // Contains the data for variable flow hydronic systems
@@ -1133,6 +1113,7 @@ namespace SteamBaseboardRadiator {
                                     state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam,
                                     state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID);
 
+                    auto &zoneEqSizing = state.dataSize->ZoneEqSizing(CurZoneEqNum);
                     CompType = state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam;
                     CompName = state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID;
                     state.dataSize->DataFracOfAutosizedHeatingCapacity = 1.0;
@@ -1142,30 +1123,29 @@ namespace SteamBaseboardRadiator {
                     PrintFlag = false;
                     SizingString = state.dataSteamBaseboardRadiator->SteamBaseboardNumericFields(BaseboardNum).FieldNames(FieldNum) + " [W]";
                     CapSizingMethod = SteamBaseboardDesignDataObject.HeatingCapMethod;
-                    ZoneEqSizing(CurZoneEqNum).SizingMethod(SizingMethod) = CapSizingMethod;
+                    zoneEqSizing.SizingMethod(SizingMethod) = CapSizingMethod;
                     if (CapSizingMethod == HeatingDesignCapacity || CapSizingMethod == CapacityPerFloorArea ||
                         CapSizingMethod == FractionOfAutosizedHeatingCapacity) {
 
                         if (CapSizingMethod == HeatingDesignCapacity) {
                             if (state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).ScaledHeatingCapacity == AutoSize) {
                                 CheckZoneSizing(state, CompType, CompName);
-                                ZoneEqSizing(CurZoneEqNum).HeatingCapacity = true;
-                                ZoneEqSizing(CurZoneEqNum).DesHeatingLoad = state.dataSize->FinalZoneSizing(CurZoneEqNum).NonAirSysDesHeatLoad;
+                                zoneEqSizing.HeatingCapacity = true;
+                                zoneEqSizing.DesHeatingLoad = state.dataSize->FinalZoneSizing(CurZoneEqNum).NonAirSysDesHeatLoad;
                             }
                             TempSize = state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).ScaledHeatingCapacity;
                         } else if (CapSizingMethod == CapacityPerFloorArea) {
-                            ZoneEqSizing(CurZoneEqNum).HeatingCapacity = true;
-                            ZoneEqSizing(CurZoneEqNum).DesHeatingLoad =
-                                state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).ScaledHeatingCapacity *
-                                state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
-                            TempSize = ZoneEqSizing(CurZoneEqNum).DesHeatingLoad;
+                            zoneEqSizing.HeatingCapacity = true;
+                            zoneEqSizing.DesHeatingLoad = state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).ScaledHeatingCapacity *
+                                                          state.dataHeatBal->Zone(state.dataSize->DataZoneNumber).FloorArea;
+                            TempSize = zoneEqSizing.DesHeatingLoad;
                             state.dataSize->DataScalableCapSizingON = true;
                         } else if (CapSizingMethod == FractionOfAutosizedHeatingCapacity) {
                             CheckZoneSizing(state, CompType, CompName);
-                            ZoneEqSizing(CurZoneEqNum).HeatingCapacity = true;
+                            zoneEqSizing.HeatingCapacity = true;
                             state.dataSize->DataFracOfAutosizedHeatingCapacity =
                                 state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).ScaledHeatingCapacity;
-                            ZoneEqSizing(CurZoneEqNum).DesHeatingLoad = state.dataSize->FinalZoneSizing(CurZoneEqNum).NonAirSysDesHeatLoad;
+                            zoneEqSizing.DesHeatingLoad = state.dataSize->FinalZoneSizing(CurZoneEqNum).NonAirSysDesHeatLoad;
                             TempSize = AutoSize;
                             state.dataSize->DataScalableCapSizingON = true;
                         } else {
@@ -1183,31 +1163,12 @@ namespace SteamBaseboardRadiator {
 
                     if (DesCoilLoad >= SmallLoad) {
                         SteamInletTemp = 100.0;
-                        EnthSteamInDry = GetSatEnthalpyRefrig(state,
-                                                              fluidNameSteam,
-                                                              SteamInletTemp,
-                                                              1.0,
-                                                              state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).FluidIndex,
-                                                              RoutineName);
-                        EnthSteamOutWet = GetSatEnthalpyRefrig(state,
-                                                               fluidNameSteam,
-                                                               SteamInletTemp,
-                                                               0.0,
-                                                               state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).FluidIndex,
-                                                               RoutineName);
+                        auto *steam = Fluid::GetSteam(state);
+                        EnthSteamInDry = steam->getSatEnthalpy(state, SteamInletTemp, 1.0, RoutineName);
+                        EnthSteamOutWet = steam->getSatEnthalpy(state, SteamInletTemp, 0.0, RoutineName);
                         LatentHeatSteam = EnthSteamInDry - EnthSteamOutWet;
-                        SteamDensity = GetSatDensityRefrig(state,
-                                                           fluidNameSteam,
-                                                           SteamInletTemp,
-                                                           1.0,
-                                                           state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).FluidIndex,
-                                                           RoutineName);
-                        Cp = GetSatSpecificHeatRefrig(state,
-                                                      fluidNameSteam,
-                                                      SteamInletTemp,
-                                                      0.0,
-                                                      state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).FluidIndex,
-                                                      RoutineName);
+                        SteamDensity = steam->getSatDensity(state, SteamInletTemp, 1.0, RoutineName);
+                        Cp = steam->getSatSpecificHeat(state, SteamInletTemp, 0.0, RoutineName);
 
                         SteamVolFlowRateMaxDes =
                             DesCoilLoad /
@@ -1232,7 +1193,7 @@ namespace SteamBaseboardRadiator {
                                                          state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).EquipID,
                                                          "Design Size Maximum Steam Flow Rate [m3/s]",
                                                          SteamVolFlowRateMaxDes,
-                                                         "User-Speicified Maximum Steam Flow Rate [m3/s]",
+                                                         "User-Specified Maximum Steam Flow Rate [m3/s]",
                                                          SteamVolFlowRateMaxUser);
                             if (state.dataGlobal->DisplayExtraWarnings) {
                                 // Report difference between design size and user-specified values
@@ -1256,7 +1217,7 @@ namespace SteamBaseboardRadiator {
             }
         } else {
             if (IsAutoSize) {
-                // if there is no heating Sizing:Plant object and autosizng was requested, issue an error message
+                // if there is no heating Sizing:Plant object and autosizing was requested, issue an error message
                 // first error will be issued by MyPlantSizingIndex
                 ShowSevereError(state, "Autosizing of steam baseboard requires a heating loop Sizing:Plant object");
                 ShowContinueError(state,
@@ -1294,9 +1255,6 @@ namespace SteamBaseboardRadiator {
         // REFERENCES:
 
         // Using/Aliasing
-        using FluidProperties::GetSatDensityRefrig;
-        using FluidProperties::GetSatEnthalpyRefrig;
-        using FluidProperties::GetSatSpecificHeatRefrig;
         using HVAC::SmallLoad;
         using ScheduleManager::GetCurrentScheduleValue;
 
@@ -1339,13 +1297,11 @@ namespace SteamBaseboardRadiator {
         if (QZnReq > SmallLoad && !state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum) && SteamMassFlowRate > 0.0 &&
             GetCurrentScheduleValue(state, state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).SchedPtr) > 0) {
             // Unit is on
-            EnthSteamInDry = GetSatEnthalpyRefrig(
-                state, fluidNameSteam, SteamInletTemp, 1.0, state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).FluidIndex, RoutineName);
-            EnthSteamOutWet = GetSatEnthalpyRefrig(
-                state, fluidNameSteam, SteamInletTemp, 0.0, state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).FluidIndex, RoutineName);
+            auto *steam = Fluid::GetSteam(state);
+            EnthSteamInDry = steam->getSatEnthalpy(state, SteamInletTemp, 1.0, RoutineName);
+            EnthSteamOutWet = steam->getSatEnthalpy(state, SteamInletTemp, 0.0, RoutineName);
             LatentHeatSteam = EnthSteamInDry - EnthSteamOutWet;
-            Cp = GetSatSpecificHeatRefrig(
-                state, fluidNameSteam, SteamInletTemp, 0.0, state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).FluidIndex, RoutineName);
+            Cp = steam->getSatSpecificHeat(state, SteamInletTemp, 0.0, RoutineName);
             SteamBBHeat = SteamMassFlowRate * (LatentHeatSteam + SubcoolDeltaT * Cp); // Baseboard heating rate
             SteamOutletTemp = SteamInletTemp - SubcoolDeltaT;                         // Outlet temperature of steam
             // Estimate radiant heat addition
@@ -1413,7 +1369,7 @@ namespace SteamBaseboardRadiator {
         // PURPOSE OF THIS SUBROUTINE:
 
         // METHODOLOGY EMPLOYED:
-        // The update subrotines both in high temperature radiant radiator
+        // The update subroutines both in high temperature radiant radiator
         // and convective only baseboard radiator are combined and modified.
 
         using PlantUtilities::SafeCopyPlantNode;
@@ -1497,7 +1453,7 @@ namespace SteamBaseboardRadiator {
         //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
-        // To distribute the gains from the steam basebaord heater
+        // To distribute the gains from the steam baseboard heater
         // as specified in the user input file.  This includes distribution
         // of long wavelength radiant gains to surfaces and "people."
 
@@ -1597,7 +1553,7 @@ namespace SteamBaseboardRadiator {
                                         [[maybe_unused]] const DataPlant::LoopSideLocation LoopSide, // Plant loop side index for where called from
                                         int &CompIndex,                                              // Chiller number pointer
                                         [[maybe_unused]] bool const FirstHVACIteration,
-                                        bool &InitLoopEquip // If not zero, calculate the max load for operating conditions
+                                        bool const InitLoopEquip // If not zero, calculate the max load for operating conditions
     )
     {
 

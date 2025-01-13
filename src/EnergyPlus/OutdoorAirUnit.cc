@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -717,7 +717,7 @@ namespace OutdoorAirUnit {
                             thisOutAirUnit.OAEquip(CompNum).MinVolWaterFlow = 0.0;
                             // below: no extra error needed if steam properties not in input
                             // file because getting the steam coil will have done that.
-                            thisOutAirUnit.OAEquip(CompNum).FluidIndex = FluidProperties::GetRefrigNum(state, "STEAM");
+                            thisOutAirUnit.OAEquip(CompNum).FluidIndex = Fluid::GetRefrigNum(state, "STEAM");
                             break;
                         }
                         case CompType::WaterCoil_DetailedCool: {
@@ -844,7 +844,7 @@ namespace OutdoorAirUnit {
                             break;
                         }
                         case CompType::Desiccant: {
-                            // Futher Enhancement
+                            // Future Enhancement
                             //        CASE('DEHUMIDIFIER:DESICCANT:SYSTEM')
                             //          thisOutAirUnit%OAEquip(CompNum)%Type= CompType::Desiccant
                             break;
@@ -1114,7 +1114,6 @@ namespace OutdoorAirUnit {
 
         // Using/Aliasing
         using DataZoneEquipment::CheckZoneEquipmentList;
-        using FluidProperties::GetDensityGlycol;
         using HVACHXAssistedCoolingCoil::SimHXAssistedCoolingCoil;
         using PlantUtilities::InitComponentNodes;
         using PlantUtilities::ScanPlantLoopsForObject;
@@ -1247,11 +1246,8 @@ namespace OutdoorAirUnit {
                                                                 CompTypeNames[static_cast<int>(thisOutAirUnit.OAEquip(compLoop).Type)],
                                                                 thisOutAirUnit.OAEquip(compLoop).ComponentName,
                                                                 errFlag);
-                        Real64 const rho = GetDensityGlycol(state,
-                                                            state.dataPlnt->PlantLoop(thisOutAirUnit.OAEquip(compLoop).plantLoc.loopNum).FluidName,
-                                                            Constant::CWInitConvTemp,
-                                                            state.dataPlnt->PlantLoop(thisOutAirUnit.OAEquip(compLoop).plantLoc.loopNum).FluidIndex,
-                                                            RoutineName);
+                        Real64 const rho = state.dataPlnt->PlantLoop(thisOutAirUnit.OAEquip(compLoop).plantLoc.loopNum)
+                                               .glycol->getDensity(state, Constant::CWInitConvTemp, RoutineName);
                         thisOutAirUnit.OAEquip(compLoop).MaxWaterMassFlow = rho * thisOutAirUnit.OAEquip(compLoop).MaxVolWaterFlow;
                         thisOutAirUnit.OAEquip(compLoop).MinWaterMassFlow = rho * thisOutAirUnit.OAEquip(compLoop).MinVolWaterFlow;
                         InitComponentNodes(state,
@@ -1267,11 +1263,8 @@ namespace OutdoorAirUnit {
                                                                 CompTypeNames[static_cast<int>(thisOutAirUnit.OAEquip(compLoop).Type)],
                                                                 thisOutAirUnit.OAEquip(compLoop).ComponentName,
                                                                 errFlag);
-                        Real64 const rho = GetDensityGlycol(state,
-                                                            state.dataPlnt->PlantLoop(thisOutAirUnit.OAEquip(compLoop).plantLoc.loopNum).FluidName,
-                                                            Constant::HWInitConvTemp,
-                                                            state.dataPlnt->PlantLoop(thisOutAirUnit.OAEquip(compLoop).plantLoc.loopNum).FluidIndex,
-                                                            RoutineName);
+                        Real64 const rho = state.dataPlnt->PlantLoop(thisOutAirUnit.OAEquip(compLoop).plantLoc.loopNum)
+                                               .glycol->getDensity(state, Constant::HWInitConvTemp, RoutineName);
                         thisOutAirUnit.OAEquip(compLoop).MaxWaterMassFlow = rho * thisOutAirUnit.OAEquip(compLoop).MaxVolWaterFlow;
                         thisOutAirUnit.OAEquip(compLoop).MinWaterMassFlow = rho * thisOutAirUnit.OAEquip(compLoop).MinVolWaterFlow;
                         InitComponentNodes(state,
@@ -1283,13 +1276,8 @@ namespace OutdoorAirUnit {
                     if (thisOutAirUnit.OAEquip(compLoop).Type == CompType::SteamCoil_AirHeat) {
                         thisOutAirUnit.OAEquip(compLoop).MaxVolWaterFlow =
                             GetCoilMaxSteamFlowRate(state, thisOutAirUnit.OAEquip(compLoop).ComponentIndex, errFlag);
-                        Real64 const rho = FluidProperties::GetSatDensityRefrig(
-                            state,
-                            state.dataPlnt->PlantLoop(thisOutAirUnit.OAEquip(compLoop).plantLoc.loopNum).FluidName,
-                            Constant::SteamInitConvTemp,
-                            1.0,
-                            state.dataPlnt->PlantLoop(thisOutAirUnit.OAEquip(compLoop).plantLoc.loopNum).FluidIndex,
-                            RoutineName);
+                        Real64 const rho = state.dataPlnt->PlantLoop(thisOutAirUnit.OAEquip(compLoop).plantLoc.loopNum)
+                                               .steam->getSatDensity(state, Constant::SteamInitConvTemp, 1.0, RoutineName);
                         thisOutAirUnit.OAEquip(compLoop).MaxWaterMassFlow = rho * thisOutAirUnit.OAEquip(compLoop).MaxVolWaterFlow;
                         thisOutAirUnit.OAEquip(compLoop).MinWaterMassFlow = rho * thisOutAirUnit.OAEquip(compLoop).MinVolWaterFlow;
                         InitComponentNodes(state,
@@ -1304,11 +1292,8 @@ namespace OutdoorAirUnit {
                                                                 CompTypeNames[static_cast<int>(thisOutAirUnit.OAEquip(compLoop).Type)],
                                                                 thisOutAirUnit.OAEquip(compLoop).ComponentName,
                                                                 errFlag);
-                        Real64 const rho = GetDensityGlycol(state,
-                                                            state.dataPlnt->PlantLoop(thisOutAirUnit.OAEquip(compLoop).plantLoc.loopNum).FluidName,
-                                                            Constant::CWInitConvTemp,
-                                                            state.dataPlnt->PlantLoop(thisOutAirUnit.OAEquip(compLoop).plantLoc.loopNum).FluidIndex,
-                                                            RoutineName);
+                        Real64 const rho = state.dataPlnt->PlantLoop(thisOutAirUnit.OAEquip(compLoop).plantLoc.loopNum)
+                                               .glycol->getDensity(state, Constant::CWInitConvTemp, RoutineName);
                         thisOutAirUnit.OAEquip(compLoop).MaxWaterMassFlow = rho * thisOutAirUnit.OAEquip(compLoop).MaxVolWaterFlow;
                         thisOutAirUnit.OAEquip(compLoop).MinWaterMassFlow = rho * thisOutAirUnit.OAEquip(compLoop).MinVolWaterFlow;
                         InitComponentNodes(state,
@@ -1404,7 +1389,7 @@ namespace OutdoorAirUnit {
         //       RE-ENGINEERED  na
 
         // PURPOSE OF THIS SUBROUTINE:
-        // This subroutine is for sizing zoen outdoor air control unit components for which flow rates have not been
+        // This subroutine is for sizing zone outdoor air control unit components for which flow rates have not been
         // specified in the input.
 
         // METHODOLOGY EMPLOYED:
@@ -1625,14 +1610,14 @@ namespace OutdoorAirUnit {
         Real64 SetPointTemp;   // temperature that will be used to control the radiant system [Celsius]
         Real64 HiCtrlTemp;     // Current high point in setpoint temperature range
         Real64 LoCtrlTemp;     // Current low point in setpoint temperature range
-        Real64 AirInEnt;       // RE-calcualte the Enthalpy of supply air
+        Real64 AirInEnt;       // RE-calculate the Enthalpy of supply air
         Real64 AirOutletTemp = 0.0;
         Real64 ZoneSupAirEnt; // Specific humidity ratio of inlet air (kg moisture / kg moist air)
         // Latent output
         Real64 LatentOutput; // Latent (moisture) add/removal rate, negative is dehumidification [kg/s]
         Real64 SpecHumOut;   // Specific humidity ratio of outlet air (kg moisture / kg moist air)
         Real64 SpecHumIn;    // Specific humidity ratio of inlet air (kg moisture / kg moist air)
-        Real64 ZoneAirEnt;   // zone air enthalphy J/kg
+        Real64 ZoneAirEnt;   // zone air enthalpy J/kg
 
         // initialize local variables
         int const InletNode = thisOutAirUnit.AirInletNode;        // Unit air inlet node, only used if ExtFan

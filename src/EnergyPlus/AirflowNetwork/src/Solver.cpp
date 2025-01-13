@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -10530,8 +10530,6 @@ namespace AirflowNetwork {
                         } else {
                             ShowSevereError(m_state, "SetDXCoilAirLoopNumber: Could not find Coil \"Name=\"" + DisSysCompCoilData(i).name + "\"");
                         }
-                        // SetDXCoilAirLoopNumber(DisSysCompCoilData(i).name,
-                        // DisSysCompCoilData(i).AirLoopNum);
                     }
                 } else if (SELECT_CASE_var == "COIL:COOLING:DX:SINGLESPEED") {
                     ValidateComponent(
@@ -10615,6 +10613,26 @@ namespace AirflowNetwork {
                 } else if (SELECT_CASE_var == "COIL:HEATING:DX:MULTISPEED") {
                     ValidateComponent(
                         m_state, "Coil:Heating:DX:MultiSpeed", DisSysCompCoilData(i).name, IsNotOK, format(RoutineName) + CurrentModuleObject);
+                    ++MultiSpeedHPIndicator;
+                    if (IsNotOK) {
+                        ErrorsFound = true;
+                    } else {
+                        SetDXCoilAirLoopNumber(m_state, DisSysCompCoilData(i).name, DisSysCompCoilData(i).AirLoopNum);
+                    }
+
+                } else if (SELECT_CASE_var == "COIL:COOLING:DX:VARIABLESPEED") {
+                    ValidateComponent(
+                        m_state, "Coil:Cooling:DX:VariableSpeed", DisSysCompCoilData(i).name, IsNotOK, format(RoutineName) + CurrentModuleObject);
+                    ++MultiSpeedHPIndicator;
+                    if (IsNotOK) {
+                        ErrorsFound = true;
+                    } else {
+                        SetDXCoilAirLoopNumber(m_state, DisSysCompCoilData(i).name, DisSysCompCoilData(i).AirLoopNum);
+                    }
+
+                } else if (SELECT_CASE_var == "COIL:HEATING:DX:VARIABLESPEED") {
+                    ValidateComponent(
+                        m_state, "Coil:Heating:DX:VariableSpeed", DisSysCompCoilData(i).name, IsNotOK, format(RoutineName) + CurrentModuleObject);
                     ++MultiSpeedHPIndicator;
                     if (IsNotOK) {
                         ErrorsFound = true;

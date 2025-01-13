@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -622,7 +622,7 @@ namespace OutputProcessor {
         Array1D_string spaceTypeName; // Array of space type names
     };
 
-    int DetermineMinuteForReporting(EnergyPlusData &state);
+    int DetermineMinuteForReporting(EnergyPlusData const &state);
 
     void InitializeOutput(EnergyPlusData &state);
 
@@ -824,11 +824,11 @@ void SetInitialMeterReportingAndOutputNames(EnergyPlusData &state,
                                             bool CumulativeIndicator          // true if this is a Cumulative meter reporting
 );
 
-int GetMeterIndex(EnergyPlusData &state, std::string const &MeterName);
+int GetMeterIndex(EnergyPlusData const &state, std::string const &MeterName);
 
-Constant::eResource GetMeterResourceType(EnergyPlusData &state, int MeterNumber); // Which Meter Number (from GetMeterIndex)
+Constant::eResource GetMeterResourceType(EnergyPlusData const &state, int MeterNumber); // Which Meter Number (from GetMeterIndex)
 
-Real64 GetCurrentMeterValue(EnergyPlusData &state, int MeterNumber); // Which Meter Number (from GetMeterIndex)
+Real64 GetCurrentMeterValue(EnergyPlusData const &state, int MeterNumber); // Which Meter Number (from GetMeterIndex)
 
 Real64 GetInstantMeterValue(EnergyPlusData &state,
                             int MeterNumber,                           // Which Meter Number (from GetMeterIndex)
@@ -845,7 +845,7 @@ Real64 GetInternalVariableValueExternalInterface(EnergyPlusData &state,
                                                  int keyVarIndex                        // Array index
 );
 
-int GetNumMeteredVariables(EnergyPlusData &state,
+int GetNumMeteredVariables(EnergyPlusData const &state,
                            std::string const &ComponentType, // Given Component Type
                            std::string const &ComponentName  // Given Component Name (user defined)
 );
@@ -877,7 +877,7 @@ void InitPollutionMeterReporting(EnergyPlusData &state, OutputProcessor::ReportF
 
 void ProduceRDDMDD(EnergyPlusData &state);
 
-int AddDDOutVar(EnergyPlusData &state,
+int AddDDOutVar(EnergyPlusData const &state,
                 std::string_view const nameUC, // Variable Name
                 OutputProcessor::TimeStepType TimeStepType,
                 OutputProcessor::StoreType StateType,

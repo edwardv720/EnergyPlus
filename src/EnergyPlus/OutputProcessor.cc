@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -120,7 +120,7 @@ namespace OutputProcessor {
 
     // Functions
 
-    int DetermineMinuteForReporting(EnergyPlusData &state)
+    int DetermineMinuteForReporting(EnergyPlusData const &state)
     {
 
         // FUNCTION INFORMATION:
@@ -310,7 +310,7 @@ namespace OutputProcessor {
         // Make sure that input has been read
         GetReportVariableInput(state);
 
-        auto &op = state.dataOutputProcessor;
+        auto const &op = state.dataOutputProcessor;
 
         for (int iReqVar = 0; iReqVar < (int)op->reqVars.size(); ++iReqVar) {
             auto *reqVar = op->reqVars[iReqVar];
@@ -671,11 +671,9 @@ namespace OutputProcessor {
         Array1D_string NamesOfKeys;   // Specific key name
         Array1D_int IndexesForKeyVar; // Array index
 
-        std::vector<int> onCustomMeterVarNums;
         Array1D_int VarsOnSourceMeter;
-        bool BigErrorsFound;
 
-        BigErrorsFound = false;
+        bool BigErrorsFound = false;
 
         int numCustomMeters = 0, numCustomDecMeters = 0;
         std::vector<std::string> customMeterNames;
@@ -747,7 +745,7 @@ namespace OutputProcessor {
                 }
 
                 std::string meterOrVarNameUC = Util::makeUPPER(ipsc->cAlphaArgs(fldIndex + 1));
-                std::string::size_type lbrackPos = index(meterOrVarNameUC, '[');
+                lbrackPos = index(meterOrVarNameUC, '[');
                 if (lbrackPos != std::string::npos) meterOrVarNameUC.erase(lbrackPos);
 
                 // A custom meter cannot reference another custom meter
@@ -915,7 +913,7 @@ namespace OutputProcessor {
             for (int fldIndex = 3; fldIndex <= NumAlpha; fldIndex += 2) {
                 // No need to check for empty fields
                 std::string meterOrVarNameUC = Util::makeUPPER(ipsc->cAlphaArgs(fldIndex + 1));
-                std::string::size_type lbrackPos = index(meterOrVarNameUC, '[');
+                lbrackPos = index(meterOrVarNameUC, '[');
                 if (lbrackPos != std::string::npos) meterOrVarNameUC.erase(lbrackPos);
 
                 // No need to check for custom source meters
@@ -1079,7 +1077,7 @@ namespace OutputProcessor {
                 }
 
                 std::string meterOrVarNameUC = Util::makeUPPER(ipsc->cAlphaArgs(fldIndex + 1));
-                std::string::size_type lbrackPos = index(meterOrVarNameUC, '[');
+                lbrackPos = index(meterOrVarNameUC, '[');
                 if (lbrackPos != std::string::npos) meterOrVarNameUC.erase(lbrackPos);
 
                 // A custom meter cannot reference another custom meter
@@ -1250,7 +1248,7 @@ namespace OutputProcessor {
             for (int fldIndex = 4; fldIndex <= NumAlpha; fldIndex += 2) {
                 // No need to check for empty fields
                 std::string meterOrVarNameUC = Util::makeUPPER(ipsc->cAlphaArgs(fldIndex + 1));
-                std::string::size_type lbrackPos = index(meterOrVarNameUC, '[');
+                lbrackPos = index(meterOrVarNameUC, '[');
                 if (lbrackPos != std::string::npos) meterOrVarNameUC.erase(lbrackPos);
 
                 // No need to check for custom source meters
@@ -1703,7 +1701,7 @@ namespace OutputProcessor {
         // Resets the accumulating meter values. Needed after warmup period is over to
         // reset the totals on meters so that they are not accumulated over the warmup period
 
-        auto &op = state.dataOutputProcessor;
+        auto const &op = state.dataOutputProcessor;
 
         for (auto *meter : op->meters) {
             for (int iPeriod = (int)ReportFreq::Hour; iPeriod < (int)ReportFreq::Num; ++iPeriod) {
@@ -1966,7 +1964,7 @@ namespace OutputProcessor {
         // in the data structure.
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-        auto &op = state.dataOutputProcessor;
+        auto const &op = state.dataOutputProcessor;
 
         for (auto *meter : op->meters) {
             auto &period = meter->periodFinYrSM;
@@ -2423,7 +2421,6 @@ namespace OutputProcessor {
         // and the SQL database
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-        auto &op = state.dataOutputProcessor;
         auto &rf = state.dataResultsFramework->resultsFramework;
         auto &sql = state.dataSQLiteProcedures->sqlite;
 
@@ -2448,7 +2445,7 @@ namespace OutputProcessor {
 
         if (freq == ReportFreq::Hour || freq == ReportFreq::Day || freq == ReportFreq::Month || freq == ReportFreq::Year ||
             freq == ReportFreq::Simulation)
-            op->freqTrackingVariables[(int)freq] = true;
+            state.dataOutputProcessor->freqTrackingVariables[(int)freq] = true;
 
         if (sql) {
             sql->createSQLiteReportDictionaryRecord(ReportID, storeType, indexGroup, key, name, timeStepType, unitsString, freq, false, schedString);
@@ -2736,8 +2733,6 @@ namespace OutputProcessor {
         // easier maintenance and writing of data to the SQL database.
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-        std::string MaxOut; // Character for Max out string
-        std::string MinOut; // Character for Min out string
         auto &rf = state.dataResultsFramework->resultsFramework;
         auto &sql = state.dataSQLiteProcedures->sqlite;
 
@@ -3730,7 +3725,7 @@ void UpdateMeterReporting(EnergyPlusData &state)
     int NumReqMeterFOs;
 
     bool ErrorsFound(false); // If errors detected in input
-    auto &op = state.dataOutputProcessor;
+    auto const &op = state.dataOutputProcessor;
     auto &ipsc = state.dataIPShortCut;
 
     GetCustomMeterInput(state, ErrorsFound);
@@ -3748,7 +3743,7 @@ void UpdateMeterReporting(EnergyPlusData &state)
             name.erase(varnameLen);
         }
 
-        auto &op = state.dataOutputProcessor;
+        auto const &op = state.dataOutputProcessor;
 
         std::string::size_type wildCardPosition = index(name, '*');
 
@@ -3947,7 +3942,7 @@ void SetInitialMeterReportingAndOutputNames(EnergyPlusData &state,
     } // if (CumulativeIndicator)
 } // SetInitialMeterReportingAndOutputNames()
 
-int GetMeterIndex(EnergyPlusData &state, std::string const &name)
+int GetMeterIndex(EnergyPlusData const &state, std::string const &name)
 {
 
     // FUNCTION INFORMATION:
@@ -3959,13 +3954,13 @@ int GetMeterIndex(EnergyPlusData &state, std::string const &name)
     // for the meter name.  If none active for this run, a zero is returned.  This is used later to
     // obtain a meter "value".
 
-    auto &op = state.dataOutputProcessor;
+    auto const &op = state.dataOutputProcessor;
 
     auto found = op->meterMap.find(name);
     return (found != op->meterMap.end()) ? found->second : -1;
 } // GetMeterIndex()
 
-Constant::eResource GetMeterResourceType(EnergyPlusData &state, int const MeterNumber) // Which Meter Number (from GetMeterIndex)
+Constant::eResource GetMeterResourceType(EnergyPlusData const &state, int const MeterNumber) // Which Meter Number (from GetMeterIndex)
 {
 
     // FUNCTION INFORMATION:
@@ -3978,7 +3973,7 @@ Constant::eResource GetMeterResourceType(EnergyPlusData &state, int const MeterN
     return (MeterNumber != -1) ? state.dataOutputProcessor->meters[MeterNumber]->resource : Constant::eResource::Invalid;
 } // GetMeterResourceType()
 
-Real64 GetCurrentMeterValue(EnergyPlusData &state, int const MeterNumber) // Which Meter Number (from GetMeterIndex)
+Real64 GetCurrentMeterValue(EnergyPlusData const &state, int const MeterNumber) // Which Meter Number (from GetMeterIndex)
 {
 
     // FUNCTION INFORMATION:
@@ -4012,7 +4007,7 @@ Real64 GetInstantMeterValue(EnergyPlusData &state,
 
     if (meterNum == -1) return InstantMeterValue;
 
-    auto &op = state.dataOutputProcessor;
+    auto const &op = state.dataOutputProcessor;
     auto *meter = op->meters[meterNum];
 
     if (meter->type == MeterType::Normal || meter->type == MeterType::Custom) {
@@ -4077,7 +4072,7 @@ Real64 GetInternalVariableValue(EnergyPlusData &state,
     // Return value
     Real64 resultVal; // value returned
 
-    auto &op = state.dataOutputProcessor;
+    auto const &op = state.dataOutputProcessor;
 
     // Select based on variable type:  integer, real, or meter
     if (varType == VariableType::Invalid) { // Variable not a found variable
@@ -4128,7 +4123,7 @@ Real64 GetInternalVariableValueExternalInterface(EnergyPlusData &state,
     // Return value
     Real64 resultVal; // value returned
 
-    auto &op = state.dataOutputProcessor;
+    auto const &op = state.dataOutputProcessor;
 
     // Select based on variable type:  integer, REAL(r64), or meter
     if (varType == VariableType::Invalid) { // Variable not a found variable
@@ -4150,7 +4145,7 @@ Real64 GetInternalVariableValueExternalInterface(EnergyPlusData &state,
     return resultVal;
 } // GetInternalVariableValueExternalInterface()
 
-int GetNumMeteredVariables(EnergyPlusData &state,
+int GetNumMeteredVariables(EnergyPlusData const &state,
                            [[maybe_unused]] std::string const &ComponentType, // Given Component Type
                            std::string const &ComponentName                   // Given Component Name (user defined)
 )
@@ -4167,7 +4162,7 @@ int GetNumMeteredVariables(EnergyPlusData &state,
 
     // FUNCTION LOCAL VARIABLE DECLARATIONS:
     int NumVariables = 0;
-    auto &op = state.dataOutputProcessor;
+    auto const &op = state.dataOutputProcessor;
 
     for (auto *var : op->outVars) {
         //    Pos=INDEX(RVariableTypes(Loop)%VarName,':')
@@ -4286,7 +4281,7 @@ void GetVariableKeyCountandType(EnergyPlusData &state,
     using ScheduleManager::GetScheduleType;
 
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-    auto &op = state.dataOutputProcessor;
+    auto const &op = state.dataOutputProcessor;
 
     varType = VariableType::Invalid;
     numKeys = 0;
@@ -4305,11 +4300,11 @@ void GetVariableKeyCountandType(EnergyPlusData &state,
         units = ddOutVar->units;
         numKeys = ddOutVar->keyOutVarNums.size();
 
-    } else if (auto found = op->meterMap.find(nameUC); found != op->meterMap.end()) {
+    } else if (auto found2 = op->meterMap.find(nameUC); found2 != op->meterMap.end()) {
         // Search Meters if not found in integers or reals
         // Use the GetMeterIndex function
         // Meters do not have keys, so only one will be found
-        int meterNum = found->second;
+        int meterNum = found2->second;
         numKeys = 1;
         varType = VariableType::Meter;
         units = op->meters[meterNum]->units;
@@ -4363,10 +4358,10 @@ void GetVariableKeys(EnergyPlusData &state,
 
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
     std::string nameUC = Util::makeUPPER(varName);
-    auto &op = state.dataOutputProcessor;
 
     // Select based on variable type:  integer, real, or meter
     if (varType == VariableType::Integer || varType == VariableType::Real) {
+        auto const &op = state.dataOutputProcessor;
         auto found = op->ddOutVarMap.find(nameUC);
         if (found == op->ddOutVarMap.end()) return;
 
@@ -4415,7 +4410,7 @@ bool ReportingThisVariable(EnergyPlusData &state, std::string const &RepVarName)
     // if user has requested this variable be reported.
     using namespace OutputProcessor;
 
-    auto &op = state.dataOutputProcessor;
+    auto const &op = state.dataOutputProcessor;
 
     std::string name = Util::makeUPPER(RepVarName);
 
@@ -4533,8 +4528,8 @@ void ProduceRDDMDD(EnergyPlusData &state)
     bool DoReport;
     bool SortByName;
 
-    auto &op = state.dataOutputProcessor;
-    auto &rf = state.dataResultsFramework->resultsFramework;
+    auto const &op = state.dataOutputProcessor;
+    auto const &rf = state.dataResultsFramework->resultsFramework;
 
     //  See if Report Variables should be turned on
     SortByName = false;
@@ -4609,11 +4604,9 @@ void ProduceRDDMDD(EnergyPlusData &state)
                 while (ddVar->Next != -1) {
                     ddVar = op->ddOutVars[ddVar->Next];
 
-                    std::string_view timeStepName = timeStepTypeNames[(int)ddVar->timeStepType];
-                    std::string_view storeTypeName = storeTypeNames[(int)ddVar->storeType];
-                    std::string_view varName = ddVar->name;
-                    std::string_view unitName =
-                        (ddVar->units == Constant::Units::customEMS) ? ddVar->unitNameCustomEMS : Constant::unitNames[(int)ddVar->units];
+                    timeStepName = timeStepTypeNames[(int)ddVar->timeStepType];
+                    storeTypeName = storeTypeNames[(int)ddVar->storeType];
+                    varName = ddVar->name;
 
                     if (op->ProduceReportVDD == ReportVDD::Yes) {
                         print(state.files.rdd, "{},{},{} [{}]\n", timeStepName, storeTypeName, varName, unitName);
@@ -4647,7 +4640,7 @@ void ProduceRDDMDD(EnergyPlusData &state)
     state.files.mdd.close();
 } // ProduceRDDMDD()
 
-int AddDDOutVar(EnergyPlusData &state,
+int AddDDOutVar(EnergyPlusData const &state,
                 std::string_view const name, // Variable Name
                 OutputProcessor::TimeStepType const timeStepType,
                 OutputProcessor::StoreType const storeType,
@@ -4669,7 +4662,7 @@ int AddDDOutVar(EnergyPlusData &state,
     using namespace OutputProcessor;
 
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-    auto &op = state.dataOutputProcessor;
+    auto const &op = state.dataOutputProcessor;
 
     std::string nameUC = Util::makeUPPER(name);
 

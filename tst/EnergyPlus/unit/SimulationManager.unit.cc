@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -125,7 +125,7 @@ TEST_F(EnergyPlusFixture, Simulationmanager_bool_to_string)
     EXPECT_EQ(SimulationManager::bool_to_string(false), "False");
 }
 
-TEST_F(EnergyPlusFixture, Simulationmanager_writeIntialPerfLogValues)
+TEST_F(EnergyPlusFixture, Simulationmanager_writeInitialPerfLogValues)
 {
     state->dataStrGlobals->outputPerfLogFilePath = "eplusout_perflog.csv";
 
@@ -136,7 +136,7 @@ TEST_F(EnergyPlusFixture, Simulationmanager_writeIntialPerfLogValues)
     Util::appendPerfLog(*state, "RESET", "RESET");
 
     // call the function to test
-    SimulationManager::writeIntialPerfLogValues(*state, "MODE193");
+    SimulationManager::writeInitialPerfLogValues(*state, "MODE193");
 
     // force the file to be written
     Util::appendPerfLog(*state, "lastHeader", "lastValue", true);

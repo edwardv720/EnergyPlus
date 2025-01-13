@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -118,7 +118,7 @@ namespace Furnaces {
     // METHODOLOGY EMPLOYED:
     // Calculates the part-load ratio of the HVAC system to meet the zone sensible load. For non-heat pump HVAC systems,
     // if humidity control is specified and the latent capacity at the sensible PLR is insufficient to meet the latent load,
-    // calculate a latent part-load ratio to meet the zone sensible load (MultiMode dehumidificaiton control) or the zone
+    // calculate a latent part-load ratio to meet the zone sensible load (MultiMode dehumidification control) or the zone
     // latent load (CoolReheat dehumidification control). Use the greater of the sensible PLR and latent PLR to control
     // the HVAC system.
     // Subroutines:
@@ -134,10 +134,10 @@ namespace Furnaces {
     // CalcNewZoneHeatCoolFlowRates - HeatCool furnace/unitarysystem and air-to-air HeatPump routine.
     //                                Calculates a part-load ratio for the system (sensible and/or latent).
     //                                For dehumidification control type COOLREHEAT, both a sensible and latent PLR
-    //                                may exist for a single time step (heating and dehumidificaiton can occur). For all
+    //                                may exist for a single time step (heating and dehumidification can occur). For all
     //                                other system types, only a single PLR is allowed for any given time step.
     //                                Order of simulation depends on dehumidification control option as described below.
-    // Dehumidificaiton control options (non-heat pump versions):
+    // Dehumidification control options (non-heat pump versions):
     // Dehumidification Control NONE:   Cooling performance is simulated first and then heating performance. If a HX
     //                                  assisted cooling coil is selected, the HX is always active (cooling).
     // Dehumidification Control COOLREHEAT: For cooling operation, the sensible capacity is calculated to
@@ -164,8 +164,6 @@ namespace Furnaces {
 
     // MODULE PARAMETER DEFINITIONS
     static constexpr std::string_view BlankString;
-
-    constexpr std::string_view fluidNameSteam("STEAM");
 
     // Functions
 
@@ -309,7 +307,7 @@ namespace Furnaces {
                 state.dataFans->fans(thisFurnace.FanIndex)->simulate(state, FirstHVACIteration, state.dataFurnaces->FanSpeedRatio);
             }
         } break;
-            // Simulate HeatCool sytems:
+            // Simulate HeatCool systems:
         case HVAC::UnitarySysType::Furnace_HeatCool:
         case HVAC::UnitarySysType::Unitary_HeatCool: {
             if (thisFurnace.CoolingCoilType_Num == HVAC::Coil_CoolingAirToAirVariableSpeed) {
@@ -413,7 +411,7 @@ namespace Furnaces {
 
                 // Simulate furnace reheat coil if a humidistat is used or if the reheat coil is present
                 if (thisFurnace.DehumidControlType_Num == DehumidificationControlMode::CoolReheat || thisFurnace.SuppHeatCoilIndex > 0) {
-                    SuppHeatingCoilFlag = true; // if truee simulates supplemental heating coil
+                    SuppHeatingCoilFlag = true; // if true simulates supplemental heating coil
                     CalcNonDXHeatingCoils(state, FurnaceNum, SuppHeatingCoilFlag, FirstHVACIteration, ReheatCoilLoad, fanOp, QActual);
                 }
             }
@@ -518,7 +516,7 @@ namespace Furnaces {
                 // Simulate furnace reheat coil if a humidistat is present, the dehumidification type of coolreheat and
                 // reheat coil load exists
                 if (thisFurnace.DehumidControlType_Num == DehumidificationControlMode::CoolReheat && ReheatCoilLoad > 0.0) {
-                    SuppHeatingCoilFlag = true; // if truee simulates supplemental heating coil
+                    SuppHeatingCoilFlag = true; // if true simulates supplemental heating coil
                     CalcNonDXHeatingCoils(state, FurnaceNum, SuppHeatingCoilFlag, FirstHVACIteration, ReheatCoilLoad, fanOp, QActual);
                 } else {
                     SuppHeatingCoilFlag = true; // if true simulates supplemental heating coil
@@ -733,7 +731,6 @@ namespace Furnaces {
         std::string FanName;           // Used in mining function CALLS
         bool PrintMessage;             // Used in mining function CALLS
         int HeatingCoilPLFCurveIndex;  // index of heating coil PLF curve
-        int SteamIndex;                // steam coil index
         Real64 SteamDensity;           // density of steam at 100C
         int DXCoilIndex;               // Index to DX coil in HXAssited object
         std::string IHPCoilName;       // IHP cooling coil name
@@ -1130,9 +1127,7 @@ namespace Furnaces {
                     // Get the Heating Coil steam max volume flow rate
                     thisFurnace.MaxHeatCoilFluidFlow = SteamCoils::GetCoilMaxSteamFlowRate(state, thisFurnace.HeatingCoilIndex, errFlag);
                     if (thisFurnace.MaxHeatCoilFluidFlow > 0.0) {
-                        SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
-                        SteamDensity = FluidProperties::GetSatDensityRefrig(
-                            state, fluidNameSteam, state.dataFurnaces->TempSteamIn, 1.0, SteamIndex, getUnitaryHeatOnly);
+                        SteamDensity = Fluid::GetSteam(state)->getSatDensity(state, state.dataFurnaces->TempSteamIn, 1.0, getUnitaryHeatOnly);
                         thisFurnace.MaxHeatCoilFluidFlow *= SteamDensity;
                     }
 
@@ -1672,9 +1667,8 @@ namespace Furnaces {
                     // Get the Heating Coil steam max volume flow rate
                     thisFurnace.MaxHeatCoilFluidFlow = SteamCoils::GetCoilMaxSteamFlowRate(state, thisFurnace.HeatingCoilIndex, errFlag);
                     if (thisFurnace.MaxHeatCoilFluidFlow > 0.0) {
-                        SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
-                        SteamDensity = FluidProperties::GetSatDensityRefrig(
-                            state, fluidNameSteam, state.dataFurnaces->TempSteamIn, 1.0, SteamIndex, getAirLoopHVACHeatCoolInput);
+                        SteamDensity =
+                            Fluid::GetSteam(state)->getSatDensity(state, state.dataFurnaces->TempSteamIn, 1.0, getAirLoopHVACHeatCoolInput);
                         thisFurnace.MaxHeatCoilFluidFlow *= SteamDensity;
                     }
 
@@ -2129,9 +2123,8 @@ namespace Furnaces {
                         // Get the Heating Coil steam max volume flow rate
                         thisFurnace.MaxSuppCoilFluidFlow = SteamCoils::GetCoilMaxSteamFlowRate(state, thisFurnace.SuppHeatCoilIndex, errFlag);
                         if (thisFurnace.MaxSuppCoilFluidFlow > 0.0) {
-                            SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
-                            SteamDensity = FluidProperties::GetSatDensityRefrig(
-                                state, fluidNameSteam, state.dataFurnaces->TempSteamIn, 1.0, SteamIndex, getAirLoopHVACHeatCoolInput);
+                            SteamDensity =
+                                Fluid::GetSteam(state)->getSatDensity(state, state.dataFurnaces->TempSteamIn, 1.0, getAirLoopHVACHeatCoolInput);
                             thisFurnace.MaxSuppCoilFluidFlow =
                                 SteamCoils::GetCoilMaxSteamFlowRate(state, thisFurnace.SuppHeatCoilIndex, errFlag) * SteamDensity;
                         }
@@ -2155,7 +2148,7 @@ namespace Furnaces {
                         }
                     }
 
-                } else { // Illeagal heating coil
+                } else { // Illegal heating coil
                     ShowSevereError(state, format("{} = {}", CurrentModuleObject, Alphas(1)));
                     ShowContinueError(state, format("Illegal {} = {}", cAlphaFields(15), Alphas(15)));
                     ErrorsFound = true;
@@ -3136,9 +3129,8 @@ namespace Furnaces {
                     // Get the Heating Coil steam max volume flow rate
                     thisFurnace.MaxSuppCoilFluidFlow = SteamCoils::GetCoilMaxSteamFlowRate(state, thisFurnace.SuppHeatCoilIndex, errFlag);
                     if (thisFurnace.MaxSuppCoilFluidFlow > 0.0) {
-                        SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
-                        SteamDensity = FluidProperties::GetSatDensityRefrig(
-                            state, fluidNameSteam, state.dataFurnaces->TempSteamIn, 1.0, SteamIndex, getAirLoopHVACHeatCoolInput);
+                        SteamDensity =
+                            Fluid::GetSteam(state)->getSatDensity(state, state.dataFurnaces->TempSteamIn, 1.0, getAirLoopHVACHeatCoolInput);
                         thisFurnace.MaxSuppCoilFluidFlow =
                             SteamCoils::GetCoilMaxSteamFlowRate(state, thisFurnace.SuppHeatCoilIndex, errFlag) * SteamDensity;
                     }
@@ -3953,9 +3945,8 @@ namespace Furnaces {
                     // Get the Heating Coil steam max volume flow rate
                     thisFurnace.MaxSuppCoilFluidFlow = SteamCoils::GetCoilMaxSteamFlowRate(state, thisFurnace.SuppHeatCoilIndex, errFlag);
                     if (thisFurnace.MaxSuppCoilFluidFlow > 0.0) {
-                        SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
-                        SteamDensity = FluidProperties::GetSatDensityRefrig(
-                            state, fluidNameSteam, state.dataFurnaces->TempSteamIn, 1.0, SteamIndex, getAirLoopHVACHeatCoolInput);
+                        SteamDensity =
+                            Fluid::GetSteam(state)->getSatDensity(state, state.dataFurnaces->TempSteamIn, 1.0, getAirLoopHVACHeatCoolInput);
                         thisFurnace.MaxSuppCoilFluidFlow =
                             SteamCoils::GetCoilMaxSteamFlowRate(state, thisFurnace.SuppHeatCoilIndex, errFlag) * SteamDensity;
                     }
@@ -4785,11 +4776,8 @@ namespace Furnaces {
                     thisFurnace.MaxHeatCoilFluidFlow =
                         WaterCoils::GetCoilMaxWaterFlowRate(state, "Coil:Heating:Water", thisFurnace.HeatingCoilName, ErrorsFound);
                     if (thisFurnace.MaxHeatCoilFluidFlow > 0.0) {
-                        rho = FluidProperties::GetDensityGlycol(state,
-                                                                state.dataPlnt->PlantLoop(thisFurnace.plantLoc.loopNum).FluidName,
-                                                                Constant::HWInitConvTemp,
-                                                                state.dataPlnt->PlantLoop(thisFurnace.plantLoc.loopNum).FluidIndex,
-                                                                RoutineName);
+                        rho =
+                            state.dataPlnt->PlantLoop(thisFurnace.plantLoc.loopNum).glycol->getDensity(state, Constant::HWInitConvTemp, RoutineName);
                         thisFurnace.MaxHeatCoilFluidFlow *= rho;
                     }
                 } else if (thisFurnace.HeatingCoilType_Num == HVAC::Coil_HeatingSteam) {
@@ -4810,9 +4798,7 @@ namespace Furnaces {
                     }
                     thisFurnace.MaxHeatCoilFluidFlow = SteamCoils::GetCoilMaxSteamFlowRate(state, thisFurnace.HeatingCoilIndex, ErrorsFound);
                     if (thisFurnace.MaxHeatCoilFluidFlow > 0.0) {
-                        int SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
-                        SteamDensity = FluidProperties::GetSatDensityRefrig(
-                            state, fluidNameSteam, state.dataFurnaces->TempSteamIn, 1.0, SteamIndex, RoutineName);
+                        SteamDensity = Fluid::GetSteam(state)->getSatDensity(state, state.dataFurnaces->TempSteamIn, 1.0, RoutineName);
                         thisFurnace.MaxHeatCoilFluidFlow *= SteamDensity;
                     }
                 }
@@ -4848,11 +4834,8 @@ namespace Furnaces {
                     thisFurnace.MaxSuppCoilFluidFlow =
                         WaterCoils::GetCoilMaxWaterFlowRate(state, "Coil:Heating:Water", thisFurnace.SuppHeatCoilName, ErrorsFound);
                     if (thisFurnace.MaxSuppCoilFluidFlow > 0.0) {
-                        rho = FluidProperties::GetDensityGlycol(state,
-                                                                state.dataPlnt->PlantLoop(thisFurnace.SuppPlantLoc.loopNum).FluidName,
-                                                                Constant::HWInitConvTemp,
-                                                                state.dataPlnt->PlantLoop(thisFurnace.SuppPlantLoc.loopNum).FluidIndex,
-                                                                RoutineName);
+                        rho = state.dataPlnt->PlantLoop(thisFurnace.SuppPlantLoc.loopNum)
+                                  .glycol->getDensity(state, Constant::HWInitConvTemp, RoutineName);
                         thisFurnace.MaxSuppCoilFluidFlow *= rho;
                     }
                 } else if (thisFurnace.SuppHeatCoilType_Num == HVAC::Coil_HeatingSteam) {
@@ -4872,9 +4855,7 @@ namespace Furnaces {
                     }
                     thisFurnace.MaxSuppCoilFluidFlow = SteamCoils::GetCoilMaxSteamFlowRate(state, thisFurnace.SuppHeatCoilIndex, ErrorsFound);
                     if (thisFurnace.MaxSuppCoilFluidFlow > 0.0) {
-                        int SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
-                        SteamDensity = FluidProperties::GetSatDensityRefrig(
-                            state, fluidNameSteam, state.dataFurnaces->TempSteamIn, 1.0, SteamIndex, RoutineName);
+                        SteamDensity = Fluid::GetSteam(state)->getSatDensity(state, state.dataFurnaces->TempSteamIn, 1.0, RoutineName);
                         thisFurnace.MaxSuppCoilFluidFlow *= SteamDensity;
                     }
                 }
@@ -4916,11 +4897,8 @@ namespace Furnaces {
                         CoilMaxVolFlowRate =
                             WaterCoils::GetCoilMaxWaterFlowRate(state, "Coil:Heating:Water", thisFurnace.HeatingCoilName, ErrorsFound);
                         if (CoilMaxVolFlowRate != DataSizing::AutoSize) {
-                            rho = FluidProperties::GetDensityGlycol(state,
-                                                                    state.dataPlnt->PlantLoop(thisFurnace.plantLoc.loopNum).FluidName,
-                                                                    Constant::HWInitConvTemp,
-                                                                    state.dataPlnt->PlantLoop(thisFurnace.plantLoc.loopNum).FluidIndex,
-                                                                    RoutineName);
+                            rho = state.dataPlnt->PlantLoop(thisFurnace.plantLoc.loopNum)
+                                      .glycol->getDensity(state, Constant::HWInitConvTemp, RoutineName);
                             thisFurnace.MaxHeatCoilFluidFlow = CoilMaxVolFlowRate * rho;
                         }
                     }
@@ -4934,9 +4912,7 @@ namespace Furnaces {
                                                                 QActual); // QCoilReq, simulate any load > 0 to get max capacity
                         CoilMaxVolFlowRate = SteamCoils::GetCoilMaxSteamFlowRate(state, thisFurnace.HeatingCoilIndex, ErrorsFound);
                         if (CoilMaxVolFlowRate != DataSizing::AutoSize) {
-                            int SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
-                            SteamDensity = FluidProperties::GetSatDensityRefrig(
-                                state, fluidNameSteam, state.dataFurnaces->TempSteamIn, 1.0, SteamIndex, RoutineName);
+                            SteamDensity = Fluid::GetSteam(state)->getSatDensity(state, state.dataFurnaces->TempSteamIn, 1.0, RoutineName);
                             thisFurnace.MaxHeatCoilFluidFlow = CoilMaxVolFlowRate * SteamDensity;
                         }
                     }
@@ -4954,11 +4930,8 @@ namespace Furnaces {
                         CoilMaxVolFlowRate =
                             WaterCoils::GetCoilMaxWaterFlowRate(state, "Coil:Heating:Water", thisFurnace.SuppHeatCoilName, ErrorsFound);
                         if (CoilMaxVolFlowRate != DataSizing::AutoSize) {
-                            rho = FluidProperties::GetDensityGlycol(state,
-                                                                    state.dataPlnt->PlantLoop(thisFurnace.SuppPlantLoc.loopNum).FluidName,
-                                                                    Constant::HWInitConvTemp,
-                                                                    state.dataPlnt->PlantLoop(thisFurnace.SuppPlantLoc.loopNum).FluidIndex,
-                                                                    RoutineName);
+                            rho = state.dataPlnt->PlantLoop(thisFurnace.SuppPlantLoc.loopNum)
+                                      .glycol->getDensity(state, Constant::HWInitConvTemp, RoutineName);
                             thisFurnace.MaxSuppCoilFluidFlow = CoilMaxVolFlowRate * rho;
                         }
                     }
@@ -4971,9 +4944,7 @@ namespace Furnaces {
                                                                 QActual); // QCoilReq, simulate any load > 0 to get max capacity
                         CoilMaxVolFlowRate = SteamCoils::GetCoilMaxSteamFlowRate(state, thisFurnace.SuppHeatCoilIndex, ErrorsFound);
                         if (CoilMaxVolFlowRate != DataSizing::AutoSize) {
-                            int SteamIndex = 0; // Function GetSatDensityRefrig will look up steam index if 0 is passed
-                            SteamDensity = FluidProperties::GetSatDensityRefrig(
-                                state, fluidNameSteam, state.dataFurnaces->TempSteamIn, 1.0, SteamIndex, RoutineName);
+                            SteamDensity = Fluid::GetSteam(state)->getSatDensity(state, state.dataFurnaces->TempSteamIn, 1.0, RoutineName);
                             thisFurnace.MaxSuppCoilFluidFlow = CoilMaxVolFlowRate * SteamDensity;
                         }
                     }
@@ -5823,7 +5794,7 @@ namespace Furnaces {
         //                      Bo Shen, ORNL, July 2012 - added variable-speed air source heat pump cooling and heating coils, using curve-fits
 
         // PURPOSE OF THIS SUBROUTINE:
-        // This subroutine is for sizing Furnace Components for which nominal cpacities
+        // This subroutine is for sizing Furnace Components for which nominal capacities
         // and flow rates have not been specified in the input
 
         // METHODOLOGY EMPLOYED:
@@ -6451,10 +6422,10 @@ namespace Furnaces {
         // the operating PLR (greater of the sensible and latent PLR) to meet the zone SENSIBLE load
         // (Multimode dehumidification control) or zone LATENT load (CoolReheat dehumidification control).
         // For dehumidification control type COOLREHEAT, both a sensible and latent PLR may exist for a
-        // single time step (heating and dehumidificaiton can occur). For all other sytem types,
+        // single time step (heating and dehumidification can occur). For all other system types,
         // only a single PLR is allowed for any given time step.
         // Order of simulation depends on dehumidification control option as described below.
-        // Dehumidificaiton control options:
+        // Dehumidification control options:
         // Dehumidification Control NONE:   Cooling performance is simulated first and then heating performance. If a HX
         //                                  assisted cooling coil is selected, the HX is always active.
         // Dehumidification Control COOLREHEAT: Continuous Fan Operation:
@@ -6598,7 +6569,7 @@ namespace Furnaces {
             }
 
             SetAverageAirFlow(state, FurnaceNum, max(thisFurnace.HeatPartLoadRatio, thisFurnace.CoolPartLoadRatio), OnOffAirFlowRatio);
-            //  if dehumidification load exists (for heat pumps) turn on the supplmental heater
+            //  if dehumidification load exists (for heat pumps) turn on the supplemental heater
             if (state.dataFurnaces->HPDehumidificationLoadFlag) HumControl = true;
         } else { // not FirstHVACIteration
             // Init for heating
@@ -7324,7 +7295,7 @@ namespace Furnaces {
                         PartLoadRatio = 0.0;
                     } // EndIf for IF(CoolCoilLoad.NE.0.0)
 
-                    //       Calculate the delivered capacity from the PLR caculated above
+                    //       Calculate the delivered capacity from the PLR calculated above
                     CalcFurnaceOutput(state,
                                       FurnaceNum,
                                       FirstHVACIteration,
@@ -7748,7 +7719,7 @@ namespace Furnaces {
                 }
 
                 //     Calculate the reheat coil output
-                if (HumControl) { // HumControl = .TRUE. if a Humidistat is installed and dehumdification control type is CoolReheat
+                if (HumControl) { // HumControl = .TRUE. if a Humidistat is installed and dehumidification control type is CoolReheat
                     if (thisFurnace.ZoneSequenceHeatingNum > 0) {
                         QToHeatSetPt = (state.dataZoneEnergyDemand->ZoneSysEnergyDemand(thisFurnace.ControlZoneNum)
                                             .SequencedOutputRequiredToHeatingSP(thisFurnace.ZoneSequenceHeatingNum) /
@@ -7866,7 +7837,7 @@ namespace Furnaces {
         Real64 ZoneSensLoadMet;             // Actual zone sensible load met by heat pump (W)
         Real64 ZoneLatLoadMet;              // Actual zone latent load met by heat pump (W)
         Real64 ZoneSensLoadMetFanONCompON;  // Max Zone sensible load heat pump can meet (W)
-        Real64 ZoneLatLoadMetFanONCompON;   // Max Zone latentload heat pump can meet (W)
+        Real64 ZoneLatLoadMetFanONCompON;   // Max Zone latent load heat pump can meet (W)
         Real64 ZoneSensLoadMetFanONCompOFF; // control zone sensible load met using only outside air
         // and fan heat (no coil output) (W)
         Real64 ZoneLatLoadMetFanONCompOFF; // control zone Latent   load met using only outside air
@@ -7889,7 +7860,7 @@ namespace Furnaces {
         Real64 Dummy2 = 0.0;            // used as dummy heat and reheat coil load
         Real64 OnOffAirFlowRatio = 1.0; // Ratio of compressor ON air mass flow to AVERAGE air mass flow over time step
         int FurnaceInletNode = thisFurnace.FurnaceInletNodeNum;
-        HVAC::FanOp fanOp = thisFurnace.fanOp; // fan operting mode
+        HVAC::FanOp fanOp = thisFurnace.fanOp; // fan operating mode
         thisFurnace.MdotFurnace = thisFurnace.DesignMassFlowRate;
 
         //*********INITIAL CALCULATIONS****************
@@ -8452,7 +8423,7 @@ namespace Furnaces {
 
         // Cooling to Heating PLR Ratio (CoolHeatPLRRat) is used to track the air mass flow rate of both the heating
         // and cooling coils when RH control is used and the heating coil operates longer than the cooling coil.
-        // When CoolPartLoadRatio/CoolHeatPLRRat is used, the PLR calculated is acutally the PLR for the heating
+        // When CoolPartLoadRatio/CoolHeatPLRRat is used, the PLR calculated is actually the PLR for the heating
         // coil (heating PLR is greater than cooling PLR), it is this PLR that determines the air mass flow rate.
         // When MAX(HeatPartLoadRatio,CoolPartLoadRatio) is used, only one of these values is non-zero.
         if (fanOp == HVAC::FanOp::Cycling) {
@@ -8733,7 +8704,7 @@ namespace Furnaces {
                 state.dataFans->fans(thisFurnace.FanIndex)->simulate(state, FirstHVACIteration, state.dataFurnaces->FanSpeedRatio);
             }
             if (thisFurnace.DehumidControlType_Num == DehumidificationControlMode::CoolReheat || thisFurnace.SuppHeatCoilIndex > 0) {
-                bool SuppHeatingCoilFlag = true; // if truee simulates supplemental heating coil
+                bool SuppHeatingCoilFlag = true; // if true simulates supplemental heating coil
                 CalcNonDXHeatingCoils(state, FurnaceNum, SuppHeatingCoilFlag, FirstHVACIteration, ReheatCoilLoad, fanOp, QActual);
             }
         } // IF(Furnace(FurnaceNum)%type == UnitarySys_HeatPump_AirToAir)THEN
@@ -9048,7 +9019,7 @@ namespace Furnaces {
         } else {
             state.dataFurnaces->FanSpeedRatio = state.dataFurnaces->CompOnFlowRatio;
         }
-        // IF the furnace is scheduled on or nightime cycle overrides fan schedule. Uses same logic as fan.
+        // IF the furnace is scheduled on or nighttime cycle overrides fan schedule. Uses same logic as fan.
         if (ScheduleManager::GetCurrentScheduleValue(state, state.dataFurnaces->Furnace(FurnaceNum).SchedPtr) > 0.0 &&
             ((ScheduleManager::GetCurrentScheduleValue(state, state.dataFurnaces->Furnace(FurnaceNum).FanAvailSchedPtr) > 0.0 ||
               state.dataHVACGlobal->TurnFansOn) &&
@@ -9100,7 +9071,7 @@ namespace Furnaces {
             }
         }
 
-        // Set mass flow rates during on and off cylce using an OnOff fan
+        // Set mass flow rates during on and off cycle using an OnOff fan
         if (state.afn->distribution_simulated) {
             state.dataAirLoop->AirLoopAFNInfo(AirLoopNum).LoopSystemOnMassFlowrate = state.dataFurnaces->CompOnMassFlow;
             state.dataAirLoop->AirLoopAFNInfo(AirLoopNum).LoopSystemOffMassFlowrate = state.dataFurnaces->CompOffMassFlow;
@@ -9165,7 +9136,7 @@ namespace Furnaces {
         int CoilTypeNum(0);       // heating coil type number
         int HeatingCoilIndex(0);  // heating coil index
         int CoilControlNode(0);   // control node for hot water and steam heating coils
-        int CoilOutletNode(0);    // air outlet node of the heatiing coils
+        int CoilOutletNode(0);    // air outlet node of the heating coils
         PlantLocation plantLoc{}; // plant loop location
 
         Real64 QActual = 0.0;                                               // actual heating load
@@ -9471,7 +9442,7 @@ namespace Furnaces {
         //     Calculate the reheat coil output
         if ((ScheduleManager::GetCurrentScheduleValue(state, thisFurnace.SchedPtr) > 0.0) &&
             (thisFurnace.Humidistat && thisFurnace.DehumidControlType_Num == DehumidificationControlMode::CoolReheat &&
-             (QLatReq < 0.0))) { // if a Humidistat is installed and dehumdification control type is CoolReheat
+             (QLatReq < 0.0))) { // if a Humidistat is installed and dehumidification control type is CoolReheat
             CalcVarSpeedHeatPump(state,
                                  FurnaceNum,
                                  FirstHVACIteration,
@@ -9579,9 +9550,9 @@ namespace Furnaces {
             if (TotBranchNum == 1) {
                 int ZoneSideNodeNum = state.dataAirLoop->AirToZoneNodeInfo(AirLoopNum).ZoneEquipSupplyNodeNum(1);
                 // THE MASS FLOW PRECISION of the system solver is not enough for some small air flow rate iterations , BY DEBUGGING
-                // it may cause mass flow rate occilations between airloop and zoneequip
+                // it may cause mass flow rate oscillations between airloop and zoneequip
                 // specify the air flow rate directly for one-to-one system, when the iteration deviation is closing the solver precision level
-                // 0.02 is 2 * HVACFlowRateToler, in order to accomodate the system solver precision level
+                // 0.02 is 2 * HVACFlowRateToler, in order to accommodate the system solver precision level
                 if (std::abs(AirMassFlow - state.dataLoopNodes->Node(ZoneSideNodeNum).MassFlowRate) < 0.02)
                     state.dataLoopNodes->Node(ZoneSideNodeNum).MassFlowRateMaxAvail = AirMassFlow;
                 state.dataLoopNodes->Node(ZoneSideNodeNum).MassFlowRate = AirMassFlow;
@@ -10052,7 +10023,7 @@ namespace Furnaces {
         //       DATE WRITTEN:    March 2012
 
         // PURPOSE OF THIS SUBROUTINE:
-        //  This routine will calcultes MSHP performance based on given system load
+        //  This routine will calculates MSHP performance based on given system load
 
         Real64 SavePartloadRatio = 0.0; // part-load ratio
         Real64 SaveSpeedRatio = 0.0;    // speed ratio

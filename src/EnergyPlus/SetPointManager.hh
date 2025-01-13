@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -459,7 +459,7 @@ namespace SetPointManager {
         void calculate(EnergyPlusData &state) override;
     };
 
-    int GetSetPointManagerIndex(EnergyPlusData &state, std::string const &Name);
+    int GetSetPointManagerIndex(EnergyPlusData const &state, std::string const &Name);
 
     void ManageSetPoints(EnergyPlusData &state);
 

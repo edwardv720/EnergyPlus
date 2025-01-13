@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -873,7 +873,7 @@ TEST_F(EnergyPlusFixture, DataHeatBalance_CheckConstructLayers)
     state->dataConstruction->Construct(4).LayerPoint(3) = 6; // window blind
     state->dataConstruction->Construct(4).LayerPoint(4) = 5; // air gap
     state->dataConstruction->Construct(4).LayerPoint(5) = 4; // glass
-    // updated contruction and material layers data
+    // updated construction and material layers data
     EXPECT_EQ(state->dataConstruction->Construct(4).TotLayers, 5);      // outer glass, air gap, blind, air gap, inner glass
     EXPECT_EQ(state->dataConstruction->Construct(4).TotGlassLayers, 2); // outer glass, inner glass
     EXPECT_EQ(state->dataConstruction->Construct(4).TotSolidLayers, 3); // glass, blind, glass

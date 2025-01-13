@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -425,7 +425,7 @@ void sizeZoneSpaceEquipmentPart1(EnergyPlusData &state,
     // Sign convention: SysOutputProvided <0 Supply air is heated on entering zone (zone is cooled)
     //                  SysOutputProvided >0 Supply air is cooled on entering zone (zone is heated)
     if (!state.dataZoneEnergyDemand->DeadBandOrSetback(zoneNum) && std::abs(zsEnergyDemand.RemainingOutputRequired) > HVAC::SmallLoad) {
-        // Determine design supply air temperture and design supply air temperature difference
+        // Determine design supply air temperature and design supply air temperature difference
         if (zsEnergyDemand.RemainingOutputRequired < 0.0) { // Cooling case
             // If the user specify the design cooling supply air temperature, then
             if (zsCalcSizing.ZnCoolDgnSAMethod == SupplyAirTemperature) {

@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -49,13 +49,9 @@
 #define SiteDeepGroundTemperatures_hh_INCLUDED
 
 // C++ Headers
-#include <memory>
-
-// ObjexxFCL Headers
-#include <ObjexxFCL/Array1D.hh>
+#include <array>
 
 // EnergyPlus Headers
-#include <EnergyPlus/Data/BaseData.hh>
 #include <EnergyPlus/EnergyPlus.hh>
 #include <EnergyPlus/GroundTemperatureModeling/BaseGroundTemperatureModel.hh>
 
@@ -65,24 +61,18 @@ namespace EnergyPlus {
 struct EnergyPlusData;
 
 // Derived class for Site:GroundTemperature:Deep
-class SiteDeepGroundTemps : public BaseGroundTempsModel
+struct SiteDeepGroundTemps final : BaseGroundTempsModel
 {
-public:
-    int timeOfSimInMonths;
-    Array1D<Real64> deepGroundTemps;
+    int timeOfSimInMonths = 12;
+    std::array<Real64, 12> deepGroundTemps = {13.0};
 
-    // Default Constructor
-    SiteDeepGroundTemps() : timeOfSimInMonths(0), deepGroundTemps(12, 13.0)
-    {
-    }
-
-    static std::shared_ptr<SiteDeepGroundTemps> DeepGTMFactory(EnergyPlusData &state, std::string objectName);
+    static SiteDeepGroundTemps *DeepGTMFactory(EnergyPlusData &state, const std::string &objectName);
 
     Real64 getGroundTemp([[maybe_unused]] EnergyPlusData &state) override;
 
-    Real64 getGroundTempAtTimeInSeconds(EnergyPlusData &state, Real64 const depth, Real64 const timeInSecondsOfSim) override;
+    Real64 getGroundTempAtTimeInSeconds(EnergyPlusData &state, Real64 depth, Real64 timeInSecondsOfSim) override;
 
-    Real64 getGroundTempAtTimeInMonths(EnergyPlusData &state, Real64 const depth, int const monthOfSim) override;
+    Real64 getGroundTempAtTimeInMonths(EnergyPlusData &state, Real64 depth, int monthOfSim) override;
 };
 
 } // namespace EnergyPlus

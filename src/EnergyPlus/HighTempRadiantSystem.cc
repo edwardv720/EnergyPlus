@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -216,7 +216,7 @@ namespace HighTempRadiantSystem {
         int constexpr iHeatCAPMAlphaNum = 4;                      // get input index to High Temperature Radiant system heating capacity sizing method
         int constexpr iHeatDesignCapacityNumericNum = 1;          // get input index to High Temperature Radiant system heating capacity
         int constexpr iHeatCapacityPerFloorAreaNumericNum = 2;    // index to High Temperature Radiant system heating capacity per floor area sizing
-        int constexpr iHeatFracOfAutosizedCapacityNumericNum = 3; // index to system capacity sizing as fraction of autozized heating capacity
+        int constexpr iHeatFracOfAutosizedCapacityNumericNum = 3; // index to system capacity sizing as fraction of autosized heating capacity
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         Real64 FracOfRadPotentiallyLost; // Difference between unity and AllFracsSummed for error reporting
@@ -650,7 +650,7 @@ namespace HighTempRadiantSystem {
         }
 
         if (!state.dataGlobal->SysSizingCalc && state.dataHighTempRadSys->MySizeFlag(RadSysNum)) {
-            // for each radiant systen do the sizing once.
+            // for each radiant system do the sizing once.
             SizeHighTempRadiantSystem(state, RadSysNum);
             state.dataHighTempRadSys->MySizeFlag(RadSysNum) = false;
         }
@@ -950,7 +950,7 @@ namespace HighTempRadiantSystem {
                     HeatBalanceSurfaceManager::CalcHeatBalanceInsideSurf(state, ZoneNum);
 
                     // Redetermine the current value of the controlling temperature
-                    auto &thisZoneHBMod = state.dataZoneTempPredictorCorrector->zoneHeatBalance(ZoneNum);
+                    auto const &thisZoneHBMod = state.dataZoneTempPredictorCorrector->zoneHeatBalance(ZoneNum);
                     switch (thisHTR.ControlType) {
                     case RadControlType::MATControl: {
                         ZoneTemp = thisZoneHBMod.MAT;

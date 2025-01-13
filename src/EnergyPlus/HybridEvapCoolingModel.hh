@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -288,12 +288,12 @@ namespace HybridEvapCoolingModel {
         Real64 QLatentZoneOut;               // W
         Real64 QLatentZoneOutMass;           // kg/s
         Real64 ExternalStaticPressure;       //
-        Real64 RequestedHumdificationMass;
-        Real64 RequestedHumdificationLoad;
-        Real64 RequestedHumdificationEnergy;
-        Real64 RequestedDeHumdificationMass;
-        Real64 RequestedDeHumdificationLoad;
-        Real64 RequestedDeHumdificationEnergy;
+        Real64 RequestedHumidificationMass;
+        Real64 RequestedHumidificationLoad;
+        Real64 RequestedHumidificationEnergy;
+        Real64 RequestedDeHumidificationMass;
+        Real64 RequestedDeHumidificationLoad;
+        Real64 RequestedDeHumidificationEnergy;
         Real64 RequestedLoadToHeatingSetpoint;
         Real64 RequestedLoadToCoolingSetpoint;
         int TsaMin_schedule_pointer;

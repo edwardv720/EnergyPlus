@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -170,7 +170,7 @@ namespace GeneratorDynamicsManager {
         // Control decision results include:
         //     -- electrical load allowed/resulting/provided
         //     -- new operating mode
-        //     -- part load this timestep for shift to normal mode occuring midway in timestep
+        //     -- part load this timestep for shift to normal mode occurring midway in timestep
         //     -- part load this timestep for shift out of cool down mode
 
         // Input data used to make control decisions include:
@@ -527,7 +527,7 @@ namespace GeneratorDynamicsManager {
 
                         newOpMode = DataGenerators::OperatingMode::Standby;
                     }
-                } else { // not mandetory cool donw
+                } else { // not mandatory cool down
                     // likely to go into warm up but if no warm up then back to normal
                     if (thisGen.WarmUpByTimeDelay) {
                         if (thisGen.StartUpTimeDelay == 0.0) {
@@ -747,7 +747,7 @@ namespace GeneratorDynamicsManager {
         // common place to figure flow rates with internal flow control
 
         // METHODOLOGY EMPLOYED:
-        // apply contraints imposed by plant according to flow lock, first HVAC iteration etc.
+        // apply constraints imposed by plant according to flow lock, first HVAC iteration etc.
 
         // Return value
         Real64 FuncDetermineCWMdotForInternalFlowControl;

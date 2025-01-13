@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -47,6 +47,7 @@
 
 // C++ Headers
 #include <cmath>
+#include <numeric>
 #include <string>
 
 // ObjexxFCL Headers
@@ -2050,11 +2051,11 @@ void GetZoneAirSetPoints(EnergyPlusData &state)
                                         OutputProcessor::StoreType::Average,
                                         state.dataHeatBal->Zone(TempControlledZone.ActualZoneNum).Name);
                 } // TStat Objects Loop
-            }     // found thermostat referene
+            }     // found thermostat reference
         }         // loop over NumOpTempControlledZones
     }             // NumOpTempControlledZones > 0
 
-    // Overcool dehumidificaton GetInput starts here
+    // Overcool dehumidification GetInput starts here
     cCurrentModuleObject = cZControlTypes(static_cast<int>(ZoneControlTypes::TandHStat));
     state.dataZoneCtrls->NumTempAndHumidityControlledZones = inputProcessor->getNumObjectsFound(state, cCurrentModuleObject);
 
@@ -2477,7 +2478,7 @@ void GetZoneAirSetPoints(EnergyPlusData &state)
                                            cAlphaArgs(1),
                                            cNumericFieldNames(8),
                                            rNumericArgs(8)));
-                    ShowContinueError(state, ".. The minumum value is 0.");
+                    ShowContinueError(state, ".. The minimum value is 0.");
                     ErrorsFound = true;
                 }
 
@@ -3436,7 +3437,7 @@ void PredictSystemLoads(EnergyPlusData &state,
                         thisZoneThermostatSetPointLo = thisTempControlledZone.ZoneThermostatSetPointLo;
                         thisTempControlledZone.HeatOffFlag = true;
                     }
-                    // check setpoint for both and provde an error message
+                    // check setpoint for both and provide an error message
                     if (thisZoneThermostatSetPointLo >= thisZoneThermostatSetPointHi) {
                         ShowSevereError(state,
                                         "DualSetPointWithDeadBand: When Temperature Difference Between Cutout And Setpoint is applied, the heating "
@@ -3770,7 +3771,7 @@ void CalcZoneAirTempSetPoints(EnergyPlusData &state)
             break;
         }
 
-        // Apply offset for faulty therostats
+        // Apply offset for faulty thermostats
         if ((state.dataFaultsMgr->NumFaultyThermostat > 0) && (!state.dataGlobal->WarmupFlag) && (!state.dataGlobal->DoingSizing) &&
             (!state.dataGlobal->KickOffSimulation)) {
             //  loop through the FaultsThermostatOffset objects to find the one for the zone
@@ -4167,7 +4168,7 @@ Real64 correctZoneAirTemps(EnergyPlusData &state,
                 Real64 spaceTempChange = thisSpaceHB.correctAirTemp(state, useZoneTimeStepHistory, zoneNum, spaceNum);
                 maxTempChange = max(maxTempChange, spaceTempChange);
             } else {
-                // If doing sizing and zone is controled, then set space node to match zone node
+                // If doing sizing and zone is controlled, then set space node to match zone node
                 if (state.dataHeatBal->doSpaceHeatBalanceSizing && thisZone.IsControlled) {
                     auto const &thisZoneNode = state.dataLoopNodes->Node(thisZone.SystemZoneNodeNumber);
                     auto &thisSpaceNode = state.dataLoopNodes->Node(state.dataHeatBal->space(spaceNum).SystemZoneNodeNumber);
@@ -5170,7 +5171,7 @@ void InverseModelTemperature(EnergyPlusData &state,
                                     (TempIndCoef - TempDepCoef * thisZoneHB.ZT);
                 }
 
-                if ((AirCapHM_temp > 0) && (AirCapHM_temp != 1)) {    // Avoide IND
+                if ((AirCapHM_temp > 0) && (AirCapHM_temp != 1)) {    // Avoid IND
                     AirCapHM = TempDepCoef / std::log(AirCapHM_temp); // Inverse equation
                 } else {
                     AirCapHM = TempIndCoef / (thisZoneHB.ZT - state.dataHeatBalFanSys->PreviousMeasuredZT1(ZoneNum));
@@ -5195,7 +5196,7 @@ void InverseModelTemperature(EnergyPlusData &state,
                 state, MultpHM, zone.ZoneVolCapMultpSensHMSum, zone.ZoneVolCapMultpSensHMCountSum, zone.ZoneVolCapMultpSensHMAverage, ZoneNum);
             zone.ZoneVolCapMultpSensHM = MultpHM;
 
-        } // Hybrid model internal thermal mass calcualtion end
+        } // Hybrid model internal thermal mass calculation end
 
         // Hybrid model people count calculation
         if (hybridModelZone.PeopleCountCalc_T && state.dataHVACGlobal->UseZoneTimeStepHistory) {
@@ -5272,7 +5273,7 @@ void processInverseModelMultpHM(EnergyPlusData &state,
                                 Real64 &multiplierHM, // Hybrid model thermal mass multiplier
                                 Real64 &multSumHM,    // Sum of Hybrid model thermal mass multipliers
                                 Real64 &countSumHM,   // Count of number of points in sum
-                                Real64 &multAvgHM,    // Average of hybrid model mass multipier
+                                Real64 &multAvgHM,    // Average of hybrid model mass multiplier
                                 int zoneNum           // Zone number for the hybrid model
 )
 {
@@ -6189,7 +6190,7 @@ void AdjustOperativeSetPointsforAdapComfort(EnergyPlusData &state, int const Tem
     // PURPOSE OF THIS SUBROUTINE:
     // This routine adjust the operative setpoints for each controlled adaptive thermal comfort models.
 
-    auto &tempControlledZone = state.dataZoneCtrls->TempControlledZone(TempControlledZoneID);
+    auto const &tempControlledZone = state.dataZoneCtrls->TempControlledZone(TempControlledZoneID);
     auto const &AdapComfortDailySetPointSchedule = state.dataZoneTempPredictorCorrector->AdapComfortDailySetPointSchedule;
 
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
@@ -6252,7 +6253,7 @@ void CalcZoneAirComfortSetPoints(EnergyPlusData &state)
     //       DATE WRITTEN   May 2006
 
     // PURPOSE OF THIS SUBROUTINE:
-    // This routine sets the thermal comfort setpoints for each controlled zone based on air tempeature obtained from thermal comfort models.
+    // This routine sets the thermal comfort setpoints for each controlled zone based on air temperature obtained from thermal comfort models.
 
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
     Real64 SetPointLo = 0.0;
@@ -6950,7 +6951,7 @@ temperatureAndCountInSch(EnergyPlusData &state, int const scheduleIndex, bool co
 {
     // J.Glazer - Aug 2017
 
-    // determine month to use based on hemiphere and season
+    // determine month to use based on hemisphere and season
     int monthToUse;
     if (isSummer) {
         if (state.dataEnvrn->Latitude > 0.) {
@@ -7021,35 +7022,77 @@ void FillPredefinedTableOnThermostatSchedules(EnergyPlusData &state)
     // J.Glazer - March 2024
     using OutputReportPredefined::PreDefTableEntry;
     auto &orp = state.dataOutRptPredefined;
+
+    // Helper struct so we can sort to ensure a consistent order.
+    // No matter the order in which the multiple Field Sets (Control Object Type, Control Name), the same thing is reported to the tabular outputs
+    struct ControlTypeInfo
+    {
+        // HVAC::ThermostatType tType = HVAC::ThermostatType::Invalid;
+        std::string thermostatType;
+        std::string controlTypeName;
+        std::string heatSchName;
+        std::string coolSchName;
+
+        // Only need the operator<, and we use C++17 so I can't use a defaulted 3-way operator<=>
+        bool operator<(const ControlTypeInfo &other) const
+        {
+            return std::tie(this->thermostatType, this->controlTypeName, this->heatSchName, this->coolSchName) <
+                   std::tie(other.thermostatType, other.controlTypeName, other.heatSchName, other.coolSchName);
+        }
+    };
+    using ControlTypeInfoMemPtr = std::string ControlTypeInfo::*;
+
+    auto joinStrings = [](const std::vector<ControlTypeInfo> &infos, ControlTypeInfoMemPtr memPtr) -> std::string {
+        std::vector<std::string> result;
+        result.reserve(infos.size());
+        for (const auto &info : infos) {
+            std::string val = info.*memPtr;
+            if (val.empty()) {
+                continue;
+            }
+            result.emplace_back(std::move(val));
+        }
+        return fmt::format("{}", fmt::join(result, ", "));
+    };
+
     for (int idx = 1; idx <= state.dataZoneCtrls->NumTempControlledZones; ++idx) {
         auto &tcz = state.dataZoneCtrls->TempControlledZone(idx);
         PreDefTableEntry(state, orp->pdchStatName, tcz.ZoneName, tcz.Name);
         PreDefTableEntry(state, orp->pdchStatCtrlTypeSchd, tcz.ZoneName, tcz.ControlTypeSchedName);
+
+        std::vector<ControlTypeInfo> infos;
+        infos.reserve(tcz.NumControlTypes);
         for (int ctInx = 1; ctInx <= tcz.NumControlTypes; ++ctInx) {
-            PreDefTableEntry(state, orp->pdchStatSchdType1, tcz.ZoneName, HVAC::thermostatTypeNames[(int)tcz.ControlTypeEnum(ctInx)]);
-            PreDefTableEntry(state, orp->pdchStatSchdTypeName1, tcz.ZoneName, tcz.ControlTypeName(1));
+            ControlTypeInfo info;
+            info.thermostatType = HVAC::thermostatTypeNames[(int)tcz.ControlTypeEnum(ctInx)];
+            info.controlTypeName = tcz.ControlTypeName(ctInx);
             switch (tcz.ControlTypeEnum(ctInx)) {
             case HVAC::ThermostatType::DualSetPointWithDeadBand:
-                PreDefTableEntry(
-                    state, orp->pdchStatSchdHeatName, tcz.ZoneName, ScheduleManager::GetScheduleName(state, tcz.SchIndx_DualSetPointWDeadBandHeat));
-                PreDefTableEntry(
-                    state, orp->pdchStatSchdCoolName, tcz.ZoneName, ScheduleManager::GetScheduleName(state, tcz.SchIndx_DualSetPointWDeadBandCool));
+                info.coolSchName = ScheduleManager::GetScheduleName(state, tcz.SchIndx_DualSetPointWDeadBandCool);
+                info.heatSchName = ScheduleManager::GetScheduleName(state, tcz.SchIndx_DualSetPointWDeadBandHeat);
                 break;
             case HVAC::ThermostatType::SingleHeatCool:
-                PreDefTableEntry(
-                    state, orp->pdchStatSchdHeatName, tcz.ZoneName, ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleHeatCoolSetPoint));
-                PreDefTableEntry(
-                    state, orp->pdchStatSchdCoolName, tcz.ZoneName, ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleHeatCoolSetPoint));
+                info.coolSchName = ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleHeatCoolSetPoint);
+                info.heatSchName = ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleHeatCoolSetPoint);
                 break;
             case HVAC::ThermostatType::SingleCooling:
-                PreDefTableEntry(
-                    state, orp->pdchStatSchdHeatName, tcz.ZoneName, ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleCoolSetPoint));
+                info.coolSchName = ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleCoolSetPoint);
                 break;
             case HVAC::ThermostatType::SingleHeating:
-                PreDefTableEntry(
-                    state, orp->pdchStatSchdCoolName, tcz.ZoneName, ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleHeatSetPoint));
+                info.heatSchName = ScheduleManager::GetScheduleName(state, tcz.SchIndx_SingleHeatSetPoint);
                 break;
             }
+            infos.emplace_back(std::move(info));
+        }
+        std::sort(infos.begin(), infos.end());
+
+        PreDefTableEntry(state, orp->pdchStatSchdType1, tcz.ZoneName, joinStrings(infos, &ControlTypeInfo::thermostatType));
+        PreDefTableEntry(state, orp->pdchStatSchdTypeName1, tcz.ZoneName, joinStrings(infos, &ControlTypeInfo::controlTypeName));
+        if (auto heatSchNames = joinStrings(infos, &ControlTypeInfo::heatSchName); !heatSchNames.empty()) {
+            PreDefTableEntry(state, orp->pdchStatSchdHeatName, tcz.ZoneName, heatSchNames);
+        }
+        if (auto coolSchNames = joinStrings(infos, &ControlTypeInfo::coolSchName); !coolSchNames.empty()) {
+            PreDefTableEntry(state, orp->pdchStatSchdCoolName, tcz.ZoneName, coolSchNames);
         }
     }
 }
