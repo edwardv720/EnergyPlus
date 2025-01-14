@@ -18,7 +18,9 @@ body:
         Please change this line to a description of the defect, with useful supporting information including how the issue was found,
         conditions that trigger this defect, workarounds for users of the current version,
         and a clear description of how to validate that a fix is complete for this defect.
-      placeholder: Include all applicable information with details to help us reproduce your problem
+
+        You **can supply a link to your IDF if applicable**, or rename it to in.idf.txt and upload it directly here by drag and drop
+      placeholder: Include all applicable information with details to help us reproduce your problem.
     validations:
       required: true
 
@@ -26,9 +28,24 @@ body:
     id: operating_system
     attributes:
       label: Operating System
+      multiple: false
       description: What Operating System are you encountering issues on?
       options:
         - All
+        - Windows
+        - Ubuntu
+        - MacOS
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: operating_system_multiple
+    attributes:
+      label: Operating System (Multiple choices)
+      multiple: true
+      description: What Operating System are you encountering issues on?
+      options:
         - Windows
         - Ubuntu
         - MacOS
@@ -81,3 +98,13 @@ body:
         * [ ] Defect file added (list location of defect file here)
         * [ ] Ticket added to EnergyPlus Defect Complexity (Github Project)
         * [ ] Pull request created (the pull request will have additional tasks related to reviewing changes that fix this defect)
+
+  - type: checkboxes
+    id: checklist2
+    attributes:
+      label: Checklist
+      description: Add to this list or remove from it as applicable.  This is a simple templated set of guidelines.
+      options:
+        - label: Defect file added (list location of defect file here)
+        - label: Ticket added to EnergyPlus Defect Complexity (Github Project)
+        - label: Pull request created (the pull request will have additional tasks related to reviewing changes that fix this defect)
