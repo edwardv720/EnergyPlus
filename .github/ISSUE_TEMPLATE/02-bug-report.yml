@@ -95,7 +95,7 @@ body:
       label: Checklist
       description: Add to this list or remove from it as applicable.  This is a simple templated set of guidelines.
       value: |
-        * [ ] Defect file added (list location of defect file here)
+        * [ ] Defect file added: <!-- list location of defect file here -->
         * [ ] Ticket added to EnergyPlus Defect Complexity (Github Project)
         * [ ] Pull request created (the pull request will have additional tasks related to reviewing changes that fix this defect)
 
@@ -105,6 +105,6 @@ body:
       label: Checklist
       description: Add to this list or remove from it as applicable.  This is a simple templated set of guidelines.
       options:
-        - label: Defect file added (list location of defect file here)
+        - label: Defect file added <!-- list location of defect file here -->
         - label: Ticket added to EnergyPlus Defect Complexity (Github Project)
         - label: Pull request created (the pull request will have additional tasks related to reviewing changes that fix this defect)
