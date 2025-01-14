@@ -1,14 +1,13 @@
 name: Bug Report Form
 description: Use this template for reporting an issue, via a form
-labels: Triage
+labels: Triage, UnconfirmedDefect
   # projects: ["NREL/64"]
 body:
   - type: markdown
     attributes:
       value: |
         Thanks for taking the time to submit a report.
-        **Please don't forget to update the issue title.**
-        Include all applicable information to help us reproduce
+        Include all applicable information to help us reproduce.
 
   - type: textarea
     id: description
