@@ -349,24 +349,24 @@ namespace CondenserLoopTowers {
                 tower.DesInletAirDBTemp = 35.0;
                 tower.TowerInletCondsAutoSize = true;
             }
-            tower.DesInletAirWBTemp = NumArray(14);
-            if (tower.DesInletAirWBTemp == 0) {
-                tower.DesInletAirWBTemp = 25.6;
+            tower.DesignInletWB = NumArray(14);
+            if (tower.DesignInletWB == 0) {
+                tower.DesignInletWB = 25.6;
                 tower.TowerInletCondsAutoSize = true;
             }
-            tower.DesApproach = NumArray(15);
-            if (tower.DesApproach == DataSizing::AutoSize || tower.DesApproach == 0) {
-                tower.DesApproach = 3.9;
+            tower.DesignApproach = NumArray(15);
+            if (tower.DesignApproach == DataSizing::AutoSize || tower.DesignApproach == 0) {
+                tower.DesignApproach = 3.9;
                 tower.TowerInletCondsAutoSize = true;
             }
-            tower.DesRange = NumArray(16);
-            if (tower.DesRange == DataSizing::AutoSize || tower.DesRange == 0) {
-                tower.DesRange = 5.5;
+            tower.DesignRange = NumArray(16);
+            if (tower.DesignRange == DataSizing::AutoSize || tower.DesignRange == 0) {
+                tower.DesignRange = 5.5;
                 tower.TowerInletCondsAutoSize = true;
             }
             // set tower design water outlet and inlet temperatures
-            tower.DesOutletWaterTemp = tower.DesInletAirWBTemp + tower.DesApproach;
-            tower.DesInletWaterTemp = tower.DesOutletWaterTemp + tower.DesRange;
+            tower.DesOutletWaterTemp = tower.DesignInletWB + tower.DesignApproach;
+            tower.DesInletWaterTemp = tower.DesOutletWaterTemp + tower.DesignRange;
             //   Basin heater power as a function of temperature must be greater than or equal to 0
             tower.BasinHeaterPowerFTempDiff = NumArray(17);
             if (NumArray(17) < 0.0) {
@@ -710,24 +710,24 @@ namespace CondenserLoopTowers {
                 tower.DesInletAirDBTemp = 35.0;
                 tower.TowerInletCondsAutoSize = true;
             }
-            tower.DesInletAirWBTemp = NumArray(22);
-            if (tower.DesInletAirWBTemp == 0) {
-                tower.DesInletAirWBTemp = 25.6;
+            tower.DesignInletWB = NumArray(22);
+            if (tower.DesignInletWB == 0) {
+                tower.DesignInletWB = 25.6;
                 tower.TowerInletCondsAutoSize = true;
             }
-            tower.DesApproach = NumArray(23);
-            if (tower.DesApproach == DataSizing::AutoSize || tower.DesApproach == 0) {
-                tower.DesApproach = 3.9;
+            tower.DesignApproach = NumArray(23);
+            if (tower.DesignApproach == DataSizing::AutoSize || tower.DesignApproach == 0) {
+                tower.DesignApproach = 3.9;
                 tower.TowerInletCondsAutoSize = true;
             }
-            tower.DesRange = NumArray(24);
-            if (tower.DesRange == DataSizing::AutoSize || tower.DesRange == 0) {
-                tower.DesRange = 5.5;
+            tower.DesignRange = NumArray(24);
+            if (tower.DesignRange == DataSizing::AutoSize || tower.DesignRange == 0) {
+                tower.DesignRange = 5.5;
                 tower.TowerInletCondsAutoSize = true;
             }
             // set tower design water outlet and inlet temperatures
-            tower.DesOutletWaterTemp = tower.DesInletAirWBTemp + tower.DesApproach;
-            tower.DesInletWaterTemp = tower.DesOutletWaterTemp + tower.DesRange;
+            tower.DesOutletWaterTemp = tower.DesignInletWB + tower.DesignApproach;
+            tower.DesInletWaterTemp = tower.DesOutletWaterTemp + tower.DesignRange;
             //   Basin heater power as a function of temperature must be greater than or equal to 0
             tower.BasinHeaterPowerFTempDiff = NumArray(25);
             if (NumArray(25) < 0.0) {
@@ -1635,24 +1635,24 @@ namespace CondenserLoopTowers {
                 tower.DesInletAirDBTemp = 35.0;
                 tower.TowerInletCondsAutoSize = true;
             }
-            tower.DesInletAirWBTemp = NumArray(18);
-            if (tower.DesInletAirWBTemp == 0) {
-                tower.DesInletAirWBTemp = 25.6;
+            tower.DesignInletWB = NumArray(18);
+            if (tower.DesignInletWB == 0) {
+                tower.DesignInletWB = 25.6;
                 tower.TowerInletCondsAutoSize = true;
             }
-            tower.DesApproach = NumArray(19);
-            if (tower.DesApproach == DataSizing::AutoSize || tower.DesApproach == 0) {
-                tower.DesApproach = 3.9;
+            tower.DesignApproach = NumArray(19);
+            if (tower.DesignApproach == DataSizing::AutoSize || tower.DesignApproach == 0) {
+                tower.DesignApproach = 3.9;
                 tower.TowerInletCondsAutoSize = true;
             }
-            tower.DesRange = NumArray(20);
-            if (tower.DesRange == DataSizing::AutoSize || tower.DesRange == 0) {
-                tower.DesRange = 5.5;
+            tower.DesignRange = NumArray(20);
+            if (tower.DesignRange == DataSizing::AutoSize || tower.DesignRange == 0) {
+                tower.DesignRange = 5.5;
                 tower.TowerInletCondsAutoSize = true;
             }
             // set tower design water outlet and inlet temperatures
-            tower.DesOutletWaterTemp = tower.DesInletAirWBTemp + tower.DesApproach;
-            tower.DesInletWaterTemp = tower.DesOutletWaterTemp + tower.DesRange;
+            tower.DesOutletWaterTemp = tower.DesignInletWB + tower.DesignApproach;
+            tower.DesInletWaterTemp = tower.DesOutletWaterTemp + tower.DesignRange;
             //   Basin heater power as a function of temperature must be greater than or equal to 0
             tower.BasinHeaterPowerFTempDiff = NumArray(21);
             if (NumArray(21) < 0.0) {
@@ -2393,7 +2393,7 @@ namespace CondenserLoopTowers {
         Real64 DesTowerExitWaterTemp;     // design tower exit water temperature
         Real64 DesTowerWaterDeltaT;       // design tower temperature range
         Real64 DesTowerApproachFromPlant; // design tower approach temperature from plant sizing object
-        Real64 TolTemp(0.04);             // DeltaT and DesApproach diffs tolerance between plant sizing data and user input in cooling tower
+        Real64 TolTemp(0.04);             // DeltaT and DesignApproach diffs tolerance between plant sizing data and user input in cooling tower
         // for warning message reporting purpose only
 
         Real64 tmpDesignWaterFlowRate = this->DesignWaterFlowRate;
@@ -2426,7 +2426,7 @@ namespace CondenserLoopTowers {
                 // use tower sizing data
                 DesTowerExitWaterTemp = this->DesOutletWaterTemp;
                 DesTowerInletWaterTemp = this->DesInletWaterTemp;
-                DesTowerWaterDeltaT = this->DesRange;
+                DesTowerWaterDeltaT = this->DesignRange;
                 if (PltSizCondNum > 0) {
                     // check the tower range against the plant sizing data
                     if (std::abs(DesTowerWaterDeltaT - PlantSizData(PltSizCondNum).DeltaT) > TolTemp) {
@@ -2438,14 +2438,14 @@ namespace CondenserLoopTowers {
                         ShowContinueError(state,
                                           format("is inconsistent with Design Loop Delta Temperature specified in Sizing:Plant object = {}.",
                                                  PlantSizData(PltSizCondNum).PlantLoopName));
-                        ShowContinueError(state, format("..The Design Range Temperature specified in tower is = {:.2T}", this->DesRange));
+                        ShowContinueError(state, format("..The Design Range Temperature specified in tower is = {:.2T}", this->DesignRange));
                         ShowContinueError(state,
                                           format("..The Design Loop Delta Temperature specified in plant sizing data is = {:.2T}",
                                                  PlantSizData(PltSizCondNum).DeltaT));
                     }
                     // check if the tower approach is different from plant sizing data
-                    DesTowerApproachFromPlant = PlantSizData(PltSizCondNum).ExitTemp - this->DesInletAirWBTemp;
-                    if (std::abs(DesTowerApproachFromPlant - this->DesApproach) > TolTemp) {
+                    DesTowerApproachFromPlant = PlantSizData(PltSizCondNum).ExitTemp - this->DesignInletWB;
+                    if (std::abs(DesTowerApproachFromPlant - this->DesignApproach) > TolTemp) {
                         ShowWarningError(state,
                                          format("Error when autosizing the UA for cooling tower = {}. Tower Design Approach Temperature is "
                                                 "inconsistent with Approach from Plant Sizing Data.",
@@ -2456,7 +2456,7 @@ namespace CondenserLoopTowers {
                         ShowContinueError(state, format("is inconsistent with Design Approach Temperature specified in tower = {}.", this->Name));
                         ShowContinueError(state,
                                           format("..The Design Approach Temperature from inputs specified is = {:.2T}", DesTowerApproachFromPlant));
-                        ShowContinueError(state, format("..The Design Approach Temperature specified in tower is = {:.2T}", this->DesApproach));
+                        ShowContinueError(state, format("..The Design Approach Temperature specified in tower is = {:.2T}", this->DesignApproach));
                     }
                 }
             }
@@ -2673,23 +2673,22 @@ namespace CondenserLoopTowers {
                     DesTowerLoad = rho * Cp * tmpDesignWaterFlowRate * DesTowerWaterDeltaT;
                     // This conditional statement is to trap when the user specified condenser/tower water design setpoint
                     //  temperature is less than design inlet air wet bulb temperature
-                    if (PlantSizData(PltSizCondNum).ExitTemp <= this->DesInletAirWBTemp) {
+                    if (PlantSizData(PltSizCondNum).ExitTemp <= this->DesignInletWB) {
                         ShowSevereError(state,
                                         format("Error when autosizing the UA value for cooling tower = {}. Design Loop Exit Temperature must be "
                                                "greater than {:.2T} C when autosizing the tower UA.",
                                                this->Name,
-                                               this->DesInletAirWBTemp));
+                                               this->DesignInletWB));
                         ShowContinueError(state,
                                           format("The Design Loop Exit Temperature specified in Sizing:Plant object = {} ({:.2T} C)",
                                                  PlantSizData(PltSizCondNum).PlantLoopName,
                                                  PlantSizData(PltSizCondNum).ExitTemp));
                         ShowContinueError(
-                            state,
-                            format("is less than or equal to the design inlet air wet-bulb temperature of {:.2T} C.", this->DesInletAirWBTemp));
+                            state, format("is less than or equal to the design inlet air wet-bulb temperature of {:.2T} C.", this->DesignInletWB));
                         ShowContinueError(state,
                                           format("If using HVACTemplate:Plant:ChilledWaterLoop, then check that input field Condenser Water Design "
                                                  "Setpoint must be > {:.2T} C if autosizing the cooling tower.",
-                                                 this->DesInletAirWBTemp));
+                                                 this->DesignInletWB));
                         ShowFatalError(state, format("Autosizing of cooling tower fails for tower = {}.", this->Name));
                     }
 
@@ -2697,8 +2696,8 @@ namespace CondenserLoopTowers {
                     UA0 = 0.0001 * DesTowerLoad;                                          // Assume deltaT = 10000K (limit)
                     UA1 = DesTowerLoad;                                                   // Assume deltaT = 1K
                     this->WaterTemp = DesTowerInletWaterTemp;
-                    this->AirTemp = this->DesInletAirDBTemp;    // 35.0;
-                    this->AirWetBulb = this->DesInletAirWBTemp; // 25.6;
+                    this->AirTemp = this->DesInletAirDBTemp; // 35.0;
+                    this->AirWetBulb = this->DesignInletWB;  // 25.6;
                     this->AirPress = state.dataEnvrn->StdBaroPress;
                     this->AirHumRat = Psychrometrics::PsyWFnTdbTwbPb(state, this->AirTemp, this->AirWetBulb, this->AirPress);
                     auto f1 = [&state, this, DesTowerLoad, solveDesignWaterMassFlow, tmpHighSpeedAirFlowRate, Cp](Real64 UA) {
@@ -2768,21 +2767,20 @@ namespace CondenserLoopTowers {
                     //  temperature is less than design inlet air wet bulb temperature
                     // Note JM 2018-11-22
                     // * If actually user-specified:
-                    //  this->DesOutletWaterTemp = this->DesInletAirWBTemp
-                    //                                           + this->DesApproach;
+                    //  this->DesOutletWaterTemp = this->DesignInletWB
+                    //                                           + this->DesignApproach;
                     //  DesTowerExitWaterTemp = this->DesOutletWaterTemp;
                     //  => This basically means that approach is negative, which is impossible (must be > 0 per IDD)
                     // * If not, hardcoded above to 21C
-                    if (DesTowerExitWaterTemp <= this->DesInletAirWBTemp) {
+                    if (DesTowerExitWaterTemp <= this->DesignInletWB) {
                         ShowSevereError(state,
                                         format("Error when autosizing the UA value for cooling tower = {}. Design Tower Exit Temperature must be "
                                                "greater than {:.2T} C when autosizing the tower UA.",
                                                this->Name,
-                                               this->DesInletAirWBTemp));
+                                               this->DesignInletWB));
                         ShowContinueError(state, format("The User-specified Design Loop Exit Temperature={:.2T}", DesTowerExitWaterTemp));
                         ShowContinueError(
-                            state,
-                            format("is less than or equal to the design inlet air wet-bulb temperature of {:.2T} C.", this->DesInletAirWBTemp));
+                            state, format("is less than or equal to the design inlet air wet-bulb temperature of {:.2T} C.", this->DesignInletWB));
 
                         if (this->TowerInletCondsAutoSize) {
                             ShowContinueError(state,
@@ -2794,13 +2792,13 @@ namespace CondenserLoopTowers {
                             ShowContinueError(state,
                                               format("The Design Loop Exit Temperature is the sum of the design air inlet wet-bulb temperature= "
                                                      "{:.2T} C plus the cooling tower design approach temperature = {:.2T}C.",
-                                                     this->DesInletAirWBTemp,
-                                                     this->DesApproach));
+                                                     this->DesignInletWB,
+                                                     this->DesignApproach));
                         }
                         ShowContinueError(state,
                                           format("If using HVACTemplate:Plant:ChilledWaterLoop, then check that input field Condenser Water Design "
                                                  "Setpoint must be > {:.2T} C if autosizing the cooling tower.",
-                                                 this->DesInletAirWBTemp));
+                                                 this->DesignInletWB));
                         ShowFatalError(state, format("Autosizing of cooling tower fails for tower = {}.", this->Name));
                     }
 
@@ -2808,8 +2806,8 @@ namespace CondenserLoopTowers {
                     UA0 = 0.0001 * DesTowerLoad;                                    // Assume deltaT = 10000K (limit)
                     UA1 = DesTowerLoad;                                             // Assume deltaT = 1K
                     this->WaterTemp = DesTowerInletWaterTemp;
-                    this->AirTemp = this->DesInletAirDBTemp;    // 35.0;
-                    this->AirWetBulb = this->DesInletAirWBTemp; // 25.6;
+                    this->AirTemp = this->DesInletAirDBTemp; // 35.0;
+                    this->AirWetBulb = this->DesignInletWB;  // 25.6;
                     this->AirPress = state.dataEnvrn->StdBaroPress;
                     this->AirHumRat = Psychrometrics::PsyWFnTdbTwbPb(state, this->AirTemp, this->AirWetBulb, this->AirPress);
                     auto f = [&state, this, DesTowerLoad, solveWaterMassFlow, tmpHighSpeedAirFlowRate, Cp](Real64 UA) {
@@ -2888,7 +2886,7 @@ namespace CondenserLoopTowers {
                 UA1 = DesTowerLoad;                                             // Assume deltaT = 1K
                 this->WaterTemp = this->DesInletWaterTemp;                      // 35.0; // 95F design inlet water temperature
                 this->AirTemp = this->DesInletAirDBTemp;                        // 95F design inlet air dry-bulb temp
-                this->AirWetBulb = this->DesInletAirWBTemp;                     // 78F design inlet air wet-bulb temp
+                this->AirWetBulb = this->DesignInletWB;                         // 78F design inlet air wet-bulb temp
                 this->AirPress = state.dataEnvrn->StdBaroPress;
                 this->AirHumRat = Psychrometrics::PsyWFnTdbTwbPb(state, this->AirTemp, this->AirWetBulb, this->AirPress);
                 auto f = [&state, this, DesTowerLoad, solveWaterFlowRate, tmpHighSpeedAirFlowRate, Cp](Real64 UA) {
@@ -3068,7 +3066,7 @@ namespace CondenserLoopTowers {
                 UA1 = DesTowerLoad;                                         // Assume deltaT = 1K
                 this->WaterTemp = this->DesInletWaterTemp;                  // 35.0; // 95F design inlet water temperature
                 this->AirTemp = this->DesInletAirDBTemp;                    // 35.0; // 95F design inlet air dry-bulb temp
-                this->AirWetBulb = this->DesInletAirWBTemp;                 // 25.6; // 78F design inlet air wet-bulb temp
+                this->AirWetBulb = this->DesignInletWB;                     // 25.6; // 78F design inlet air wet-bulb temp
                 this->AirPress = state.dataEnvrn->StdBaroPress;
                 this->AirHumRat = Psychrometrics::PsyWFnTdbTwbPb(state, this->AirTemp, this->AirWetBulb, this->AirPress);
                 auto f = [&state, this, DesTowerLoad, solveWaterFlow, tmpLowSpeedAirFlowRate, Cp](Real64 UA) {
@@ -3165,7 +3163,7 @@ namespace CondenserLoopTowers {
                 UA1 = DesTowerLoad;                                            // Assume deltaT = 1K
                 this->WaterTemp = this->DesInletWaterTemp;                     // 35.0; // 95F design inlet water temperature
                 this->AirTemp = this->DesInletAirDBTemp;                       // 35.0; // 95F design inlet air dry-bulb temp
-                this->AirWetBulb = this->DesInletAirWBTemp;                    // 25.6; // 78F design inlet air wet-bulb temp
+                this->AirWetBulb = this->DesignInletWB;                        // 25.6; // 78F design inlet air wet-bulb temp
                 this->AirPress = state.dataEnvrn->StdBaroPress;
                 this->AirHumRat = Psychrometrics::PsyWFnTdbTwbPb(state, this->AirTemp, this->AirWetBulb, this->AirPress);
                 auto f = [&state, this, DesTowerLoad, solveWaterFlow, Cp](Real64 UA) {
@@ -3376,7 +3374,7 @@ namespace CondenserLoopTowers {
             OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchCTFCApproach, this->Name, this->DesignApproach);
             OutputReportPredefined::PreDefTableEntry(
                 state, state.dataOutRptPredefined->pdchCTFCDesFanPwr, this->Name, this->HighSpeedFanPower); // equivalent to Design Fan Power?
-            OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchCTFCDesInletAirWBT, this->Name, this->DesInletAirWBTemp);
+            OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchCTFCDesInletAirWBT, this->Name, this->DesignInletWB);
             OutputReportPredefined::PreDefTableEntry(
                 state, state.dataOutRptPredefined->pdchCTFCDesWaterFlowRate, this->Name, this->DesignWaterFlowRate);
             OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchCTFCLevWaterSPTemp, this->Name, this->DesOutletWaterTemp);
@@ -3464,7 +3462,7 @@ namespace CondenserLoopTowers {
         Real64 DesTowerExitWaterTemp;     // design tower exit water temperature
         Real64 DesTowerWaterDeltaT;       // design tower temperature range
         Real64 DesTowerApproachFromPlant; // design tower approach temperature from plant sizing object
-        Real64 TolTemp(0.04);             // DeltaT and DesApproach diffs tolerance between plant sizing data and user input in cooling tower
+        Real64 TolTemp(0.04);             // DeltaT and DesignApproach diffs tolerance between plant sizing data and user input in cooling tower
         // for warning message reporting purpose only
 
         // Find the appropriate Plant Sizing object
@@ -3475,7 +3473,7 @@ namespace CondenserLoopTowers {
         Real64 tmpTowerFreeConvNomCap = this->TowerFreeConvNomCap;
         Real64 tmpDesignAirFlowRate = this->HighSpeedAirFlowRate;
         Real64 tmpFreeConvAirFlowRate = this->FreeConvAirFlowRate;
-        Real64 DesTowerInletAirWBTemp = this->DesInletAirWBTemp;
+        Real64 DesTowerInletAirWBTemp = this->DesignInletWB;
         Real64 DesTowerInletAirDBTemp = this->DesInletAirDBTemp;
 
         auto const &PlantSizData(state.dataSize->PlantSizData);
@@ -3490,13 +3488,13 @@ namespace CondenserLoopTowers {
                 // set default values to replace hard wired input assumptions
                 DesTowerExitWaterTemp = this->DesOutletWaterTemp;
                 DesTowerInletWaterTemp = this->DesInletWaterTemp;
-                DesTowerWaterDeltaT = this->DesRange;
+                DesTowerWaterDeltaT = this->DesignRange;
             }
         } else {
             // use tower sizing data
             DesTowerExitWaterTemp = this->DesOutletWaterTemp;
             DesTowerInletWaterTemp = this->DesInletWaterTemp;
-            DesTowerWaterDeltaT = this->DesRange;
+            DesTowerWaterDeltaT = this->DesignRange;
             if (PltSizCondNum > 0) {
                 // check the tower range against the plant sizing data
                 if (std::abs(DesTowerWaterDeltaT - PlantSizData(PltSizCondNum).DeltaT) > TolTemp) {
@@ -3508,14 +3506,14 @@ namespace CondenserLoopTowers {
                     ShowContinueError(state,
                                       format("is inconsistent with Design Loop Delta Temperature specified in Sizing:Plant object = {}.",
                                              PlantSizData(PltSizCondNum).PlantLoopName));
-                    ShowContinueError(state, format("..The Design Range Temperature specified in tower is = {:.2T}", this->DesRange));
+                    ShowContinueError(state, format("..The Design Range Temperature specified in tower is = {:.2T}", this->DesignRange));
                     ShowContinueError(
                         state,
                         format("..The Design Loop Delta Temperature specified in plant sizing data is = {:.2T}", PlantSizData(PltSizCondNum).DeltaT));
                 }
                 // check if the tower approach is different from plant sizing data
-                DesTowerApproachFromPlant = PlantSizData(PltSizCondNum).ExitTemp - this->DesInletAirWBTemp;
-                if (std::abs(DesTowerApproachFromPlant - this->DesApproach) > TolTemp) {
+                DesTowerApproachFromPlant = PlantSizData(PltSizCondNum).ExitTemp - this->DesignInletWB;
+                if (std::abs(DesTowerApproachFromPlant - this->DesignApproach) > TolTemp) {
                     ShowWarningError(state,
                                      format("Error when autosizing the UA for cooling tower = {}. Tower Design Approach Temperature is inconsistent "
                                             "with Approach from Plant Sizing Data.",
@@ -3526,7 +3524,7 @@ namespace CondenserLoopTowers {
                     ShowContinueError(state, format("is inconsistent with Design Approach Temperature specified in tower = {}.", this->Name));
                     ShowContinueError(state,
                                       format("..The Design Approach Temperature from inputs specified is = {:.2T}", DesTowerApproachFromPlant));
-                    ShowContinueError(state, format("..The Design Approach Temperature specified in tower is = {:.2T}", this->DesApproach));
+                    ShowContinueError(state, format("..The Design Approach Temperature specified in tower is = {:.2T}", this->DesignApproach));
                 }
             }
         }
@@ -3814,8 +3812,8 @@ namespace CondenserLoopTowers {
                 UA0 = 0.0001 * solveLoad;                                   // Assume deltaT = 10000K (limit)
                 UA1 = solveLoad;                                            // Assume deltaT = 1K
 
-                this->AirTemp = this->DesInletAirDBTemp;    // 35.0;
-                this->AirWetBulb = this->DesInletAirWBTemp; // 25.6;
+                this->AirTemp = this->DesInletAirDBTemp; // 35.0;
+                this->AirWetBulb = this->DesignInletWB;  // 25.6;
                 this->AirPress = state.dataEnvrn->StdBaroPress;
                 this->AirHumRat = Psychrometrics::PsyWFnTdbTwbPb(state, this->AirTemp, this->AirWetBulb, this->AirPress);
                 auto f = [&state, this, solveLoad, solveWaterFlow, tmpDesignAirFlowRate, Cp](Real64 UA) {
@@ -3853,7 +3851,7 @@ namespace CondenserLoopTowers {
                 UA0 = max(UA0, 1.0);                                   // limit to 1.0
                 UA1 = solveLoad1;                                      // Assume deltaT = 1K
                 this->AirTemp = this->DesInletAirDBTemp;               // 35.0;
-                this->AirWetBulb = this->DesInletAirWBTemp;            // 25.6;
+                this->AirWetBulb = this->DesignInletWB;                // 25.6;
                 this->AirPress = state.dataEnvrn->StdBaroPress;
                 this->AirHumRat = Psychrometrics::PsyWFnTdbTwbPb(state, this->AirTemp, this->AirWetBulb, this->AirPress);
                 auto f2 = [&state, this, solveLoad1, solveWaterFlow1, tmpFreeConvAirFlowRate, Cp](Real64 UA) {
@@ -4117,8 +4115,8 @@ namespace CondenserLoopTowers {
                     UA0 = 0.0001 * solveLoad;                                   // Assume deltaT = 10000K (limit)
                     UA1 = solveLoad;                                            // Assume deltaT = 1K
                     this->WaterTemp = DesTowerInletWaterTemp;
-                    this->AirTemp = this->DesInletAirDBTemp;    // 35.0;
-                    this->AirWetBulb = this->DesInletAirWBTemp; // 25.6;
+                    this->AirTemp = this->DesInletAirDBTemp; // 35.0;
+                    this->AirWetBulb = this->DesignInletWB;  // 25.6;
                     this->AirPress = state.dataEnvrn->StdBaroPress;
                     this->AirHumRat = Psychrometrics::PsyWFnTdbTwbPb(state, this->AirTemp, this->AirWetBulb, this->AirPress);
                     auto f = [&state, this, solveLoad, solveWaterFlow, tmpDesignAirFlowRate, Cp](Real64 UA) {
