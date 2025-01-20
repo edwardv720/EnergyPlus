@@ -1344,6 +1344,10 @@ namespace CondenserLoopTowers {
                 ErrorsFound = true;
             }
 
+            // set tower design water outlet and inlet temperatures
+            tower.DesOutletWaterTemp = tower.DesignInletWB + tower.DesignApproach;
+            tower.DesInletWaterTemp = tower.DesOutletWaterTemp + tower.DesignRange;
+
             tower.DesignWaterFlowRate = NumArray(4);
             if (tower.DesignWaterFlowRate == DataSizing::AutoSize) {
                 tower.DesignWaterFlowRateWasAutoSized = true;
