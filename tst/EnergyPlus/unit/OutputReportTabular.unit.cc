@@ -13676,3 +13676,172 @@ TEST_F(SQLiteFixture, ORT_EndUseBySubcategorySQL_IPUnitExceptElec)
         ASSERT_EQ(14u, result.size()) << "Failed for query: " << query;
     }
 }
+
+TEST_F(EnergyPlusFixture, OutputReportTabularMonthly_HandleMultipleDuringHoursShown)
+{
+    // Test for #10899
+    std::string const idf_objects = delimited_string({
+        "Output:Table:Monthly,",
+        "  Test,                               !- Name",
+        "  3,                                  !- Digits After Decimal",
+        "  ConditionA,                         !- Variable or Meter 1 Name",
+        "  HoursNonZero,                       !- Aggregation Type for Variable or Meter 1",
+        "  VariableToBeSummedDuringHoursShown, !- Variable or Meter 2 Name",
+        "  SumOrAverageDuringHoursShown,       !- Aggregation Type for Variable or Meter 2",
+        "  ConditionA_Inverse,                 !- Variable or Meter 3 Name",
+        "  HoursNonZero,                       !- Aggregation Type for Variable or Meter 3",
+        "  VariableToBeSummedDuringHoursShown, !- Variable or Meter 4 Name",
+        "  SumOrAverageDuringHoursShown,       !- Aggregation Type for Variable or Meter 4",
+        "  VariableToBeSummedDuringHoursShown, !- Variable or Meter 5 Name",
+        "  SumOrAverage;                       !- Aggregation Type for Variable or Meter 5",
+    });
+
+    ASSERT_TRUE(process_idf(idf_objects));
+
+    // Can't be const since it's taken as a non-const reference in SetupOutputVariable, but I will NOT modify it
+    Real64 VariableToBeSummedDuringHourShown = 1.0;
+
+    Real64 ConditionA = 0.0;
+    Real64 ConditionNotA = 0.0;
+
+    Real64 expectedTotalConditionA = 0.0;
+    Real64 expectedTotalConditionNotA = 0.0;
+
+    auto setConditionAB = [&ConditionA, &ConditionNotA, &expectedTotalConditionA, &expectedTotalConditionNotA](bool isConditionA) {
+        if (isConditionA) {
+            ConditionA = 1.0;
+            ConditionNotA = 0.0;
+        } else {
+            ConditionA = 0.0;
+            ConditionNotA = 1.0;
+        }
+        expectedTotalConditionA += ConditionA;
+        expectedTotalConditionNotA += ConditionNotA;
+    };
+
+    SetupOutputVariable(*state,
+                        "ConditionA",
+                        Constant::Units::J,
+                        ConditionA,
+                        OutputProcessor::TimeStepType::Zone,
+                        OutputProcessor::StoreType::Sum,
+                        "SomethingNamed",
+                        Constant::eResource::Electricity,
+                        OutputProcessor::Group::Invalid,
+                        OutputProcessor::EndUseCat::ExteriorLights,
+                        "General");
+    SetupOutputVariable(*state,
+                        "ConditionA_Inverse",
+                        Constant::Units::J,
+                        ConditionNotA,
+                        OutputProcessor::TimeStepType::Zone,
+                        OutputProcessor::StoreType::Sum,
+                        "SomethingNamed",
+                        Constant::eResource::Electricity,
+                        OutputProcessor::Group::Invalid,
+                        OutputProcessor::EndUseCat::ExteriorLights,
+                        "General");
+    SetupOutputVariable(*state,
+                        "VariableToBeSummedDuringHoursShown",
+                        Constant::Units::J,
+                        VariableToBeSummedDuringHourShown,
+                        OutputProcessor::TimeStepType::Zone,
+                        OutputProcessor::StoreType::Sum,
+                        "SomethingNamed",
+                        Constant::eResource::Electricity,
+                        OutputProcessor::Group::Invalid,
+                        OutputProcessor::EndUseCat::ExteriorLights,
+                        "General");
+
+    state->dataGlobal->DoWeathSim = true;
+    state->dataGlobal->TimeStepZone = 1.0;
+    state->dataGlobal->TimeStepZoneSec = state->dataGlobal->TimeStepZone * 60.0;
+    state->dataHVACGlobal->TimeStepSys = 0.25;
+    state->dataHVACGlobal->TimeStepSysSec = state->dataHVACGlobal->TimeStepSys * Constant::SecInHour;
+
+    auto &ort = state->dataOutRptTab;
+    OutputReportTabular::GetInputTabularMonthly(*state);
+    EXPECT_EQ(ort->MonthlyInputCount, 1);
+    OutputReportTabular::InitializeTabularMonthly(*state);
+
+    compare_err_stream("");
+
+    // I made all 3 variables use the same ObjectName for simplicity (if I use 3 object names, there are actually 3 * 5 = 15 MonthlyColumns...)
+    EXPECT_EQ(5, ort->MonthlyColumns.size());
+
+    constexpr int colConditionA = 1;
+    constexpr int colValueWhenConditionA = 2;
+    constexpr int colConditionNotA = 3;
+    constexpr int colValueWhenConditionNotA = 4;
+    constexpr int colValue = 5;
+    EXPECT_EQ("CONDITIONA", ort->MonthlyColumns(colConditionA).varName);
+    EXPECT_EQ("VARIABLETOBESUMMEDDURINGHOURSSHOWN", ort->MonthlyColumns(colValueWhenConditionA).varName);
+    EXPECT_EQ("CONDITIONA_INVERSE", ort->MonthlyColumns(colConditionNotA).varName);
+    EXPECT_EQ("VARIABLETOBESUMMEDDURINGHOURSSHOWN", ort->MonthlyColumns(colValueWhenConditionNotA).varName);
+    EXPECT_EQ("VARIABLETOBESUMMEDDURINGHOURSSHOWN", ort->MonthlyColumns(colValue).varName);
+
+    state->dataEnvrn->Month = 12;
+
+    {
+        setConditionAB(true);
+        GatherMonthlyResultsForTimestep(*state, OutputProcessor::TimeStepType::Zone);
+        compare_err_stream("");
+        EXPECT_EQ(1.0, ort->MonthlyColumns(colConditionA).reslt(12));
+        EXPECT_EQ(1.0, ort->MonthlyColumns(colValueWhenConditionA).reslt(12));
+        EXPECT_EQ(0.0, ort->MonthlyColumns(colConditionNotA).reslt(12));
+        EXPECT_EQ(0.0, ort->MonthlyColumns(colValueWhenConditionNotA).reslt(12));
+        EXPECT_EQ(1.0, ort->MonthlyColumns(colValue).reslt(12));
+
+        EXPECT_EQ(expectedTotalConditionA, ort->MonthlyColumns(colConditionA).reslt(12));
+        EXPECT_EQ(expectedTotalConditionA, ort->MonthlyColumns(colValueWhenConditionA).reslt(12));
+        EXPECT_EQ(expectedTotalConditionNotA, ort->MonthlyColumns(colConditionNotA).reslt(12));
+        EXPECT_EQ(expectedTotalConditionNotA, ort->MonthlyColumns(colValueWhenConditionNotA).reslt(12));
+        EXPECT_EQ(expectedTotalConditionA + expectedTotalConditionNotA, ort->MonthlyColumns(colValue).reslt(12));
+    }
+
+    {
+        setConditionAB(true);
+        GatherMonthlyResultsForTimestep(*state, OutputProcessor::TimeStepType::Zone);
+        EXPECT_EQ(2.0, ort->MonthlyColumns(colConditionA).reslt(12));
+        EXPECT_EQ(2.0, ort->MonthlyColumns(colValueWhenConditionA).reslt(12));
+        EXPECT_EQ(0.0, ort->MonthlyColumns(colConditionNotA).reslt(12));
+        EXPECT_EQ(0.0, ort->MonthlyColumns(colValueWhenConditionNotA).reslt(12));
+        EXPECT_EQ(2.0, ort->MonthlyColumns(colValue).reslt(12));
+
+        EXPECT_EQ(expectedTotalConditionA, ort->MonthlyColumns(colConditionA).reslt(12));
+        EXPECT_EQ(expectedTotalConditionA, ort->MonthlyColumns(colValueWhenConditionA).reslt(12));
+        EXPECT_EQ(expectedTotalConditionNotA, ort->MonthlyColumns(colConditionNotA).reslt(12));
+        EXPECT_EQ(expectedTotalConditionNotA, ort->MonthlyColumns(colValueWhenConditionNotA).reslt(12));
+        EXPECT_EQ(expectedTotalConditionA + expectedTotalConditionNotA, ort->MonthlyColumns(colValue).reslt(12));
+    }
+
+    {
+        setConditionAB(false);
+        GatherMonthlyResultsForTimestep(*state, OutputProcessor::TimeStepType::Zone);
+        EXPECT_EQ(expectedTotalConditionA, ort->MonthlyColumns(colConditionA).reslt(12));
+        EXPECT_EQ(expectedTotalConditionA, ort->MonthlyColumns(colValueWhenConditionA).reslt(12));
+        EXPECT_EQ(expectedTotalConditionNotA, ort->MonthlyColumns(colConditionNotA).reslt(12));
+        EXPECT_EQ(expectedTotalConditionNotA, ort->MonthlyColumns(colValueWhenConditionNotA).reslt(12));
+        EXPECT_EQ(expectedTotalConditionA + expectedTotalConditionNotA, ort->MonthlyColumns(colValue).reslt(12));
+    }
+
+    {
+        setConditionAB(false);
+        GatherMonthlyResultsForTimestep(*state, OutputProcessor::TimeStepType::Zone);
+        EXPECT_EQ(expectedTotalConditionA, ort->MonthlyColumns(colConditionA).reslt(12));
+        EXPECT_EQ(expectedTotalConditionA, ort->MonthlyColumns(colValueWhenConditionA).reslt(12));
+        EXPECT_EQ(expectedTotalConditionNotA, ort->MonthlyColumns(colConditionNotA).reslt(12));
+        EXPECT_EQ(expectedTotalConditionNotA, ort->MonthlyColumns(colValueWhenConditionNotA).reslt(12));
+        EXPECT_EQ(expectedTotalConditionA + expectedTotalConditionNotA, ort->MonthlyColumns(colValue).reslt(12));
+    }
+
+    {
+        setConditionAB(true);
+        GatherMonthlyResultsForTimestep(*state, OutputProcessor::TimeStepType::Zone);
+        EXPECT_EQ(expectedTotalConditionA, ort->MonthlyColumns(colConditionA).reslt(12));
+        EXPECT_EQ(expectedTotalConditionA, ort->MonthlyColumns(colValueWhenConditionA).reslt(12));
+        EXPECT_EQ(expectedTotalConditionNotA, ort->MonthlyColumns(colConditionNotA).reslt(12));
+        EXPECT_EQ(expectedTotalConditionNotA, ort->MonthlyColumns(colValueWhenConditionNotA).reslt(12));
+        EXPECT_EQ(expectedTotalConditionA + expectedTotalConditionNotA, ort->MonthlyColumns(colValue).reslt(12));
+    }
+}
