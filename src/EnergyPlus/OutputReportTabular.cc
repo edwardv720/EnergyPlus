@@ -47,10 +47,12 @@
 
 // C++ Headers
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cmath>
 #include <iomanip>
 #include <map>
+#include <string_view>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -172,6 +174,22 @@ namespace EnergyPlus::OutputReportTabular {
 using namespace OutputReportPredefined;
 using namespace DataHeatBalance;
 using namespace HybridModel;
+
+constexpr std::array<std::string_view, (int)AggType::Num> AggTypeNamesUC{
+    "SUMORAVERAGE",
+    "MAXIMUM",
+    "MINIMUM",
+    "VALUEWHENMAXIMUMORMINIMUM",
+    "HOURSZERO",
+    "HOURSNONZERO",
+    "HOURSPOSITIVE",
+    "HOURSNONPOSITIVE",
+    "HOURSNEGATIVE",
+    "HOURSNONNEGATIVE",
+    "SUMORAVERAGEDURINGHOURSSHOWN",
+    "MAXIMUMDURINGHOURSSHOWN",
+    "MINIMUMDURINGHOURSSHOWN",
+};
 
 std::ofstream &open_tbl_stream(EnergyPlusData &state, int const iStyle, fs::path const &filePath, bool output_to_file)
 {
@@ -370,44 +388,18 @@ void GetInputTabularMonthly(EnergyPlusData &state)
                                  format("{}: Blank column specified in '{}', need to provide a variable or meter name ",
                                         CurrentModuleObject,
                                         ort->MonthlyInput(TabNum).name));
+                continue;
             }
             std::string const curAggString = AlphArray(jField + 1);
-            AggType curAggType; // kind of aggregation identified (see AggType parameters)
+            // kind of aggregation identified (see AggType parameters)
+            AggType curAggType = static_cast<AggType>(getEnumValue(AggTypeNamesUC, Util::makeUPPER(curAggString)));
             // set accumulator values to default as appropriate for aggregation type
-            if (Util::SameString(curAggString, "SumOrAverage")) {
-                curAggType = AggType::SumOrAvg;
-            } else if (Util::SameString(curAggString, "Maximum")) {
-                curAggType = AggType::Maximum;
-            } else if (Util::SameString(curAggString, "Minimum")) {
-                curAggType = AggType::Minimum;
-            } else if (Util::SameString(curAggString, "ValueWhenMaximumOrMinimum")) {
-                curAggType = AggType::ValueWhenMaxMin;
-            } else if (Util::SameString(curAggString, "HoursZero")) {
-                curAggType = AggType::HoursZero;
-            } else if (Util::SameString(curAggString, "HoursNonzero")) {
-                curAggType = AggType::HoursNonZero;
-            } else if (Util::SameString(curAggString, "HoursPositive")) {
-                curAggType = AggType::HoursPositive;
-            } else if (Util::SameString(curAggString, "HoursNonpositive")) {
-                curAggType = AggType::HoursNonPositive;
-            } else if (Util::SameString(curAggString, "HoursNegative")) {
-                curAggType = AggType::HoursNegative;
-            } else if (Util::SameString(curAggString, "HoursNonnegative")) {
-                curAggType = AggType::HoursNonNegative;
-            } else if (Util::SameString(curAggString, "SumOrAverageDuringHoursShown")) {
-                curAggType = AggType::SumOrAverageHoursShown;
-            } else if (Util::SameString(curAggString, "MaximumDuringHoursShown")) {
-                curAggType = AggType::MaximumDuringHoursShown;
-            } else if (Util::SameString(curAggString, "MinimumDuringHoursShown")) {
-                curAggType = AggType::MinimumDuringHoursShown;
-            } else {
-                curAggType = AggType::SumOrAvg;
+            if (curAggType == AggType::Invalid) {
                 ShowWarningError(state, format("{}={}, Variable name={}", CurrentModuleObject, ort->MonthlyInput(TabNum).name, AlphArray(jField)));
                 ShowContinueError(state, format("Invalid aggregation type=\"{}\"  Defaulting to SumOrAverage.", curAggString));
+                curAggType = AggType::SumOrAvg;
             }
-            if (!AlphArray(jField).empty()) {
-                AddMonthlyFieldSetInput(state, curTable, AlphArray(jField), "", curAggType);
-            }
+            AddMonthlyFieldSetInput(state, curTable, AlphArray(jField), "", curAggType);
         }
     }
 }
