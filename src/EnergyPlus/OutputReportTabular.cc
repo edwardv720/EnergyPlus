@@ -3767,7 +3767,11 @@ void GatherMonthlyResultsForTimestep(EnergyPlusData &state, OutputProcessor::Tim
                 // If the hours variable is active then scan through the rest of the variables
                 // and accumulate
                 if (activeHoursShown) {
+                    bool exit_loop = false;
                     for (int kOtherColumn = jColumn + 1; kOtherColumn <= ort->MonthlyTables(iTable).numColumns; ++kOtherColumn) {
+                        if (exit_loop) {
+                            break;
+                        }
                         int const scanColumn = kOtherColumn + ort->MonthlyTables(iTable).firstColumn - 1;
                         OutputProcessor::VariableType const scanTypeOfVar = ort->MonthlyColumns(scanColumn).typeOfVar;
                         int const scanVarNum = ort->MonthlyColumns(scanColumn).varNum;
@@ -3781,6 +3785,7 @@ void GatherMonthlyResultsForTimestep(EnergyPlusData &state, OutputProcessor::Tim
                         case AggType::HoursNegative:
                         case AggType::HoursNonNegative:
                             // end scanning since these might reset
+                            exit_loop = true;
                             break; // do
                         case AggType::SumOrAverageHoursShown: {
                             // this case is when the value should be set
