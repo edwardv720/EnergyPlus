@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -331,6 +331,8 @@ namespace EIRPlantLoopHeatPumps {
         void oneTimeInit(EnergyPlusData &state) override;
 
         bool thermosiphonDisabled(EnergyPlusData &state);
+
+        Real64 getDynamicMaxCapacity(EnergyPlusData &state) override;
     };
 
     struct EIRFuelFiredHeatPump : public EIRPlantLoopHeatPump
@@ -418,6 +420,7 @@ namespace EIRPlantLoopHeatPumps {
         static void processInputForEIRPLHP(EnergyPlusData &state);
         void oneTimeInit(EnergyPlusData &state);
         void report(EnergyPlusData &state);
+        Real64 getDynamicMaxCapacity(EnergyPlusData &state) override;
 
         // New or specialized functions for derived struct
         virtual ~EIRFuelFiredHeatPump() = default;
