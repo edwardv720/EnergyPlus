@@ -4951,7 +4951,7 @@ TEST_F(EnergyPlusFixture, CondenserLoopTowers_VSCoolingTower_OutputReport)
     EXPECT_EQ("1000.00", OutputReportPredefined::RetrievePreDefTableEntry(*state, orp.pdchCTFCDesFanPwr, TowerName));
     EXPECT_EQ(fmt::format("{:.2f}", expectedDesignInletWB),
               OutputReportPredefined::RetrievePreDefTableEntry(*state, orp.pdchCTFCDesInletAirWBT, TowerName));
-    EXPECT_EQ("0.02", OutputReportPredefined::RetrievePreDefTableEntry(*state, orp.pdchCTFCDesWaterFlowRate, TowerName));
+    EXPECT_EQ("0.020000", OutputReportPredefined::RetrievePreDefTableEntry(*state, orp.pdchCTFCDesWaterFlowRate, TowerName));
     EXPECT_EQ(fmt::format("{:.2f}", expectedDesOutletWaterTemp),
               OutputReportPredefined::RetrievePreDefTableEntry(*state, orp.pdchCTFCLevWaterSPTemp, TowerName));
     EXPECT_EQ("COOLINGTOWER LOOP", OutputReportPredefined::RetrievePreDefTableEntry(*state, orp.pdchCTFCCondLoopName, TowerName));
