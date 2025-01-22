@@ -2023,7 +2023,7 @@ namespace Fluid {
         }
         if (Failure) {
             ShowSevereError(state,
-                            format("InitializeGlycolTempLimits: Required values for Glycol={} are all zeroes for some data types.", this->Name));
+                            format("setTempLimits: Required values for Glycol={} are all zeroes for some data types.", this->Name));
             ErrorsFound = true;
         }
     }

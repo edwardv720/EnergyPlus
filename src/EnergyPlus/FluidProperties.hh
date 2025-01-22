@@ -414,10 +414,6 @@ namespace Fluid {
                                    Array1D<Real64> &InterpData         // interpolated output data at proper concentration
     );
 
-    void InitializeGlycolTempLimits(EnergyPlusData &state, bool &ErrorsFound); // set to true if errors found here
-
-    void InitializeRefrigerantLimits(EnergyPlusData &state, bool &ErrorsFound); // set to true if errors found here
-
     void ReportAndTestGlycols(EnergyPlusData &state);
 
     void ReportAndTestRefrigerants(EnergyPlusData &state);
