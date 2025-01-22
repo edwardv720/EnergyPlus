@@ -2022,8 +2022,7 @@ namespace Fluid {
             Failure = this->ViscLowTempIndex == 0 || this->ViscHighTempIndex == 0;
         }
         if (Failure) {
-            ShowSevereError(state,
-                            format("setTempLimits: Required values for Glycol={} are all zeroes for some data types.", this->Name));
+            ShowSevereError(state, format("setTempLimits: Required values for Glycol={} are all zeroes for some data types.", this->Name));
             ErrorsFound = true;
         }
     }
