@@ -92,7 +92,7 @@ TEST_F(EnergyPlusFixture, SystemFanObj_TestGetFunctions1)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     Fans::GetFanInput(*state);
     state->dataSize->CurZoneEqNum = 0;
     state->dataSize->CurSysNum = 0;
@@ -140,7 +140,7 @@ TEST_F(EnergyPlusFixture, SystemFanObj_FanSizing1)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     state->dataEnvrn->StdRhoAir = 1.0;
     Fans::GetFanInput(*state);
     state->dataSize->CurZoneEqNum = 0;
@@ -195,7 +195,7 @@ TEST_F(EnergyPlusFixture, SystemFanObj_TwoSpeedFanPowerCalc1)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     Fans::GetFanInput(*state);
     state->dataSize->CurZoneEqNum = 0;
     state->dataSize->CurSysNum = 0;
@@ -272,7 +272,7 @@ TEST_F(EnergyPlusFixture, SystemFanObj_TwoSpeedFanPowerCalc2)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     Curve::GetCurveInput(*state);
     Fans::GetFanInput(*state);
     state->dataSize->CurZoneEqNum = 0;
@@ -337,7 +337,7 @@ TEST_F(EnergyPlusFixture, SystemFanObj_TwoSpeedFanPowerCalc3)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     Fans::GetFanInput(*state);
     state->dataSize->CurZoneEqNum = 0;
     state->dataSize->CurSysNum = 0;
@@ -441,7 +441,7 @@ TEST_F(EnergyPlusFixture, SystemFanObj_TwoSpeedFanPowerCalc4)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     Curve::GetCurveInput(*state);
     Fans::GetFanInput(*state);
     state->dataSize->CurZoneEqNum = 0;
@@ -604,7 +604,7 @@ TEST_F(EnergyPlusFixture, SystemFanObj_DiscreteMode_noPowerFFlowCurve)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     Fans::GetFanInput(*state);
     state->dataSize->CurZoneEqNum = 0;
     state->dataSize->CurSysNum = 0;

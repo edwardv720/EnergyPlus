@@ -541,7 +541,7 @@ void GetWrapperInput(EnergyPlusData &state)
     //  This routine will get the input required by the Wrapper model.
 
     static constexpr std::string_view routineName = "GetWrapperInput";
-    
+
     bool ErrorsFound(false); // True when input errors are found
     int NumAlphas;           // Number of elements in the alpha array
     int NumNums;             // Number of elements in the numeric array
@@ -669,7 +669,8 @@ void GetWrapperInput(EnergyPlusData &state)
         state.dataPlantCentralGSHP->Wrapper(WrapperNum).AncillaryPower = state.dataIPShortCut->rNumericArgs(1);
         if (state.dataIPShortCut->lAlphaFieldBlanks(9)) {
             // Leave this as nullptr
-        } else if ((state.dataPlantCentralGSHP->Wrapper(WrapperNum).ancillaryPowerSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(9))) == nullptr) {
+        } else if ((state.dataPlantCentralGSHP->Wrapper(WrapperNum).ancillaryPowerSched =
+                        Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(9))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(9), state.dataIPShortCut->cAlphaArgs(9));
         }
 
@@ -693,13 +694,19 @@ void GetWrapperInput(EnergyPlusData &state)
                 state.dataPlantCentralGSHP->Wrapper(WrapperNum).WrapperComp(Comp).WrapperComponentName = state.dataIPShortCut->cAlphaArgs(loop + 1);
 
                 if (state.dataIPShortCut->lAlphaFieldBlanks(loop + 2)) {
-                    state.dataPlantCentralGSHP->Wrapper(WrapperNum).WrapperComp(Comp).chSched = Sched::GetScheduleAlwaysOn(state); // Not an availability schedule, but defaults to constant-1.0
-                } else if ((state.dataPlantCentralGSHP->Wrapper(WrapperNum).WrapperComp(Comp).chSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(loop + 2))) == nullptr) {
-                    state.dataPlantCentralGSHP->Wrapper(WrapperNum).WrapperComp(Comp).chSched = Sched::GetScheduleAlwaysOn(state); // Not an availabilty schedule, but defaults to constant-1.0
-                    ShowWarningItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(loop + 2), state.dataIPShortCut->cAlphaArgs(loop + 2),
+                    state.dataPlantCentralGSHP->Wrapper(WrapperNum).WrapperComp(Comp).chSched =
+                        Sched::GetScheduleAlwaysOn(state); // Not an availability schedule, but defaults to constant-1.0
+                } else if ((state.dataPlantCentralGSHP->Wrapper(WrapperNum).WrapperComp(Comp).chSched =
+                                Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(loop + 2))) == nullptr) {
+                    state.dataPlantCentralGSHP->Wrapper(WrapperNum).WrapperComp(Comp).chSched =
+                        Sched::GetScheduleAlwaysOn(state); // Not an availabilty schedule, but defaults to constant-1.0
+                    ShowWarningItemNotFound(state,
+                                            eoh,
+                                            state.dataIPShortCut->cAlphaFieldNames(loop + 2),
+                                            state.dataIPShortCut->cAlphaArgs(loop + 2),
                                             "The Control Schedule is treated as AlwaysOn instead.");
                 }
-                
+
                 state.dataPlantCentralGSHP->Wrapper(WrapperNum).WrapperComp(Comp).WrapperIdenticalObjectNum =
                     state.dataIPShortCut->rNumericArgs(1 + Comp);
                 if (state.dataPlantCentralGSHP->Wrapper(WrapperNum).WrapperComp(Comp).WrapperPerformanceObjectType ==
@@ -1914,8 +1921,7 @@ void WrapperSpecs::CalcChillerModel(EnergyPlusData &state)
         }
 
         // Chiller heater is on when cooling load for this chiller heater remains and chilled water available
-        if (IsLoadCoolRemaining && (EvapMassFlowRate > 0) &&
-            (this->WrapperComp(CompNum).chSched->getCurrentVal() > 0)) {
+        if (IsLoadCoolRemaining && (EvapMassFlowRate > 0) && (this->WrapperComp(CompNum).chSched->getCurrentVal() > 0)) {
             // Indicate current mode is cooling-only mode. Simultaneous clg/htg mode will be set later
             CurrentMode = 1;
 
@@ -2294,8 +2300,7 @@ void WrapperSpecs::CalcChillerHeaterModel(EnergyPlusData &state)
             } // End of mode determination
         }     // End of system operation determinatoin
 
-        if (IsLoadHeatRemaining && CondMassFlowRate > 0.0 &&
-            (this->WrapperComp(CompNum).chSched->getCurrentVal() > 0)) { // System is on
+        if (IsLoadHeatRemaining && CondMassFlowRate > 0.0 && (this->WrapperComp(CompNum).chSched->getCurrentVal() > 0)) { // System is on
             // Operation mode
             if (this->SimulHtgDominant) {
                 if (this->ChillerHeater(ChillerHeaterNum).Report.QEvapSimul == 0.0) {
@@ -2575,8 +2580,10 @@ void WrapperSpecs::adjustChillerHeaterEvapFlowTemp(
     }
 }
 
-Real64
-WrapperSpecs::setChillerHeaterCondTemp([[maybe_unused]] EnergyPlusData &state, int const numChillerHeater, Real64 const condEnteringTemp, Real64 const condLeavingTemp)
+Real64 WrapperSpecs::setChillerHeaterCondTemp([[maybe_unused]] EnergyPlusData &state,
+                                              int const numChillerHeater,
+                                              Real64 const condEnteringTemp,
+                                              Real64 const condLeavingTemp)
 {
     Real64 setChillerHeaterCondTemp;
     if (this->ChillerHeater(numChillerHeater).CondMode == CondenserModeTemperature::EnteringCondenser) {

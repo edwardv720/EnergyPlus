@@ -1061,11 +1061,11 @@ TEST_F(EnergyPlusFixture, PlantHXModulatedDualDeadDefectFileHi)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
 
     state->dataGlobal->BeginSimFlag = true;
-    
+
     OutputReportPredefined::SetPredefinedTables(*state);
     HeatBalanceManager::SetPreConstructionInputParameters(*state); // establish array bounds for constructions early
     // OutputProcessor::TimeValue.allocate(2);
@@ -2262,9 +2262,9 @@ TEST_F(EnergyPlusFixture, PlantHXControlWithFirstHVACIteration)
 {
     // get availability schedule to work
     state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesInTimeStep = 60;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
-    
+
     // this unit test is for issue #4959.  Added FirstHVACIteration to simulate and control routines
     // unit test checks that the change to logic for #4959 does work to affect node mass flow rate.  The conditions are set up such that the demand
     // side inlet is too warm to cool the supply side, so previous behavior would shut down flow.  Now if firstHVACIteration is true is should set
@@ -2369,9 +2369,9 @@ TEST_F(EnergyPlusFixture, PlantHXControl_CoolingSetpointOnOffWithComponentOverri
 
     // get availability schedule to work
     state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesInTimeStep = 60;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
-    
+
     state->dataPlantHXFluidToFluid->FluidHX.allocate(1);
 
     state->dataEnvrn->Month = 1;

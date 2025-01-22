@@ -125,9 +125,9 @@ TEST_F(EnergyPlusFixture, VAVNoReheatTerminalUnitSchedule)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesInTimeStep = 60;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
-    
+
     state->dataEnvrn->Month = 1;
     state->dataEnvrn->DayOfMonth = 21;
     state->dataGlobal->HourOfDay = 1;
@@ -145,13 +145,12 @@ TEST_F(EnergyPlusFixture, VAVNoReheatTerminalUnitSchedule)
     DataZoneEquipment::GetZoneEquipmentData(*state);
     ZoneAirLoopEquipmentManager::GetZoneAirLoopEquipment(*state);
     SingleDuct::GetSysInput(*state);
-    std::string error_string =
-       delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSOFF",
-                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
-                         "   **   ~~~   ** Schedule will not be validated.",
-                         "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSON",
-                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
-                         "   **   ~~~   ** Schedule will not be validated."});
+    std::string error_string = delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSOFF",
+                                                 "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                                                 "   **   ~~~   ** Schedule will not be validated.",
+                                                 "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSON",
+                                                 "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                                                 "   **   ~~~   ** Schedule will not be validated."});
     EXPECT_TRUE(compare_err_stream(error_string));
     state->dataHeatBalFanSys->TempControlType.allocate(1);
     state->dataHeatBalFanSys->TempControlType(1) = HVAC::SetptType::DualHeatCool;
@@ -307,9 +306,9 @@ TEST_F(EnergyPlusFixture, VAVReheatTerminalUnitSchedule)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesInTimeStep = 60;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
-    
+
     state->dataEnvrn->Month = 1;
     state->dataEnvrn->DayOfMonth = 21;
     state->dataGlobal->HourOfDay = 1;
@@ -327,13 +326,12 @@ TEST_F(EnergyPlusFixture, VAVReheatTerminalUnitSchedule)
     DataZoneEquipment::GetZoneEquipmentData(*state);
     ZoneAirLoopEquipmentManager::GetZoneAirLoopEquipment(*state);
     SingleDuct::GetSysInput(*state);
-    std::string error_string =
-       delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSOFF",
-                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
-                         "   **   ~~~   ** Schedule will not be validated.",
-                         "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSON",
-                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
-                         "   **   ~~~   ** Schedule will not be validated."});
+    std::string error_string = delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSOFF",
+                                                 "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                                                 "   **   ~~~   ** Schedule will not be validated.",
+                                                 "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSON",
+                                                 "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                                                 "   **   ~~~   ** Schedule will not be validated."});
     state->dataHeatBalFanSys->TempControlType.allocate(1);
     state->dataHeatBalFanSys->TempControlType(1) = HVAC::SetptType::DualHeatCool;
 
@@ -1286,7 +1284,7 @@ TEST_F(EnergyPlusFixture, SingleDuct_ZeroFloorAreaTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     // OutputProcessor::TimeValue.allocate(2);
 
     ManageSimulation(*state); // run the design day over the warmup period (24 hrs, 25 days)
@@ -2739,7 +2737,7 @@ TEST_F(EnergyPlusFixture, VAVReheatTerminal_SizeMinFrac)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
     HeatBalanceManager::GetZoneData(*state, ErrorsFound);
     ASSERT_FALSE(ErrorsFound);
@@ -2888,7 +2886,7 @@ TEST_F(EnergyPlusFixture, VAVConstantVolTU_NoReheat_Sizing)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
     HeatBalanceManager::GetZoneData(*state, ErrorsFound);
     ASSERT_FALSE(ErrorsFound);
@@ -2977,7 +2975,7 @@ TEST_F(EnergyPlusFixture, VAVConstantVolTU_Reheat_Sizing)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
     HeatBalanceManager::GetZoneData(*state, ErrorsFound);
     ASSERT_FALSE(ErrorsFound);

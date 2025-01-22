@@ -298,10 +298,10 @@ namespace Construction {
         Real64 TransDiffFrontEQL = 0.0;  // Diffuse system front transmittance for EQL window
         Real64 TransDiffBackEQL = 0.0;   // Diffuse system back transmittance for EQL window
         // Air boundary
-        bool TypeIsAirBoundary = false;       // true for Construction:AirBoundary
-        bool TypeIsAirBoundaryMixing = false; // true for Construction:AirBoundary with SimpleMixing for air exchange
-        Real64 AirBoundaryACH = 0.0;          // Air boundary simple mixing air changes per hour [1/hr]
-        Sched::Schedule *airBoundaryMixingSched = nullptr;       // Air boundary simple mixing schedule index
+        bool TypeIsAirBoundary = false;                    // true for Construction:AirBoundary
+        bool TypeIsAirBoundaryMixing = false;              // true for Construction:AirBoundary with SimpleMixing for air exchange
+        Real64 AirBoundaryACH = 0.0;                       // Air boundary simple mixing air changes per hour [1/hr]
+        Sched::Schedule *airBoundaryMixingSched = nullptr; // Air boundary simple mixing schedule index
 
         int rcmax = 0;              // Total number of nodes in the construct (<= MaxTotNodes)
         Array2D<Real64> AExp;       // Exponential of AMat

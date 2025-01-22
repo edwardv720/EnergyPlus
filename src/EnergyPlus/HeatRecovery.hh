@@ -111,7 +111,7 @@ namespace HeatRecovery {
         std::string Name; // name of component
         HVAC::HXType type = HVAC::HXType::Invalid;
         std::string HeatExchPerfName;                       // Desiccant balanced heat exchanger performance data name
-        Sched::Schedule *availSched = nullptr;                                   // schedule // availability ?
+        Sched::Schedule *availSched = nullptr;              // schedule // availability ?
         HXConfiguration FlowArr = HXConfiguration::Invalid; // flow Arrangement:
         bool EconoLockOut = false;
         Real64 hARatio = 0.0;          // ratio of supply side h*A to secondary side h*A

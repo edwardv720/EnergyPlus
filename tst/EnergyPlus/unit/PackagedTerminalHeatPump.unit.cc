@@ -1185,7 +1185,7 @@ TEST_F(EnergyPlusFixture, SimPTAC_SZVAVTest)
     state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
     state->init_state(*state);
-    
+
     state->dataGlobal->TimeStep = 1;
     OutputReportPredefined::SetPredefinedTables(*state);
 
@@ -3831,10 +3831,10 @@ TEST_F(EnergyPlusFixture, PTACDrawAirfromReturnNodeAndPlenum_Test)
     state->dataIPShortCut->cAlphaArgs = " ";
     state->dataIPShortCut->rNumericArgs = 0.0;
 
-    state->dataGlobal->TimeStepsInHour = 4; // must initialize this to get schedules initialized
+    state->dataGlobal->TimeStepsInHour = 4;    // must initialize this to get schedules initialized
     state->dataGlobal->MinutesInTimeStep = 15; // must initialize this to get schedules initialized
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
     // Read objects
     HeatBalanceManager::GetProjectControlData(*state, ErrorsFound);
@@ -3913,16 +3913,16 @@ TEST_F(EnergyPlusFixture, PTACDrawAirfromReturnNodeAndPlenum_Test)
     Sched::GetSchedule(*state, "EQUIP-1")->currentVal = 1.0;
     Sched::GetSchedule(*state, "INFIL-SCH")->currentVal = 1.0;
     Sched::GetSchedule(*state, "ACTSCHD")->currentVal = 117;
-    Sched::GetSchedule(*state, "SHADETRANSSCH")->currentVal = 0.0;   // shade transmittance
-    Sched::GetSchedule(*state, "HTG-SETP-SCH")->currentVal = 18.0;  // heating set point
-    Sched::GetSchedule(*state, "CLG-SETP-SCH")->currentVal = 24.0;  // cooling set point
-    Sched::GetSchedule(*state, "HVACTEMPLATE-ALWAYS 4")->currentVal = 4.0;  // dual Tstat sch
-    Sched::GetSchedule(*state, "ALWAYS 21.1")->currentVal = 21.1; // DOAS SAT
-    Sched::GetSchedule(*state, "CYCLINGFANSCH")->currentVal = 0.0;  // cyc fan sch, CyclingFanSch
-    Sched::GetSchedule(*state, "CONTSFANSCH")->currentVal = 1.0;  // constant fan sch, ContsFanSch
-    Sched::GetSchedule(*state, "FANAVAILSCHED")->currentVal = 1.0; // Fan availability
-    
-    int oaNode = 36;                                          // this node index may change based on component calling order
+    Sched::GetSchedule(*state, "SHADETRANSSCH")->currentVal = 0.0;         // shade transmittance
+    Sched::GetSchedule(*state, "HTG-SETP-SCH")->currentVal = 18.0;         // heating set point
+    Sched::GetSchedule(*state, "CLG-SETP-SCH")->currentVal = 24.0;         // cooling set point
+    Sched::GetSchedule(*state, "HVACTEMPLATE-ALWAYS 4")->currentVal = 4.0; // dual Tstat sch
+    Sched::GetSchedule(*state, "ALWAYS 21.1")->currentVal = 21.1;          // DOAS SAT
+    Sched::GetSchedule(*state, "CYCLINGFANSCH")->currentVal = 0.0;         // cyc fan sch, CyclingFanSch
+    Sched::GetSchedule(*state, "CONTSFANSCH")->currentVal = 1.0;           // constant fan sch, ContsFanSch
+    Sched::GetSchedule(*state, "FANAVAILSCHED")->currentVal = 1.0;         // Fan availability
+
+    int oaNode = 36; // this node index may change based on component calling order
     state->dataLoopNodes->Node(oaNode).MassFlowRate = 0.26908 * 1.2;
     state->dataLoopNodes->Node(oaNode).Temp = state->dataEnvrn->OutDryBulbTemp;
     state->dataLoopNodes->Node(oaNode).HumRat = state->dataEnvrn->OutHumRat;

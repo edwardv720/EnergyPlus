@@ -575,14 +575,14 @@ void EnergyPlusData::init_constant_state(EnergyPlusData &state)
     if (this->init_constant_state_called) {
         return;
     }
-    
+
     this->init_constant_state_called = true;
 
     // The order of these should not matter, but we are mirroring init_state() order which does matter.
-    this->dataSimulationManager->init_constant_state(state); 
-    this->dataEMSMgr->init_constant_state(state);            
-    this->dataPsychrometrics->init_constant_state(state);    
-    this->dataFluid->init_constant_state(state);        
+    this->dataSimulationManager->init_constant_state(state);
+    this->dataEMSMgr->init_constant_state(state);
+    this->dataPsychrometrics->init_constant_state(state);
+    this->dataFluid->init_constant_state(state);
     this->dataSched->init_constant_state(state);
 
     this->dataAirLoop->init_constant_state(state);
@@ -833,9 +833,9 @@ void EnergyPlusData::init_constant_state(EnergyPlusData &state)
 void EnergyPlusData::init_state(EnergyPlusData &state)
 {
     if (this->init_state_called) {
-        return; 
+        return;
     }
-    
+
     this->init_state_called = true;
 
     // The order in which we do this matters.  We're going to try to

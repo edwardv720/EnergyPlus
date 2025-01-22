@@ -259,8 +259,8 @@ namespace HVACDXHeatPumpSystem {
         int NumNums;
         int IOStat;
         static constexpr std::string_view RoutineName("GetDXHeatPumpSystemInput: "); // include trailing blank space
-        static constexpr std::string_view routineName = "GetDXHeatPumpSystemInput"; 
-        bool IsNotOK;                                                                // Flag to verify name
+        static constexpr std::string_view routineName = "GetDXHeatPumpSystemInput";
+        bool IsNotOK; // Flag to verify name
         int DXHeatSysNum;
         std::string CurrentModuleObject; // for ease in getting objects
         Array1D_string Alphas;           // Alpha input items for object
@@ -616,8 +616,7 @@ namespace HVACDXHeatPumpSystem {
         }
 
         // If DXHeatingSystem is scheduled on and there is flow
-        if ((DXHeatPumpSystem.availSched->getCurrentVal() > 0.0) &&
-            (state.dataLoopNodes->Node(InletNode).MassFlowRate > MinAirMassFlow)) {
+        if ((DXHeatPumpSystem.availSched->getCurrentVal() > 0.0) && (state.dataLoopNodes->Node(InletNode).MassFlowRate > MinAirMassFlow)) {
 
             // Determine if there is a sensible load on this system
             if ((state.dataLoopNodes->Node(InletNode).Temp < state.dataLoopNodes->Node(ControlNode).TempSetPoint) &&

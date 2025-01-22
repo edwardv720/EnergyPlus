@@ -318,15 +318,15 @@ void GetRefrigerationInput(EnergyPlusData &state)
     Real64 constexpr CondARI490DelT(15.0);              // Rated sat cond temp - wet bulb air T for evap-cooled Cond w R22, ARI490
     Real64 constexpr CondARI490Tcond(40.6);             // Rated sat cond temp for evap-cooled cond with R22, ARI 490
     Real64 constexpr DelEvapTDefault(5.0);              // default difference between case T and evap T (C)
-    Real64 constexpr DefaultCascadeCondApproach(3.0); // Cascade condenser approach temperature difference (deltaC)
-    Real64 constexpr DefaultCircRate(2.5);            // Phase change liquid overfeed circulating rate (ASHRAE definition)
-    Real64 constexpr DefaultWISurfaceUValue(0.3154);  // equiv R18 in Archaic American units (W/m2-delta T)
-    Real64 constexpr DefaultWIUValueGlassDr(1.136);   // equiv R5 in Archaic American units (W/m2-delta T)
-    Real64 constexpr DefaultWIUValueStockDr(0.3785);  // equiv R15 in Archaic American units (W/m2-delta T)
-    Real64 constexpr DefaultWIHeightGlassDr(1.5);     // glass door height in walk-in cooler (m)
-    Real64 constexpr DefaultWIHeightStockDr(3.0);     // stock door height in walk-in cooler (m)
-    Real64 constexpr PumpImpellerEfficiency(0.78);    // same as used in pump auto-sizing, dimensionless
-    Real64 constexpr PumpMotorEfficiency(0.85);       // suggested as average value in ITT/Gould pump references,
+    Real64 constexpr DefaultCascadeCondApproach(3.0);   // Cascade condenser approach temperature difference (deltaC)
+    Real64 constexpr DefaultCircRate(2.5);              // Phase change liquid overfeed circulating rate (ASHRAE definition)
+    Real64 constexpr DefaultWISurfaceUValue(0.3154);    // equiv R18 in Archaic American units (W/m2-delta T)
+    Real64 constexpr DefaultWIUValueGlassDr(1.136);     // equiv R5 in Archaic American units (W/m2-delta T)
+    Real64 constexpr DefaultWIUValueStockDr(0.3785);    // equiv R15 in Archaic American units (W/m2-delta T)
+    Real64 constexpr DefaultWIHeightGlassDr(1.5);       // glass door height in walk-in cooler (m)
+    Real64 constexpr DefaultWIHeightStockDr(3.0);       // stock door height in walk-in cooler (m)
+    Real64 constexpr PumpImpellerEfficiency(0.78);      // same as used in pump auto-sizing, dimensionless
+    Real64 constexpr PumpMotorEfficiency(0.85);         // suggested as average value in ITT/Gould pump references,
 
     Array1D_string Alphas;             // Alpha items for object
     Array1D_string cAlphaFieldNames;   // Alpha field names (from input processor)
@@ -587,7 +587,7 @@ void GetRefrigerationInput(EnergyPlusData &state)
                                                                      cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, CurrentModuleObject, Alphas(1)};
-                            
+
             ++NumDisplayCases;
 
             AlphaNum = 1;
@@ -597,7 +597,7 @@ void GetRefrigerationInput(EnergyPlusData &state)
             AlphaNum = 2;
             if (lAlphaBlanks(AlphaNum)) {
                 RefrigCase(CaseNum).availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((RefrigCase(CaseNum).availSched = Sched::GetSchedule(state, Alphas(AlphaNum))) == nullptr) { 
+            } else if ((RefrigCase(CaseNum).availSched = Sched::GetSchedule(state, Alphas(AlphaNum))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(AlphaNum), Alphas(AlphaNum));
                 ErrorsFound = true;
             } else if (!RefrigCase(CaseNum).availSched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
@@ -808,7 +808,7 @@ void GetRefrigerationInput(EnergyPlusData &state)
 
             if (lAlphaBlanks(6)) {
                 RefrigCase(CaseNum).lightingSched = Sched::GetScheduleAlwaysOn(state); // Not an availability schedule, but defaults to constant-1.0
-            } else if ((RefrigCase(CaseNum).lightingSched = Sched::GetSchedule(state, Alphas(6))) == nullptr) { 
+            } else if ((RefrigCase(CaseNum).lightingSched = Sched::GetSchedule(state, Alphas(6))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(6), Alphas(6));
                 ErrorsFound = true;
             } else if (!RefrigCase(CaseNum).lightingSched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
@@ -1049,14 +1049,14 @@ void GetRefrigerationInput(EnergyPlusData &state)
                 Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(9), Alphas(9), Clusive::In, 0.0, Clusive::In, 1.0);
                 ErrorsFound = true;
             }
-            
+
             //   Note that next section counting number cycles and setting maxkgfrost not used now, but may be in the future.
             //   count the number of defrost cycles
 
             // Flag for counting defrost cycles
             int NumDefCycles = 0;
 
-            if (RefrigCase(CaseNum).defrostSched != nullptr) { 
+            if (RefrigCase(CaseNum).defrostSched != nullptr) {
                 bool StartCycle = false;
                 std::vector<Real64> const &dayVals = RefrigCase(CaseNum).defrostSched->getDayVals(state, 1);
                 for (int i = 0; i < Constant::iHoursInDay * state.dataGlobal->TimeStepsInHour; ++i) {
@@ -1068,12 +1068,13 @@ void GetRefrigerationInput(EnergyPlusData &state)
                     }
                 }
             }
-            
+
             if (NumDefCycles > 0) {
                 //     calculate maximum frost formation based on defrost schedule, heat of vaporization+fusion for water = 2833.0 kJ/kg
-                RefrigCase(CaseNum).MaxKgFrost = (RefrigCase(CaseNum).RateTotCapPerLength * RefrigCase(CaseNum).RatedLHR *
-                                                  RefrigCase(CaseNum).RatedRTF * Constant::rSecsInHour * Constant::rHoursInDay / 1000.0 / 2833.0) / // Parenthesize!!!
-                                                 (NumDefCycles);
+                RefrigCase(CaseNum).MaxKgFrost =
+                    (RefrigCase(CaseNum).RateTotCapPerLength * RefrigCase(CaseNum).RatedLHR * RefrigCase(CaseNum).RatedRTF * Constant::rSecsInHour *
+                     Constant::rHoursInDay / 1000.0 / 2833.0) / // Parenthesize!!!
+                    (NumDefCycles);
             } else {
                 RefrigCase(CaseNum).MaxKgFrost = 9999999.9;
             }
@@ -1219,7 +1220,7 @@ void GetRefrigerationInput(EnergyPlusData &state)
             }
 
             if (lAlphaBlanks(13)) {
-            } else if ((RefrigCase(CaseNum).stockingSched = Sched::GetSchedule(state, Alphas(13))) == nullptr) { 
+            } else if ((RefrigCase(CaseNum).stockingSched = Sched::GetSchedule(state, Alphas(13))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(13), Alphas(13));
                 ErrorsFound = true;
             }
@@ -1250,7 +1251,7 @@ void GetRefrigerationInput(EnergyPlusData &state)
             }
 
             if (lAlphaBlanks(14)) {
-            } else if ((RefrigCase(CaseNum).caseCreditFracSched = Sched::GetSchedule(state, Alphas(14))) == nullptr) { 
+            } else if ((RefrigCase(CaseNum).caseCreditFracSched = Sched::GetSchedule(state, Alphas(14))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(14), Alphas(14));
                 ErrorsFound = true;
             } else if (!RefrigCase(CaseNum).caseCreditFracSched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
@@ -1323,14 +1324,14 @@ void GetRefrigerationInput(EnergyPlusData &state)
                                                                      cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, CurrentModuleObject, Alphas(1)};
-            
+
             Util::IsNameEmpty(state, Alphas(1), CurrentModuleObject, ErrorsFound);
 
             WalkIn(WalkInID).Name = Alphas(1);
 
             if (lAlphaBlanks(2)) {
                 WalkIn(WalkInID).availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((WalkIn(WalkInID).availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) { 
+            } else if ((WalkIn(WalkInID).availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(2), Alphas(2));
                 ErrorsFound = true;
             } else if (!WalkIn(WalkInID).availSched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
@@ -1374,7 +1375,7 @@ void GetRefrigerationInput(EnergyPlusData &state)
             AlphaNum = 3;
             if (lAlphaBlanks(AlphaNum)) {
                 WalkIn(WalkInID).heaterSched = Sched::GetScheduleAlwaysOn(state); // Not an availability schedule, but defaults to constant-1.0
-            } else if ((WalkIn(WalkInID).heaterSched = Sched::GetSchedule(state, Alphas(AlphaNum))) == nullptr) { 
+            } else if ((WalkIn(WalkInID).heaterSched = Sched::GetSchedule(state, Alphas(AlphaNum))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(AlphaNum), Alphas(AlphaNum));
                 ErrorsFound = true;
             } else if (!WalkIn(WalkInID).heaterSched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
@@ -1471,7 +1472,7 @@ void GetRefrigerationInput(EnergyPlusData &state)
             if (lAlphaBlanks(AlphaNum)) {
                 ShowSevereEmptyField(state, eoh, cAlphaFieldNames(AlphaNum));
                 ErrorsFound = true;
-            } else if ((WalkIn(WalkInID).defrostSched = Sched::GetSchedule(state, Alphas(AlphaNum))) == nullptr) { 
+            } else if ((WalkIn(WalkInID).defrostSched = Sched::GetSchedule(state, Alphas(AlphaNum))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(AlphaNum), Alphas(AlphaNum));
                 ErrorsFound = true;
             } else if (!WalkIn(WalkInID).defrostSched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
@@ -1534,7 +1535,7 @@ void GetRefrigerationInput(EnergyPlusData &state)
             } else if ((WalkIn(WalkInID).stockingSched = Sched::GetSchedule(state, Alphas(AlphaNum))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(AlphaNum), Alphas(AlphaNum));
                 ErrorsFound = true;
-            } 
+            }
 
             WalkIn(WalkInID).DesignRefrigInventory = 0.0;
             if (!lNumericBlanks(10)) WalkIn(WalkInID).DesignRefrigInventory = Numbers(10);
@@ -1680,8 +1681,8 @@ void GetRefrigerationInput(EnergyPlusData &state)
                     } else if (!WalkIn(WalkInID).glassDoorOpenScheds(ZoneID)->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
                         Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(AStart + 1), Alphas(AStart + 1), Clusive::In, 0.0, Clusive::In, 1.0);
                         ErrorsFound = true;
-                    }         // blank on door opening schedule (AStart + 1)
-                }             // have glassdoor area facing zone (blank on lNumericBlanks(NStart+2))
+                    } // blank on door opening schedule (AStart + 1)
+                }     // have glassdoor area facing zone (blank on lNumericBlanks(NStart+2))
 
                 // start IF set for stock doors in this zone
                 WalkIn(WalkInID).AreaStockDr(ZoneID) = 0.0;
@@ -1698,13 +1699,13 @@ void GetRefrigerationInput(EnergyPlusData &state)
 
                     // convert door opening schedule name to pointer, default of 0.1 is assigned inside walkin subroutine if blank
                     if (lAlphaBlanks(AStart + 2)) {
-                    } else if ((WalkIn(WalkInID).stockDoorOpenScheds(ZoneID) = Sched::GetSchedule(state, Alphas(AStart + 2))) == nullptr) { 
+                    } else if ((WalkIn(WalkInID).stockDoorOpenScheds(ZoneID) = Sched::GetSchedule(state, Alphas(AStart + 2))) == nullptr) {
                         ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(AStart + 2), Alphas(AStart + 2));
                         ErrorsFound = true;
                     } else if (!WalkIn(WalkInID).stockDoorOpenScheds(ZoneID)->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
-                       Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(AStart + 2), Alphas(AStart + 2), Clusive::In, 0.0, Clusive::In, 1.0);
-                       ErrorsFound = true;
-                    }         // blank on door opening schedule (AStart + 2)
+                        Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(AStart + 2), Alphas(AStart + 2), Clusive::In, 0.0, Clusive::In, 1.0);
+                        ErrorsFound = true;
+                    } // blank on door opening schedule (AStart + 2)
 
                     if (lAlphaBlanks(AStart + 3) || Util::SameString(Alphas(AStart + 3), "AirCurtain")) {
                         // default air curtain
@@ -1752,7 +1753,7 @@ void GetRefrigerationInput(EnergyPlusData &state)
                                                                      cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, CurrentModuleObject, Alphas(1)};
-            
+
             Util::IsNameEmpty(state, Alphas(1), CurrentModuleObject, ErrorsFound);
 
             WarehouseCoil(CoilID).Name = Alphas(AlphaNum);
@@ -2344,27 +2345,26 @@ void GetRefrigerationInput(EnergyPlusData &state)
             if (lAlphaBlanks(AlphaNum)) {
                 ShowSevereEmptyField(state, eoh, cAlphaFieldNames(AlphaNum));
                 ErrorsFound = true;
-            } else if ((WarehouseCoil(CoilID).defrostSched = Sched::GetSchedule(state, Alphas(AlphaNum))) == nullptr) { 
+            } else if ((WarehouseCoil(CoilID).defrostSched = Sched::GetSchedule(state, Alphas(AlphaNum))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(AlphaNum), Alphas(AlphaNum));
                 ErrorsFound = true;
             } else if (!WarehouseCoil(CoilID).defrostSched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
                 Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(AlphaNum), Alphas(AlphaNum), Clusive::In, 0.0, Clusive::In, 1.0);
                 ErrorsFound = true;
-            }     // check for valid schedule name
+            } // check for valid schedule name
 
             // convert defrost drip-down schedule name to pointer
             // some defrost types do not use drip-down schedules, use same defrost schedule pointer in that case
             ++AlphaNum; // A11
             if (lAlphaBlanks(AlphaNum)) {
                 WarehouseCoil(CoilID).defrostDripDownSched = WarehouseCoil(CoilID).defrostSched;
-            } else if ((WarehouseCoil(CoilID).defrostDripDownSched = Sched::GetSchedule(state, Alphas(AlphaNum))) == nullptr) { 
+            } else if ((WarehouseCoil(CoilID).defrostDripDownSched = Sched::GetSchedule(state, Alphas(AlphaNum))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(AlphaNum), Alphas(AlphaNum));
                 ErrorsFound = true;
             } else if (!WarehouseCoil(CoilID).defrostDripDownSched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
                 Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(AlphaNum), Alphas(AlphaNum), Clusive::In, 0.0, Clusive::In, 1.0);
                 ErrorsFound = true;
-            }     // check for valid schedule name
-
+            } // check for valid schedule name
 
             ++NumNum; // N14
             if (WarehouseCoil(CoilID).defrostType == DefrostType::OffCycle || WarehouseCoil(CoilID).defrostType == DefrostType::None) {
@@ -2452,7 +2452,7 @@ void GetRefrigerationInput(EnergyPlusData &state)
                                                                      cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, CurrentModuleObject, Alphas(1)};
-            
+
             AlphaNum = 1;
             Util::IsNameEmpty(state, Alphas(1), CurrentModuleObject, ErrorsFound);
 
@@ -2826,7 +2826,7 @@ void GetRefrigerationInput(EnergyPlusData &state)
                         ErrorsFound = true;
                     }
                 }
-                
+
                 // Get volumetric flow rate if applicable
                 if (RefrigRack(RackNum).FlowType == CndsrFlowType::ConstantFlow) {
                     RefrigRack(RackNum).DesVolFlowRate = Numbers(3);
@@ -10843,7 +10843,7 @@ void RefrigCaseData::CalculateCase(EnergyPlusData &state) // Absolute pointer to
 
     // if case credit reduction fraction schedule exists, modify both sensible and latent case credits
     // according to schedule - used to account for variable case envelope, such as night covers.
-    CaseCreditFraction =  (this->caseCreditFracSched != nullptr) ? this->caseCreditFracSched->getCurrentVal() : 1.0;
+    CaseCreditFraction = (this->caseCreditFracSched != nullptr) ? this->caseCreditFracSched->getCurrentVal() : 1.0;
 
     // CALCULATE AUX LOADS DUE TO LIGHTS, FAN AND STOCKING
     TotalLightingLoad = this->DesignLighting * LightingSchedule;
@@ -12535,8 +12535,7 @@ void RefrigSystemData::CalculateCondensers(EnergyPlusData &state, int const SysN
 
         // Check schedule to determine evap condenser availability
         // IF schedule exists, evap condenser can be scheduled OFF
-        if ((condenser.CondenserType == DataHeatBalance::RefrigCondenserType::Evap) &&
-            (condenser.evapAvailSched != nullptr) &&
+        if ((condenser.CondenserType == DataHeatBalance::RefrigCondenserType::Evap) && (condenser.evapAvailSched != nullptr) &&
             (condenser.evapAvailSched->getCurrentVal() == 0))
             EvapAvail = false;
 
@@ -12787,7 +12786,7 @@ void TransRefrigSystemData::CalcGasCooler(EnergyPlusData &state, int const SysNu
 
     Real64 localTimeStep = (state.dataRefrigCase->UseSysTimeStep) ? state.dataHVACGlobal->TimeStepSys : state.dataGlobal->TimeStepZone;
     Real64 localTimeStepSec = localTimeStep * Constant::rSecsInHour;
-    
+
     // Initialize this gas cooler for this time step
     ActualFanPower = 0.0;
     TotalCondDefrostCreditLocal = 0.0;
@@ -14700,8 +14699,7 @@ void WalkInData::CalculateWalkIn(EnergyPlusData &state) // Absolute pointer to  
                 DrArea = StockDoorArea;
                 // if exists, get Stock Door Zone schedule
                 Real64 DoorOpenFactor = DefaultWalkInDoorOpenFactor;
-                if (this->stockDoorOpenScheds(ZoneID) != nullptr)
-                    DoorOpenFactor = this->stockDoorOpenScheds(ZoneID)->getCurrentVal();
+                if (this->stockDoorOpenScheds(ZoneID) != nullptr) DoorOpenFactor = this->stockDoorOpenScheds(ZoneID)->getCurrentVal();
 
                 FullFlowInfLoad = 0.221 * DrArea * (EnthalpyZoneAir - EnthalpyAirWalkIn) * DensityAirWalkIn * DensitySqRtFactor *
                                   std::sqrt(Gravity * DrHeight) * DensityFactorFm;
@@ -14718,8 +14716,7 @@ void WalkInData::CalculateWalkIn(EnergyPlusData &state) // Absolute pointer to  
                 DrArea = GlassDoorArea;
                 // get Glass Door Zone schedule
                 Real64 DoorOpenFactor = DefaultWalkInDoorOpenFactor; // default value
-                if (this->glassDoorOpenScheds(ZoneID) != nullptr)
-                    DoorOpenFactor = this->glassDoorOpenScheds(ZoneID)->getCurrentVal();
+                if (this->glassDoorOpenScheds(ZoneID) != nullptr) DoorOpenFactor = this->glassDoorOpenScheds(ZoneID)->getCurrentVal();
 
                 FullFlowInfLoad = 0.221 * DrArea * (EnthalpyZoneAir - EnthalpyAirWalkIn) * DensityAirWalkIn * DensitySqRtFactor *
                                   std::sqrt(Gravity * DrHeight) * DensityFactorFm;
@@ -15602,7 +15599,7 @@ void WarehouseCoilData::CalculateCoil(EnergyPlusData &state, Real64 const QZnReq
     Real64 CoilSchedule = this->availSched->getCurrentVal(); // Current value of Coil operating (availability) schedule
     if (CoilSchedule <= 0.0) return;
 
-    Real64 DefrostSchedule = this->defrostSched->getCurrentVal(); // Coil defrost schedule, between 0 and 1
+    Real64 DefrostSchedule = this->defrostSched->getCurrentVal();                 // Coil defrost schedule, between 0 and 1
     Real64 DefrostDripDownSchedule = this->defrostDripDownSched->getCurrentVal(); // Coil drip-down schedule (allows coil to drain after defrost)
     // next statement In case user doesn't understand concept of drip down schedule
     DefrostDripDownSchedule = max(DefrostDripDownSchedule, DefrostSchedule);

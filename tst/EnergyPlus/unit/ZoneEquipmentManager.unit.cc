@@ -135,7 +135,7 @@ TEST_F(EnergyPlusFixture, ZoneEquipmentManager_CalcZoneMassBalanceTest)
     ASSERT_TRUE(process_idf(idf_objects));
     EXPECT_FALSE(has_err_output());
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
     GetZoneData(*state, ErrorsFound);
     AllocateHeatBalArrays(*state);
@@ -2087,7 +2087,7 @@ TEST_F(EnergyPlusFixture, ZoneEquipmentManager_DistributeSequentialLoad_MixedEqu
     auto &energy = state->dataZoneEnergyDemand->ZoneSysEnergyDemand(ZoneNum);
     auto &moisture = state->dataZoneEnergyDemand->ZoneSysMoistureDemand(ZoneNum);
     state->dataZoneEquipmentManager->PrioritySimOrder.allocate(NumEquip);
-    
+
     Sched::GetSchedule(*state, "AIR TERMINAL 1 ADU COOLING FRACTION")->currentVal = 0.3;
     Sched::GetSchedule(*state, "AIR TERMINAL 1 ADU HEATING FRACTION")->currentVal = 0.4;
     Sched::GetSchedule(*state, "IDEAL SYSTEM A COOLING FRACTION")->currentVal = 0.5;
@@ -4494,7 +4494,7 @@ TEST_F(EnergyPlusFixture, ZoneEquipmentManager_SizeZoneEquipment_NoLoadTest)
 {
     state->dataGlobal->TimeStepsInHour = 1;
     state->init_state(*state);
-    
+
     state->dataLoopNodes->Node.allocate(10);
     state->dataGlobal->NumOfZones = 1;
     state->dataSize->ZoneEqSizing.allocate(state->dataGlobal->NumOfZones);
@@ -4541,7 +4541,7 @@ TEST_F(EnergyPlusFixture, ZoneEquipmentManager_SizeZoneEquipment_NoLoadTest)
     state->dataZoneEquip->ZoneEquipConfig(1).ExhaustNode(1) = 3;
     state->dataZoneEquip->ZoneEquipConfig(1).NumReturnNodes = 0;
     state->dataZoneEquip->ZoneEquipConfig(1).returnFlowFracSched = Sched::GetScheduleAlwaysOn(*state);
-            
+
     state->dataEnvrn->StdBaroPress = 101325.;
     state->dataSize->CalcFinalZoneSizing(1).MinOA = 0.1;
     state->dataSize->CalcFinalZoneSizing(1).OutTempAtHeatPeak = 28;
@@ -4663,7 +4663,7 @@ TEST_F(EnergyPlusFixture, ZoneEquipmentManager_SizeZoneEquipment_NoLoadTest)
 TEST_F(EnergyPlusFixture, CalcAirFlowSimple_WindAndStackArea)
 {
     state->init_state(*state);
-        
+
     state->dataGlobal->NumOfZones = 1;
 
     state->dataHeatBal->Zone.allocate(state->dataGlobal->NumOfZones);
@@ -5050,7 +5050,7 @@ TEST_F(EnergyPlusFixture, SpaceHVACSplitterTest)
     space3Energy.RemainingOutputRequired = 10.0;
 
     state->dataHeatBalFanSys->zoneTstatSetpts.allocate(1);
-    
+
     int zone1Num = 1;
     int equipNum = 1;
 
@@ -5393,7 +5393,7 @@ TEST_F(EnergyPlusFixture, SpaceReturnMixerTest)
     spaceEquipConfig1.returnFlowFracSched = Sched::GetScheduleAlwaysOff(*state);
     spaceEquipConfig2.returnFlowFracSched = Sched::GetScheduleAlwaysOff(*state);
     spaceEquipConfig3.returnFlowFracSched = Sched::GetScheduleAlwaysOff(*state);
-    
+
     spaceEquipConfig1.ZoneNode = 5;
     spaceEquipConfig2.ZoneNode = 6;
     spaceEquipConfig3.ZoneNode = 7;

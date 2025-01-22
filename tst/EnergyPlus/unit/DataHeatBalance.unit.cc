@@ -857,7 +857,7 @@ TEST_F(EnergyPlusFixture, DataHeatBalance_CheckConstructLayers)
     SetupWindowShadingControlActuators(*state);
 
     // init_state() checks for EMS so there will be actuators for schedules and materials already
-    EXPECT_EQ(state->dataRuntimeLang->numEMSActuatorsAvailable, 19); 
+    EXPECT_EQ(state->dataRuntimeLang->numEMSActuatorsAvailable, 19);
 
     // add a blind layer in between glass
     state->dataConstruction->Construct(4).TotLayers = 5;
@@ -898,7 +898,7 @@ TEST_F(EnergyPlusFixture, DataHeatBalance_CheckConstructLayers)
 TEST_F(EnergyPlusFixture, DataHeatBalance_setUserTemperatureLocationPerpendicular)
 {
     state->init_state(*state);
-                
+
     Real64 userInputValue;
     Real64 expectedReturnValue;
     Real64 actualReturnValue;
@@ -1046,12 +1046,12 @@ TEST_F(EnergyPlusFixture, DataHeatBalance_setThicknessPerpendicularTest)
     auto &thisConstruct(state->dataConstruction->Construct(1));
     thisConstruct.Name = "TestThisConstruction";
 
-    std::string const error_string0 =
-            delimited_string({format("   ** Warning ** Version: missing in IDF, processing for EnergyPlus version=\"{}\"", DataStringGlobals::MatchVersion),
-                          "   ** Warning ** ConstructionProperty:InternalHeatSource has a tube spacing that is less than 2 mm.  This is not allowed.",
-                          "   **   ~~~   ** Construction=TestThisConstruction has this problem.  The tube spacing has been reset to 0.15m (~6 "
-                          "inches) for this construction.",
-                          "   **   ~~~   ** As per the Input Output Reference, tube spacing is only used for 2-D solutions and autosizing."});
+    std::string const error_string0 = delimited_string(
+        {format("   ** Warning ** Version: missing in IDF, processing for EnergyPlus version=\"{}\"", DataStringGlobals::MatchVersion),
+         "   ** Warning ** ConstructionProperty:InternalHeatSource has a tube spacing that is less than 2 mm.  This is not allowed.",
+         "   **   ~~~   ** Construction=TestThisConstruction has this problem.  The tube spacing has been reset to 0.15m (~6 "
+         "inches) for this construction.",
+         "   **   ~~~   ** As per the Input Output Reference, tube spacing is only used for 2-D solutions and autosizing."});
     std::string const error_string1 =
         delimited_string({"   ** Warning ** ConstructionProperty:InternalHeatSource has a tube spacing that is less than 2 mm.  This is not allowed.",
                           "   **   ~~~   ** Construction=TestThisConstruction has this problem.  The tube spacing has been reset to 0.15m (~6 "

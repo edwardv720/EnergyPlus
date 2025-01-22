@@ -115,7 +115,7 @@ TEST_F(EnergyPlusFixture, InternalHeatGains_OtherEquipment_CheckFuelType)
     EXPECT_FALSE(has_err_output());
 
     state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesInTimeStep = 60;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
 
     bool ErrorsFound(false);
@@ -164,7 +164,7 @@ TEST_F(EnergyPlusFixture, InternalHeatGains_OtherEquipment_NegativeDesignLevel)
     EXPECT_FALSE(has_err_output());
 
     state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesInTimeStep = 60;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
 
     bool ErrorsFound(false);
@@ -215,9 +215,9 @@ TEST_F(EnergyPlusFixture, InternalHeatGains_OtherEquipment_BadFuelType)
     EXPECT_TRUE(has_err_output(false));
 
     state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesInTimeStep = 60;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
-    
+
     std::string error_string =
         delimited_string({"   ** Severe  ** <root>[OtherEquipment][OtherEq1][fuel_type] - \"Water\" - Failed to match against any enum values.",
                           "   ** Warning ** ProcessScheduleInput: Schedule:Constant = SCHEDULE1",
@@ -227,18 +227,17 @@ TEST_F(EnergyPlusFixture, InternalHeatGains_OtherEquipment_BadFuelType)
 
     bool ErrorsFound(false);
 
-
     HeatBalanceManager::GetZoneData(*state, ErrorsFound);
     ASSERT_FALSE(ErrorsFound);
 
     ASSERT_THROW(InternalHeatGains::GetInternalHeatGainsInput(*state), std::runtime_error);
 
-    error_string = delimited_string(
-        {"   ** Severe  ** GetInternalHeatGains: OtherEquipment: invalid Fuel Type entered=WATER for Name=OTHEREQ1",
-         "   **  Fatal  ** GetInternalHeatGains: Errors found in Getting Internal Gains Input, Program Stopped",
-         "   ...Summary of Errors that led to program termination:",
-         "   ..... Reference severe error count=2",
-         "   ..... Last severe error=GetInternalHeatGains: OtherEquipment: invalid Fuel Type entered=WATER for Name=OTHEREQ1"});
+    error_string =
+        delimited_string({"   ** Severe  ** GetInternalHeatGains: OtherEquipment: invalid Fuel Type entered=WATER for Name=OTHEREQ1",
+                          "   **  Fatal  ** GetInternalHeatGains: Errors found in Getting Internal Gains Input, Program Stopped",
+                          "   ...Summary of Errors that led to program termination:",
+                          "   ..... Reference severe error count=2",
+                          "   ..... Last severe error=GetInternalHeatGains: OtherEquipment: invalid Fuel Type entered=WATER for Name=OTHEREQ1"});
 
     EXPECT_TRUE(compare_err_stream(error_string, true));
 }
@@ -293,7 +292,7 @@ TEST_F(EnergyPlusFixture, InternalHeatGains_AllowBlankFieldsForAdaptiveComfortMo
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     bool ErrorsFound1(false);
 
     HeatBalanceManager::GetZoneData(*state, ErrorsFound1);
@@ -312,7 +311,7 @@ TEST_F(EnergyPlusFixture, InternalHeatGains_AllowBlankFieldsForAdaptiveComfortMo
     actSched->minVal = 131.8;
     actSched->maxVal = 131.8;
     actSched->isMinMaxSet = true;
-    
+
     InternalHeatGains::GetInternalHeatGainsInput(*state);
 
     EXPECT_FALSE(state->dataInternalHeatGains->ErrorsFound);
@@ -665,7 +664,7 @@ TEST_F(EnergyPlusFixture, InternalHeatGains_CheckZoneComponentLoadSubtotals)
     ASSERT_TRUE(process_idf(idf_objects));
     EXPECT_FALSE(has_err_output());
     state->init_state(*state);
-    
+
     bool ErrorsFound(false);
     HeatBalanceManager::GetZoneData(*state, ErrorsFound);
     ASSERT_FALSE(ErrorsFound);
@@ -1338,9 +1337,9 @@ TEST_F(EnergyPlusFixture, InternalHeatGains_ZnRpt_Outputs)
     EXPECT_FALSE(has_err_output());
 
     state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesInTimeStep = 60;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
-    
+
     bool ErrorsFound(false);
 
     state->dataEnvrn->DayOfYear_Schedule = 1;
@@ -1663,7 +1662,7 @@ TEST_F(EnergyPlusFixture, InternalHeatGains_AdjustedSupplyGoodInletNode)
     state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
     state->init_state(*state);
-    
+
     HeatBalanceManager::GetZoneData(*state, ErrorsFound);
     ASSERT_FALSE(ErrorsFound);
     state->dataZoneTempPredictorCorrector->zoneHeatBalance.allocate(1);

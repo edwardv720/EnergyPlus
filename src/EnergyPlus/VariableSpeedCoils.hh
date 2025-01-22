@@ -223,15 +223,15 @@ namespace VariableSpeedCoils {
         Real64 EvapCondPumpElecNomPower;                    // Nominal power input to the evap condenser water circulation pump [W]
         Real64 EvapCondPumpElecPower;                       // Average power consumed by the evap condenser water circulation pump over
         // the time step [W]
-        Real64 EvapWaterConsumpRate;        // Evap condenser water consumption rate [m3/s]
-        Real64 EvapCondPumpElecConsumption; // Electric energy consumed by the evap condenser water circulation pump [J]
-        Real64 EvapWaterConsump;            // Evap condenser water consumption [m3]
-        Real64 BasinHeaterConsumption;      // Basin heater energy consumption (J)
-        Real64 BasinHeaterPowerFTempDiff;   // Basin heater capacity per degree C below setpoint (W/C)
-        Real64 BasinHeaterSetPointTemp;     // setpoint temperature for basin heater operation (C)
-        Real64 BasinHeaterPower;            // Basin heater power (W)
-        Sched::Schedule *basinHeaterSched = nullptr;         // basin heater schedule
-        Array1D<Real64> EvapCondAirFlow;    // Air flow rate through the evap condenser at high speed, volumetric flow rate
+        Real64 EvapWaterConsumpRate;                 // Evap condenser water consumption rate [m3/s]
+        Real64 EvapCondPumpElecConsumption;          // Electric energy consumed by the evap condenser water circulation pump [J]
+        Real64 EvapWaterConsump;                     // Evap condenser water consumption [m3]
+        Real64 BasinHeaterConsumption;               // Basin heater energy consumption (J)
+        Real64 BasinHeaterPowerFTempDiff;            // Basin heater capacity per degree C below setpoint (W/C)
+        Real64 BasinHeaterSetPointTemp;              // setpoint temperature for basin heater operation (C)
+        Real64 BasinHeaterPower;                     // Basin heater power (W)
+        Sched::Schedule *basinHeaterSched = nullptr; // basin heater schedule
+        Array1D<Real64> EvapCondAirFlow;             // Air flow rate through the evap condenser at high speed, volumetric flow rate
         // for water use calcs [m3/s]
         Array1D<Real64> EvapCondEffect; // effectiveness of the evaporatively cooled condenser
         // [high speed for multi-speed unit] (-)

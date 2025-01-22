@@ -363,7 +363,7 @@ namespace ExhaustAirSystemManager {
         // Use the json helper to process input
         constexpr std::string_view RoutineName("GetZoneExhaustControlInput: ");
         constexpr std::string_view routineName = "GetZoneExhaustControlInput";
-        
+
         std::string const cCurrentModuleObject = "ZoneHVAC:ExhaustControl";
         auto &ip = state.dataInputProcessing->inputProcessor;
         auto const instances = ip->epJSON.find(cCurrentModuleObject);
@@ -385,7 +385,7 @@ namespace ExhaustAirSystemManager {
                 auto &thisExhCtrl = state.dataZoneEquip->ZoneExhaustControlSystem(exhCtrlNum);
 
                 ErrorObjectHeader eoh{routineName, cCurrentModuleObject, instance.key()};
-                
+
                 thisExhCtrl.Name = Util::makeUPPER(instance.key());
                 ip->markObjectAsUsed(cCurrentModuleObject, instance.key());
 
@@ -448,8 +448,9 @@ namespace ExhaustAirSystemManager {
                     ip->getAlphaFieldValue(objectFields, objectSchemaProps, "exhaust_flow_fraction_schedule_name");
 
                 if (exhaustFlowFractionSchedName.empty()) {
-                    thisExhCtrl.exhaustFlowFractionSched = Sched::GetScheduleAlwaysOn(state); // Not an availability schedule, but defaults to constant-1.0
-                } else  if ((thisExhCtrl.exhaustFlowFractionSched = Sched::GetSchedule(state, exhaustFlowFractionSchedName)) == nullptr) { 
+                    thisExhCtrl.exhaustFlowFractionSched =
+                        Sched::GetScheduleAlwaysOn(state); // Not an availability schedule, but defaults to constant-1.0
+                } else if ((thisExhCtrl.exhaustFlowFractionSched = Sched::GetSchedule(state, exhaustFlowFractionSchedName)) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, "Exhaust Flow Fraction Schedule Name", exhaustFlowFractionSchedName);
                 }
 
@@ -524,7 +525,7 @@ namespace ExhaustAirSystemManager {
 
             // Done with creating a map that contains a table of for each zone to exhasut controls
             state.dataExhAirSystemMrg->mappingDone = true;
-        } 
+        }
 
         if (ErrorsFound) {
             ShowFatalError(state, "Errors found getting ZoneHVAC:ExhaustControl.  Preceding condition(s) causes termination.");

@@ -315,7 +315,7 @@ namespace InternalHeatGains {
                                                                          IHGAlphaFieldNames,
                                                                          IHGNumericFieldNames);
 
-                ErrorObjectHeader eoh{routineName, peopleModuleObject, IHGAlphas(1)}; 
+                ErrorObjectHeader eoh{routineName, peopleModuleObject, IHGAlphas(1)};
                 // Create one People instance for every space associated with this People input object
                 auto &thisPeopleInput = peopleObjects(peopleInputNum);
                 for (int Item1 = 1; Item1 <= thisPeopleInput.numOfSpaces; ++Item1) {
@@ -520,7 +520,7 @@ namespace InternalHeatGains {
                     }
 
                     thisPeople.activityLevelSched = Sched::GetSchedule(state, IHGAlphas(5));
-                    
+
                     if (Item1 == 1) {
                         if (IHGAlphaFieldBlanks(5)) {
                             ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(5));
@@ -532,8 +532,14 @@ namespace InternalHeatGains {
                             Sched::ShowSevereBadMin(state, eoh, IHGAlphaFieldNames(5), IHGAlphas(5), Clusive::In, 0.0);
                             ErrorsFound = true;
                         } else if (!thisPeople.activityLevelSched->checkMinMaxVals(state, Clusive::In, 70.0, Clusive::In, 1000.0)) {
-                            Sched::ShowWarningBadMinMax(state, eoh, IHGAlphaFieldNames(5), IHGAlphas(5),
-                                                        Clusive::In, 70.0, Clusive::In, 1000.0,
+                            Sched::ShowWarningBadMinMax(state,
+                                                        eoh,
+                                                        IHGAlphaFieldNames(5),
+                                                        IHGAlphas(5),
+                                                        Clusive::In,
+                                                        70.0,
+                                                        Clusive::In,
+                                                        1000.0,
                                                         "Values fall outside of typical w/person range for thermal comfort reporting.");
                         }
                     }
@@ -705,23 +711,23 @@ namespace InternalHeatGains {
 
                             if (!IHGAlphaFieldBlanks(9)) {
                                 thisPeople.workEffSched = Sched::GetSchedule(state, IHGAlphas(9));
-                            }                                    
-                            
+                            }
+
                             if (Item1 == 1) {
                                 if (IHGAlphaFieldBlanks(9)) {
                                     if (ModelWithAdditionalInputs) {
-                                        ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(9)); 
-                                        ShowContinueError(state, "It is required when Thermal Comfort Model Type is one of "
+                                        ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(9));
+                                        ShowContinueError(state,
+                                                          "It is required when Thermal Comfort Model Type is one of "
                                                           "\"Fanger\", \"Pierce\", \"KSU\", \"CoolingEffectASH55\" or \"AnkleDraftASH55\"");
                                         ErrorsFound = true;
                                     }
                                 } else if (thisPeople.workEffSched == nullptr) {
-                                     ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(9), IHGAlphas(9));
-                                     ErrorsFound = true;
+                                    ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(9), IHGAlphas(9));
+                                    ErrorsFound = true;
                                 } else if (!thisPeople.workEffSched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
-                                     Sched::ShowSevereBadMinMax(state, eoh, IHGAlphaFieldNames(9), IHGAlphas(9),
-                                                                  Clusive::In, 0.0, Clusive::In, 1.0);
-                                     ErrorsFound = true;
+                                    Sched::ShowSevereBadMinMax(state, eoh, IHGAlphaFieldNames(9), IHGAlphas(9), Clusive::In, 0.0, Clusive::In, 1.0);
+                                    ErrorsFound = true;
                                 }
                             }
 
@@ -732,9 +738,9 @@ namespace InternalHeatGains {
                                 ErrorsFound = true;
 
                             } else {
-                                    
+
                                 switch (thisPeople.clothingType) {
-                                        
+
                                 case ClothingType::InsulationSchedule: {
 
                                     thisPeople.clothingSched = Sched::GetSchedule(state, IHGAlphas(12));
@@ -763,14 +769,14 @@ namespace InternalHeatGains {
 
                                 case ClothingType::CalculationSchedule: {
                                     thisPeople.clothingMethodSched = Sched::GetSchedule(state, IHGAlphas(11));
-                                    
+
                                     if (Item1 == 1) {
                                         if (thisPeople.clothingMethodSched == nullptr) {
                                             ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(11), IHGAlphas(11));
                                             ErrorsFound = true;
                                         }
                                     }
-                                    
+
                                     if (thisPeople.clothingMethodSched->hasVal(state, 1)) {
                                         if ((thisPeople.clothingSched = Sched::GetSchedule(state, IHGAlphas(12))) == nullptr) {
                                             if (Item1 == 1) {
@@ -780,27 +786,27 @@ namespace InternalHeatGains {
                                         }
                                     }
                                 } break;
-                                        
+
                                 default: {
                                 } break; // nothing to do for the other cases
-                                } // switch (thisPeople.clothingType)
+                                }        // switch (thisPeople.clothingType)
                             }
 
-                        
                             if (IHGAlphaFieldBlanks(13)) {
                             } else {
                                 thisPeople.airVelocitySched = Sched::GetSchedule(state, IHGAlphas(13));
                             }
-                            
+
                             if (Item1 == 1) {
                                 if (IHGAlphaFieldBlanks(13)) {
                                     if (ModelWithAdditionalInputs) {
                                         ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(13));
-                                        ShowContinueError(state, "Required when Thermal Comfort Model Type is one of "
+                                        ShowContinueError(state,
+                                                          "Required when Thermal Comfort Model Type is one of "
                                                           "\"Fanger\", \"Pierce\", \"KSU\", \"CoolingEffectASH55\" or \"AnkleDraftASH55\"");
                                         ErrorsFound = true;
                                     }
-                                } else if (thisPeople.airVelocitySched == nullptr) { 
+                                } else if (thisPeople.airVelocitySched == nullptr) {
                                     ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(13), IHGAlphas(13));
                                     ErrorsFound = true;
                                 } else if (!thisPeople.airVelocitySched->checkMinVal(state, Clusive::In, 0.0)) {
@@ -808,7 +814,7 @@ namespace InternalHeatGains {
                                     ErrorsFound = true;
                                 }
                             }
-                            
+
                             if (IHGAlphas(21).empty()) { // Using IHGAlphaFieldBlanks(21) doesn't work because this field has a default
                             } else {
                                 thisPeople.ankleAirVelocitySched = Sched::GetSchedule(state, IHGAlphas(21));
@@ -818,7 +824,8 @@ namespace InternalHeatGains {
                                 if (IHGAlphaFieldBlanks(21)) {
                                     if (thisPeople.AnkleDraftASH55) {
                                         ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(21), IHGAlphas(21));
-                                        ShowContinueError(state, "Required when Thermal Comfort Model Type is one of "
+                                        ShowContinueError(state,
+                                                          "Required when Thermal Comfort Model Type is one of "
                                                           "\"Fanger\", \"Pierce\", \"KSU\", \"CoolingEffectASH55\" or \"AnkleDraftASH55\"");
                                         ErrorsFound = true;
                                     }
@@ -834,7 +841,7 @@ namespace InternalHeatGains {
                     if (thisPeople.ZonePtr <= 0) continue; // Error, will be caught and terminated later
                 }
             }
-        
+
             for (int peopleNum2 = 1; peopleNum2 <= state.dataHeatBal->TotPeople; ++peopleNum2) {
                 if (state.dataGlobal->AnyEnergyManagementSystemInModel) {
                     SetupEMSActuator(state,
@@ -972,21 +979,20 @@ namespace InternalHeatGains {
                     if (!IHGAlphaFieldBlanks(3)) {
                         thisLights.sched = Sched::GetSchedule(state, IHGAlphas(3));
                     }
-                    
+
                     if (Item1 == 1) {
                         if (IHGAlphaFieldBlanks(3)) {
                             ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(3));
                             ErrorsFound = true;
-                        } else if (thisLights.sched == nullptr) { 
-                            ShowSevereItemNotFound(state, eoh,IHGAlphaFieldNames(3), IHGAlphas(3));
+                        } else if (thisLights.sched == nullptr) {
+                            ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3));
                             ErrorsFound = true;
-                        } else if (!thisLights.sched->checkMinVal(state, Clusive::In, 0.0)) { 
+                        } else if (!thisLights.sched->checkMinVal(state, Clusive::In, 0.0)) {
                             Sched::ShowSevereBadMin(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3), Clusive::In, 0.0);
                             ErrorsFound = true;
                         }
                     }
 
-                    
                     // Lights Design Level calculation method.
                     {
                         // Set space load fraction
@@ -1298,10 +1304,7 @@ namespace InternalHeatGains {
                     state, state.dataOutRptPredefined->pdchInLtPower, liteName, state.dataHeatBal->Lights(lightsNum2).DesignLevel * mult);
                 PreDefTableEntry(
                     state, state.dataOutRptPredefined->pdchInLtEndUse, liteName, state.dataHeatBal->Lights(lightsNum2).EndUseSubcategory);
-                PreDefTableEntry(state,
-                                 state.dataOutRptPredefined->pdchInLtSchd,
-                                 liteName,
-                                 state.dataHeatBal->Lights(lightsNum2).sched->Name);
+                PreDefTableEntry(state, state.dataOutRptPredefined->pdchInLtSchd, liteName, state.dataHeatBal->Lights(lightsNum2).sched->Name);
                 PreDefTableEntry(
                     state, state.dataOutRptPredefined->pdchInLtRetAir, liteName, state.dataHeatBal->Lights(lightsNum2).FractionReturnAir, 4);
             } // Item1 - Number of Lights instances
@@ -1379,7 +1382,7 @@ namespace InternalHeatGains {
                                                                          IHGNumericFieldNames);
 
                 ErrorObjectHeader eoh{routineName, elecEqModuleObject, IHGAlphas(1)};
-                
+
                 auto &thisElecEqInput = state.dataInternalHeatGains->zoneElectricObjects(elecEqInputNum);
                 for (int Item1 = 1; Item1 <= thisElecEqInput.numOfSpaces; ++Item1) {
                     ++elecEqNum;
@@ -1391,14 +1394,14 @@ namespace InternalHeatGains {
                     thisZoneElectric.ZonePtr = zoneNum;
 
                     // Why are error messages not guarded by (Item1 == 1) checks for equipment?
-                    
+
                     if (IHGAlphaFieldBlanks(3)) {
                         ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(3));
                         ErrorsFound = true;
                     } else if ((thisZoneElectric.sched = Sched::GetSchedule(state, IHGAlphas(3))) == nullptr) {
                         ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3));
                         ErrorsFound = true;
-                    } else if (!thisZoneElectric.sched->checkMinVal(state, Clusive::In, 0.0)) { 
+                    } else if (!thisZoneElectric.sched->checkMinVal(state, Clusive::In, 0.0)) {
                         Sched::ShowSevereBadMin(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3), Clusive::In, 0.0);
                         ErrorsFound = true;
                     }
@@ -1604,7 +1607,7 @@ namespace InternalHeatGains {
                         if (IHGAlphaFieldBlanks(3)) {
                             ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(3));
                             ErrorsFound = true;
-                        } else if (thisZoneGas.sched == nullptr) { 
+                        } else if (thisZoneGas.sched == nullptr) {
                             ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3));
                             ErrorsFound = true;
                         } else if (!thisZoneGas.sched->checkMinVal(state, Clusive::In, 0.0)) {
@@ -2016,7 +2019,7 @@ namespace InternalHeatGains {
                                                                          IHGNumericFieldNames);
 
                 ErrorObjectHeader eoh{routineName, stmEqModuleObject, IHGAlphas(1)};
-                
+
                 auto &thisStmEqInput = steamEqObjects(stmEqInputNum);
                 for (int Item1 = 1; Item1 <= thisStmEqInput.numOfSpaces; ++Item1) {
                     ++stmEqNum;
@@ -2030,7 +2033,7 @@ namespace InternalHeatGains {
                     if (IHGAlphaFieldBlanks(3)) {
                         ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(3));
                         ErrorsFound = true;
-                    } else if ((thisZoneStmEq.sched = Sched::GetSchedule(state, IHGAlphas(3))) == nullptr) { 
+                    } else if ((thisZoneStmEq.sched = Sched::GetSchedule(state, IHGAlphas(3))) == nullptr) {
                         ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3));
                         ErrorsFound = true;
                     } else if (!thisZoneStmEq.sched->checkMinVal(state, Clusive::In, 0.0)) {
@@ -2222,7 +2225,7 @@ namespace InternalHeatGains {
                                                                          IHGNumericFieldNames);
 
                 ErrorObjectHeader eoh{routineName, othEqModuleObject, IHGAlphas(1)};
-                
+
                 auto &thisOthEqInput = otherEqObjects(othEqInputNum);
                 for (int Item1 = 1; Item1 <= thisOthEqInput.numOfSpaces; ++Item1) {
                     ++othEqNum;
@@ -2279,14 +2282,14 @@ namespace InternalHeatGains {
                     if (IHGAlphaFieldBlanks(4)) {
                         ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(4));
                         ErrorsFound = true;
-                    } else if ((thisZoneOthEq.sched = Sched::GetSchedule(state, IHGAlphas(4))) == nullptr) { 
+                    } else if ((thisZoneOthEq.sched = Sched::GetSchedule(state, IHGAlphas(4))) == nullptr) {
                         ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(4), IHGAlphas(4));
                         ErrorsFound = true;
-                    } else if (!thisZoneOthEq.sched->checkMinVal(state, Clusive::In, 0.0)) { 
+                    } else if (!thisZoneOthEq.sched->checkMinVal(state, Clusive::In, 0.0)) {
                         Sched::ShowSevereBadMin(state, eoh, IHGAlphaFieldNames(4), IHGAlphas(4), Clusive::In, 0.0);
                         ErrorsFound = true;
                     }
-                    
+
                     // equipment design level calculation method.
                     unsigned int DesignLevelFieldNumber;
                     {
@@ -2608,17 +2611,18 @@ namespace InternalHeatGains {
 
                         if (IHGAlphaFieldBlanks(5)) {
                             thisZoneITEq.operSched = Sched::GetScheduleAlwaysOn(state); // Not an availability schedule, but default is constant-1.0
-                        } else if ((thisZoneITEq.operSched = Sched::GetSchedule(state, IHGAlphas(5))) == nullptr) { 
+                        } else if ((thisZoneITEq.operSched = Sched::GetSchedule(state, IHGAlphas(5))) == nullptr) {
                             ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(5), IHGAlphas(5));
                             ErrorsFound = true;
                         } else if (!thisZoneITEq.operSched->checkMinVal(state, Clusive::In, 0.0)) {
                             Sched::ShowSevereBadMin(state, eoh, IHGAlphaFieldNames(5), IHGAlphas(5), Clusive::In, 0.0);
                             ErrorsFound = true;
                         }
-                        
+
                         if (IHGAlphaFieldBlanks(6)) {
-                            thisZoneITEq.cpuLoadSched = Sched::GetScheduleAlwaysOn(state); // not an availability schedule, but default is constant-1.0
-                        } else if ((thisZoneITEq.cpuLoadSched = Sched::GetSchedule(state, IHGAlphas(6))) == nullptr) { 
+                            thisZoneITEq.cpuLoadSched =
+                                Sched::GetScheduleAlwaysOn(state); // not an availability schedule, but default is constant-1.0
+                        } else if ((thisZoneITEq.cpuLoadSched = Sched::GetSchedule(state, IHGAlphas(6))) == nullptr) {
                             ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(6), IHGAlphas(6));
                             ErrorsFound = true;
                         } else if (!thisZoneITEq.cpuLoadSched->checkMinVal(state, Clusive::In, 0.0)) {
@@ -2793,7 +2797,9 @@ namespace InternalHeatGains {
                         if (thisZoneITEq.FlowControlWithApproachTemps) {
                             if (IHGAlphaFieldBlanks(20)) {
                                 if (!hasSupplyApproachTemp) {
-                                    ShowSevereCustom(state, eoh, 
+                                    ShowSevereCustom(
+                                        state,
+                                        eoh,
                                         format("For {}= FlowControlWithApproachTemperatures, either {} or {} is required, but both are left blank.",
                                                IHGAlphaFieldNames(3),
                                                IHGNumericFieldNames(10),
@@ -2803,18 +2809,20 @@ namespace InternalHeatGains {
                             } else if ((thisZoneITEq.supplyApproachTempSched = Sched::GetSchedule(state, IHGAlphas(20))) == nullptr) {
                                 ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(20), IHGAlphas(20));
                                 ErrorsFound = true;
-                            } 
+                            }
 
                             if (IHGAlphaFieldBlanks(21)) {
                                 if (!hasReturnApproachTemp) {
-                                    ShowSevereCustom(state, eoh, 
+                                    ShowSevereCustom(
+                                        state,
+                                        eoh,
                                         format("For {}= FlowControlWithApproachTemperatures, either {} or {} is required, but both are left blank.",
                                                IHGAlphaFieldNames(3),
                                                IHGNumericFieldNames(11),
                                                IHGAlphaFieldNames(21)));
                                     ErrorsFound = true;
                                 }
-                            } else if ((thisZoneITEq.returnApproachTempSched = Sched::GetSchedule(state, IHGAlphas(21))) == nullptr) { 
+                            } else if ((thisZoneITEq.returnApproachTempSched = Sched::GetSchedule(state, IHGAlphas(21))) == nullptr) {
                                 ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(20), IHGAlphas(20));
                                 ErrorsFound = true;
                             }
@@ -2906,7 +2914,7 @@ namespace InternalHeatGains {
                     if (IHGAlphaFieldBlanks(3)) {
                         ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(3));
                         ErrorsFound = true;
-                    } else if ((thisZoneBBHeat.sched = Sched::GetSchedule(state, IHGAlphas(3))) == nullptr) { 
+                    } else if ((thisZoneBBHeat.sched = Sched::GetSchedule(state, IHGAlphas(3))) == nullptr) {
                         ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3));
                         ErrorsFound = true;
                     } else if (!thisZoneBBHeat.sched->checkMinVal(state, Clusive::In, 0.0)) {
@@ -3018,10 +3026,10 @@ namespace InternalHeatGains {
             if (IHGAlphaFieldBlanks(3)) {
                 ShowSevereEmptyField(state, eoh, IHGAlphaFieldNames(3));
                 ErrorsFound = true;
-            } else if ((state.dataHeatBal->ZoneCO2Gen(Loop).sched = Sched::GetSchedule(state, IHGAlphas(3))) == nullptr) { 
+            } else if ((state.dataHeatBal->ZoneCO2Gen(Loop).sched = Sched::GetSchedule(state, IHGAlphas(3))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3));
                 ErrorsFound = true;
-            } else if (!state.dataHeatBal->ZoneCO2Gen(Loop).sched->checkMinVal(state, Clusive::In, 0.0)) { 
+            } else if (!state.dataHeatBal->ZoneCO2Gen(Loop).sched->checkMinVal(state, Clusive::In, 0.0)) {
                 Sched::ShowSevereBadMin(state, eoh, IHGAlphaFieldNames(3), IHGAlphas(3), Clusive::In, 0.0);
                 ErrorsFound = true;
             }
@@ -3081,7 +3089,7 @@ namespace InternalHeatGains {
 
         for (int Loop = 1; Loop <= state.dataGlobal->NumOfZones; ++Loop) {
             auto &zone = state.dataHeatBal->Zone(Loop);
-                
+
             Real64 LightTot = 0.0;
             Real64 ElecTot = 0.0;
             Real64 GasTot = 0.0;
@@ -3089,7 +3097,7 @@ namespace InternalHeatGains {
             Real64 HWETot = 0.0;
             Real64 StmTot = 0.0;
             std::string BBHeatInd = "No"; // Yes if BBHeat in zone, no if not.
-            
+
             for (auto const &lights : state.dataHeatBal->Lights) {
                 if (lights.ZonePtr == Loop) LightTot += lights.DesignLevel;
             }
@@ -3132,10 +3140,10 @@ namespace InternalHeatGains {
                 print(state.files.eio, "0.0,N/A,N/A,N/A,N/A,N/A,N/A,N/A,N/A,{}\n", BBHeatInd);
             }
         }
-        
+
         for (int Loop = 1; Loop <= state.dataHeatBal->TotPeople; ++Loop) {
             auto &people = state.dataHeatBal->People(Loop);
-                
+
             if (Loop == 1) {
                 print(state.files.eio,
                       Format_723,
@@ -3163,7 +3171,7 @@ namespace InternalHeatGains {
             }
 
             auto const &zone = state.dataHeatBal->Zone(people.ZonePtr);
-            
+
             print(state.files.eio, Format_722, "People", people.Name, people.sched->Name, zone.Name, zone.FloorArea, zone.TotOccupants);
             print(state.files.eio, "{:.1R},", people.NumberOfPeople);
 
@@ -3190,7 +3198,7 @@ namespace InternalHeatGains {
             print(state.files.eio, "{:.1R},", people.NomMaxNumberPeople);
 
             Real64 SchMin, SchMax;
-            
+
             // weekdays
             std::tie(SchMin, SchMax) = people.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
             print(state.files.eio, "{:.1R},", people.NumberOfPeople * SchMin);
@@ -3246,7 +3254,7 @@ namespace InternalHeatGains {
 
         for (int Loop = 1; Loop <= state.dataHeatBal->TotLights; ++Loop) {
             auto &lights = state.dataHeatBal->Lights(Loop);
-                
+
             if (Loop == 1) {
                 print(state.files.eio,
                       Format_723,
@@ -3266,9 +3274,8 @@ namespace InternalHeatGains {
             }
 
             auto const &zone = state.dataHeatBal->Zone(lights.ZonePtr);
-            
-            print(state.files.eio, Format_722, "Lights", lights.Name, lights.sched->Name, zone.Name, zone.FloorArea,
-                  zone.TotOccupants);
+
+            print(state.files.eio, Format_722, "Lights", lights.Name, lights.sched->Name, zone.Name, zone.FloorArea, zone.TotOccupants);
 
             print(state.files.eio, "{:.3R},", lights.DesignLevel);
 
@@ -3310,7 +3317,7 @@ namespace InternalHeatGains {
 
         for (int Loop = 1; Loop <= state.dataHeatBal->TotElecEquip; ++Loop) {
             auto &elecEq = state.dataHeatBal->ZoneElectric(Loop);
-                
+
             if (Loop == 1) {
                 print(state.files.eio,
                       Format_723,
@@ -3330,7 +3337,7 @@ namespace InternalHeatGains {
             }
 
             auto &zone = state.dataHeatBal->Zone(elecEq.ZonePtr);
-            
+
             print(state.files.eio, Format_722, "ElectricEquipment", elecEq.Name, elecEq.sched->Name, zone.Name, zone.FloorArea, zone.TotOccupants);
             print(state.files.eio, "{:.3R},", elecEq.DesignLevel);
 
@@ -3346,7 +3353,7 @@ namespace InternalHeatGains {
             print(state.files.eio, "{:.3R},", elecEq.NomMaxDesignLevel);
 
             Real64 SchMin, SchMax;
-            
+
             // weekdays
             std::tie(SchMin, SchMax) = elecEq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
             print(state.files.eio, "{:.3R},", elecEq.DesignLevel * SchMin);
@@ -3367,10 +3374,10 @@ namespace InternalHeatGains {
             print(state.files.eio, "{:.3R},", elecEq.DesignLevel * SchMin);
             print(state.files.eio, "{:.3R}\n", elecEq.DesignLevel * SchMax);
         }
-        
+
         for (int Loop = 1; Loop <= state.dataHeatBal->TotGasEquip; ++Loop) {
             auto &gasEq = state.dataHeatBal->ZoneGas(Loop);
-                
+
             if (Loop == 1) {
                 print(state.files.eio,
                       Format_723,
@@ -3390,7 +3397,7 @@ namespace InternalHeatGains {
             }
 
             auto &zone = state.dataHeatBal->Zone(gasEq.ZonePtr);
-            
+
             print(state.files.eio, Format_722, "GasEquipment", gasEq.Name, gasEq.sched->Name, zone.Name, zone.FloorArea, zone.TotOccupants);
             print(state.files.eio, "{:.3R},", gasEq.DesignLevel);
 
@@ -3429,7 +3436,7 @@ namespace InternalHeatGains {
 
         for (int Loop = 1; Loop <= state.dataHeatBal->TotHWEquip; ++Loop) {
             auto &hotWaterEq = state.dataHeatBal->ZoneHWEq(Loop);
-                
+
             if (Loop == 1) {
                 print(state.files.eio,
                       Format_723,
@@ -3450,7 +3457,14 @@ namespace InternalHeatGains {
 
             auto const &zone = state.dataHeatBal->Zone(hotWaterEq.ZonePtr);
 
-            print(state.files.eio, Format_722, "HotWaterEquipment", hotWaterEq.Name, hotWaterEq.sched->Name, zone.Name, zone.FloorArea, zone.TotOccupants);
+            print(state.files.eio,
+                  Format_722,
+                  "HotWaterEquipment",
+                  hotWaterEq.Name,
+                  hotWaterEq.sched->Name,
+                  zone.Name,
+                  zone.FloorArea,
+                  zone.TotOccupants);
 
             print(state.files.eio, "{:.3R},", hotWaterEq.DesignLevel);
 
@@ -3489,7 +3503,7 @@ namespace InternalHeatGains {
 
         for (int Loop = 1; Loop <= state.dataHeatBal->TotStmEquip; ++Loop) {
             auto &steamEq = state.dataHeatBal->ZoneSteamEq(Loop);
-                
+
             if (Loop == 1) {
                 print(state.files.eio,
                       Format_723,
@@ -3509,7 +3523,7 @@ namespace InternalHeatGains {
             }
 
             auto &zone = state.dataHeatBal->Zone(steamEq.ZonePtr);
-            
+
             print(state.files.eio, Format_722, "SteamEquipment", steamEq.Name, steamEq.sched->Name, zone.Name, zone.FloorArea, zone.TotOccupants);
             print(state.files.eio, "{:.3R},", steamEq.DesignLevel);
 
@@ -3568,7 +3582,7 @@ namespace InternalHeatGains {
             }
 
             auto const &zone = state.dataHeatBal->Zone(otherEq.ZonePtr);
-            
+
             print(state.files.eio, Format_722, "OtherEquipment", otherEq.Name, otherEq.sched->Name, zone.Name, zone.FloorArea, zone.TotOccupants);
             print(state.files.eio, "{:.3R},", otherEq.DesignLevel);
 
@@ -3583,7 +3597,7 @@ namespace InternalHeatGains {
             print(state.files.eio, "{:.3R},", otherEq.NomMaxDesignLevel);
 
             Real64 SchMin, SchMax;
-            
+
             // weekdays
             std::tie(SchMin, SchMax) = otherEq.sched->getMinMaxValsByDayType(state, Sched::DayTypeGroup::Weekday);
             print(state.files.eio, "{:.3R},", otherEq.DesignLevel * SchMin);
@@ -3607,7 +3621,7 @@ namespace InternalHeatGains {
 
         for (int Loop = 1; Loop <= state.dataHeatBal->TotITEquip; ++Loop) {
             auto &itEq = state.dataHeatBal->ZoneITEq(Loop);
-                
+
             if (Loop == 1) {
                 print(state.files.eio,
                       Format_723,
@@ -3629,7 +3643,14 @@ namespace InternalHeatGains {
             }
 
             auto const &zone = state.dataHeatBal->Zone(itEq.ZonePtr);
-            print(state.files.eio, Format_722, "ElectricEquipment:ITE:AirCooled", itEq.Name, itEq.operSched->Name, zone.Name, zone.FloorArea, zone.TotOccupants);
+            print(state.files.eio,
+                  Format_722,
+                  "ElectricEquipment:ITE:AirCooled",
+                  itEq.Name,
+                  itEq.operSched->Name,
+                  zone.Name,
+                  zone.FloorArea,
+                  zone.TotOccupants);
 
             print(state.files.eio, "{:.3R},", itEq.DesignTotalPower);
 
@@ -3685,8 +3706,15 @@ namespace InternalHeatGains {
             }
 
             auto const &zone = state.dataHeatBal->Zone(bbHeat.ZonePtr);
-            
-            print(state.files.eio, Format_722, "Outdoor Controlled Baseboard Heat", bbHeat.Name, bbHeat.sched->Name, zone.Name, zone.FloorArea, zone.TotOccupants);
+
+            print(state.files.eio,
+                  Format_722,
+                  "Outdoor Controlled Baseboard Heat",
+                  bbHeat.Name,
+                  bbHeat.sched->Name,
+                  zone.Name,
+                  zone.FloorArea,
+                  zone.TotOccupants);
 
             print(state.files.eio, "{:.3R},", bbHeat.CapatLowTemperature);
             print(state.files.eio, "{:.3R},", bbHeat.LowTemperature);
@@ -7150,7 +7178,7 @@ namespace InternalHeatGains {
         for (int Loop = 1; Loop <= state.dataHeatBal->TotCO2Gen; ++Loop) {
             int NZ = state.dataHeatBal->ZoneCO2Gen(Loop).ZonePtr;
             state.dataHeatBal->ZoneCO2Gen(Loop).CO2GainRate =
-                    state.dataHeatBal->ZoneCO2Gen(Loop).CO2DesignRate * state.dataHeatBal->ZoneCO2Gen(Loop).sched->getCurrentVal();
+                state.dataHeatBal->ZoneCO2Gen(Loop).CO2DesignRate * state.dataHeatBal->ZoneCO2Gen(Loop).sched->getCurrentVal();
             state.dataHeatBal->ZoneRpt(NZ).CO2Rate += state.dataHeatBal->ZoneCO2Gen(Loop).CO2GainRate;
         }
 
@@ -7660,7 +7688,7 @@ namespace InternalHeatGains {
                 for (int i : it->second) {
                     if (state.dataHeatBal->ZoneITEq(i).returnApproachTempSched != nullptr) {
                         TAirReturn = state.dataHeatBal->ZoneITEq(i).AirOutletDryBulbT +
-                                state.dataHeatBal->ZoneITEq(i).returnApproachTempSched->getCurrentVal();
+                                     state.dataHeatBal->ZoneITEq(i).returnApproachTempSched->getCurrentVal();
                     } else {
                         TAirReturn = state.dataHeatBal->ZoneITEq(i).AirOutletDryBulbT + state.dataHeatBal->ZoneITEq(i).ReturnApproachTemp;
                     }

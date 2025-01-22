@@ -346,14 +346,14 @@ TEST_F(EnergyPlusFixture, OARequirements_calcDesignSpecificationOutdoorAir)
     state->dataInputProcessing->inputProcessor->initializeMaps();
 
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
     HeatBalanceManager::GetZoneData(*state, ErrorsFound);
 
-    std::string const error_string = delimited_string({
-        format("   ** Warning ** Version: missing in IDF, processing for EnergyPlus version=\"{}\"", DataStringGlobals::MatchVersion),
-        "   ** Warning ** No Timestep object found.  Number of TimeSteps in Hour defaulted to 4."});
-                    
+    std::string const error_string = delimited_string(
+        {format("   ** Warning ** Version: missing in IDF, processing for EnergyPlus version=\"{}\"", DataStringGlobals::MatchVersion),
+         "   ** Warning ** No Timestep object found.  Number of TimeSteps in Hour defaulted to 4."});
+
     EXPECT_TRUE(compare_err_stream(error_string, true));
     EXPECT_FALSE(ErrorsFound);
 

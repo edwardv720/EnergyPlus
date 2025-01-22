@@ -234,7 +234,7 @@ void GetZoneContaminanInputs(EnergyPlusData &state)
                                                                  state.dataIPShortCut->cNumericFieldNames);
 
         ErrorObjectHeader eoh{routineName, CurrentModuleObject, AlphaName(1)};
-        
+
         Util::IsNameEmpty(state, AlphaName(1), CurrentModuleObject, ErrorsFound);
 
         auto &contam = state.dataContaminantBalance->ZoneContamGenericConstant(Loop);
@@ -258,7 +258,7 @@ void GetZoneContaminanInputs(EnergyPlusData &state)
         } else if ((contam.generateRateSched = Sched::GetSchedule(state, AlphaName(3))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(3), AlphaName(3));
             ErrorsFound = true;
-        } else if (!contam.generateRateSched->checkMinVal(state, Clusive::In, 0.0)) { 
+        } else if (!contam.generateRateSched->checkMinVal(state, Clusive::In, 0.0)) {
             Sched::ShowSevereBadMin(state, eoh, state.dataIPShortCut->cAlphaFieldNames(3), AlphaName(3), Clusive::In, 0.0);
             ErrorsFound = true;
         }
@@ -269,10 +269,10 @@ void GetZoneContaminanInputs(EnergyPlusData &state)
         if (state.dataIPShortCut->lAlphaFieldBlanks(4)) {
             ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaFieldNames(4));
             ErrorsFound = true;
-        } else if ((contam.removalCoefSched = Sched::GetSchedule(state, AlphaName(4))) == nullptr) { 
+        } else if ((contam.removalCoefSched = Sched::GetSchedule(state, AlphaName(4))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(4), AlphaName(4));
             ErrorsFound = true;
-        } else if (!contam.removalCoefSched->checkMinVal(state, Clusive::In, 0.0)) { 
+        } else if (!contam.removalCoefSched->checkMinVal(state, Clusive::In, 0.0)) {
             Sched::ShowSevereBadMin(state, eoh, state.dataIPShortCut->cAlphaFieldNames(3), AlphaName(3), Clusive::In, 0.0);
             ErrorsFound = true;
         }
@@ -334,15 +334,14 @@ void GetZoneContaminanInputs(EnergyPlusData &state)
                                                                  state.dataIPShortCut->cNumericFieldNames);
 
         ErrorObjectHeader eoh{routineName, CurrentModuleObject, AlphaName(1)};
-        
+
         Util::IsNameEmpty(state, AlphaName(1), CurrentModuleObject, ErrorsFound);
 
         auto &contam = state.dataContaminantBalance->ZoneContamGenericPDriven(Loop);
         contam.Name = AlphaName(1);
 
         contam.SurfName = AlphaName(2);
-        contam.SurfNum =
-            Util::FindItemInList(AlphaName(2), state.afn->MultizoneSurfaceData, &AirflowNetwork::MultizoneSurfaceProp::SurfName);
+        contam.SurfNum = Util::FindItemInList(AlphaName(2), state.afn->MultizoneSurfaceData, &AirflowNetwork::MultizoneSurfaceProp::SurfName);
         if (contam.SurfNum == 0) {
             ShowSevereError(state,
                             format("{}{}=\"{}\", invalid {} entered={}",
@@ -580,7 +579,7 @@ void GetZoneContaminanInputs(EnergyPlusData &state)
         ErrorObjectHeader eoh{routineName, CurrentModuleObject, AlphaName(1)};
 
         auto &contam = state.dataContaminantBalance->ZoneContamGenericDecay(Loop);
-        
+
         Util::IsNameEmpty(state, AlphaName(1), CurrentModuleObject, ErrorsFound);
         contam.Name = AlphaName(1);
 
@@ -694,7 +693,7 @@ void GetZoneContaminanInputs(EnergyPlusData &state)
                                                                  state.dataIPShortCut->cNumericFieldNames);
 
         ErrorObjectHeader eoh{routineName, CurrentModuleObject, AlphaName(1)};
-        
+
         Util::IsNameEmpty(state, AlphaName(1), CurrentModuleObject, ErrorsFound);
 
         auto &contam = state.dataContaminantBalance->ZoneContamGenericBLDiff(Loop);
@@ -718,7 +717,7 @@ void GetZoneContaminanInputs(EnergyPlusData &state)
         } else if ((contam.transCoefSched = Sched::GetSchedule(state, AlphaName(3))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(3), AlphaName(3));
             ErrorsFound = true;
-        } else if (!contam.transCoefSched->checkMinVal(state, Clusive::In, 0.0)) { 
+        } else if (!contam.transCoefSched->checkMinVal(state, Clusive::In, 0.0)) {
             Sched::ShowSevereBadMin(state, eoh, state.dataIPShortCut->cAlphaFieldNames(3), AlphaName(3), Clusive::In, 0.0);
             ErrorsFound = true;
         }
@@ -810,7 +809,7 @@ void GetZoneContaminanInputs(EnergyPlusData &state)
                                                                  state.dataIPShortCut->cNumericFieldNames);
 
         ErrorObjectHeader eoh{routineName, CurrentModuleObject, AlphaName(1)};
-        
+
         Util::IsNameEmpty(state, AlphaName(1), CurrentModuleObject, ErrorsFound);
         auto &contam = state.dataContaminantBalance->ZoneContamGenericDVS(Loop);
         contam.Name = AlphaName(1);
@@ -834,7 +833,7 @@ void GetZoneContaminanInputs(EnergyPlusData &state)
         } else if ((contam.depoVeloSched = Sched::GetSchedule(state, AlphaName(3))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(3), AlphaName(3));
             ErrorsFound = true;
-        } else if (!contam.depoVeloSched->checkMinVal(state, Clusive::In, 0.0)) { 
+        } else if (!contam.depoVeloSched->checkMinVal(state, Clusive::In, 0.0)) {
             Sched::ShowSevereBadMin(state, eoh, state.dataIPShortCut->cAlphaFieldNames(3), AlphaName(3), Clusive::In, 0.0);
             ErrorsFound = true;
         }
@@ -906,7 +905,7 @@ void GetZoneContaminanInputs(EnergyPlusData &state)
                                                                  state.dataIPShortCut->cNumericFieldNames);
 
         ErrorObjectHeader eoh{routineName, CurrentModuleObject, AlphaName(1)};
-        
+
         Util::IsNameEmpty(state, AlphaName(1), CurrentModuleObject, ErrorsFound);
 
         auto &contam = state.dataContaminantBalance->ZoneContamGenericDRS(Loop);
@@ -928,7 +927,7 @@ void GetZoneContaminanInputs(EnergyPlusData &state)
         if (state.dataIPShortCut->lAlphaFieldBlanks(3)) {
             ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaFieldNames(3));
             ErrorsFound = true;
-        } else if ((contam.depoRateSched = Sched::GetSchedule(state, AlphaName(3))) == nullptr) { 
+        } else if ((contam.depoRateSched = Sched::GetSchedule(state, AlphaName(3))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(3), AlphaName(3));
             ErrorsFound = true;
         } else if (!contam.depoRateSched->checkMinVal(state, Clusive::In, 0.0)) {
@@ -1006,7 +1005,7 @@ void GetZoneContaminanSetPoints(EnergyPlusData &state)
     // Uses the status flags to trigger events.
 
     static constexpr std::string_view routineName = "GetZoneContaminantSetPoints";
-        
+
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
     int ContControlledZoneNum; // The Splitter that you are currently loading input into
     int NumAlphas;
@@ -1060,7 +1059,7 @@ void GetZoneContaminanSetPoints(EnergyPlusData &state)
                                                                  state.dataIPShortCut->cNumericFieldNames);
 
         ErrorObjectHeader eoh{routineName, cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
-        
+
         Util::IsNameEmpty(state, state.dataIPShortCut->cAlphaArgs(1), cCurrentModuleObject, ErrorsFound);
 
         auto &controlledZone = state.dataContaminantBalance->ContaminantControlledZone(ContControlledZoneNum);
@@ -1081,12 +1080,12 @@ void GetZoneContaminanSetPoints(EnergyPlusData &state)
 
         if (state.dataIPShortCut->lAlphaFieldBlanks(3)) {
             controlledZone.availSched = Sched::GetScheduleAlwaysOn(state);
-        } else if ((controlledZone.availSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(3))) == nullptr) { 
+        } else if ((controlledZone.availSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(3))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(3), state.dataIPShortCut->cAlphaArgs(3));
             ErrorsFound = true;
         } else if (!controlledZone.availSched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
-            Sched::ShowSevereBadMinMax(state, eoh, state.dataIPShortCut->cAlphaFieldNames(3), state.dataIPShortCut->cAlphaArgs(3),
-                                         Clusive::In, 0.0, Clusive::In, 1.0);
+            Sched::ShowSevereBadMinMax(
+                state, eoh, state.dataIPShortCut->cAlphaFieldNames(3), state.dataIPShortCut->cAlphaArgs(3), Clusive::In, 0.0, Clusive::In, 1.0);
             ErrorsFound = true;
         } else {
             state.dataHeatBal->Zone(controlledZone.ActualZoneNum).zoneContamControllerSched = controlledZone.availSched;
@@ -1095,12 +1094,12 @@ void GetZoneContaminanSetPoints(EnergyPlusData &state)
         if (state.dataIPShortCut->lAlphaFieldBlanks(4)) {
             ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaFieldNames(4));
             ErrorsFound = true;
-        } else if ((controlledZone.setptSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(4))) == nullptr) { 
+        } else if ((controlledZone.setptSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(4))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(4), state.dataIPShortCut->cAlphaArgs(4));
             ErrorsFound = true;
         } else if (!controlledZone.setptSched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 2000.0)) {
-            Sched::ShowSevereBadMinMax(state, eoh, state.dataIPShortCut->cAlphaFieldNames(4), state.dataIPShortCut->cAlphaArgs(4),
-                                         Clusive::In, 0.0, Clusive::In, 2000.0);
+            Sched::ShowSevereBadMinMax(
+                state, eoh, state.dataIPShortCut->cAlphaFieldNames(4), state.dataIPShortCut->cAlphaArgs(4), Clusive::In, 0.0, Clusive::In, 2000.0);
             ErrorsFound = true;
         }
 
@@ -1110,8 +1109,8 @@ void GetZoneContaminanSetPoints(EnergyPlusData &state)
             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(5), state.dataIPShortCut->cAlphaArgs(5));
             ErrorsFound = true;
         } else if (!controlledZone.zoneMinCO2Sched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 2000.0)) {
-            Sched::ShowSevereBadMinMax(state, eoh, state.dataIPShortCut->cAlphaFieldNames(5), state.dataIPShortCut->cAlphaArgs(5),
-                                         Clusive::In, 0.0, Clusive::In, 2000.0);
+            Sched::ShowSevereBadMinMax(
+                state, eoh, state.dataIPShortCut->cAlphaFieldNames(5), state.dataIPShortCut->cAlphaArgs(5), Clusive::In, 0.0, Clusive::In, 2000.0);
             ErrorsFound = true;
         } else {
             state.dataHeatBal->Zone(controlledZone.ActualZoneNum).zoneMinCO2Sched = controlledZone.zoneMinCO2Sched;
@@ -1123,29 +1122,29 @@ void GetZoneContaminanSetPoints(EnergyPlusData &state)
             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(6), state.dataIPShortCut->cAlphaArgs(6));
             ErrorsFound = true;
         } else if (!controlledZone.zoneMaxCO2Sched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 2000.0)) {
-            Sched::ShowSevereBadMinMax(state, eoh, state.dataIPShortCut->cAlphaFieldNames(6), state.dataIPShortCut->cAlphaArgs(6),
-                                         Clusive::In, 0.0, Clusive::In, 2000.0);
+            Sched::ShowSevereBadMinMax(
+                state, eoh, state.dataIPShortCut->cAlphaFieldNames(6), state.dataIPShortCut->cAlphaArgs(6), Clusive::In, 0.0, Clusive::In, 2000.0);
             ErrorsFound = true;
         } else {
             state.dataHeatBal->Zone(controlledZone.ActualZoneNum).zoneMaxCO2Sched = controlledZone.zoneMaxCO2Sched;
         }
-        
+
         if (NumAlphas <= 6) {
             controlledZone.genericContamAvailSched = Sched::GetScheduleAlwaysOn(state);
             continue;
         }
-        
+
         if (state.dataIPShortCut->lAlphaFieldBlanks(7)) {
             controlledZone.genericContamAvailSched = Sched::GetScheduleAlwaysOn(state);
         } else if ((controlledZone.genericContamAvailSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(7))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(7), state.dataIPShortCut->cAlphaArgs(7));
             ErrorsFound = true;
         } else if (!controlledZone.genericContamAvailSched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
-            Sched::ShowSevereBadMinMax(state, eoh, state.dataIPShortCut->cAlphaFieldNames(7), state.dataIPShortCut->cAlphaArgs(7),
-                                         Clusive::In, 0.0, Clusive::In, 1.0);
+            Sched::ShowSevereBadMinMax(
+                state, eoh, state.dataIPShortCut->cAlphaFieldNames(7), state.dataIPShortCut->cAlphaArgs(7), Clusive::In, 0.0, Clusive::In, 1.0);
             ErrorsFound = true;
         }
-            
+
         if (state.dataIPShortCut->lAlphaFieldBlanks(8)) {
             ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaArgs(8));
             ErrorsFound = true;
@@ -1426,7 +1425,7 @@ void InitZoneContSetPoints(EnergyPlusData &state)
         if (state.dataContaminantBalance->Contaminant.CO2Simulation) {
             int ZoneNum = state.dataContaminantBalance->ContaminantControlledZone(Loop).ActualZoneNum;
             state.dataContaminantBalance->ZoneCO2SetPoint(ZoneNum) =
-               state.dataContaminantBalance->ContaminantControlledZone(Loop).setptSched->getCurrentVal();
+                state.dataContaminantBalance->ContaminantControlledZone(Loop).setptSched->getCurrentVal();
         }
         if (state.dataContaminantBalance->Contaminant.GenericContamSimulation) {
             int ZoneNum = state.dataContaminantBalance->ContaminantControlledZone(Loop).ActualZoneNum;
@@ -1455,8 +1454,7 @@ void InitZoneContSetPoints(EnergyPlusData &state)
         for (auto &con : state.dataContaminantBalance->ZoneContamGenericConstant) {
             int ZoneNum = con.ActualZoneNum;
             GCGain = con.GenerateRate * con.generateRateSched->getCurrentVal() -
-                    con.RemovalCoef * con.removalCoefSched->getCurrentVal() *
-                         state.dataContaminantBalance->ZoneAirGC(ZoneNum) * 1.0e-6;
+                     con.RemovalCoef * con.removalCoefSched->getCurrentVal() * state.dataContaminantBalance->ZoneAirGC(ZoneNum) * 1.0e-6;
             con.GenRate = GCGain;
         }
 
@@ -1846,8 +1844,7 @@ void PredictZoneContaminants(EnergyPlusData &state,
                         state.dataContaminantBalance->MixingMassFlowGC(ZoneNum) + thisZoneHB.MDotOA * state.dataContaminantBalance->OutdoorGC;
                     A = thisZoneHB.OAMFL + thisZoneHB.VAMFL + thisZoneHB.EAMFL + thisZoneHB.CTMFL + thisZoneHB.MixingMassFlowZone + thisZoneHB.MDotOA;
                 }
-                C = RhoAir * state.dataHeatBal->Zone(ZoneNum).Volume * state.dataHeatBal->Zone(ZoneNum).ZoneVolCapMultpGenContam /
-                    timeStepSysSec;
+                C = RhoAir * state.dataHeatBal->Zone(ZoneNum).Volume * state.dataHeatBal->Zone(ZoneNum).ZoneVolCapMultpGenContam / timeStepSysSec;
 
                 // Use a 3rd Order derivative to predict zone moisture addition or removal and
                 // smooth the changes using the zone air capacitance.  Positive values of GC Load means that
@@ -2022,13 +2019,12 @@ void InverseModelCO2(EnergyPlusData &state,
     Real64 M_inf(0.0); // Reversely solved infiltration mass flow rate
 
     Real64 timeStepSysSec = state.dataHVACGlobal->TimeStepSysSec;
-    
+
     auto &hmZone = state.dataHybridModel->hybridModelZones(ZoneNum);
-    
+
     state.dataHeatBal->Zone(ZoneNum).ZoneMeasuredCO2Concentration = hmZone.measuredCO2ConcSched->getCurrentVal();
 
-    if (state.dataEnvrn->DayOfYear >= hmZone.HybridStartDayOfYear &&
-        state.dataEnvrn->DayOfYear <= hmZone.HybridEndDayOfYear) {
+    if (state.dataEnvrn->DayOfYear >= hmZone.HybridStartDayOfYear && state.dataEnvrn->DayOfYear <= hmZone.HybridEndDayOfYear) {
         state.dataContaminantBalance->ZoneAirCO2(ZoneNum) = state.dataHeatBal->Zone(ZoneNum).ZoneMeasuredCO2Concentration;
 
         auto const &thisZoneHB = state.dataZoneTempPredictorCorrector->zoneHeatBalance(ZoneNum);
@@ -2082,7 +2078,8 @@ void InverseModelCO2(EnergyPlusData &state,
 
         // Hybrid Model calculate people count
         if (hmZone.PeopleCountCalc_C && state.dataHVACGlobal->UseZoneTimeStepHistory) {
-            state.dataHeatBal->Zone(ZoneNum).ZonePeopleActivityLevel = hmZone.peopleActivityLevelSched ? hmZone.peopleActivityLevelSched->getCurrentVal() : 0.0;
+            state.dataHeatBal->Zone(ZoneNum).ZonePeopleActivityLevel =
+                hmZone.peopleActivityLevelSched ? hmZone.peopleActivityLevelSched->getCurrentVal() : 0.0;
             Real64 ActivityLevel = hmZone.peopleActivityLevelSched ? hmZone.peopleActivityLevelSched->getCurrentVal() : 0.0;
             Real64 CO2GenRate = hmZone.peopleCO2GenRateSched ? hmZone.peopleCO2GenRateSched->getCurrentVal() : 0.0;
             if (ActivityLevel <= 0.0) {
@@ -2298,7 +2295,7 @@ void CorrectZoneContaminants(EnergyPlusData &state,
 
         Real64 timeStepSysSec = state.dataHVACGlobal->TimeStepSysSec;
         auto &thisZoneHB = state.dataZoneTempPredictorCorrector->zoneHeatBalance(ZoneNum);
-        
+
         // Calculate the coefficients for the 3rd order derivative for final
         // zone humidity ratio.  The A, B, C coefficients are analogous to the
         // CO2 balance.  There are 2 cases that should be considered, system operating and system shutdown.
@@ -2368,8 +2365,7 @@ void CorrectZoneContaminants(EnergyPlusData &state,
 
             if (state.dataHybridModel->FlagHybridModel) {
                 auto &hmZone = state.dataHybridModel->hybridModelZones(ZoneNum);
-                if ((hmZone.InfiltrationCalc_C || hmZone.PeopleCountCalc_C) &&
-                    (!state.dataGlobal->WarmupFlag) && (!state.dataGlobal->DoingSizing)) {
+                if ((hmZone.InfiltrationCalc_C || hmZone.PeopleCountCalc_C) && (!state.dataGlobal->WarmupFlag) && (!state.dataGlobal->DoingSizing)) {
                     InverseModelCO2(state, ZoneNum, CO2Gain, CO2GainExceptPeople, ZoneMassFlowRate, CO2MassFlowRate, RhoAir);
                 }
             }

@@ -120,7 +120,7 @@ namespace HybridModel {
                 ZonePtr = Util::FindItemInList(cAlphaArgs(2), state.dataHeatBal->Zone); // "Zone" is a 1D array, cAlphaArgs(2) is the zone name
                 if (ZonePtr > 0) {
                     auto &hmZone = state.dataHybridModel->hybridModelZones(ZonePtr);
-                    hmZone.Name = cAlphaArgs(1);               // Zone HybridModel name
+                    hmZone.Name = cAlphaArgs(1);                                                        // Zone HybridModel name
                     state.dataHybridModel->FlagHybridModel_TM = Util::SameString(cAlphaArgs(3), "Yes"); // Calculate thermal mass option
                     state.dataHybridModel->FlagHybridModel_AI = Util::SameString(cAlphaArgs(4), "Yes"); // Calculate infiltration rate option
                     state.dataHybridModel->FlagHybridModel_PC = Util::SameString(cAlphaArgs(5), "Yes"); // Calculate people count option
@@ -303,9 +303,8 @@ namespace HybridModel {
 
                     // Flags showing Hybrid Modeling settings
                     state.dataHybridModel->FlagHybridModel = hmZone.InternalThermalMassCalc_T || hmZone.InfiltrationCalc_T ||
-                                                             hmZone.InfiltrationCalc_H || hmZone.InfiltrationCalc_C ||
-                                                             hmZone.PeopleCountCalc_T || hmZone.PeopleCountCalc_H ||
-                                                             hmZone.PeopleCountCalc_C;
+                                                             hmZone.InfiltrationCalc_H || hmZone.InfiltrationCalc_C || hmZone.PeopleCountCalc_T ||
+                                                             hmZone.PeopleCountCalc_H || hmZone.PeopleCountCalc_C;
 
                     if (hmZone.InternalThermalMassCalc_T || hmZone.InfiltrationCalc_T || hmZone.PeopleCountCalc_T) {
                         hmZone.measuredTempSched = temperatureSched;
@@ -320,7 +319,7 @@ namespace HybridModel {
                     }
 
                     if (hmZone.IncludeSystemSupplyParameters) {
-                        hmZone.supplyAirTempSched = supplyAirTemperatureSched; 
+                        hmZone.supplyAirTempSched = supplyAirTemperatureSched;
                         hmZone.supplyAirMassFlowRateSched = supplyAirMassFlowRateSched;
                         hmZone.supplyAirHumRatSched = supplyAirHumidityRatioSched;
                         hmZone.supplyAirCO2ConcSched = supplyAirCO2ConcentrationSched;
@@ -438,9 +437,8 @@ namespace HybridModel {
                         format("{}=\"{}\" invalid {}=\"{}\" not found.", CurrentModuleObject, cAlphaArgs(1), cAlphaFieldNames(2), cAlphaArgs(2)));
                     ErrorsFound = true;
                 }
-
             }
-            
+
             // RoomAirModelType should be Mixing if Hybrid Modeling is performed for the zone
             if (state.dataHybridModel->FlagHybridModel) {
                 for (int ZonePtr = 1; ZonePtr <= state.dataGlobal->NumOfZones; ZonePtr++) {

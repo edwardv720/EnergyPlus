@@ -95,7 +95,7 @@ using namespace EnergyPlus::ZoneContaminantPredictorCorrector;
 TEST_F(EnergyPlusFixture, ZoneContaminantPredictorCorrector_AddMDotOATest)
 {
     state->init_state(*state);
-        
+
     state->dataHVACGlobal->ShortenTimeStepSys = false;
     state->dataHVACGlobal->UseZoneTimeStepHistory = false;
 

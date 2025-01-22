@@ -588,7 +588,6 @@ void sizeZoneSpaceEquipmentPart2(EnergyPlusData &state,
         (spaceNum > 0) ? state.dataHeatBal->space(spaceNum).SystemZoneNodeNumber : state.dataHeatBal->Zone(zoneNum).SystemZoneNodeNumber;
     Real64 RetTemp = (returnNodeNum > 0) ? state.dataLoopNodes->Node(returnNodeNum).Temp : state.dataLoopNodes->Node(zoneNodeNum).Temp;
 
-
     auto &zoneTstatSetpt = state.dataHeatBalFanSys->zoneTstatSetpts(zoneNum);
     if (zsCalcSizing.HeatLoad > 0.0) {
         zsCalcSizing.HeatZoneRetTemp = RetTemp;
@@ -4577,21 +4576,23 @@ void updateSystemOutputRequired(EnergyPlusData &state,
             // uncontrolled zone; shouldn't ever get here, but who knows
             state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum) = false;
         } break;
-                
+
         case HVAC::SetptType::SingleHeat: {
-            state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum) = ((energy.RemainingOutputRequired - 1.0) < 0.0); 
+            state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum) = ((energy.RemainingOutputRequired - 1.0) < 0.0);
         } break;
-                
+
         case HVAC::SetptType::SingleCool: {
             state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum) = ((energy.RemainingOutputRequired + 1.0) > 0.0);
         } break;
-                
+
         case HVAC::SetptType::SingleHeatCool: {
-            state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum) = (energy.RemainingOutputReqToHeatSP < 0.0 && energy.RemainingOutputReqToCoolSP > 0.0);
+            state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum) =
+                (energy.RemainingOutputReqToHeatSP < 0.0 && energy.RemainingOutputReqToCoolSP > 0.0);
         } break;
 
         case HVAC::SetptType::DualHeatCool: {
-            state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum) = (energy.RemainingOutputReqToHeatSP < 0.0 && energy.RemainingOutputReqToCoolSP > 0.0);
+            state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum) =
+                (energy.RemainingOutputReqToHeatSP < 0.0 && energy.RemainingOutputReqToCoolSP > 0.0);
         } break;
 
         default: {
@@ -4675,26 +4676,28 @@ void updateSystemOutputRequired(EnergyPlusData &state,
             // uncontrolled zone; shouldn't ever get here, but who knows
             state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum) = false;
         } break;
-                
+
         case HVAC::SetptType::SingleHeat: {
             state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum) = ((energy.RemainingOutputRequired - 1.0) < 0.0);
         } break;
-        
+
         case HVAC::SetptType::SingleCool: {
             state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum) = ((energy.RemainingOutputRequired + 1.0) > 0.0);
         } break;
-                
+
         case HVAC::SetptType::SingleHeatCool: {
-            state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum) = (energy.RemainingOutputReqToHeatSP < 0.0 && energy.RemainingOutputReqToCoolSP > 0.0);
+            state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum) =
+                (energy.RemainingOutputReqToHeatSP < 0.0 && energy.RemainingOutputReqToCoolSP > 0.0);
         } break;
 
         case HVAC::SetptType::DualHeatCool: {
-            state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum) = (energy.RemainingOutputReqToHeatSP < 0.0 && energy.RemainingOutputReqToCoolSP > 0.0);
+            state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum) =
+                (energy.RemainingOutputReqToHeatSP < 0.0 && energy.RemainingOutputReqToCoolSP > 0.0);
         } break;
-                
+
         default: {
         } break;
-                
+
         } // switch
 
     } break;
@@ -5903,10 +5906,8 @@ void CalcAirFlowSimple(EnergyPlusData &state,
             }
             // Ensure the minimum outdoor temperature <= the maximum outdoor temperature
             Real64 TempExt = state.dataHeatBal->Zone(thisZoneNum).OutDryBulbTemp;
-            if (thisMixing.minOutdoorTempSched != nullptr)
-                MixingTmin = thisMixing.minOutdoorTempSched->getCurrentVal();
-            if (thisMixing.maxOutdoorTempSched != nullptr)
-                MixingTmax = thisMixing.maxOutdoorTempSched->getCurrentVal();
+            if (thisMixing.minOutdoorTempSched != nullptr) MixingTmin = thisMixing.minOutdoorTempSched->getCurrentVal();
+            if (thisMixing.maxOutdoorTempSched != nullptr) MixingTmax = thisMixing.maxOutdoorTempSched->getCurrentVal();
             if (thisMixing.minOutdoorTempSched != nullptr && thisMixing.maxOutdoorTempSched != nullptr) {
                 if (MixingTmin > MixingTmax) {
                     ++thisMixing.OutdoorTempErrCount;
@@ -6535,12 +6536,12 @@ void CalcAirFlowSimple(EnergyPlusData &state,
                 state, state.dataEnvrn->OutBaroPress, state.dataHeatBal->Zone(NZ).OutDryBulbTemp, HumRatExt, RoutineNameZoneAirBalance);
             Real64 CpAir = Psychrometrics::PsyCpAirFnW(HumRatExt);
             thisZoneAirBalance.ERVMassFlowRate *= AirDensity;
-            thisZoneHB.MDotOA = std::sqrt(pow_2(thisZoneAirBalance.NatMassFlowRate) + pow_2(thisZoneAirBalance.IntMassFlowRate) +
-                                          pow_2(thisZoneAirBalance.ExhMassFlowRate) + pow_2(thisZoneAirBalance.ERVMassFlowRate) +
-                                          pow_2(thisZoneAirBalance.InfMassFlowRate) +
-                                          pow_2(AirDensity * thisZoneAirBalance.InducedAirRate *
-                                                thisZoneAirBalance.inducedAirSched->getCurrentVal())) +
-                                thisZoneAirBalance.BalMassFlowRate;
+            thisZoneHB.MDotOA =
+                std::sqrt(pow_2(thisZoneAirBalance.NatMassFlowRate) + pow_2(thisZoneAirBalance.IntMassFlowRate) +
+                          pow_2(thisZoneAirBalance.ExhMassFlowRate) + pow_2(thisZoneAirBalance.ERVMassFlowRate) +
+                          pow_2(thisZoneAirBalance.InfMassFlowRate) +
+                          pow_2(AirDensity * thisZoneAirBalance.InducedAirRate * thisZoneAirBalance.inducedAirSched->getCurrentVal())) +
+                thisZoneAirBalance.BalMassFlowRate;
             thisZoneHB.MDotCPOA = thisZoneHB.MDotOA * CpAir;
         }
     }

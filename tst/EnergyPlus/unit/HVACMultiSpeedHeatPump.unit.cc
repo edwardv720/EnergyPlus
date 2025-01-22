@@ -1258,7 +1258,7 @@ TEST_F(EnergyPlusFixture, HVACMultiSpeedHeatPump_ReportVariableInitTest)
     });
 
     ASSERT_TRUE(process_idf(idf_objects));
-    state->dataGlobal->TimeStepsInHour = 1; // must initialize this to get schedules initialized
+    state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
     state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
 
@@ -2138,7 +2138,7 @@ TEST_F(EnergyPlusFixture, HVACMSHP_UnitarySystemElectricityRateTest)
     });
 
     ASSERT_TRUE(process_idf(idf_objects));
-    state->dataGlobal->TimeStepsInHour = 1; // must initialize this to get schedules initialized
+    state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
     state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
 

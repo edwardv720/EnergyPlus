@@ -90,7 +90,7 @@ TEST_F(EnergyPlusFixture, TestDualDuctOAMassFlowRateUsingStdRhoAir)
     int numOfdd_airterminals = 2;
 
     state->init_state(*state);
-    
+
     state->dataHeatBal->Zone.allocate(1);
     state->dataSize->OARequirements.allocate(1);
     state->dataAirLoop->AirLoopControlInfo.allocate(1);
@@ -350,14 +350,14 @@ TEST_F(EnergyPlusFixture, DualDuctVAVAirTerminals_GetInputs)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     ZoneAirLoopEquipmentManager::GetZoneAirLoopEquipment(*state);
     DualDuct::GetDualDuctInput(*state);
 
     // dual duct  VAV air terminal get input test
     EXPECT_ENUM_EQ(state->dataDualDuct->dd_airterminal(1).DamperType, DualDuctDamper::VariableVolume); // dual duct VAV Type
     EXPECT_EQ(state->dataDualDuct->dd_airterminal(1).Name, "VAV DUAL DUCT AT");                        // dual duct VAV Name
-    EXPECT_TRUE(state->dataDualDuct->dd_airterminal(1).zoneTurndownMinAirFracSched != nullptr);                // turndown schdule exists
+    EXPECT_TRUE(state->dataDualDuct->dd_airterminal(1).zoneTurndownMinAirFracSched != nullptr);        // turndown schdule exists
     EXPECT_EQ(state->dataDualDuct->dd_airterminal(1).ZoneTurndownMinAirFrac, 1.0);                     // turndown fraction initialized to 1.0
     EXPECT_EQ(state->dataDualDuct->dd_airterminal(1).ZoneMinAirFracDes, 0.3);                          // design minimum flow fraction
 }
@@ -434,7 +434,7 @@ TEST_F(EnergyPlusFixture, DualDuctVAVAirTerminals_MinFlowTurnDownTest)
     state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
     state->init_state(*state);
-    
+
     state->dataEnvrn->Month = 1;
     state->dataEnvrn->DayOfMonth = 21;
     state->dataGlobal->HourOfDay = 1;
@@ -459,7 +459,7 @@ TEST_F(EnergyPlusFixture, DualDuctVAVAirTerminals_MinFlowTurnDownTest)
     // dual duct  VAV air terminal get input test
     EXPECT_ENUM_EQ(thisDDAirTerminal.DamperType, DualDuctDamper::VariableVolume); // dual duct VAV Type
     EXPECT_EQ(thisDDAirTerminal.Name, "VAV DUAL DUCT AT");                        // dual duct VAV Name
-    EXPECT_TRUE(thisDDAirTerminal.zoneTurndownMinAirFracSched != nullptr);                // turndown schdule exists
+    EXPECT_TRUE(thisDDAirTerminal.zoneTurndownMinAirFracSched != nullptr);        // turndown schdule exists
     EXPECT_EQ(thisDDAirTerminal.ZoneTurndownMinAirFrac, 1.0);                     // turndown fraction initialized to 1.0
     EXPECT_EQ(thisDDAirTerminal.ZoneMinAirFracDes, 0.3);                          // design minimum flow fraction
 
@@ -504,7 +504,7 @@ TEST_F(EnergyPlusFixture, DualDuctVAVAirTerminals_MinFlowTurnDownTest)
     EXPECT_EQ(0.0, state->dataLoopNodes->Node(ColdInNode).MassFlowRate);
 
     // test with heating load and turndown fraction schedule value set 0.5
-    state->dataDualDuct->dd_airterminal(DDNum).zoneTurndownMinAirFracSched = Sched::GetSchedule(*state, "TURNDOWNMINAIRFLOWSCH2"); 
+    state->dataDualDuct->dd_airterminal(DDNum).zoneTurndownMinAirFracSched = Sched::GetSchedule(*state, "TURNDOWNMINAIRFLOWSCH2");
     SysMinMassFlowRes = 1.0 * state->dataEnvrn->StdRhoAir * 0.30 * 0.5; // min flow rate at 0.5 turndown fraction
     state->dataLoopNodes->Node(OutNode).MassFlowRate = SysMaxMassFlowRes;
     state->dataLoopNodes->Node(HotInNode).MassFlowRate = SysMaxMassFlowRes;
@@ -534,7 +534,7 @@ TEST_F(EnergyPlusFixture, DualDuctAirTerminal_reportTerminalUnit)
 {
     using namespace EnergyPlus::OutputReportPredefined;
     state->init_state(*state);
-    
+
     auto &orp = *state->dataOutRptPredefined;
 
     SetPredefinedTables(*state);

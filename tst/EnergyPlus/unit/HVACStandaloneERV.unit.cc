@@ -106,7 +106,7 @@ TEST_F(EnergyPlusFixture, HVACStandAloneERV_Test1)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataEnvrn->StdRhoAir = 1.0;
     state->dataZoneEquip->ZoneEquipConfig.allocate(1);
     state->dataZoneEquip->ZoneEquipConfig(1).ZoneName = "Zone 1";
@@ -121,7 +121,7 @@ TEST_F(EnergyPlusFixture, HVACStandAloneERV_Test1)
     state->dataHeatBal->People.allocate(state->dataHeatBal->TotPeople);
     state->dataHeatBal->People(1).ZonePtr = 1;
     state->dataHeatBal->People(1).NumberOfPeople = 100.0;
-    state->dataHeatBal->People(1).sched = Sched::GetScheduleAlwaysOn(*state); 
+    state->dataHeatBal->People(1).sched = Sched::GetScheduleAlwaysOn(*state);
     state->dataHeatBal->People(2).ZonePtr = 1;
     state->dataHeatBal->People(2).NumberOfPeople = 200.0;
     state->dataHeatBal->People(2).sched = Sched::GetScheduleAlwaysOn(*state);
@@ -210,7 +210,7 @@ TEST_F(EnergyPlusFixture, HVACStandAloneERV_Test2)
     ASSERT_TRUE(process_idf(idf_objects));
     state->dataEnvrn->StdRhoAir = 1.0;
 
-    state->dataGlobal->TimeStepsInHour = 1; // must initialize this to get schedules initialized
+    state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
     state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
 

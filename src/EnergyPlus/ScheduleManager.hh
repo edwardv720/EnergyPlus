@@ -68,7 +68,7 @@ namespace Sched {
     constexpr int SchedNum_Invalid = -1;
     constexpr int SchedNum_AlwaysOff = 0;
     constexpr int SchedNum_AlwaysOn = 1;
-        
+
     enum class DayType
     {
         Invalid = -1,
@@ -100,7 +100,7 @@ namespace Sched {
     constexpr int iDayType_WinDes = (int)DayType::WinterDesignDay;
     constexpr int iDayType_Cus1 = (int)DayType::CustomDay1;
     constexpr int iDayType_Cus2 = (int)DayType::CustomDay2;
-        
+
     extern const std::array<std::string_view, (int)DayType::Num> dayTypeNames;
     extern const std::array<std::string_view, (int)DayType::Num> dayTypeNamesUC;
 
@@ -142,7 +142,8 @@ namespace Sched {
         Num
     };
 
-    enum class LimitUnits {
+    enum class LimitUnits
+    {
         Invalid = -1,
         Dimensionless,
         Temperature,
@@ -164,12 +165,12 @@ namespace Sched {
     struct ScheduleType
     {
         // Members
-        std::string Name; // Schedule Type Name
-        int Num; // index in vector, useful sometimes
-        bool isLimited = false;     // True if this Schedule Type has limits
-        Real64 minVal = 0.0;   // Minimum for limited schedule
-        Real64 maxVal = 0.0;   // Maximum for limited schedule
-        bool isReal = true;      // True if this is a "real" schedule, false if integer
+        std::string Name;       // Schedule Type Name
+        int Num;                // index in vector, useful sometimes
+        bool isLimited = false; // True if this Schedule Type has limits
+        Real64 minVal = 0.0;    // Minimum for limited schedule
+        Real64 maxVal = 0.0;    // Maximum for limited schedule
+        bool isReal = true;     // True if this is a "real" schedule, false if integer
         LimitUnits limitUnits = LimitUnits::Invalid;
     };
 
@@ -178,19 +179,19 @@ namespace Sched {
         std::string Name;
         int Num = SchedNum_Invalid;
         bool isUsed = false;
-            
-        Real64 maxVal = 0.0;                           // maximum of all TSValue's
-        Real64 minVal = 0.0;                           // minimum of all TSValue's
+
+        Real64 maxVal = 0.0; // maximum of all TSValue's
+        Real64 minVal = 0.0; // minimum of all TSValue's
         bool isMinMaxSet = false;
 
-        ScheduleBase() {};
+        ScheduleBase(){};
 
         virtual void can_instantiate() = 0; // abstract base class
 
         virtual void setMinMaxVals(EnergyPlusData &state) = 0;
-        Real64 getMinVal(EnergyPlusData &state); 
-        Real64 getMaxVal(EnergyPlusData &state); 
-            
+        Real64 getMinVal(EnergyPlusData &state);
+        Real64 getMaxVal(EnergyPlusData &state);
+
         bool checkMinMaxVals(EnergyPlusData &state, Clusive cluMin, Real64 const min, Clusive cluMax, Real64 const max);
         bool checkMinVal(EnergyPlusData &state, Clusive cluMin, Real64 const min);
         bool checkMaxVal(EnergyPlusData &state, Clusive cluMax, Real64 const max);
@@ -198,28 +199,38 @@ namespace Sched {
 
     struct DayOrYearSchedule : ScheduleBase
     {
-        DayOrYearSchedule() {};
-        virtual ~DayOrYearSchedule() {};
+        DayOrYearSchedule(){};
+        virtual ~DayOrYearSchedule(){};
 
         virtual std::vector<Real64> const &getDayVals([[maybe_unused]] EnergyPlusData &state, int jDay = -1, int dayOfWeek = -1) = 0;
     };
-        
+
     struct DaySchedule : DayOrYearSchedule
     {
-        int schedTypeNum = SchedNum_Invalid;                // Index of Schedule Type
-            
+        int schedTypeNum = SchedNum_Invalid; // Index of Schedule Type
+
         Interpolation interpolation = Interpolation::No; // Indicator for interval interpolation. If not "interpolated", False.  Else True
-        std::vector<Real64> tsVals;                // Value array by simulation timestep
+        std::vector<Real64> tsVals;                      // Value array by simulation timestep
         Real64 sumTsVals = 0.0;
-            
-        DaySchedule() {}
-        virtual ~DaySchedule() {}
-        void can_instantiate() { assert(false); } // makes class concrete, but don't call this
-            
+
+        DaySchedule()
+        {
+        }
+        virtual ~DaySchedule()
+        {
+        }
+        void can_instantiate()
+        {
+            assert(false);
+        } // makes class concrete, but don't call this
+
         bool checkValsForLimitViolations(EnergyPlusData &state) const;
         bool checkValsForBadIntegers(EnergyPlusData &state) const;
         void populateFromMinuteVals(EnergyPlusData &state, std::array<Real64, Constant::iMinutesInDay> const &minuteVals);
-        std::vector<Real64> const &getDayVals([[maybe_unused]] EnergyPlusData &state, int jDay = -1, int dayOfWeek = -1) { return tsVals; }
+        std::vector<Real64> const &getDayVals([[maybe_unused]] EnergyPlusData &state, int jDay = -1, int dayOfWeek = -1)
+        {
+            return tsVals;
+        }
         void setMinMaxVals(EnergyPlusData &state);
     };
 
@@ -227,10 +238,17 @@ namespace Sched {
     {
         // Members
         std::array<DaySchedule *, (int)DayType::Num> dayScheds = {nullptr};
-            
-        WeekSchedule() {}
-        virtual ~WeekSchedule() {}
-        void can_instantiate() { assert(false); } // makes class concrete, but don't call this
+
+        WeekSchedule()
+        {
+        }
+        virtual ~WeekSchedule()
+        {
+        }
+        void can_instantiate()
+        {
+            assert(false);
+        } // makes class concrete, but don't call this
 
         void setMinMaxVals(EnergyPlusData &state);
     };
@@ -238,107 +256,129 @@ namespace Sched {
     struct Schedule : public DayOrYearSchedule
     {
         SchedType type = SchedType::Invalid;
-            
-        int schedTypeNum = SchedNum_Invalid;                // Index of Schedule Type
-        bool EMSActuatedOn = false;                                                   // indicates if EMS computed
-        Real64 EMSVal = 0.0;                                                      // EMS value
+
+        int schedTypeNum = SchedNum_Invalid; // Index of Schedule Type
+        bool EMSActuatedOn = false;          // indicates if EMS computed
+        Real64 EMSVal = 0.0;                 // EMS value
 
         Real64 currentVal = 0.0;
 
-        Schedule() { type = SchedType::Constant; }
+        Schedule()
+        {
+            type = SchedType::Constant;
+        }
 
-        virtual ~Schedule() {};
+        virtual ~Schedule(){};
 
-        Real64 getCurrentVal() const { return EMSActuatedOn ? EMSVal : currentVal; }
+        Real64 getCurrentVal() const
+        {
+            return EMSActuatedOn ? EMSVal : currentVal;
+        }
 
         // Looks up a given Schedule value for an hour & timestep, minding whether DST is enabled or not
         // Negative ts => unspecified, will use TimeStepsInHour
-        virtual Real64 getHrTsVal(EnergyPlusData &state, int hr, int ts = -1) const = 0;            
+        virtual Real64 getHrTsVal(EnergyPlusData &state, int hr, int ts = -1) const = 0;
         virtual bool hasVal(EnergyPlusData &state, Real64 const val) const = 0;
         virtual bool hasFractionalVal(EnergyPlusData &state) const = 0;
-            
+
         virtual std::pair<Real64, Real64> getMinMaxValsByDayType(EnergyPlusData &state, DayTypeGroup const days) = 0;
 
-        Real64 getAverageWeeklyHoursFullLoad(EnergyPlusData &state, int const startDayOfWeek, bool const isLeapYear);   
+        Real64 getAverageWeeklyHoursFullLoad(EnergyPlusData &state, int const startDayOfWeek, bool const isLeapYear);
         virtual Real64 getAnnualHoursFullLoad(EnergyPlusData &state, int const StartDayOfWeek, bool const isLeapYear) = 0;
         virtual Real64 getAnnualHoursGreaterThan1Percent(EnergyPlusData &state, int const StartDayOfWeek, bool const isLeapYear) = 0;
-        virtual std::tuple<Real64, int, std::string> getValAndCountOnDay(EnergyPlusData &state, bool const isSummer, DayType const dayOfWeek, int const hourOfDay) = 0;
+        virtual std::tuple<Real64, int, std::string>
+        getValAndCountOnDay(EnergyPlusData &state, bool const isSummer, DayType const dayOfWeek, int const hourOfDay) = 0;
     };
-            
+
     struct ScheduleConstant : public Schedule
     {
         std::vector<Real64> tsVals;
-            
-        ScheduleConstant() { type = SchedType::Constant; }
 
-        virtual ~ScheduleConstant() {};
+        ScheduleConstant()
+        {
+            type = SchedType::Constant;
+        }
 
-        void can_instantiate() { assert(false); } // makes class concrete, but don't call this
-            
+        virtual ~ScheduleConstant(){};
+
+        void can_instantiate()
+        {
+            assert(false);
+        } // makes class concrete, but don't call this
+
         // Looks up a given Schedule value for an hour & timestep, minding whether DST is enabled or not
         // Negative ts => unspecified, will use TimeStepsInHour
         Real64 getHrTsVal(EnergyPlusData &state, int hr, int ts = -1) const;
-            
-        std::vector<Real64> const &getDayVals(EnergyPlusData &state, int jDay = -1, int dayOfWeek = -1); 
-            
+
+        std::vector<Real64> const &getDayVals(EnergyPlusData &state, int jDay = -1, int dayOfWeek = -1);
+
         bool hasVal(EnergyPlusData &state, Real64 const val) const;
         bool hasFractionalVal(EnergyPlusData &state) const;
-            
+
         void setMinMaxVals(EnergyPlusData &state);
-            
+
         std::pair<Real64, Real64> getMinMaxValsByDayType(EnergyPlusData &state, DayTypeGroup const days);
 
         Real64 getAnnualHoursFullLoad(EnergyPlusData &state, int const StartDayOfWeek, bool const isLeapYear);
         Real64 getAnnualHoursGreaterThan1Percent(EnergyPlusData &state, int const StartDayOfWeek, bool const isLeapYear);
 
-        std::tuple<Real64, int, std::string> getValAndCountOnDay(EnergyPlusData &state, bool const isSummer, DayType const dayOfWeek, int const hourOfDay);
+        std::tuple<Real64, int, std::string>
+        getValAndCountOnDay(EnergyPlusData &state, bool const isSummer, DayType const dayOfWeek, int const hourOfDay);
     };
-        
+
     struct ScheduleDetailed : public Schedule
     {
         // Members
-        std::array<WeekSchedule *, 367> weekScheds = {nullptr};     // one created for each day of possible simulation
+        std::array<WeekSchedule *, 367> weekScheds = {nullptr};           // one created for each day of possible simulation
         std::array<bool, (int)DayType::Num> MaxMinByDayTypeSet = {false}; // minimum and maximum values by daytype have been stored
-        std::array<Real64, (int)DayType::Num> MinByDayType = {0.0}; // minimum values by daytype for this schedule
-        std::array<Real64, (int)DayType::Num> MaxByDayType = {0.0}; // maximum values by daytype for this schedule
+        std::array<Real64, (int)DayType::Num> MinByDayType = {0.0};       // minimum values by daytype for this schedule
+        std::array<Real64, (int)DayType::Num> MaxByDayType = {0.0};       // maximum values by daytype for this schedule
         bool UseDaylightSaving = true; // Toggles between daylight saving option to be inclused as "No" or "Yes" (default)
 
-        ScheduleDetailed() { type = SchedType::Year; }
+        ScheduleDetailed()
+        {
+            type = SchedType::Year;
+        }
 
-        ~ScheduleDetailed() {}
-            
-        void can_instantiate() { assert(false); } // makes class concrete, but don't call this
-            
+        ~ScheduleDetailed()
+        {
+        }
+
+        void can_instantiate()
+        {
+            assert(false);
+        } // makes class concrete, but don't call this
+
         std::vector<Real64> const &getDayVals(EnergyPlusData &state, int jDay = -1, int dayOfWeek = -1);
-            
+
         bool hasVal(EnergyPlusData &state, Real64 const val) const;
         bool hasFractionalVal(EnergyPlusData &state) const;
-            
+
         void setMinMaxVals(EnergyPlusData &state);
-            
+
         // Looks up a given Schedule value for an hour & timestep, minding whether DST is enabled or not
         // Negative ts => unspecified, will use TimeStepsInHour
-        Real64 getHrTsVal(EnergyPlusData &state, int hr, int ts = -1) const; 
+        Real64 getHrTsVal(EnergyPlusData &state, int hr, int ts = -1) const;
 
         std::pair<Real64, Real64> getMinMaxValsByDayType(EnergyPlusData &state, DayTypeGroup const days);
 
         Real64 getAnnualHoursFullLoad(EnergyPlusData &state, int const StartDayOfWeek, bool const isLeapYear);
         Real64 getAnnualHoursGreaterThan1Percent(EnergyPlusData &state, int const StartDayOfWeek, bool const isLeapYear);
-            
-        std::tuple<Real64, int, std::string> getValAndCountOnDay(EnergyPlusData &state, bool const isSummer, DayType const dayOfWeek, int const hourOfDay);
-    };
 
+        std::tuple<Real64, int, std::string>
+        getValAndCountOnDay(EnergyPlusData &state, bool const isSummer, DayType const dayOfWeek, int const hourOfDay);
+    };
 
     // Functions
     ScheduleDetailed *AddScheduleDetailed(EnergyPlusData &state, std::string const &name);
     ScheduleConstant *AddScheduleConstant(EnergyPlusData &state, std::string const &name);
     DaySchedule *AddDaySchedule(EnergyPlusData &state, std::string const &name);
     WeekSchedule *AddWeekSchedule(EnergyPlusData &state, std::string const &name);
-        
+
     void ProcessScheduleInput(EnergyPlusData &state);
 
     void InitConstantScheduleData(EnergyPlusData &state);
-        
+
     void ReportScheduleDetails(EnergyPlusData &state, ReportLevel const LevelOfDetail);
 
     // Returns the CurrentScheduleValue
@@ -347,18 +387,18 @@ namespace Sched {
 
     // Uses EMS value if actuated, otherwise calls LookUpScheduleValue with ThisHour=DataGlobals::HourOfDay, ThisTimeStep=DataGlobals::TimeStep
     void UpdateScheduleVals(EnergyPlusData &state);
-        
+
     int GetScheduleTypeNum(EnergyPlusData &state, std::string const &name);
-        
+
     int GetDayScheduleNum(EnergyPlusData &state, std::string const &name);
     DaySchedule *GetDaySchedule(EnergyPlusData &state, std::string const &name);
 
     int GetWeekScheduleNum(EnergyPlusData &state, std::string const &name);
     WeekSchedule *GetWeekSchedule(EnergyPlusData &state, std::string const &name);
-        
+
     int GetScheduleNum(EnergyPlusData &state, std::string const &name);
     Schedule *GetSchedule(EnergyPlusData &state, std::string const &name);
-    Schedule *GetScheduleAlwaysOn(EnergyPlusData &state); 
+    Schedule *GetScheduleAlwaysOn(EnergyPlusData &state);
     Schedule *GetScheduleAlwaysOff(EnergyPlusData &state);
 
     void ExternalInterfaceSetSchedule(EnergyPlusData &state,
@@ -374,52 +414,86 @@ namespace Sched {
                                std::array<Real64, Constant::iMinutesInDay> &minuteVals,
                                std::array<bool, Constant::iMinutesInDay> &setMinuteVals,
                                bool &ErrorsFound,
-                               std::string const &DayScheduleName,     // Name (used for errors)
-                               std::string const &ErrContext,          // Context (used for errors)
-                               Interpolation interpolation // enumeration on how to interpolate values in schedule
+                               std::string const &DayScheduleName, // Name (used for errors)
+                               std::string const &ErrContext,      // Context (used for errors)
+                               Interpolation interpolation         // enumeration on how to interpolate values in schedule
     );
 
     void DecodeHHMMField(EnergyPlusData &state,
-                         std::string const &FieldVal,          // Input field value
-                         int &RetHH,                             // Returned "hour"
-                         int &RetMM,                             // Returned "minute"
-                         bool &ErrorsFound,                      // True if errors found in this field
-                         std::string const &DayScheduleName,     // originating day schedule name
-                         std::string const &FullFieldValue,      // Full Input field value
-                         Interpolation interpolation // enumeration on how to interpolate values in schedule
+                         std::string const &FieldVal,        // Input field value
+                         int &RetHH,                         // Returned "hour"
+                         int &RetMM,                         // Returned "minute"
+                         bool &ErrorsFound,                  // True if errors found in this field
+                         std::string const &DayScheduleName, // originating day schedule name
+                         std::string const &FullFieldValue,  // Full Input field value
+                         Interpolation interpolation         // enumeration on how to interpolate values in schedule
     );
 
     bool isMinuteMultipleOfTimestep(int minute, int numMinutesPerTimestep);
 
     void ProcessForDayTypes(EnergyPlusData &state,
-                            std::string const &ForDayField, // Field containing the "FOR:..."
-                            std::array<bool, (int)DayType::Num> &theseDays,        // Array to contain returned "true" days
-                            std::array<bool, (int)DayType::Num> &allDays,          // Array of days already done
-                            bool &ErrorsFound               // Will be true if error found.
+                            std::string const &ForDayField,                 // Field containing the "FOR:..."
+                            std::array<bool, (int)DayType::Num> &theseDays, // Array to contain returned "true" days
+                            std::array<bool, (int)DayType::Num> &allDays,   // Array of days already done
+                            bool &ErrorsFound                               // Will be true if error found.
     );
 
     void ReportScheduleVals(EnergyPlusData &state);
 
     void ReportOrphanSchedules(EnergyPlusData &state);
 
-    void ShowSevereBadMin(EnergyPlusData &state, ErrorObjectHeader const &eoh, std::string_view schedField, std::string_view schedName,
-                          Clusive cluMin, Real64 min, std::string_view msg = {});
+    void ShowSevereBadMin(EnergyPlusData &state,
+                          ErrorObjectHeader const &eoh,
+                          std::string_view schedField,
+                          std::string_view schedName,
+                          Clusive cluMin,
+                          Real64 min,
+                          std::string_view msg = {});
 
-    void ShowWarningBadMin(EnergyPlusData &state, ErrorObjectHeader const &eoh, std::string_view schedField, std::string_view schedName,
-                           Clusive cluMin, Real64 min, std::string_view msg = {});
+    void ShowWarningBadMin(EnergyPlusData &state,
+                           ErrorObjectHeader const &eoh,
+                           std::string_view schedField,
+                           std::string_view schedName,
+                           Clusive cluMin,
+                           Real64 min,
+                           std::string_view msg = {});
 
-    void ShowSevereBadMax(EnergyPlusData &state, ErrorObjectHeader const &eoh, std::string_view schedField, std::string_view schedName,
-                          Clusive cluMax, Real64 max, std::string_view msg = {});
+    void ShowSevereBadMax(EnergyPlusData &state,
+                          ErrorObjectHeader const &eoh,
+                          std::string_view schedField,
+                          std::string_view schedName,
+                          Clusive cluMax,
+                          Real64 max,
+                          std::string_view msg = {});
 
-    void ShowWarningBadMax(EnergyPlusData &state, ErrorObjectHeader const &eoh, std::string_view schedField, std::string_view schedName,
-                           Clusive cluMax, Real64 max, std::string_view msg = {});
-        
-    void ShowSevereBadMinMax(EnergyPlusData &state, ErrorObjectHeader const &eoh, std::string_view schedField, std::string_view schedName,
-                             Clusive cluMin, Real64 min, Clusive cluMax, Real64 max, std::string_view msg = {});
+    void ShowWarningBadMax(EnergyPlusData &state,
+                           ErrorObjectHeader const &eoh,
+                           std::string_view schedField,
+                           std::string_view schedName,
+                           Clusive cluMax,
+                           Real64 max,
+                           std::string_view msg = {});
 
-    void ShowWarningBadMinMax(EnergyPlusData &state, ErrorObjectHeader const &eoh, std::string_view schedField, std::string_view schedName,
-                              Clusive cluMin, Real64 min, Clusive cluMax, Real64 max, std::string_view msg = {});
-        
+    void ShowSevereBadMinMax(EnergyPlusData &state,
+                             ErrorObjectHeader const &eoh,
+                             std::string_view schedField,
+                             std::string_view schedName,
+                             Clusive cluMin,
+                             Real64 min,
+                             Clusive cluMax,
+                             Real64 max,
+                             std::string_view msg = {});
+
+    void ShowWarningBadMinMax(EnergyPlusData &state,
+                              ErrorObjectHeader const &eoh,
+                              std::string_view schedField,
+                              std::string_view schedName,
+                              Clusive cluMin,
+                              Real64 min,
+                              Clusive cluMax,
+                              Real64 max,
+                              std::string_view msg = {});
+
 } // namespace Sched
 
 struct ScheduleManagerData : BaseGlobalStruct
@@ -434,15 +508,15 @@ struct ScheduleManagerData : BaseGlobalStruct
 
     // Object Data
     std::vector<Sched::ScheduleType *> scheduleTypes; // Allowed Schedule Types
-    std::vector<Sched::Schedule *> schedules;   // Year schedule
+    std::vector<Sched::Schedule *> schedules;         // Year schedule
     std::vector<Sched::DaySchedule *> daySchedules;
     std::vector<Sched::WeekSchedule *> weekSchedules;
-        
+
     std::map<std::string, int> scheduleTypeMap;
     std::map<std::string, int> scheduleMap;
     std::map<std::string, int> dayScheduleMap;
     std::map<std::string, int> weekScheduleMap;
-        
+
     void init_constant_state(EnergyPlusData &state) override
     {
         Sched::InitConstantScheduleData(state);
@@ -462,19 +536,23 @@ struct ScheduleManagerData : BaseGlobalStruct
         ScheduleInputProcessed = false;
         ScheduleFileShadingProcessed = false;
 
-        for (int i = 0; i < (int)scheduleTypes.size(); ++i) delete scheduleTypes[i];
+        for (int i = 0; i < (int)scheduleTypes.size(); ++i)
+            delete scheduleTypes[i];
         scheduleTypes.clear(); // Allowed Schedule Types
         scheduleTypeMap.clear();
-        
-        for (int i = 0; i < (int)schedules.size(); ++i) delete schedules[i];
-        schedules.clear();     // Schedule Storage
+
+        for (int i = 0; i < (int)schedules.size(); ++i)
+            delete schedules[i];
+        schedules.clear(); // Schedule Storage
         scheduleMap.clear();
-        
-        for (int i = 0; i < (int)daySchedules.size(); ++i) delete daySchedules[i];
+
+        for (int i = 0; i < (int)daySchedules.size(); ++i)
+            delete daySchedules[i];
         daySchedules.clear();
         dayScheduleMap.clear();
-        
-        for (int i = 0; i < (int)weekSchedules.size(); ++i) delete weekSchedules[i];
+
+        for (int i = 0; i < (int)weekSchedules.size(); ++i)
+            delete weekSchedules[i];
         weekSchedules.clear();
         weekScheduleMap.clear();
     }

@@ -168,7 +168,7 @@ TEST_F(EnergyPlusFixture, SZVAV_PTUnit_Testing)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataEnvrn->StdRhoAir = 1.0;
 
     state->dataSize->CurZoneEqNum = 0;
@@ -312,7 +312,7 @@ TEST_F(EnergyPlusFixture, SZVAV_PTUnit_Testing)
 
     // turn the availability schedule on
     Sched::GetSchedule(*state, "ONSCHED")->currentVal = 1.0;
-    
+
     state->dataUnitarySystems->CoolingLoad = CoolingLoad;
     state->dataUnitarySystems->HeatingLoad = HeatingLoad;
     // set fan inlet max avail so fan doesn't shut down flow
@@ -642,7 +642,7 @@ TEST_F(EnergyPlusFixture, SZVAV_FanCoilUnit_Testing)
     state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
     state->init_state(*state);
-    
+
     state->dataEnvrn->StdRhoAir = 1.0;
 
     state->dataEnvrn->OutBaroPress = 101325.0;

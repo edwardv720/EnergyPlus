@@ -2344,7 +2344,7 @@ TEST_F(EnergyPlusFixture, VentilatedSlab_InitVentilatedSlabTest)
         "    Hot Water Loop Setpoint Node List;  !- Setpoint Node or NodeList Name",
     });
     ASSERT_TRUE(process_idf(idf_objects));
-    state->dataGlobal->TimeStepsInHour = 1; // must initialize this to get schedules initialized
+    state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
     state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
 

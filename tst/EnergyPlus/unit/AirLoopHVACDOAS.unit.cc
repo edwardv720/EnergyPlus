@@ -4035,7 +4035,7 @@ TEST_F(EnergyPlusFixture, AirLoopHVACDOASTest)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     state->dataIPShortCut->lNumericFieldBlanks.allocate(1000);
     state->dataIPShortCut->lAlphaFieldBlanks.allocate(1000);
     state->dataIPShortCut->cAlphaFieldNames.allocate(1000);
@@ -4376,7 +4376,7 @@ TEST_F(EnergyPlusFixture, AirLoopHVACDOAS_TestOACompOutletNodeIndex)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     MixedAir::GetOutsideAirSysInputs(*state);
     state->dataMixedAir->GetOASysInputFlag = false;
     MixedAir::GetOAMixerInputs(*state);
@@ -8437,7 +8437,7 @@ TEST_F(EnergyPlusFixture, AirLoopHVACDOAS_ReportVariableResetTest)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
     // Read objects
     EXPECT_FALSE(ErrorsFound);
@@ -8848,7 +8848,7 @@ TEST_F(EnergyPlusFixture, AirLoopHVACDOAS_TestOACompFanNoDrawAndBlow)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     MixedAir::GetOutsideAirSysInputs(*state);
     state->dataMixedAir->GetOASysInputFlag = false;
     MixedAir::GetOAMixerInputs(*state);
@@ -10070,8 +10070,8 @@ TEST_F(EnergyPlusFixture, AirLoopHVACDOAS_TestFanHeatAddeToCoolingCoilSize)
     });
 
     ASSERT_TRUE(process_idf(idf_objects));
-    state->init_state(*state); 
-    
+    state->init_state(*state);
+
     state->dataGlobal->DDOnlySimulation = true;
 
     SimulationManager::ManageSimulation(*state); // run the design day over the warmup period (24 hrs, 25 days)
@@ -10403,7 +10403,7 @@ TEST_F(EnergyPlusFixture, AirLoopHVACDOAS_TestOACompConnectionError)
     compare_err_stream_substring("", true);
 
     state->init_state(*state);
-    
+
     MixedAir::GetOutsideAirSysInputs(*state);
     state->dataMixedAir->GetOASysInputFlag = false;
     MixedAir::GetOAMixerInputs(*state);
@@ -11636,7 +11636,7 @@ TEST_F(EnergyPlusFixture, AirLoopHVACDOAS_TestFanDrawThroughPlacement)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     state->dataGlobal->DDOnlySimulation = true;
 
     SimulationManager::ManageSimulation(*state); // run the design day over the warmup period (24 hrs, 25 days)

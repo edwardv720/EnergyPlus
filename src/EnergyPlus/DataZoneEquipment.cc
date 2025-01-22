@@ -754,7 +754,7 @@ void processZoneEquipmentInput(EnergyPlusData &state,
 {
     static constexpr std::string_view RoutineName("processZoneEquipmentInput: "); // include trailing blank space
     static constexpr std::string_view routineName = "processZoneEquipmentInput";
-    
+
     int spaceFieldShift = 0;
     if (isSpace) {
         spaceFieldShift = -1;
@@ -928,7 +928,8 @@ void processZoneEquipmentInput(EnergyPlusData &state,
                     std::string coolingSchName =
                         ip->getAlphaFieldValue(extensibleInstance, extensionSchemaProps, "zone_equipment_sequential_cooling_fraction_schedule_name");
                     if (coolingSchName.empty()) {
-                        thisZoneEquipList.sequentialCoolingFractionScheds(ZoneEquipTypeNum) = Sched::GetScheduleAlwaysOn(state); // Not an availability schedule, but defaults to constant-1.0
+                        thisZoneEquipList.sequentialCoolingFractionScheds(ZoneEquipTypeNum) =
+                            Sched::GetScheduleAlwaysOn(state); // Not an availability schedule, but defaults to constant-1.0
                     } else {
                         thisZoneEquipList.sequentialCoolingFractionScheds(ZoneEquipTypeNum) = Sched::GetSchedule(state, coolingSchName);
                         if (thisZoneEquipList.sequentialCoolingFractionScheds(ZoneEquipTypeNum) == nullptr) {
@@ -940,7 +941,8 @@ void processZoneEquipmentInput(EnergyPlusData &state,
                     std::string heatingSchName =
                         ip->getAlphaFieldValue(extensibleInstance, extensionSchemaProps, "zone_equipment_sequential_heating_fraction_schedule_name");
                     if (heatingSchName.empty()) {
-                        thisZoneEquipList.sequentialHeatingFractionScheds(ZoneEquipTypeNum) = Sched::GetScheduleAlwaysOn(state); // Not an availability schedule, but defaults to constant-1.0
+                        thisZoneEquipList.sequentialHeatingFractionScheds(ZoneEquipTypeNum) =
+                            Sched::GetScheduleAlwaysOn(state); // Not an availability schedule, but defaults to constant-1.0
                     } else {
                         thisZoneEquipList.sequentialHeatingFractionScheds(ZoneEquipTypeNum) = Sched::GetSchedule(state, heatingSchName);
                         if (thisZoneEquipList.sequentialHeatingFractionScheds(ZoneEquipTypeNum) == nullptr) {
@@ -2009,14 +2011,14 @@ void ZoneEquipmentSplitter::adjustLoads(EnergyPlusData &state, int zoneNum, int 
     auto &thisZoneMoistureDemand = state.dataZoneEnergyDemand->ZoneSysMoistureDemand(zoneNum);
 
     auto &zoneTstatSetpt = state.dataHeatBalFanSys->zoneTstatSetpts(zoneNum);
-    
+
     Real64 sensibleRatio = 1.0;
     Real64 latentRatio = 1.0;
     switch (this->tstatControl) {
     case DataZoneEquipment::ZoneEquipTstatControl::Ideal: {
         return;
     } break; // Do nothing
-            
+
     case DataZoneEquipment::ZoneEquipTstatControl::SingleSpace: {
         Real64 controlSpaceFrac = this->spaces[this->controlSpaceNumber].fraction;
         if (controlSpaceFrac > 0.0) {
@@ -2032,7 +2034,7 @@ void ZoneEquipmentSplitter::adjustLoads(EnergyPlusData &state, int zoneNum, int 
             }
         }
     } break;
-            
+
     case DataZoneEquipment::ZoneEquipTstatControl::Maximum: {
         int maxSpaceIndex = 0;
         Real64 maxDeltaTemp = 0.0; // Only positive deltaTemps are relevant

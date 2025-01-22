@@ -132,7 +132,7 @@ void CoilCoolingDX::instantiateFromInputSpec(EnergyPlusData &state, const CoilCo
     static constexpr std::string_view routineName = "CoilCoolingDX::instantiateFromInputSpec";
 
     ErrorObjectHeader eoh{routineName, "CoilCoolingDX", input_data.name};
-    
+
     this->original_input_specs = input_data;
     bool errorsFound = false;
     this->name = input_data.name;

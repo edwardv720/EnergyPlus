@@ -193,7 +193,7 @@ TEST_F(EnergyPlusFixture, WindowFrameTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     createFacilityElectricPowerServiceObject(*state);
     HeatBalanceManager::SetPreConstructionInputParameters(*state);
 
@@ -465,7 +465,7 @@ TEST_F(EnergyPlusFixture, WindowManager_RefAirTempTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataHeatBal->ZoneIntGain.allocate(1);
 
     createFacilityElectricPowerServiceObject(*state);
@@ -2698,7 +2698,7 @@ TEST_F(EnergyPlusFixture, WindowManager_SrdLWRTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataHeatBal->ZoneIntGain.allocate(1);
 
     createFacilityElectricPowerServiceObject(*state);
@@ -7640,10 +7640,9 @@ TEST_F(EnergyPlusFixture, CFS_InteriorSolarDistribution_Test)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     createFacilityElectricPowerServiceObject(*state);
     HeatBalanceManager::SetPreConstructionInputParameters(*state);
-
 
     state->dataGlobal->TimeStep = 1;
     state->dataGlobal->TimeStepZone = 1;

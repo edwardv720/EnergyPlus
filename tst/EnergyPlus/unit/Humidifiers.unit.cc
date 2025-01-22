@@ -229,7 +229,7 @@ TEST_F(EnergyPlusFixture, Humidifiers_GetHumidifierInput)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetHumidifierInput(*state);
     ASSERT_EQ(1, state->dataHumidifiers->NumHumidifiers);
     EXPECT_EQ(1, state->dataHumidifiers->Humidifier(1).EfficiencyCurvePtr);
@@ -287,7 +287,7 @@ TEST_F(EnergyPlusFixture, Humidifiers_ThermalEfficiency)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     thisHum.EfficiencyCurvePtr = Curve::GetCurveIndex(*state, "THERMALEFFICIENCYFPLR");
 
     thisHum.CalcGasSteamHumidifier(*state, 0.030);

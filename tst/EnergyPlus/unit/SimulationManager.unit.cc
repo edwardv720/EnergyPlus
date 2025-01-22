@@ -190,7 +190,7 @@ TEST_F(EnergyPlusFixture, SimulationManager_OutputDebuggingData)
         state->init_state_called = false;
         EXPECT_TRUE(process_idf(idf_objects));
         state->init_state(*state);
-        
+
         EXPECT_TRUE(state->dataReportFlag->DebugOutput);
         EXPECT_FALSE(state->dataReportFlag->EvenDuringWarmup);
 
@@ -233,7 +233,7 @@ TEST_F(EnergyPlusFixture, SimulationManager_OutputDebuggingData)
         // Input processor with throw a severe, so do not use assertions
         EXPECT_FALSE(process_idf(idf_objects, false));
         state->init_state(*state);
-        
+
         // Instead do it here, making sure to reset the stream
         {
             std::string const expectedError = delimited_string({
@@ -256,7 +256,7 @@ TEST_F(EnergyPlusFixture, SimulationManager_OutputDiagnostics_DefaultState)
 
     EXPECT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     EXPECT_FALSE(state->dataGlobal->DisplayAllWarnings);
     EXPECT_FALSE(state->dataGlobal->DisplayExtraWarnings);
     EXPECT_FALSE(state->dataGlobal->DisplayUnusedObjects);
@@ -362,7 +362,7 @@ TEST_F(EnergyPlusFixture, SimulationManager_OutputDiagnostics_Unicity)
     // Input processor will throw a severe, so do not use assertions
     EXPECT_FALSE(process_idf(idf_objects, false));
     state->init_state(*state);
-    
+
     // Instead do it here, making sure to reset the stream
     {
         std::string const expectedError = delimited_string({
@@ -400,7 +400,7 @@ TEST_F(EnergyPlusFixture, SimulationManager_OutputDiagnostics_UndocumentedFlags)
     // This will throw a warning in InputProcessor since these aren't supported keys, so do not use assertions
     EXPECT_FALSE(process_idf(idf_objects, false));
     state->init_state(*state);
-    
+
     const std::string expected_warning = delimited_string({
         "   ** Severe  ** <root>[Output:Diagnostics][Output:Diagnostics 1][diagnostics][0][key] - \"IgnoreSolarRadiation\" - Failed to match against "
         "any enum values.",
@@ -540,7 +540,7 @@ TEST_F(EnergyPlusFixture, Test_SimulationControl_PureLoadCalc)
 
     EXPECT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     EXPECT_NO_THROW(SimulationManager::CheckForMisMatchedEnvironmentSpecifications(*state));
     // no error message from PerformancePrecisionTradeoffs objects
     //

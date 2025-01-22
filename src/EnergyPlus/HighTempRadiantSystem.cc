@@ -255,7 +255,7 @@ namespace HighTempRadiantSystem {
                                                                      state.dataIPShortCut->cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
-            
+
             state.dataHighTempRadSys->HighTempRadSysNumericFields(Item).FieldNames.allocate(NumNumbers);
             state.dataHighTempRadSys->HighTempRadSysNumericFields(Item).FieldNames = "";
             state.dataHighTempRadSys->HighTempRadSysNumericFields(Item).FieldNames = state.dataIPShortCut->cNumericFieldNames;
@@ -264,7 +264,7 @@ namespace HighTempRadiantSystem {
 
             if (state.dataIPShortCut->lAlphaFieldBlanks(2)) {
                 highTempRadSys.availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((highTempRadSys.availSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(2))) == nullptr) { 
+            } else if ((highTempRadSys.availSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(2))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(2), state.dataIPShortCut->cAlphaArgs(2));
                 ErrorsFound = true;
             }

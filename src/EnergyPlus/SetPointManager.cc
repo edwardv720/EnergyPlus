@@ -682,7 +682,7 @@ void GetSetPointManagerInputData(EnergyPlusData &state, bool &ErrorsFound)
                 assert(spmS != nullptr);
 
                 std::string schedName = ip->getAlphaFieldValue(fields, props, "schedule_name");
-                if ((spmS->sched = Sched::GetSchedule(state, Util::makeUPPER(schedName))) == nullptr) { 
+                if ((spmS->sched = Sched::GetSchedule(state, Util::makeUPPER(schedName))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, "schedule_name", schedName);
                     ErrorsFound = true;
                 }
@@ -748,7 +748,8 @@ void GetSetPointManagerInputData(EnergyPlusData &state, bool &ErrorsFound)
                         spmOA->highSetPt2 = found.value().get<Real64>();
                     if (auto found = fields.find("outdoor_high_temperature_2"); found != fields.end()) spmOA->high2 = found.value().get<Real64>();
                     if (spmOA->high2 < spmOA->low2) {
-                        ShowWarningCustom(state, eoh,
+                        ShowWarningCustom(state,
+                                          eoh,
                                           format("...{}=[{:.1R}] is less than {}=[{:.1R}].",
                                                  "outdoor_high_temperature_2",
                                                  spmOA->high2,
@@ -1039,7 +1040,7 @@ void GetSetPointManagerInputData(EnergyPlusData &state, bool &ErrorsFound)
                 assert(spmRAB != nullptr);
 
                 std::string schedName = ip->getAlphaFieldValue(fields, props, "temperature_setpoint_schedule_name");
-                if ((spmRAB->sched = Sched::GetSchedule(state, Util::makeUPPER(schedName))) == nullptr) { 
+                if ((spmRAB->sched = Sched::GetSchedule(state, Util::makeUPPER(schedName))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, "temperature_setpoint_schedule_name", schedName);
                     ErrorsFound = true;
                 }
@@ -2639,7 +2640,7 @@ void SPMTESScheduled::calculate([[maybe_unused]] EnergyPlusData &state)
     }
 } // SPMTESSScheduled::calculate()
 
- void SPMScheduledDual::calculate([[maybe_unused]] EnergyPlusData &state)
+void SPMScheduledDual::calculate([[maybe_unused]] EnergyPlusData &state)
 {
     // SUBROUTINE INFORMATION:
     //       AUTHOR         Richard Liesen

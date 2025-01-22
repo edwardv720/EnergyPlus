@@ -83,13 +83,13 @@ namespace IndoorGreen {
         std::string SurfName;
         Sched::Schedule *sched = nullptr;
         Sched::Schedule *ledSched = nullptr;
-        int LightRefPtr = 0;               // daylight reference point number;
-        int LightControlPtr = 0;           // daylight control point number;
+        int LightRefPtr = 0;                               // daylight reference point number;
+        int LightControlPtr = 0;                           // daylight control point number;
         Sched::Schedule *ledDaylightTargetSched = nullptr; // LED-Daylight PPFD setpoint schedule
-        Real64 LeafArea = 0.0;             // one-sided leaf area
-        Real64 LEDNominalPPFD = 0.0;       // nominal PPFD for LED grow light (PPFD)
-        Real64 LEDNominalEleP = 0.0;       // nominal power for total LED grow light (W)
-        Real64 LEDRadFraction = 0.0;       // radiant fraction of LED grow light (0-1)
+        Real64 LeafArea = 0.0;                             // one-sided leaf area
+        Real64 LEDNominalPPFD = 0.0;                       // nominal PPFD for LED grow light (PPFD)
+        Real64 LEDNominalEleP = 0.0;                       // nominal power for total LED grow light (W)
+        Real64 LEDRadFraction = 0.0;                       // radiant fraction of LED grow light (0-1)
         Real64 ZCO2 = 400;
         Real64 ZVPD = 0.0;            // vapor pressure deficit (pa)
         Real64 ZPPFD = 0;             // PPFD

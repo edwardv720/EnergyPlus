@@ -715,7 +715,7 @@ TEST_F(EnergyPlusFixture, TestSizingRoutineForHotWaterCoils3)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataSize->FinalZoneSizing.allocate(1);
     state->dataSize->TermUnitFinalZoneSizing.allocate(1);
     state->dataSize->CalcFinalZoneSizing.allocate(1);
@@ -964,7 +964,7 @@ TEST_F(EnergyPlusFixture, TestSizingRoutineForHotWaterCoils4)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataSize->FinalZoneSizing.allocate(1);
     state->dataSize->TermUnitFinalZoneSizing.allocate(1);
     state->dataSize->CalcFinalZoneSizing.allocate(1);
@@ -1178,7 +1178,7 @@ TEST_F(EnergyPlusFixture, TestSizingRoutineForHotWaterCoils5)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataSize->FinalSysSizing.allocate(1);
     state->dataSize->UnitarySysEqSizing.allocate(1);
     state->dataAirSystemsData->PrimaryAirSystems.allocate(1);
@@ -1392,7 +1392,7 @@ TEST_F(EnergyPlusFixture, TestSizingRoutineForHotWaterCoils6)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataSize->TermUnitSizing.allocate(1);
     state->dataPlnt->TotNumLoops = 1;
     state->dataPlnt->PlantLoop.allocate(state->dataPlnt->TotNumLoops);

@@ -2984,7 +2984,7 @@ namespace OutputProcessor {
 
         ASSERT_TRUE(process_idf(idf_objects));
         state->init_state(*state);
-        
+
         GetReportVariableInput(*state);
         Real64 fuel_used = 999;
         SetupOutputVariable(*state, "Boiler NaturalGas Rate", Constant::Units::W, fuel_used, TimeStepType::System, StoreType::Average, "Boiler1");

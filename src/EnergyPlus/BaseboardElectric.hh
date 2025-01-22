@@ -58,7 +58,6 @@
 #include <EnergyPlus/EnergyPlus.hh>
 #include <EnergyPlus/ScheduleManager.hh>
 
-
 namespace EnergyPlus {
 
 // Forward declarations

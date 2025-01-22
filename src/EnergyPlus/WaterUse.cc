@@ -274,7 +274,7 @@ namespace WaterUse {
         //       DATE WRITTEN   August 2006
 
         static constexpr std::string_view routineName = "GetWaterUseInput";
-        
+
         bool ErrorsFound(false); // Set to true if errors in input, fatal at end of routine
         int IOStatus;            // Used in GetObjectItem
         int NumAlphas;           // Number of Alphas for each GetObjectItem call
@@ -322,37 +322,37 @@ namespace WaterUse {
                 }
 
                 if ((NumAlphas <= 3) || (state.dataIPShortCut->lAlphaFieldBlanks(4))) {
-                } else if ((thisWEq.targetTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(4))) == nullptr) { 
+                } else if ((thisWEq.targetTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(4))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(4), state.dataIPShortCut->cAlphaArgs(4));
                     ErrorsFound = true;
                 }
 
                 if ((NumAlphas <= 4) || (state.dataIPShortCut->lAlphaFieldBlanks(5))) {
-                } else if ((thisWEq.hotTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(5))) == nullptr) { 
+                } else if ((thisWEq.hotTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(5))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(5), state.dataIPShortCut->cAlphaArgs(5));
                     ErrorsFound = true;
                 }
 
                 if ((NumAlphas <= 5) || (state.dataIPShortCut->lAlphaFieldBlanks(6))) {
-                } else if ((thisWEq.coldTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(6))) == nullptr) { 
+                } else if ((thisWEq.coldTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(6))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(6), state.dataIPShortCut->cAlphaArgs(6));
                     ErrorsFound = true;
                 }
 
                 if ((NumAlphas <= 6) || (state.dataIPShortCut->lAlphaFieldBlanks(7))) {
-                } else if ((thisWEq.Zone = Util::FindItemInList(state.dataIPShortCut->cAlphaArgs(7), state.dataHeatBal->Zone)) == 0) { 
+                } else if ((thisWEq.Zone = Util::FindItemInList(state.dataIPShortCut->cAlphaArgs(7), state.dataHeatBal->Zone)) == 0) {
                     ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(7), state.dataIPShortCut->cAlphaArgs(7));
                     ErrorsFound = true;
                 }
 
                 if ((NumAlphas <= 7) || (state.dataIPShortCut->lAlphaFieldBlanks(8))) {
-                } else if ((thisWEq.sensibleFracSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(8))) == nullptr) { 
+                } else if ((thisWEq.sensibleFracSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(8))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(8), state.dataIPShortCut->cAlphaArgs(8));
                     ErrorsFound = true;
                 }
 
                 if ((NumAlphas <= 8) || (state.dataIPShortCut->lAlphaFieldBlanks(9))) {
-                } else if ((thisWEq.latentFracSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(9))) == nullptr) { 
+                } else if ((thisWEq.latentFracSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(9))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(9), state.dataIPShortCut->cAlphaArgs(9));
                     ErrorsFound = true;
                 }
@@ -384,7 +384,7 @@ namespace WaterUse {
                                                                          state.dataIPShortCut->cNumericFieldNames);
 
                 ErrorObjectHeader eoh{routineName, state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
-                
+
                 Util::IsNameEmpty(state, state.dataIPShortCut->cAlphaArgs(1), state.dataIPShortCut->cCurrentModuleObject, ErrorsFound);
                 auto &waterConnection = state.dataWaterUse->WaterConnections(WaterConnNum);
                 waterConnection.Name = state.dataIPShortCut->cAlphaArgs(1);
@@ -442,13 +442,13 @@ namespace WaterUse {
                 }
 
                 if (state.dataIPShortCut->lAlphaFieldBlanks(6)) {
-                } else if ((waterConnection.hotTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(6))) == nullptr) { 
+                } else if ((waterConnection.hotTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(6))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(6), state.dataIPShortCut->cAlphaArgs(6));
                     ErrorsFound = true;
                 }
 
                 if (state.dataIPShortCut->lAlphaFieldBlanks(7)) {
-                } else if ((waterConnection.coldTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(7))) == nullptr) { 
+                } else if ((waterConnection.coldTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(7))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(7), state.dataIPShortCut->cAlphaArgs(7));
                     ErrorsFound = true;
                 }
@@ -541,7 +541,8 @@ namespace WaterUse {
         for (auto &waterEquipment : state.dataWaterUse->WaterEquipment) {
             // set logical if either hot water temp or target temp schedule are missing (will use cold water otherwise)
             // if a connections object is used then don't need to hot temp schedule
-            waterEquipment.allowHotControl = (waterEquipment.targetTempSched != nullptr && waterEquipment.hotTempSched != nullptr) || waterEquipment.Connections;
+            waterEquipment.allowHotControl =
+                (waterEquipment.targetTempSched != nullptr && waterEquipment.hotTempSched != nullptr) || waterEquipment.Connections;
         }
     }
 
@@ -998,7 +999,8 @@ namespace WaterUse {
 
         // Get the requested total flow rate
         this->TotalVolFlowRate = this->PeakVolFlowRate;
-        if (this->Zone > 0) this->TotalVolFlowRate *= state.dataHeatBal->Zone(this->Zone).Multiplier * state.dataHeatBal->Zone(this->Zone).ListMultiplier;
+        if (this->Zone > 0)
+            this->TotalVolFlowRate *= state.dataHeatBal->Zone(this->Zone).Multiplier * state.dataHeatBal->Zone(this->Zone).ListMultiplier;
         if (this->flowRateFracSched != nullptr) this->TotalVolFlowRate *= this->flowRateFracSched->getCurrentVal();
 
         this->TotalMassFlowRate = this->TotalVolFlowRate * calcH2ODensity(state);

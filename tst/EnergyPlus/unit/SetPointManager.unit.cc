@@ -190,7 +190,7 @@ TEST_F(EnergyPlusFixture, SetPointManager_DefineReturnWaterChWSetPointManager_Fl
 
     ASSERT_TRUE(process_idf(idf_objects));
 
-    state->init_state(*state); 
+    state->init_state(*state);
 
     EXPECT_EQ(2, state->dataFluid->glycols.isize());
     const auto *glycol = state->dataFluid->glycols(2);
@@ -621,7 +621,7 @@ TEST_F(EnergyPlusFixture, CalcScheduledTESSetPoint)
     state->dataGlobal->MinutesInTimeStep = 60 / state->dataGlobal->TimeStepsInHour;
 
     state->init_state(*state);
-    
+
     state->dataGlobal->TimeStep = 1;
     state->dataGlobal->HourOfDay = 1;
     state->dataEnvrn->DayOfWeek = 1;
@@ -676,7 +676,7 @@ TEST_F(EnergyPlusFixture, SZRHOAFractionImpact)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
     state->dataGlobal->NumOfZones = 1;
 
@@ -1503,7 +1503,7 @@ TEST_F(EnergyPlusFixture, SingZoneRhSetPtMgrZoneInletNodeTest)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     state->dataGlobal->NumOfZones = 1;
 
     state->dataHeatBal->Zone.allocate(state->dataGlobal->NumOfZones);
@@ -1573,7 +1573,7 @@ TEST_F(EnergyPlusFixture, SingZoneCoolHeatSetPtMgrZoneInletNodeTest)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     state->dataGlobal->NumOfZones = 1;
 
     state->dataHeatBal->Zone.allocate(state->dataGlobal->NumOfZones);
@@ -1644,7 +1644,7 @@ TEST_F(EnergyPlusFixture, SingZoneCoolHeatSetPtMgrSetPtTest)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     state->dataGlobal->NumOfZones = 1;
 
     state->dataHeatBal->Zone.allocate(state->dataGlobal->NumOfZones);
@@ -1926,7 +1926,7 @@ TEST_F(EnergyPlusFixture, SetPointManager_OutdoorAirResetCalculateSchedValTest)
     state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
     state->init_state(*state);
-    
+
     state->dataGlobal->HourOfDay = 1;
     state->dataGlobal->TimeStep = 1;
     state->dataGlobal->DayOfSim = 1;

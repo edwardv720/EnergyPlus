@@ -280,13 +280,13 @@ void KivaInstanceMap::setInitialBoundaryConditions(
                 Real64 setpoint = sched->getHrTsVal(state, hour, timestep);
                 Tin = setpoint + Constant::Kelvin;
             } break;
-                    
+
             case HVAC::SetptType::SingleCool: {
                 auto const *sched = state.dataZoneCtrls->TempControlledZone(zoneControlNum).setpts[(int)controlType].coolSetptSched;
                 Real64 setpoint = sched->getHrTsVal(state, hour, timestep);
                 Tin = setpoint + Constant::Kelvin;
             } break;
-                    
+
             case HVAC::SetptType::SingleHeatCool: {
                 // Heat and cool setpt scheds will be the same for this option
                 auto const *sched = state.dataZoneCtrls->TempControlledZone(zoneControlNum).setpts[(int)controlType].heatSetptSched;
@@ -320,7 +320,7 @@ void KivaInstanceMap::setInitialBoundaryConditions(
                                        controlType,
                                        state.dataZoneCtrls->TempControlledZone(zoneControlNum).setptTypeSched->Name));
             } break;
-                    
+
             } // switch (tstatType)
             break;
         }

@@ -85,7 +85,7 @@ TEST_F(EnergyPlusFixture, FaultsManager_FaultFoulingAirFilters_CheckFaultyAirFil
     //     covers the rated operational point of the corresponding fan
     //     Return true if the curve covers the fan rated operational point
     state->init_state(*state);
-    
+
     int numFans = 2;
     bool TestResult;
 
@@ -346,7 +346,7 @@ TEST_F(EnergyPlusFixture, FaultsManager_FaultFoulingAirFilters_CalFaultyFanAirFl
     double FanFaultyDeltaPressInc = 0.10; // Increase by 10%
 
     state->init_state(*state);
-    
+
     // Allocate
     state->dataCurveManager->allocateCurveVector(1);
 
@@ -448,7 +448,7 @@ TEST_F(EnergyPlusFixture, FaultsManager_FaultChillerSWTSensor_CalFaultChillerSWT
     // To check CalFaultChillerSWT which calculates the mass flow rate and supply water temperature of a chiller with faulty SWT sensor.
 
     state->init_state(*state);
-    
+
     bool FlagVariableFlow;         // True if chiller is variable flow and false if it is constant flow
     Real64 FaultyChillerSWTOffset; // Faulty chiller SWT sensor offset
     Real64 Cp = 4500;              // Local fluid specific heat
@@ -734,7 +734,7 @@ TEST_F(EnergyPlusFixture, FaultsManager_FoulingCoil_BadCoilType)
     // Process inputs
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     ASSERT_THROW(FaultsManager::CheckAndReadFaults(*state), std::runtime_error);
 
     std::string const error_string = delimited_string({
@@ -859,7 +859,7 @@ TEST_F(EnergyPlusFixture, FaultsManager_FoulingCoil_AssignmentAndCalc)
     state->dataGlobal->MinutesInTimeStep = 60 / state->dataGlobal->TimeStepsInHour;
 
     state->init_state(*state);
-    
+
     auto *avaiSched = Sched::GetSchedule(*state, "AVAILSCHED");
     EXPECT_NE(nullptr, avaiSched);
     auto *severitySched = Sched::GetSchedule(*state, "SEVERITYSCHED");

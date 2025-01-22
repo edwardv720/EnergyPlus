@@ -1152,7 +1152,7 @@ void GetOAControllerInputs(EnergyPlusData &state)
 
     // SUBROUTINE PARAMETER DEFINITIONS:
     static constexpr std::string_view RoutineName("GetOAControllerInputs: "); // include trailing blank space
-    static constexpr std::string_view routineName = "GetOAControllerInputs"; // include trailing blank space
+    static constexpr std::string_view routineName = "GetOAControllerInputs";  // include trailing blank space
 
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
     int NumArg;    // Number of arguments from GetObjectDefMaxArgs call
@@ -1300,10 +1300,10 @@ void GetOAControllerInputs(EnergyPlusData &state)
             thisVentilationMechanical.Name = AlphArray(1); // no need to check if AlphaArray(1) is empty since Json will catch missing required fields
 
             if (lAlphaBlanks(2)) {
-                 thisVentilationMechanical.availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((thisVentilationMechanical.availSched = Sched::GetSchedule(state, AlphArray(2))) == nullptr) { 
-                 ShowSevereItemNotFound(state, eoh, cAlphaFields(2), AlphArray(2));
-                 ErrorsFound = true;
+                thisVentilationMechanical.availSched = Sched::GetScheduleAlwaysOn(state);
+            } else if ((thisVentilationMechanical.availSched = Sched::GetSchedule(state, AlphArray(2))) == nullptr) {
+                ShowSevereItemNotFound(state, eoh, cAlphaFields(2), AlphArray(2));
+                ErrorsFound = true;
             }
 
             // Adding new flag for DCV
@@ -1589,7 +1589,8 @@ void GetOAControllerInputs(EnergyPlusData &state)
                     thisVentMechZone.ZoneOAFlowRate = 0.0;
                     thisVentMechZone.ZoneOAACHRate = 0.0;
                     thisVentMechZone.ZoneOAFlowMethod = OAFlowCalcMethod::PerPerson;
-                    thisVentMechZone.zoneOASched = Sched::GetScheduleAlwaysOn(state); // defaults to constant-1.0. TODO: what is this really suppoed to be?
+                    thisVentMechZone.zoneOASched =
+                        Sched::GetScheduleAlwaysOn(state); // defaults to constant-1.0. TODO: what is this really suppoed to be?
                     ShowWarningError(state, format("{}{}=\"{}", RoutineName, CurrentModuleObject, thisVentilationMechanical.Name));
                     ShowContinueError(
                         state, format("Cannot locate a matching DesignSpecification:OutdoorAir object for Zone=\"{}\".", thisVentMechZone.name));
@@ -2187,13 +2188,13 @@ void ProcessOAControllerInputs(EnergyPlusData &state,
 
     // Changed by Amit for new feature implementation
     if (lAlphaBlanks(12)) {
-    } else if ((state.dataMixedAir->OAController(OutAirNum).minOAflowSched = Sched::GetSchedule(state, AlphArray(12))) == nullptr) { 
+    } else if ((state.dataMixedAir->OAController(OutAirNum).minOAflowSched = Sched::GetSchedule(state, AlphArray(12))) == nullptr) {
         ShowSevereItemNotFound(state, eoh, cAlphaFields(12), AlphArray(12));
         ErrorsFound = true;
     }
 
     if (lAlphaBlanks(13)) {
-    } else if ((state.dataMixedAir->OAController(OutAirNum).maxOAflowSched = Sched::GetSchedule(state, AlphArray(13))) == nullptr) { 
+    } else if ((state.dataMixedAir->OAController(OutAirNum).maxOAflowSched = Sched::GetSchedule(state, AlphArray(13))) == nullptr) {
         ShowSevereItemNotFound(state, eoh, cAlphaFields(13), AlphArray(13));
         ErrorsFound = true;
     }
@@ -2780,10 +2781,8 @@ void InitOAController(EnergyPlusData &state, int const OAControllerNum, bool con
                 if (thisMechVentZone.zoneADEffSched != nullptr) {
                     OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchDCVZoneADEffCooling, zoneName, "");
                     OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchDCVZoneADEffHeating, zoneName, "");
-                    OutputReportPredefined::PreDefTableEntry(state,
-                                                             state.dataOutRptPredefined->pdchDCVZoneADEffSchName,
-                                                             zoneName,
-                                                             thisMechVentZone.zoneADEffSched->Name);
+                    OutputReportPredefined::PreDefTableEntry(
+                        state, state.dataOutRptPredefined->pdchDCVZoneADEffSchName, zoneName, thisMechVentZone.zoneADEffSched->Name);
                 } else {
                     OutputReportPredefined::PreDefTableEntry(
                         state, state.dataOutRptPredefined->pdchDCVZoneADEffCooling, zoneName, thisMechVentZone.ZoneADEffCooling, 2);
@@ -3673,8 +3672,8 @@ Real64 VentilationMechanicalProps::CalcMechVentController(EnergyPlusData &state,
             for (int ZoneIndex = 1; ZoneIndex <= this->NumofVentMechZones; ++ZoneIndex) {
                 auto &thisMechVentZone = this->VentMechZone(ZoneIndex);
                 int ZoneNum = thisMechVentZone.zoneNum;
-                SysOAMassFlow += state.dataContaminantBalance->ZoneSysContDemand(ZoneNum).OutputRequiredToCO2SP *
-                                 thisMechVentZone.zoneOASched->getCurrentVal();
+                SysOAMassFlow +=
+                    state.dataContaminantBalance->ZoneSysContDemand(ZoneNum).OutputRequiredToCO2SP * thisMechVentZone.zoneOASched->getCurrentVal();
             }
             MechVentOAMassFlow = SysOAMassFlow;
         } else if (this->SystemOAMethod == DataSizing::SysOAMethod::IAQPGC) {
@@ -3682,8 +3681,8 @@ Real64 VentilationMechanicalProps::CalcMechVentController(EnergyPlusData &state,
             for (int ZoneIndex = 1; ZoneIndex <= this->NumofVentMechZones; ++ZoneIndex) {
                 auto &thisMechVentZone = this->VentMechZone(ZoneIndex);
                 int ZoneNum = thisMechVentZone.zoneNum;
-                SysOAMassFlow += state.dataContaminantBalance->ZoneSysContDemand(ZoneNum).OutputRequiredToGCSP *
-                                 thisMechVentZone.zoneOASched->getCurrentVal();
+                SysOAMassFlow +=
+                    state.dataContaminantBalance->ZoneSysContDemand(ZoneNum).OutputRequiredToGCSP * thisMechVentZone.zoneOASched->getCurrentVal();
             }
             MechVentOAMassFlow = SysOAMassFlow;
         } else if (this->SystemOAMethod == DataSizing::SysOAMethod::IAQPCOM) {
@@ -3692,16 +3691,16 @@ Real64 VentilationMechanicalProps::CalcMechVentController(EnergyPlusData &state,
             for (int ZoneIndex = 1; ZoneIndex <= this->NumofVentMechZones; ++ZoneIndex) {
                 auto &thisMechVentZone = this->VentMechZone(ZoneIndex);
                 int ZoneNum = thisMechVentZone.zoneNum;
-                SysOAMassFlow += state.dataContaminantBalance->ZoneSysContDemand(ZoneNum).OutputRequiredToCO2SP *
-                                 thisMechVentZone.zoneOASched->getCurrentVal();
+                SysOAMassFlow +=
+                    state.dataContaminantBalance->ZoneSysContDemand(ZoneNum).OutputRequiredToCO2SP * thisMechVentZone.zoneOASched->getCurrentVal();
             }
             MechVentOAMassFlow = SysOAMassFlow;
             SysOAMassFlow = 0.0;
             for (int ZoneIndex = 1; ZoneIndex <= this->NumofVentMechZones; ++ZoneIndex) {
                 auto &thisMechVentZone = this->VentMechZone(ZoneIndex);
                 int ZoneNum = thisMechVentZone.zoneNum;
-                SysOAMassFlow += state.dataContaminantBalance->ZoneSysContDemand(ZoneNum).OutputRequiredToGCSP *
-                                 thisMechVentZone.zoneOASched->getCurrentVal();
+                SysOAMassFlow +=
+                    state.dataContaminantBalance->ZoneSysContDemand(ZoneNum).OutputRequiredToGCSP * thisMechVentZone.zoneOASched->getCurrentVal();
             }
             MechVentOAMassFlow = max(SysOAMassFlow, MechVentOAMassFlow);
         } else {
@@ -3925,10 +3924,9 @@ Real64 VentilationMechanicalProps::CalcMechVentController(EnergyPlusData &state,
                                             // Accumulate CO2 generation from people at design occupancy and current activity level
                                             Real64 CO2PeopleGeneration = 0.0;
                                             for (int const PeopleNum : thisMechVentZone.peopleIndexes) {
-                                                CO2PeopleGeneration +=
-                                                    state.dataHeatBal->People(PeopleNum).NumberOfPeople *
-                                                    state.dataHeatBal->People(PeopleNum).CO2RateFactor *
-                                                        state.dataHeatBal->People(PeopleNum).activityLevelSched->getCurrentVal();
+                                                CO2PeopleGeneration += state.dataHeatBal->People(PeopleNum).NumberOfPeople *
+                                                                       state.dataHeatBal->People(PeopleNum).CO2RateFactor *
+                                                                       state.dataHeatBal->People(PeopleNum).activityLevelSched->getCurrentVal();
                                             }
                                             ZoneMaxCO2 = state.dataContaminantBalance->OutdoorCO2 +
                                                          (CO2PeopleGeneration * curZone.Multiplier * curZone.ListMultiplier * 1.0e6) / ZoneOAMax;

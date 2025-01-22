@@ -273,12 +273,12 @@ namespace FuelCellElectricGenerator {
                 state.dataFuelCellElectGen->FuelCell(thisFuelCell).FCPM.UpTranLimit = NumArray(8);
                 state.dataFuelCellElectGen->FuelCell(thisFuelCell).FCPM.DownTranLimit = NumArray(9);
                 state.dataFuelCellElectGen->FuelCell(thisFuelCell).FCPM.StartUpTime =
-                        NumArray(10) / Constant::rSecsInHour; // convert to hours from seconds
+                    NumArray(10) / Constant::rSecsInHour; // convert to hours from seconds
                 state.dataFuelCellElectGen->FuelCell(thisFuelCell).FCPM.StartUpFuel = NumArray(11);
                 state.dataFuelCellElectGen->FuelCell(thisFuelCell).FCPM.StartUpElectConsum = NumArray(12);
                 state.dataFuelCellElectGen->FuelCell(thisFuelCell).FCPM.StartUpElectProd = NumArray(13);
                 state.dataFuelCellElectGen->FuelCell(thisFuelCell).FCPM.ShutDownTime =
-                        NumArray(14) / Constant::rSecsInHour; // convert to hours from seconds
+                    NumArray(14) / Constant::rSecsInHour; // convert to hours from seconds
                 state.dataFuelCellElectGen->FuelCell(thisFuelCell).FCPM.ShutDownFuel = NumArray(15);
                 state.dataFuelCellElectGen->FuelCell(thisFuelCell).FCPM.ShutDownElectConsum = NumArray(16);
                 state.dataFuelCellElectGen->FuelCell(thisFuelCell).FCPM.ANC0 = NumArray(17);
@@ -1761,7 +1761,7 @@ namespace FuelCellElectricGenerator {
             } else if (state.dataGenerator->FuelSupply(this->FuelSupNum).FuelTempMode == DataGenerators::FuelTemperatureMode::FuelInTempSchedule) {
 
                 state.dataGenerator->FuelSupply(this->FuelSupNum).TfuelIntoCompress =
-                        state.dataGenerator->FuelSupply(this->FuelSupNum).sched->getCurrentVal();
+                    state.dataGenerator->FuelSupply(this->FuelSupNum).sched->getCurrentVal();
             }
 
             //  evaluate  heat capacity at average temperature using shomate

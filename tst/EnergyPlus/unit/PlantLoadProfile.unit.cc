@@ -104,7 +104,7 @@ TEST_F(EnergyPlusFixture, LoadProfile_GetInput)
 
     ASSERT_TRUE(process_idf(idf_objects, false));
     state->init_state(*state);
-    
+
     GetPlantProfileInput(*state);
 
     // Tests for LoadProfile on Water loop

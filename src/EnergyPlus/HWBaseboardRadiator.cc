@@ -237,7 +237,7 @@ namespace HWBaseboardRadiator {
         // SUBROUTINE PARAMETER DEFINITIONS:
         static constexpr std::string_view RoutineName("GetHWBaseboardInput:");
         static constexpr std::string_view routineName = "GetHWBaseboardInput";
-        
+
         Real64 constexpr MaxFraction(1.0);
         Real64 constexpr MinFraction(0.0);
         Real64 constexpr MaxWaterTempAvg(150.0);              // Maximum limit of average water temperature in degree C
@@ -461,7 +461,7 @@ namespace HWBaseboardRadiator {
             // Get schedule
             if (state.dataIPShortCut->lAlphaFieldBlanks(3)) {
                 thisHWBaseboard.availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((thisHWBaseboard.availSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(3))) == nullptr) { 
+            } else if ((thisHWBaseboard.availSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(3))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(3), state.dataIPShortCut->cAlphaArgs(3));
                 ErrorsFound = true;
             }
@@ -1256,8 +1256,8 @@ namespace HWBaseboardRadiator {
         Real64 WaterInletTemp = hWBaseboard.WaterInletTemp;
         Real64 WaterMassFlowRate = state.dataLoopNodes->Node(hWBaseboard.WaterInletNode).MassFlowRate;
 
-        if (QZnReq > HVAC::SmallLoad && !state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum) &&
-            (hWBaseboard.availSched->getCurrentVal() > 0) && (WaterMassFlowRate > 0.0)) {
+        if (QZnReq > HVAC::SmallLoad && !state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum) && (hWBaseboard.availSched->getCurrentVal() > 0) &&
+            (WaterMassFlowRate > 0.0)) {
 
             HWBaseboardDesignData const &HWBaseboardDesignDataObject{
                 state.dataHWBaseboardRad->HWBaseboardDesignObject(hWBaseboard.DesignObjectPtr)}; // Contains the data for the design object

@@ -269,7 +269,7 @@ void GetCoolingPanelInput(EnergyPlusData &state)
                                                                  s_ipsc->cNumericFieldNames);
 
         ErrorObjectHeader eoh{routineName, cCMO_CoolingPanel_Simple, s_ipsc->cAlphaArgs(1)};
-        
+
         state.dataChilledCeilingPanelSimple->CoolingPanel(CoolingPanelNum).FieldNames.allocate(NumNumbers);
         state.dataChilledCeilingPanelSimple->CoolingPanel(CoolingPanelNum).FieldNames = "";
         state.dataChilledCeilingPanelSimple->CoolingPanel(CoolingPanelNum).FieldNames = s_ipsc->cNumericFieldNames;
@@ -278,15 +278,14 @@ void GetCoolingPanelInput(EnergyPlusData &state)
             for (int CoolPanelNumI = 2; CoolPanelNumI <= NumCoolingPanels; ++CoolPanelNumI) {
                 if (s_ipsc->cAlphaArgs(1) == state.dataChilledCeilingPanelSimple->CoolingPanel(CoolPanelNumI).Name) {
                     ErrorsFound = true;
-                    ShowSevereError(state,
-                                    format("{} is used as a name for more than one simple COOLING PANEL.", s_ipsc->cAlphaArgs(1)));
+                    ShowSevereError(state, format("{} is used as a name for more than one simple COOLING PANEL.", s_ipsc->cAlphaArgs(1)));
                     ShowContinueError(state, "This is not allowed.");
                 }
             }
         }
 
         auto &thisCP(state.dataChilledCeilingPanelSimple->CoolingPanel(CoolingPanelNum));
-        thisCP.Name = s_ipsc->cAlphaArgs(1);                     // Name of this simple cooling panel
+        thisCP.Name = s_ipsc->cAlphaArgs(1);                                   // Name of this simple cooling panel
         thisCP.EquipType = DataPlant::PlantEquipmentType::CoolingPanel_Simple; //'ZoneHVAC:CoolingPanel:RadiantConvective:Water'
 
         // Get schedule
@@ -319,12 +318,8 @@ void GetCoolingPanelInput(EnergyPlusData &state)
                                                                      DataLoopNode::ConnectionType::Outlet,
                                                                      NodeInputManager::CompFluidStream::Primary,
                                                                      DataLoopNode::ObjectIsNotParent);
-        BranchNodeConnections::TestCompSet(state,
-                                           cCMO_CoolingPanel_Simple,
-                                           s_ipsc->cAlphaArgs(1),
-                                           s_ipsc->cAlphaArgs(3),
-                                           s_ipsc->cAlphaArgs(4),
-                                           "Chilled Water Nodes");
+        BranchNodeConnections::TestCompSet(
+            state, cCMO_CoolingPanel_Simple, s_ipsc->cAlphaArgs(1), s_ipsc->cAlphaArgs(3), s_ipsc->cAlphaArgs(4), "Chilled Water Nodes");
 
         thisCP.RatedWaterTemp = s_ipsc->rNumericArgs(1);
         if (thisCP.RatedWaterTemp > MaxWaterTempAvg + 0.001) {
@@ -386,15 +381,13 @@ void GetCoolingPanelInput(EnergyPlusData &state)
                 thisCP.ScaledCoolingCapacity = s_ipsc->rNumericArgs(4);
                 if (thisCP.ScaledCoolingCapacity < 0.0 && thisCP.ScaledCoolingCapacity != DataSizing::AutoSize) {
                     ShowSevereError(state, format("{} = {}", cCMO_CoolingPanel_Simple, thisCP.Name));
-                    ShowContinueError(
-                        state, format("Illegal {} = {:.7T}", s_ipsc->cNumericFieldNames(4), s_ipsc->rNumericArgs(4)));
+                    ShowContinueError(state, format("Illegal {} = {:.7T}", s_ipsc->cNumericFieldNames(4), s_ipsc->rNumericArgs(4)));
                     ErrorsFound = true;
                 }
             } else {
                 if ((!s_ipsc->lAlphaFieldBlanks(6)) || (!s_ipsc->lAlphaFieldBlanks(7))) {
                     ShowSevereError(state, format("{} = {}", cCMO_CoolingPanel_Simple, thisCP.Name));
-                    ShowContinueError(state,
-                                      format("Input for {} = {}", s_ipsc->cAlphaFieldNames(5), s_ipsc->cAlphaArgs(5)));
+                    ShowContinueError(state, format("Input for {} = {}", s_ipsc->cAlphaFieldNames(5), s_ipsc->cAlphaArgs(5)));
                     ShowContinueError(state, format("Blank field not allowed for {}", s_ipsc->cNumericFieldNames(4)));
                     ErrorsFound = true;
                 }
@@ -405,15 +398,12 @@ void GetCoolingPanelInput(EnergyPlusData &state)
                 thisCP.ScaledCoolingCapacity = s_ipsc->rNumericArgs(5);
                 if (thisCP.ScaledCoolingCapacity < 0.0) {
                     ShowSevereError(state, format("{} = {}", cCMO_CoolingPanel_Simple, thisCP.Name));
-                    ShowContinueError(state,
-                                      format("Input for {} = {}", s_ipsc->cAlphaFieldNames(5), s_ipsc->cAlphaArgs(5)));
-                    ShowContinueError(
-                        state, format("Illegal {} = {:.7T}", s_ipsc->cNumericFieldNames(5), s_ipsc->rNumericArgs(5)));
+                    ShowContinueError(state, format("Input for {} = {}", s_ipsc->cAlphaFieldNames(5), s_ipsc->cAlphaArgs(5)));
+                    ShowContinueError(state, format("Illegal {} = {:.7T}", s_ipsc->cNumericFieldNames(5), s_ipsc->rNumericArgs(5)));
                     ErrorsFound = true;
                 } else if (thisCP.ScaledCoolingCapacity == DataSizing::AutoSize) {
                     ShowSevereError(state, format("{} = {}", cCMO_CoolingPanel_Simple, thisCP.Name));
-                    ShowContinueError(state,
-                                      format("Input for {} = {}", s_ipsc->cAlphaFieldNames(5), s_ipsc->cAlphaArgs(5)));
+                    ShowContinueError(state, format("Input for {} = {}", s_ipsc->cAlphaFieldNames(5), s_ipsc->cAlphaArgs(5)));
                     ShowContinueError(state, format("Illegal {} = Autosize", s_ipsc->cNumericFieldNames(5)));
                     ErrorsFound = true;
                 }
@@ -429,8 +419,7 @@ void GetCoolingPanelInput(EnergyPlusData &state)
                 thisCP.ScaledCoolingCapacity = s_ipsc->rNumericArgs(6);
                 if (thisCP.ScaledCoolingCapacity < 0.0) {
                     ShowSevereError(state, format("{} = {}", cCMO_CoolingPanel_Simple, thisCP.Name));
-                    ShowContinueError(
-                        state, format("Illegal {} = {:.7T}", s_ipsc->cNumericFieldNames(6), s_ipsc->rNumericArgs(6)));
+                    ShowContinueError(state, format("Illegal {} = {:.7T}", s_ipsc->cNumericFieldNames(6), s_ipsc->rNumericArgs(6)));
                     ErrorsFound = true;
                 }
             } else {

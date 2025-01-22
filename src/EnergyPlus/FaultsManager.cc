@@ -1907,7 +1907,7 @@ namespace FaultsManager {
         return UAReductionFactorAct;
     }
 
-    Real64 FaultPropertiesFoulingCoil::FaultFraction([[maybe_unused]]EnergyPlusData &state)
+    Real64 FaultPropertiesFoulingCoil::FaultFraction([[maybe_unused]] EnergyPlusData &state)
     {
         // SUBROUTINE INFORMATION:
         //       AUTHOR         Julien Marrec, EffiBEM

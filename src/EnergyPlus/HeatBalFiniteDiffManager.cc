@@ -1135,7 +1135,8 @@ namespace HeatBalFiniteDiffManager {
         auto &surfaceFD = s_hbfd->SurfaceFD(Surf);
 
         Real64 HMovInsul = 0;
-        if (state.dataSurface->AnyMovableInsulation) HMovInsul = state.dataSurface->extMovInsuls(Surf).H; // Even if this is not a movable insulation surface?
+        if (state.dataSurface->AnyMovableInsulation)
+            HMovInsul = state.dataSurface->extMovInsuls(Surf).H; // Even if this is not a movable insulation surface?
         // Start stepping through the slab with time.
         for (int J = 1, J_end = nint(state.dataGlobal->TimeStepZoneSec / Delt); J <= J_end; ++J) { // PT testing higher time steps
 

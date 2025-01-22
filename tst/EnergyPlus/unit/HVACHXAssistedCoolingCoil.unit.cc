@@ -434,7 +434,7 @@ TEST_F(EnergyPlusFixture, HXAssistCCUnitarySystem_VStest1)
 
     ASSERT_TRUE(process_idf(idf_objects)); // read idf objects
     state->init_state(*state);
-    
+
     HeatBalanceManager::GetZoneData(*state, ErrorsFound); // read zone data
     EXPECT_FALSE(ErrorsFound);                            // expect no errors
 
@@ -1110,7 +1110,7 @@ TEST_F(EnergyPlusFixture, HXAssistCCUnitarySystem_NewDXCoil_Processing_Test)
 
     ASSERT_TRUE(process_idf(idf_objects)); // read idf objects
     state->init_state(*state);
-    
+
     HeatBalanceManager::GetZoneData(*state, ErrorsFound); // read zone data
     EXPECT_FALSE(ErrorsFound);                            // expect no errors
 

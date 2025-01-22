@@ -168,15 +168,15 @@ namespace BaseboardElectric {
 
         // SUBROUTINE PARAMETER DEFINITIONS:
         static constexpr std::string_view RoutineName("GetBaseboardInput: "); // include trailing blank space
-        static constexpr std::string_view routineName = "GetBaseboardInput"; 
-        int constexpr iHeatCAPMAlphaNum(3);                                   // get input index to baseboard heating capacity sizing method
-        int constexpr iHeatDesignCapacityNumericNum(1);                       // get input index to baseboard heating capacity
-        int constexpr iHeatCapacityPerFloorAreaNumericNum(2);                 // get input index to baseboard heating capacity per floor area sizing
+        static constexpr std::string_view routineName = "GetBaseboardInput";
+        int constexpr iHeatCAPMAlphaNum(3);                   // get input index to baseboard heating capacity sizing method
+        int constexpr iHeatDesignCapacityNumericNum(1);       // get input index to baseboard heating capacity
+        int constexpr iHeatCapacityPerFloorAreaNumericNum(2); // get input index to baseboard heating capacity per floor area sizing
         int constexpr iHeatFracOfAutosizedCapacityNumericNum(
             3); //  get input index to baseboard heating capacity sizing as fraction of autosized heating capacity
 
         auto &s_ipsc = state.dataIPShortCut;
-        
+
         auto &baseboard = state.dataBaseboardElectric;
         std::string_view cCurrentModuleObject = cCMO_BBRadiator_Electric;
 
@@ -210,14 +210,13 @@ namespace BaseboardElectric {
                 baseboard->baseboards(ConvElecBBNum).FieldNames = s_ipsc->cNumericFieldNames;
 
                 ErrorObjectHeader eoh{routineName, cCurrentModuleObject, s_ipsc->cAlphaArgs(1)};
-                
+
                 // ErrorsFound will be set to True if problem was found, left untouched otherwise
-                VerifyUniqueBaseboardName(
-                    state, cCurrentModuleObject, s_ipsc->cAlphaArgs(1), ErrorsFound, format("{} Name", cCurrentModuleObject));
+                VerifyUniqueBaseboardName(state, cCurrentModuleObject, s_ipsc->cAlphaArgs(1), ErrorsFound, format("{} Name", cCurrentModuleObject));
 
                 ++BaseboardNum;
                 auto &thisBaseboard = baseboard->baseboards(BaseboardNum);
-                thisBaseboard.EquipName = s_ipsc->cAlphaArgs(1);   // name of this baseboard
+                thisBaseboard.EquipName = s_ipsc->cAlphaArgs(1);                 // name of this baseboard
                 thisBaseboard.EquipType = Util::makeUPPER(cCurrentModuleObject); // the type of baseboard-rename change
                 thisBaseboard.Schedule = s_ipsc->cAlphaArgs(2);
                 if (s_ipsc->lAlphaFieldBlanks(2)) {
@@ -244,12 +243,9 @@ namespace BaseboardElectric {
                         }
                     } else {
                         ShowSevereError(state, format("{} = {}", cCurrentModuleObject, thisBaseboard.EquipName));
-                        ShowContinueError(state,
-                                          format("Input for {} = {}",
-                                                 s_ipsc->cAlphaFieldNames(iHeatCAPMAlphaNum),
-                                                 s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum)));
                         ShowContinueError(
-                            state, format("Blank field not allowed for {}", s_ipsc->cNumericFieldNames(iHeatDesignCapacityNumericNum)));
+                            state, format("Input for {} = {}", s_ipsc->cAlphaFieldNames(iHeatCAPMAlphaNum), s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum)));
+                        ShowContinueError(state, format("Blank field not allowed for {}", s_ipsc->cNumericFieldNames(iHeatDesignCapacityNumericNum)));
                         ErrorsFound = true;
                     }
                 } else if (Util::SameString(s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum), "CapacityPerFloorArea")) {
@@ -258,10 +254,9 @@ namespace BaseboardElectric {
                         thisBaseboard.ScaledHeatingCapacity = s_ipsc->rNumericArgs(iHeatCapacityPerFloorAreaNumericNum);
                         if (thisBaseboard.ScaledHeatingCapacity <= 0.0) {
                             ShowSevereError(state, format("{} = {}", cCurrentModuleObject, thisBaseboard.EquipName));
-                            ShowContinueError(state,
-                                              format("Input for {} = {}",
-                                                     s_ipsc->cAlphaFieldNames(iHeatCAPMAlphaNum),
-                                                     s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum)));
+                            ShowContinueError(
+                                state,
+                                format("Input for {} = {}", s_ipsc->cAlphaFieldNames(iHeatCAPMAlphaNum), s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum)));
                             ShowContinueError(state,
                                               format("Illegal {} = {:.7T}",
                                                      s_ipsc->cNumericFieldNames(iHeatCapacityPerFloorAreaNumericNum),
@@ -269,24 +264,19 @@ namespace BaseboardElectric {
                             ErrorsFound = true;
                         } else if (thisBaseboard.ScaledHeatingCapacity == AutoSize) {
                             ShowSevereError(state, format("{} = {}", cCurrentModuleObject, thisBaseboard.EquipName));
-                            ShowContinueError(state,
-                                              format("Input for {} = {}",
-                                                     s_ipsc->cAlphaFieldNames(iHeatCAPMAlphaNum),
-                                                     s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum)));
                             ShowContinueError(
                                 state,
-                                format("Illegal {} = AutoSize", s_ipsc->cNumericFieldNames(iHeatCapacityPerFloorAreaNumericNum)));
+                                format("Input for {} = {}", s_ipsc->cAlphaFieldNames(iHeatCAPMAlphaNum), s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum)));
+                            ShowContinueError(state,
+                                              format("Illegal {} = AutoSize", s_ipsc->cNumericFieldNames(iHeatCapacityPerFloorAreaNumericNum)));
                             ErrorsFound = true;
                         }
                     } else {
                         ShowSevereError(state, format("{} = {}", cCurrentModuleObject, thisBaseboard.EquipName));
-                        ShowContinueError(state,
-                                          format("Input for {} = {}",
-                                                 s_ipsc->cAlphaFieldNames(iHeatCAPMAlphaNum),
-                                                 s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum)));
                         ShowContinueError(
-                            state,
-                            format("Blank field not allowed for {}", s_ipsc->cNumericFieldNames(iHeatCapacityPerFloorAreaNumericNum)));
+                            state, format("Input for {} = {}", s_ipsc->cAlphaFieldNames(iHeatCAPMAlphaNum), s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum)));
+                        ShowContinueError(state,
+                                          format("Blank field not allowed for {}", s_ipsc->cNumericFieldNames(iHeatCapacityPerFloorAreaNumericNum)));
                         ErrorsFound = true;
                     }
                 } else if (Util::SameString(s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum), "FractionOfAutosizedHeatingCapacity")) {
@@ -303,21 +293,16 @@ namespace BaseboardElectric {
                         }
                     } else {
                         ShowSevereError(state, format("{} = {}", cCurrentModuleObject, thisBaseboard.EquipName));
-                        ShowContinueError(state,
-                                          format("Input for {} = {}",
-                                                 s_ipsc->cAlphaFieldNames(iHeatCAPMAlphaNum),
-                                                 s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum)));
-                        ShowContinueError(state,
-                                          format("Blank field not allowed for {}",
-                                                 s_ipsc->cNumericFieldNames(iHeatFracOfAutosizedCapacityNumericNum)));
+                        ShowContinueError(
+                            state, format("Input for {} = {}", s_ipsc->cAlphaFieldNames(iHeatCAPMAlphaNum), s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum)));
+                        ShowContinueError(
+                            state, format("Blank field not allowed for {}", s_ipsc->cNumericFieldNames(iHeatFracOfAutosizedCapacityNumericNum)));
                         ErrorsFound = true;
                     }
                 } else {
                     ShowSevereError(state, format("{} = {}", cCurrentModuleObject, thisBaseboard.EquipName));
                     ShowContinueError(state,
-                                      format("Illegal {} = {}",
-                                             s_ipsc->cAlphaFieldNames(iHeatCAPMAlphaNum),
-                                             s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum)));
+                                      format("Illegal {} = {}", s_ipsc->cAlphaFieldNames(iHeatCAPMAlphaNum), s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum)));
                     ErrorsFound = true;
                 }
 

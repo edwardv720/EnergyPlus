@@ -3896,7 +3896,7 @@ TEST_F(EnergyPlusFixture, OutputTableTimeBins_GetInput)
                                                       "Constant-1.0; !- Schedule Name"});
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataGlobal->DoWeathSim = true;
 
     GetInputTabularTimeBins(*state);
@@ -6583,7 +6583,7 @@ TEST_F(EnergyPlusFixture, OutputReportTabularMonthly_invalidAggregationOrder)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     Real64 extLitUse;
 
     SetupOutputVariable(*state,
@@ -7116,7 +7116,7 @@ TEST_F(SQLiteFixture, OutputReportTabular_WriteLoadComponentSummaryTables_AirLoo
 TEST_F(SQLiteFixture, OutputReportTabular_WriteLoadComponentSummaryTables_AirLoop_IPConversion)
 {
     state->init_state(*state);
-    
+
     state->dataSQLiteProcedures->sqlite->createSQLiteSimulationsRecord(1, "EnergyPlus Version", "Current Time");
 
     OutputReportTabular::SetupUnitConversions(*state);
@@ -10262,7 +10262,7 @@ TEST_F(EnergyPlusFixture, OutputReportTabularTest_WarningMultiplePeopleObj)
 
     });
     ASSERT_TRUE(process_idf(idf_objects));
-    state->dataGlobal->TimeStepsInHour = 1; // must initialize this to get schedules initialized
+    state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
     state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
 

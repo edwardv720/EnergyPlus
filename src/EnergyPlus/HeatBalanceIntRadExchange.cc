@@ -425,11 +425,11 @@ namespace HeatBalanceIntRadExchange {
         // then the matrices which are used to calculate interior radiation must be recalculated.
 
         auto &s_surf = state.dataSurface;
-            
+
         change = false;
 
         auto &movInsul = s_surf->intMovInsuls(SurfNum);
-        if (movInsul.present != movInsul.presentPrevTS) 
+        if (movInsul.present != movInsul.presentPrevTS)
             change = (std::abs(state.dataConstruction->Construct(s_surf->Surface(SurfNum).Construction).InsideAbsorpThermal -
                                state.dataMaterial->materials(movInsul.matNum)->AbsorpThermal) > 0.01);
     }

@@ -2141,10 +2141,10 @@ TEST_F(EnergyPlusFixture, AirflowNetwork_TestPressureStat)
     Real64 PressureSet = 0.5;
 
     Sched::GetSchedule(*state, "PRESSURE SETPOINT SCHEDULE")->currentVal = PressureSet; // Pressure setpoint
-    Sched::GetSchedule(*state, "FANANDCOILAVAILSCHED")->currentVal = 1.0; // set availability and fan schedule to 1
-    Sched::GetSchedule(*state, "ON")->currentVal = 1.0; // On
-    Sched::GetSchedule(*state, "VENTINGSCHED")->currentVal = 25.55; // VentingSched
-    Sched::GetSchedule(*state, "WINDOWVENTSCHED")->currentVal = 1.0; // WindowVentSched
+    Sched::GetSchedule(*state, "FANANDCOILAVAILSCHED")->currentVal = 1.0;               // set availability and fan schedule to 1
+    Sched::GetSchedule(*state, "ON")->currentVal = 1.0;                                 // On
+    Sched::GetSchedule(*state, "VENTINGSCHED")->currentVal = 25.55;                     // VentingSched
+    Sched::GetSchedule(*state, "WINDOWVENTSCHED")->currentVal = 1.0;                    // WindowVentSched
 
     state->afn->AirflowNetworkFanActivated = true;
     state->dataEnvrn->OutDryBulbTemp = -17.29025;
@@ -5916,7 +5916,7 @@ TEST_F(EnergyPlusFixture, AirflowNetwork_MultiAirLoopTest)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
     // Read objects
     HeatBalanceManager::GetZoneData(*state, ErrorsFound);
@@ -5940,12 +5940,12 @@ TEST_F(EnergyPlusFixture, AirflowNetwork_MultiAirLoopTest)
 
     Real64 PresssureSet = 0.5;
     // Assign values
-    Sched::GetSchedule(*state, "WINDOWVENTSCHED")->currentVal = 25.55;         // WindowVentSched
-    Sched::GetSchedule(*state, "FANANDCOILAVAILSCHED")->currentVal = 1.0;           // FanAndCoilAvailSched
-    Sched::GetSchedule(*state, "VENTINGSCHED")->currentVal = 1.0;          // VentingSched
+    Sched::GetSchedule(*state, "WINDOWVENTSCHED")->currentVal = 25.55;                   // WindowVentSched
+    Sched::GetSchedule(*state, "FANANDCOILAVAILSCHED")->currentVal = 1.0;                // FanAndCoilAvailSched
+    Sched::GetSchedule(*state, "VENTINGSCHED")->currentVal = 1.0;                        // VentingSched
     Sched::GetSchedule(*state, "PRESSURE SETPOINT SCHEDULE")->currentVal = PresssureSet; // Pressure setpoint
-    Sched::GetSchedule(*state, "HVACTEMPLATE-ALWAYS 1")->currentVal = 1.0;          // HVACTemplate-Always 1
-    Sched::GetSchedule(*state, "HVACTEMPLATE-ALWAYS 0")->currentVal = 0.0;          // HVACTemplate-Always 0
+    Sched::GetSchedule(*state, "HVACTEMPLATE-ALWAYS 1")->currentVal = 1.0;               // HVACTemplate-Always 1
+    Sched::GetSchedule(*state, "HVACTEMPLATE-ALWAYS 0")->currentVal = 0.0;               // HVACTemplate-Always 0
 
     state->afn->AirflowNetworkFanActivated = true;
     state->dataEnvrn->OutDryBulbTemp = -17.29025;
@@ -7711,7 +7711,7 @@ TEST_F(EnergyPlusFixture, AirflowNetwork_DuplicatedNodeNameTest)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     // Read objects
     HeatBalanceManager::GetHeatBalanceInput(*state);
     HeatBalanceManager::AllocateHeatBalArrays(*state);
@@ -10512,7 +10512,7 @@ TEST_F(EnergyPlusFixture, DISABLED_AirLoopNumTest)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
     // Read objects
     HeatBalanceManager::GetZoneData(*state, ErrorsFound);
@@ -10705,7 +10705,7 @@ TEST_F(EnergyPlusFixture, AirflowNetwork_TestZoneVentingAirBoundary)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     state->afn->get_input();
     // Expect warnings about the air boundary surface
     EXPECT_TRUE(has_err_output(false));
@@ -14207,7 +14207,7 @@ TEST_F(EnergyPlusFixture, AirflowNetwork_TestIntraZoneLinkageZoneIndex)
     auto *officeOccSched = Sched::GetSchedule(*state, "OFFICE OCCUPANCY");
     officeOccSched->minVal = 0.0;
     officeOccSched->maxVal = 2.0;
-    
+
     auto *activityDay1Sched = Sched::GetDaySchedule(*state, "ACTIVITY SCH_DY_1");
     std::fill(activityDay1Sched->tsVals.begin(), activityDay1Sched->tsVals.end(), 150);
     activityDay1Sched->maxVal = 200;
@@ -14219,7 +14219,7 @@ TEST_F(EnergyPlusFixture, AirflowNetwork_TestIntraZoneLinkageZoneIndex)
     auto *workEffSched = Sched::GetSchedule(*state, "WORK EFF SCH");
     workEffSched->minVal = 0.0;
     workEffSched->maxVal = 1.0;
-    
+
     auto *clothingDay1Sched = Sched::GetDaySchedule(*state, "CLOTHING SCH_DY_1");
     std::fill(clothingDay1Sched->tsVals.begin(), clothingDay1Sched->tsVals.end(), 1.0);
 
@@ -16499,7 +16499,7 @@ TEST_F(EnergyPlusFixture, AirflowNetwork_CheckMultistageHeatingCoil)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     state->dataGlobal->NumOfZones = 1;
     state->dataHeatBal->Zone.allocate(1);
     state->dataHeatBal->Zone(1).Name = "ATTIC ZONE";
@@ -19930,7 +19930,7 @@ TEST_F(EnergyPlusFixture, AirflowNetwork_ZoneOrderTest)
     state->dataGlobal->DDOnlySimulation = true;
 
     state->init_state(*state);
-    
+
     SimulationManager::ManageSimulation(*state); // run the design day over the warmup period (24 hrs, 25 days)
 
     // Crawlspace_Unit1

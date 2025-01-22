@@ -506,7 +506,7 @@ TEST_F(EnergyPlusFixture, HeatRecoveryHXOnManinBranch_GetInputTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetReturnAirPathInput(*state);
     GetAirPathData(*state);
     ASSERT_ENUM_EQ(SimAirServingZones::CompType::HeatXchngr, state->dataAirSystemsData->PrimaryAirSystems(1).Branch(1).Comp(4).CompType_Num);
@@ -3923,7 +3923,7 @@ TEST_F(EnergyPlusFixture, HeatRecoveryHXOnMainBranch_SimHeatRecoveryTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     // OutputProcessor::TimeValue.allocate(2); //
     ManageSimulation(*state); // run the design day
 
@@ -4030,7 +4030,7 @@ TEST_F(EnergyPlusFixture, HeatRecovery_AirFlowSizing)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     // get heat recovery heat exchanger generic
     GetHeatRecoveryInput(*state);
 
@@ -4150,7 +4150,7 @@ TEST_F(EnergyPlusFixture, HeatRecovery_HeatExchangerGenericCalcTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     // get OA Controller
     MixedAir::GetOAControllerInputs(*state);
     int OAContrllerNum = 1;
@@ -4264,7 +4264,7 @@ TEST_F(EnergyPlusFixture, HeatRecovery_NominalAirFlowAutosizeTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     // get HR HX generic
     GetHeatRecoveryInput(*state);
     int ExchNum = 1;

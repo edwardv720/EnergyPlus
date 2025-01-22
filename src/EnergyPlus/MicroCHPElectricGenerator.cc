@@ -135,7 +135,7 @@ void GetMicroCHPGeneratorInput(EnergyPlusData &state)
     // METHODOLOGY EMPLOYED:
     // EnergyPlus input processor
     static constexpr std::string_view routineName = "GetMicroCHPGeneratorInput";
-        
+
     Array1D_string AlphArray(25);  // character string data
     Array1D<Real64> NumArray(200); // numeric data TODO deal with allocatable for extensible
 
@@ -286,7 +286,7 @@ void GetMicroCHPGeneratorInput(EnergyPlusData &state)
                                                                      state.dataIPShortCut->cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, state.dataIPShortCut->cCurrentModuleObject, AlphArray(1)};
-            
+
             Util::IsNameEmpty(state, AlphArray(1), state.dataIPShortCut->cCurrentModuleObject, ErrorsFound);
 
             // GENERATOR:MICRO CHP,

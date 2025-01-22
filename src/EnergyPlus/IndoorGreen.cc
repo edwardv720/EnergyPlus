@@ -111,7 +111,7 @@ namespace IndoorGreen {
         auto &s_lw = state.dataIndoorGreen;
         auto &s_ip = state.dataInputProcessing->inputProcessor;
         auto &s_ipsc = state.dataIPShortCut;
-        
+
         static constexpr std::string_view RoutineName("GetIndoorLivingWallInput: ");
         std::string_view cCurrentModuleObject = "IndoorLivingWall"; // match the idd
         int NumNums;                                                // Number of real numbers returned by GetObjectItem
@@ -123,17 +123,17 @@ namespace IndoorGreen {
         for (int IndoorGreenNum = 1; IndoorGreenNum <= s_lw->NumIndoorGreen; ++IndoorGreenNum) {
             auto &ig = s_lw->indoorGreens(IndoorGreenNum);
             s_ip->getObjectItem(state,
-                              cCurrentModuleObject,
-                              IndoorGreenNum,
-                              s_ipsc->cAlphaArgs,
-                              NumAlphas,
-                              s_ipsc->rNumericArgs,
-                              NumNums,
-                              IOStat,
-                              s_ipsc->lNumericFieldBlanks,
-                              s_ipsc->lAlphaFieldBlanks,
-                              s_ipsc->cAlphaFieldNames,
-                              s_ipsc->cNumericFieldNames);
+                                cCurrentModuleObject,
+                                IndoorGreenNum,
+                                s_ipsc->cAlphaArgs,
+                                NumAlphas,
+                                s_ipsc->rNumericArgs,
+                                NumNums,
+                                IOStat,
+                                s_ipsc->lNumericFieldBlanks,
+                                s_ipsc->lAlphaFieldBlanks,
+                                s_ipsc->cAlphaFieldNames,
+                                s_ipsc->cNumericFieldNames);
             ErrorObjectHeader eoh{RoutineName, cCurrentModuleObject, s_ipsc->cAlphaArgs(1)};
             Util::IsNameEmpty(state, s_ipsc->cAlphaArgs(1), cCurrentModuleObject, ErrorsFound);
             ig.Name = s_ipsc->cAlphaArgs(1);
@@ -173,7 +173,7 @@ namespace IndoorGreen {
                     ErrorsFound = true;
                 }
             }
-            
+
             if ((ig.sched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(3))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(3), s_ipsc->cAlphaArgs(3));
                 ErrorsFound = true;
@@ -192,7 +192,7 @@ namespace IndoorGreen {
                 if ((ig.ledSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(6))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(6), s_ipsc->cAlphaArgs(6));
                     ErrorsFound = true;
-                } else if (!ig.ledSched->checkMinVal(state, Clusive::In, 0.0)) { 
+                } else if (!ig.ledSched->checkMinVal(state, Clusive::In, 0.0)) {
                     Sched::ShowSevereBadMin(state, eoh, s_ipsc->cAlphaFieldNames(6), s_ipsc->cAlphaArgs(6), Clusive::In, 0.0);
                     ErrorsFound = true;
                 }
@@ -222,7 +222,7 @@ namespace IndoorGreen {
                     ErrorsFound = true;
                     continue;
                 }
-                
+
                 if ((ig.ledDaylightTargetSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(8))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(8), s_ipsc->cAlphaArgs(8));
                     ErrorsFound = true;
@@ -231,7 +231,7 @@ namespace IndoorGreen {
                     ErrorsFound = true;
                 }
             } break;
-                    
+
             default:
                 break;
             }
@@ -462,7 +462,7 @@ namespace IndoorGreen {
                                77; // To be updated currently only take one reference point; 77 conversion factor from Lux to PPFD
                 }
             } break;
-                    
+
             case LightingMethod::LEDDaylighting: {
                 Real64 a = ig.ledDaylightTargetSched->getCurrentVal();
                 Real64 b = 0;
@@ -494,8 +494,8 @@ namespace IndoorGreen {
                 ig.ETRate = ETBaseFunction(state, ZonePreTemp, ZonePreHum, ZonePPFD, ZoneVPD, LAI, SwitchF);
             }
             Real64 effectivearea = std::min(ig.LeafArea, LAI * state.dataSurface->Surface(ig.SurfPtr).Area);
-            ETTotal =
-                ig.ETRate * Timestep * effectivearea * ig.sched->getCurrentVal(); // kg; this unit area should be surface area instead of total leaf area
+            ETTotal = ig.ETRate * Timestep * effectivearea *
+                      ig.sched->getCurrentVal(); // kg; this unit area should be surface area instead of total leaf area
             Real64 hfg = Psychrometrics::PsyHfgAirFnWTdb(ZonePreHum, ZonePreTemp) / std::pow(10, 6); // Latent heat of vaporization (MJ/kg)
             ig.LambdaET = ETTotal * hfg * std::pow(10, 6) / state.dataSurface->Surface(ig.SurfPtr).Area / Timestep; // (W/m2))
             rhoair = Psychrometrics::PsyRhoAirFnPbTdbW(state, state.dataEnvrn->OutBaroPress, ZonePreTemp, ZonePreHum);

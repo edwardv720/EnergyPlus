@@ -1092,11 +1092,8 @@ void GetUserConvCoeffs(EnergyPlusData &state)
                     if ((userExtConvModel.sched = Sched::GetSchedule(state, Alphas(Ptr + 2))) == nullptr) {
                         ShowSevereItemNotFound(state, eoh, ipsc->cAlphaFieldNames(Ptr + 2), Alphas(Ptr + 2));
                         ErrorsFound = true;
-                    } else if (!userExtConvModel.sched->checkMinMaxVals(state, 
-                                                                        Clusive::In,
-                                                                        state.dataHeatBal->LowHConvLimit, 
-                                                                        Clusive::In,
-                                                                        state.dataHeatBal->HighHConvLimit)) { 
+                    } else if (!userExtConvModel.sched->checkMinMaxVals(
+                                   state, Clusive::In, state.dataHeatBal->LowHConvLimit, Clusive::In, state.dataHeatBal->HighHConvLimit)) {
                         Sched::ShowSevereBadMinMax(state,
                                                    eoh,
                                                    ipsc->cAlphaFieldNames(Ptr + 2),
@@ -1107,7 +1104,7 @@ void GetUserConvCoeffs(EnergyPlusData &state)
                                                    state.dataHeatBal->HighHConvLimit,
                                                    "Limits are set (or default) in HeatBalanceAlgorithm object.");
                         ErrorsFound = true;
-                    } 
+                    }
                     ApplyExtConvValue(state, surfNum, hcExt, state.dataSurface->TotUserExtConvModels);
                 } break;
 
@@ -1200,7 +1197,7 @@ void GetUserConvCoeffs(EnergyPlusData &state)
                                             Numbers(NumField),
                                             Clusive::In,
                                             state.dataHeatBal->LowHConvLimit,
-                                            Clusive::In, 
+                                            Clusive::In,
                                             state.dataHeatBal->HighHConvLimit,
                                             "Limits are set (or default) in HeatBalanceAlgorithm object.");
                         ErrorsFound = true;
@@ -1227,11 +1224,8 @@ void GetUserConvCoeffs(EnergyPlusData &state)
                     if ((userIntConvModel.sched = Sched::GetSchedule(state, Alphas(Ptr + 2))) == nullptr) {
                         ShowSevereItemNotFound(state, eoh, ipsc->cAlphaFieldNames(Ptr + 2), Alphas(Ptr + 2));
                         ErrorsFound = true;
-                    } else if (!userIntConvModel.sched->checkMinMaxVals(state, 
-                                                                        Clusive::In,
-                                                                        state.dataHeatBal->LowHConvLimit,
-                                                                        Clusive::In,
-                                                                        state.dataHeatBal->HighHConvLimit)) {
+                    } else if (!userIntConvModel.sched->checkMinMaxVals(
+                                   state, Clusive::In, state.dataHeatBal->LowHConvLimit, Clusive::In, state.dataHeatBal->HighHConvLimit)) {
                         Sched::ShowSevereBadMinMax(state,
                                                    eoh,
                                                    ipsc->cAlphaFieldNames(Ptr + 2),
@@ -1242,7 +1236,7 @@ void GetUserConvCoeffs(EnergyPlusData &state)
                                                    state.dataHeatBal->HighHConvLimit,
                                                    "Limits are set (or default) in HeatBalanceAlgorithm object.");
                         ErrorsFound = true;
-                    } 
+                    }
                     ApplyIntConvValue(state, surfNum, hcInt, state.dataSurface->TotUserIntConvModels);
                 } break;
 
@@ -1335,7 +1329,8 @@ void GetUserConvCoeffs(EnergyPlusData &state)
                                             Numbers(NumField),
                                             Clusive::In,
                                             state.dataHeatBal->LowHConvLimit,
-                                            Clusive::In, state.dataHeatBal->HighHConvLimit,
+                                            Clusive::In,
+                                            state.dataHeatBal->HighHConvLimit,
                                             "Limits are set (or default) in HeatBalanceAlgorithm object.");
                         ErrorsFound = true;
                     }
@@ -1358,10 +1353,11 @@ void GetUserConvCoeffs(EnergyPlusData &state)
                     userExtConvModel.SurfaceName = Alphas(Ptr);
                     userExtConvModel.WhichSurface = -999;
                     userExtConvModel.overrideType = OverrideType::Schedule;
-                    if ((userExtConvModel.sched = Sched::GetSchedule(state, Alphas(Ptr + 2))) == nullptr) { 
+                    if ((userExtConvModel.sched = Sched::GetSchedule(state, Alphas(Ptr + 2))) == nullptr) {
                         ShowSevereItemNotFound(state, eoh, ipsc->cAlphaFieldNames(Ptr + 2), Alphas(Ptr + 2));
                         ErrorsFound = true;
-                    } else if (!userExtConvModel.sched->checkMinMaxVals(state, Clusive::In, state.dataHeatBal->LowHConvLimit, Clusive::In, state.dataHeatBal->HighHConvLimit)) {
+                    } else if (!userExtConvModel.sched->checkMinMaxVals(
+                                   state, Clusive::In, state.dataHeatBal->LowHConvLimit, Clusive::In, state.dataHeatBal->HighHConvLimit)) {
                         Sched::ShowSevereBadMinMax(state,
                                                    eoh,
                                                    ipsc->cAlphaFieldNames(Ptr + 2),
@@ -1372,7 +1368,7 @@ void GetUserConvCoeffs(EnergyPlusData &state)
                                                    state.dataHeatBal->HighHConvLimit,
                                                    "Limits are set (or default) in HeatBalanceAlgorithm object.");
                         ErrorsFound = true;
-                    } 
+                    }
                     ApplyExtConvValueMulti(state, surfaceFilter, hcExt, state.dataSurface->TotUserExtConvModels);
                 } break;
 
@@ -1471,7 +1467,7 @@ void GetUserConvCoeffs(EnergyPlusData &state)
                     userIntConvModel.SurfaceName = Alphas(Ptr);
                     userIntConvModel.WhichSurface = -999;
                     userIntConvModel.overrideType = OverrideType::Schedule;
-                    if ((userIntConvModel.sched = Sched::GetSchedule(state, Alphas(Ptr + 2))) == nullptr) { 
+                    if ((userIntConvModel.sched = Sched::GetSchedule(state, Alphas(Ptr + 2))) == nullptr) {
                         ShowSevereItemNotFound(state, eoh, ipsc->cAlphaFieldNames(Ptr + 2), Alphas(Ptr + 2));
                         ErrorsFound = true;
                     } else if (!userIntConvModel.sched->checkMinMaxVals(state,
@@ -1485,11 +1481,11 @@ void GetUserConvCoeffs(EnergyPlusData &state)
                                                    Alphas(Ptr + 2),
                                                    Clusive::In,
                                                    state.dataHeatBal->LowHConvLimit,
-                                                   Clusive::In, 
+                                                   Clusive::In,
                                                    state.dataHeatBal->HighHConvLimit,
                                                    "Limits are set (or default) in HeatBalanceAlgorithm object.");
                         ErrorsFound = true;
-                    } 
+                    }
                     ApplyIntConvValueMulti(state, surfaceFilter, hcInt, state.dataSurface->TotUserIntConvModels);
                 } break;
 

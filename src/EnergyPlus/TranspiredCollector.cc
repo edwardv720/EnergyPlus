@@ -185,8 +185,7 @@ namespace TranspiredCollector {
         auto &InletNode = UTSC_CI.InletNode;
         auto &ControlNode = UTSC_CI.ControlNode;
         UTSC_CI.IsOn = false;
-        if ((UTSC_CI.availSched->getCurrentVal() > 0.0) &&
-            (UTSC_CI.InletMDot > 0.0)) { // availability Schedule | OA system is setting mass flow
+        if ((UTSC_CI.availSched->getCurrentVal() > 0.0) && (UTSC_CI.InletMDot > 0.0)) { // availability Schedule | OA system is setting mass flow
             bool ControlLTSet(false);
             bool ControlLTSchedule(false);
             bool ZoneLTSchedule(false);
@@ -230,7 +229,7 @@ namespace TranspiredCollector {
         // Extensible UTSC object for underlying heat transfer surfaces and for multisystem
 
         static constexpr std::string_view routineName = "GetTranspiredCollectorInput";
-            
+
         // Using/Aliasing
         using BranchNodeConnections::TestCompSet;
         using DataLoopNode::ObjectIsNotParent;

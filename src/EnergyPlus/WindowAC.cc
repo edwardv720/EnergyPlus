@@ -301,11 +301,11 @@ namespace WindowAC {
 
             if (lAlphaBlanks(2)) {
                 state.dataWindowAC->WindAC(WindACNum).availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((state.dataWindowAC->WindAC(WindACNum).availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) { 
+            } else if ((state.dataWindowAC->WindAC(WindACNum).availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(2), Alphas(2));
                 ErrorsFound = true;
             }
-            
+
             state.dataWindowAC->WindAC(WindACNum).MaxAirVolFlow = Numbers(1);
             state.dataWindowAC->WindAC(WindACNum).OutAirVolFlow = Numbers(2);
 
@@ -427,7 +427,7 @@ namespace WindowAC {
 
             if (lAlphaBlanks(11)) {
                 state.dataWindowAC->WindAC(WindACNum).fanOp = HVAC::FanOp::Cycling;
-            } else if ((state.dataWindowAC->WindAC(WindACNum).fanOpModeSched = Sched::GetSchedule(state, Alphas(11))) == nullptr) { 
+            } else if ((state.dataWindowAC->WindAC(WindACNum).fanOpModeSched = Sched::GetSchedule(state, Alphas(11))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(11), Alphas(11));
                 ErrorsFound = true;
             }

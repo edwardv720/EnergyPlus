@@ -81,7 +81,7 @@ TEST_F(EnergyPlusFixture, WaterManager_NormalAnnualPrecipitation)
     });
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     WaterManager::GetWaterManagerInput(*state);
     state->dataEnvrn->Year = 2000;
     state->dataEnvrn->EndYear = 2000;

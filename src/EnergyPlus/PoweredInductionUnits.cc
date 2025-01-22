@@ -272,7 +272,7 @@ void GetPIUs(EnergyPlusData &state)
                 auto const &fields = instance.value();
 
                 ErrorObjectHeader eoh{routineName, cCurrentModuleObject, instance.key()};
-                
+
                 GlobalNames::VerifyUniqueInterObjectName(
                     state, state.dataPowerInductionUnits->PiuUniqueNames, Util::makeUPPER(instance.key()), cCurrentModuleObject, "Name", ErrorsFound);
                 auto &thisPIU = state.dataPowerInductionUnits->PIU(PIUNum);
@@ -284,15 +284,16 @@ void GetPIUs(EnergyPlusData &state)
                 } else if (cCurrentModuleObject == "AirTerminal:SingleDuct:ParallelPIU:Reheat") {
                     thisPIU.UnitType_Num = DataDefineEquip::ZnAirLoopEquipType::SingleDuct_ParallelPIU_Reheat;
                 }
-                
+
                 std::string schedName = ip->getAlphaFieldValue(fields, objectSchemaProps, "availability_schedule_name");
                 if (schedName.empty()) {
                     thisPIU.availSched = Sched::GetScheduleAlwaysOn(state);
                 } else if ((thisPIU.availSched = Sched::GetSchedule(state, Util::makeUPPER(schedName))) == nullptr) {
-                    ShowWarningItemNotFound(state, eoh, "Availability Schedule Name", schedName, "Set the default as Always On. Simulation continues.");
+                    ShowWarningItemNotFound(
+                        state, eoh, "Availability Schedule Name", schedName, "Set the default as Always On. Simulation continues.");
                     thisPIU.availSched = Sched::GetScheduleAlwaysOn(state);
                 }
-                
+
                 if (cCurrentModuleObject == "AirTerminal:SingleDuct:SeriesPIU:Reheat") {
                     thisPIU.MaxTotAirVolFlow = ip->getRealFieldValue(fields, objectSchemaProps, "maximum_air_flow_rate");
                 }

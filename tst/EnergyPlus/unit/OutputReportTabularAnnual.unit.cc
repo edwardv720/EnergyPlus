@@ -98,7 +98,7 @@ TEST_F(EnergyPlusFixture, OutputReportTabularAnnual_GetInput)
 
     EXPECT_EQ(tableParams[0], "SPACE GAINS ANNUAL REPORT"); // m_name
     EXPECT_EQ(tableParams[1], "FILTER1");                   //  m_filter
-    EXPECT_EQ(tableParams[2], "Constant-1.0");                 //  m_scheduleName
+    EXPECT_EQ(tableParams[2], "Constant-1.0");              //  m_scheduleName
 
     std::vector<std::string> fieldSetParams = firstTable->inspectTableFieldSets(0);
     EXPECT_EQ(fieldSetParams[0], "ZONE PEOPLE TOTAL HEATING ENERGY");
@@ -131,7 +131,7 @@ TEST_F(EnergyPlusFixture, OutputReportTabularAnnual_SetupGathering)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     Real64 extLitPow;
     Real64 extLitUse;
 
@@ -224,7 +224,7 @@ TEST_F(EnergyPlusFixture, OutputReportTabularAnnual_GatherResults)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     Real64 extLitPow;
     Real64 extLitUse;
 
@@ -599,7 +599,7 @@ TEST_F(EnergyPlusFixture, OutputReportTabularAnnual_WarnBlankVariable)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataGlobal->DoWeathSim = true;
 
     EXPECT_FALSE(state->dataOutRptTab->WriteTabularFiles);

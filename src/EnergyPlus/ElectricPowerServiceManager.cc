@@ -285,13 +285,8 @@ void ElectricPowerServiceManager::getPowerManagerInput(EnergyPlusData &state)
                     facilityPowerInTransformerPresent_ = true;
                 } else {
                     // should only have one transformer in input that is PowerInFromGrid
-                    ShowWarningError(state,
-                                     format("{}{}=\"{}\", invalid entry.",
-                                            routineName,
-                                            s_ipsc->cCurrentModuleObject,
-                                            s_ipsc->cAlphaArgs(1)));
-                    ShowContinueError(state,
-                                      format("Invalid {} = {}", s_ipsc->cAlphaFieldNames(3), s_ipsc->cAlphaArgs(3)));
+                    ShowWarningError(state, format("{}{}=\"{}\", invalid entry.", routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+                    ShowContinueError(state, format("Invalid {} = {}", s_ipsc->cAlphaFieldNames(3), s_ipsc->cAlphaArgs(3)));
                     ShowContinueError(state,
                                       "Only one transformer with Usage PowerInFromGrid can be used, first one in input file will be used and the "
                                       "simulation continues...");
@@ -686,11 +681,10 @@ ElectPowerLoadCenter::ElectPowerLoadCenter(EnergyPlusData &state, int const obje
       storagePresent_(false), transformerPresent_(false), totalPowerRequest_(0.0), totalThermalPowerRequest_(0.0),
       storageScheme_(StorageOpScheme::Invalid), trackStorageOpMeterIndex_(0), converterPresent_(false), maxStorageSOCFraction_(1.0),
       minStorageSOCFraction_(0.0), designStorageChargePower_(0.0), designStorageChargePowerWasSet_(false), designStorageDischargePower_(0.0),
-      designStorageDischargePowerWasSet_(false), facilityDemandTarget_(0.0),
-      eMSOverridePelFromStorage_(false), // if true, EMS calling for override
-      eMSValuePelFromStorage_(0.0),                                             // value EMS is directing to use, power from storage [W]
-      eMSOverridePelIntoStorage_(false),                                        // if true, EMS calling for override
-      eMSValuePelIntoStorage_(0.0)                                              // value EMS is directing to use, power into storage [W]
+      designStorageDischargePowerWasSet_(false), facilityDemandTarget_(0.0), eMSOverridePelFromStorage_(false), // if true, EMS calling for override
+      eMSValuePelFromStorage_(0.0),      // value EMS is directing to use, power from storage [W]
+      eMSOverridePelIntoStorage_(false), // if true, EMS calling for override
+      eMSValuePelIntoStorage_(0.0)       // value EMS is directing to use, power into storage [W]
 {
 
     static constexpr std::string_view routineName = "ElectPowerLoadCenter constructor ";
@@ -699,7 +693,7 @@ ElectPowerLoadCenter::ElectPowerLoadCenter(EnergyPlusData &state, int const obje
     int IOStat;    // IO Status when calling get input subroutine
 
     auto &s_ipsc = state.dataIPShortCut;
-    
+
     s_ipsc->cCurrentModuleObject = "ElectricLoadCenter:Distribution";
     bool errorsFound = false;
     if (objectNum > 0) {
@@ -760,7 +754,7 @@ ElectPowerLoadCenter::ElectPowerLoadCenter(EnergyPlusData &state, int const obje
             if (s_ipsc->lAlphaFieldBlanks(4)) {
                 ShowSevereEmptyField(state, eoh, s_ipsc->cAlphaFieldNames(4));
                 errorsFound = true;
-            } else if ((trackSched_ = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(4))) == nullptr) { 
+            } else if ((trackSched_ = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(4))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(4), s_ipsc->cAlphaArgs(4));
                 errorsFound = true;
             }
@@ -794,9 +788,7 @@ ElectPowerLoadCenter::ElectPowerLoadCenter(EnergyPlusData &state, int const obje
             bussType = ElectricBussType::ACBuss;
             s_ipsc->cAlphaArgs(6) = "AlternatingCurrent (field was blank)";
         } else {
-            ShowSevereError(
-                state,
-                format("{}{}=\"{}\", invalid entry.", routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+            ShowSevereError(state, format("{}{}=\"{}\", invalid entry.", routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
             ShowContinueError(state, format("Invalid {} = {}", s_ipsc->cAlphaFieldNames(6), s_ipsc->cAlphaArgs(6)));
             errorsFound = true;
         }
@@ -805,10 +797,7 @@ ElectPowerLoadCenter::ElectPowerLoadCenter(EnergyPlusData &state, int const obje
             if (!s_ipsc->lAlphaFieldBlanks(7)) {
                 inverterName = s_ipsc->cAlphaArgs(7);
             } else {
-                ShowSevereError(
-                    state,
-                    format(
-                        "{}{}=\"{}\", invalid entry.", routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+                ShowSevereError(state, format("{}{}=\"{}\", invalid entry.", routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
                 ShowContinueError(state, format("{} is blank, but buss type requires inverter.", s_ipsc->cAlphaFieldNames(7)));
                 errorsFound = true;
             }
@@ -818,10 +807,7 @@ ElectPowerLoadCenter::ElectPowerLoadCenter(EnergyPlusData &state, int const obje
             if (!s_ipsc->lAlphaFieldBlanks(8)) {
                 storageName_ = s_ipsc->cAlphaArgs(8);
             } else {
-                ShowSevereError(
-                    state,
-                    format(
-                        "{}{}=\"{}\", invalid entry.", routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+                ShowSevereError(state, format("{}{}=\"{}\", invalid entry.", routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
                 ShowContinueError(state, format("{} is blank, but buss type requires storage.", s_ipsc->cAlphaFieldNames(8)));
                 errorsFound = true;
             }
@@ -903,7 +889,7 @@ ElectPowerLoadCenter::ElectPowerLoadCenter(EnergyPlusData &state, int const obje
             if (s_ipsc->lAlphaFieldBlanks(13)) {
                 ShowSevereEmptyField(state, eoh, s_ipsc->cAlphaFieldNames(13), s_ipsc->cAlphaFieldNames(10), s_ipsc->cAlphaArgs(10));
                 errorsFound = true;
-            } else if ((storageChargeModSched_ = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(13))) == nullptr) { 
+            } else if ((storageChargeModSched_ = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(13))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(13), s_ipsc->cAlphaArgs(13));
                 errorsFound = true;
             }
@@ -912,22 +898,21 @@ ElectPowerLoadCenter::ElectPowerLoadCenter(EnergyPlusData &state, int const obje
                 ShowSevereEmptyField(state, eoh, s_ipsc->cAlphaFieldNames(14), s_ipsc->cAlphaFieldNames(10), s_ipsc->cAlphaArgs(10));
                 errorsFound = true;
             } else if ((storageDischargeModSched_ = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(14))) == nullptr) {
-                 ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(14), s_ipsc->cAlphaArgs(14));
-                 errorsFound = true;
+                ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(14), s_ipsc->cAlphaArgs(14));
+                errorsFound = true;
             }
         }
 
-        
         if (storageScheme_ == StorageOpScheme::FacilityDemandLeveling) {
             if (s_ipsc->lAlphaFieldBlanks(15)) {
                 ShowSevereEmptyField(state, eoh, s_ipsc->cAlphaFieldNames(15), s_ipsc->cAlphaFieldNames(10), s_ipsc->cAlphaArgs(10));
                 errorsFound = true;
-            } else if ((facilityDemandTargetModSched_ = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(15))) == nullptr) { 
+            } else if ((facilityDemandTargetModSched_ = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(15))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(15), s_ipsc->cAlphaArgs(15));
                 errorsFound = true;
             }
         }
-        
+
     } else { // object num == 0
         // just construct an empty object and return
         return;
@@ -935,8 +920,7 @@ ElectPowerLoadCenter::ElectPowerLoadCenter(EnergyPlusData &state, int const obje
 
     // now that we are done with processing get input for ElectricLoadCenter:Distribution we can call child input objects without IP shortcut problems
     s_ipsc->cCurrentModuleObject = "ElectricLoadCenter:Generators";
-    int genListObjectNum =
-        state.dataInputProcessing->inputProcessor->getObjectItemNum(state, s_ipsc->cCurrentModuleObject, generatorListName_);
+    int genListObjectNum = state.dataInputProcessing->inputProcessor->getObjectItemNum(state, s_ipsc->cCurrentModuleObject, generatorListName_);
     if (genListObjectNum > 0) {
         state.dataInputProcessing->inputProcessor->getObjectItem(state,
                                                                  s_ipsc->cCurrentModuleObject,
@@ -1023,8 +1007,7 @@ ElectPowerLoadCenter::ElectPowerLoadCenter(EnergyPlusData &state, int const obje
     if (!errorsFound && transformerPresent_) {
 
         s_ipsc->cCurrentModuleObject = "ElectricLoadCenter:Transformer";
-        int transformerItemNum =
-            state.dataInputProcessing->inputProcessor->getObjectItemNum(state, s_ipsc->cCurrentModuleObject, transformerName_);
+        int transformerItemNum = state.dataInputProcessing->inputProcessor->getObjectItemNum(state, s_ipsc->cCurrentModuleObject, transformerName_);
         if (transformerItemNum > 0) {
             int iOStat;
             state.dataInputProcessing->inputProcessor->getObjectItem(state,
@@ -2090,7 +2073,6 @@ Real64 ElectPowerLoadCenter::calcLoadCenterThermalLoad(EnergyPlusData &state)
     return thermalLoad;
 }
 
-
 // TODO: Constructors should not do this much work
 GeneratorController::GeneratorController(EnergyPlusData &state,
                                          std::string const &objectName,
@@ -2110,7 +2092,7 @@ GeneratorController::GeneratorController(EnergyPlusData &state,
     auto &s_ipsc = state.dataIPShortCut;
 
     ErrorObjectHeader eoh{routineName, objectType, objectName};
-    
+
     name = objectName;
 
     generatorType = static_cast<GeneratorType>(getEnumValue(GeneratorTypeNamesUC, Util::makeUPPER(objectType)));
@@ -2174,7 +2156,7 @@ GeneratorController::GeneratorController(EnergyPlusData &state,
 
     if (availSchedName.empty()) {
         availSched = Sched::GetScheduleAlwaysOn(state);
-    } else if ((availSched = Sched::GetSchedule(state, availSchedName)) == nullptr) { 
+    } else if ((availSched = Sched::GetSchedule(state, availSchedName)) == nullptr) {
         ShowSevereItemNotFound(state, eoh, "Availability Schedule Name", availSchedName);
     } else if (generatorType == GeneratorType::PVWatts) {
         ShowWarningCustom(state, eoh, "Availability Schedule will be ignored (runs all the time).");
@@ -2376,9 +2358,9 @@ void GeneratorController::simGeneratorGetPowerOutput(EnergyPlusData &state,
 DCtoACInverter::DCtoACInverter(EnergyPlusData &state, std::string const &objectName)
     : aCPowerOut_(0.0), aCEnergyOut_(0.0), efficiency_(0.0), dCPowerIn_(0.0), dCEnergyIn_(0.0), conversionLossPower_(0.0), conversionLossEnergy_(0.0),
       conversionLossEnergyDecrement_(0.0), thermLossRate_(0.0), thermLossEnergy_(0.0), qdotConvZone_(0.0), qdotRadZone_(0.0), ancillACuseRate_(0.0),
-      ancillACuseEnergy_(0.0), modelType_(InverterModelType::Invalid), heatLossesDestination_(ThermalLossDestination::Invalid),
-      zoneNum_(0), zoneRadFract_(0.0), nominalVoltage_(0.0), nomVoltEfficiencyARR_(6, 0.0), curveNum_(0), ratedPower_(0.0), minPower_(0.0),
-      maxPower_(0.0), minEfficiency_(0.0), maxEfficiency_(0.0), standbyPower_(0.0)
+      ancillACuseEnergy_(0.0), modelType_(InverterModelType::Invalid), heatLossesDestination_(ThermalLossDestination::Invalid), zoneNum_(0),
+      zoneRadFract_(0.0), nominalVoltage_(0.0), nomVoltEfficiencyARR_(6, 0.0), curveNum_(0), ratedPower_(0.0), minPower_(0.0), maxPower_(0.0),
+      minEfficiency_(0.0), maxEfficiency_(0.0), standbyPower_(0.0)
 {
     // initialize
     nomVoltEfficiencyARR_.resize(6, 0.0);
@@ -2386,7 +2368,7 @@ DCtoACInverter::DCtoACInverter(EnergyPlusData &state, std::string const &objectN
     static constexpr std::string_view routineName = "DCtoACInverter constructor ";
 
     auto &s_ipsc = state.dataIPShortCut;
-    
+
     bool errorsFound = false;
     // if/when add object class name to input object this can be simplified. for now search all possible types
     bool foundInverter = false;
@@ -2440,7 +2422,6 @@ DCtoACInverter::DCtoACInverter(EnergyPlusData &state, std::string const &objectN
                                                                  s_ipsc->cAlphaFieldNames,
                                                                  s_ipsc->cNumericFieldNames);
 
-
         ErrorObjectHeader eoh{routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)};
         name_ = s_ipsc->cAlphaArgs(1);
         // how to verify names are unique across objects? add to GlobalNames?
@@ -2462,8 +2443,8 @@ DCtoACInverter::DCtoACInverter(EnergyPlusData &state, std::string const &objectN
                 heatLossesDestination_ = ThermalLossDestination::LostToOutside;
             } else if ((zoneNum_ = Util::FindItemInList(s_ipsc->cAlphaArgs(3), state.dataHeatBal->Zone)) == 0) {
                 heatLossesDestination_ = ThermalLossDestination::LostToOutside;
-                ShowWarningItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(3), s_ipsc->cAlphaArgs(3),
-                                        "Inverter heat losses will not be added to a zone");
+                ShowWarningItemNotFound(
+                    state, eoh, s_ipsc->cAlphaFieldNames(3), s_ipsc->cAlphaArgs(3), "Inverter heat losses will not be added to a zone");
                 // continue with simulation but inverter losses not sent to a zone.
             } else {
                 heatLossesDestination_ = ThermalLossDestination::ZoneGains;
@@ -2858,15 +2839,15 @@ void DCtoACInverter::simulate(EnergyPlusData &state, Real64 const powerIntoInver
 ACtoDCConverter::ACtoDCConverter(EnergyPlusData &state, std::string const &objectName)
     : efficiency_(0.0), aCPowerIn_(0.0), aCEnergyIn_(0.0), dCPowerOut_(0.0), dCEnergyOut_(0.0), conversionLossPower_(0.0), conversionLossEnergy_(0.0),
       conversionLossEnergyDecrement_(0.0), thermLossRate_(0.0), thermLossEnergy_(0.0), qdotConvZone_(0.0), qdotRadZone_(0.0), ancillACuseRate_(0.0),
-      ancillACuseEnergy_(0.0), modelType_(ConverterModelType::Invalid), heatLossesDestination_(ThermalLossDestination::Invalid),
-      zoneNum_(0), zoneRadFract_(0.0), // radiative fraction for thermal losses to zone
+      ancillACuseEnergy_(0.0), modelType_(ConverterModelType::Invalid), heatLossesDestination_(ThermalLossDestination::Invalid), zoneNum_(0),
+      zoneRadFract_(0.0), // radiative fraction for thermal losses to zone
       standbyPower_(0.0), maxPower_(0.0)
 {
 
     static constexpr std::string_view routineName = "ACtoDCConverter constructor ";
 
     auto &s_ipsc = state.dataIPShortCut;
-    
+
     bool errorsFound = false;
     // if/when add object class name to input object this can be simplified. for now search all possible types
 
@@ -2892,7 +2873,7 @@ ACtoDCConverter::ACtoDCConverter(EnergyPlusData &state, std::string const &objec
                                                                  s_ipsc->cNumericFieldNames);
 
         ErrorObjectHeader eoh{routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)};
-        
+
         name_ = s_ipsc->cAlphaArgs(1);
         // need a new general approach for verify names are unique across objects,  next gen GlobalNames
 
@@ -2941,12 +2922,13 @@ ACtoDCConverter::ACtoDCConverter(EnergyPlusData &state, std::string const &objec
             heatLossesDestination_ = ThermalLossDestination::LostToOutside;
         } else if ((zoneNum_ = Util::FindItemInList(s_ipsc->cAlphaArgs(5), state.dataHeatBal->Zone)) == 0) {
             heatLossesDestination_ = ThermalLossDestination::LostToOutside;
-            ShowWarningItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(5), s_ipsc->cAlphaArgs(5), "Inverter heat losses will not be added to a zone");
+            ShowWarningItemNotFound(
+                state, eoh, s_ipsc->cAlphaFieldNames(5), s_ipsc->cAlphaArgs(5), "Inverter heat losses will not be added to a zone");
             // continue with simulation but inverter losses not sent to a zone.
         } else {
             heatLossesDestination_ = ThermalLossDestination::ZoneGains;
         }
-        
+
         zoneRadFract_ = s_ipsc->rNumericArgs(4);
 
         SetupOutputVariable(state,
@@ -3146,8 +3128,8 @@ ElectricStorage::ElectricStorage( // main constructor
     EnergyPlusData &state,
     std::string const &objectName)
     : storedPower_(0.0), storedEnergy_(0.0), drawnPower_(0.0), drawnEnergy_(0.0), decrementedEnergyStored_(0.0), maxRainflowArrayBounds_(100),
-      myWarmUpFlag_(false), storageModelMode_(StorageModelType::Invalid), heatLossesDestination_(ThermalLossDestination::Invalid),
-      zoneNum_(0), zoneRadFract_(0.0), startingEnergyStored_(0.0), energeticEfficCharge_(0.0), energeticEfficDischarge_(0.0), maxPowerDraw_(0.0),
+      myWarmUpFlag_(false), storageModelMode_(StorageModelType::Invalid), heatLossesDestination_(ThermalLossDestination::Invalid), zoneNum_(0),
+      zoneRadFract_(0.0), startingEnergyStored_(0.0), energeticEfficCharge_(0.0), energeticEfficDischarge_(0.0), maxPowerDraw_(0.0),
       maxPowerStore_(0.0), maxEnergyCapacity_(0.0), parallelNum_(0), seriesNum_(0), numBattery_(0), chargeCurveNum_(0), dischargeCurveNum_(0),
       cycleBinNum_(0), startingSOC_(0.0), maxAhCapacity_(0.0), availableFrac_(0.0), chargeConversionRate_(0.0), chargedOCV_(0.0), dischargedOCV_(0.0),
       internalR_(0.0), maxDischargeI_(0.0), cutoffV_(0.0), maxChargeRate_(0.0), lifeCalculation_(BatteryDegradationModelType::Invalid),
@@ -3163,7 +3145,7 @@ ElectricStorage::ElectricStorage( // main constructor
     static constexpr std::string_view routineName = "ElectricStorage constructor ";
 
     auto &s_ipsc = state.dataIPShortCut;
-    
+
     bool errorsFound = false;
     // if/when add object class name to input object this can be simplified. for now search all possible types
     bool foundStorage = false;
@@ -3203,7 +3185,7 @@ ElectricStorage::ElectricStorage( // main constructor
                                                                  s_ipsc->cNumericFieldNames);
 
         ErrorObjectHeader eoh{routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)};
-        
+
         name_ = s_ipsc->cAlphaArgs(1);
         // how to verify names are unique across objects? add to GlobalNames?
 
@@ -3216,14 +3198,15 @@ ElectricStorage::ElectricStorage( // main constructor
 
         if (s_ipsc->lAlphaFieldBlanks(3)) {
             heatLossesDestination_ = ThermalLossDestination::LostToOutside;
-        } else if ((zoneNum_ = Util::FindItemInList(s_ipsc->cAlphaArgs(3), state.dataHeatBal->Zone)) == 0) { 
+        } else if ((zoneNum_ = Util::FindItemInList(s_ipsc->cAlphaArgs(3), state.dataHeatBal->Zone)) == 0) {
             heatLossesDestination_ = ThermalLossDestination::LostToOutside;
-            ShowWarningItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(3), s_ipsc->cAlphaArgs(3), "Storage heat losses will not be added to a zone");
+            ShowWarningItemNotFound(
+                state, eoh, s_ipsc->cAlphaFieldNames(3), s_ipsc->cAlphaArgs(3), "Storage heat losses will not be added to a zone");
             // continue with simulation but storage losses not sent to a zone.
         } else {
             heatLossesDestination_ = ThermalLossDestination::ZoneGains;
         }
-        
+
         zoneRadFract_ = s_ipsc->rNumericArgs(1);
 
         switch (storageModelMode_) {
@@ -3248,50 +3231,38 @@ ElectricStorage::ElectricStorage( // main constructor
         case StorageModelType::KIBaMBattery: {
             chargeCurveNum_ = Curve::GetCurveIndex(state, s_ipsc->cAlphaArgs(4)); // voltage calculation for charging
             if (chargeCurveNum_ == 0 && !s_ipsc->lAlphaFieldBlanks(4)) {
-                ShowSevereError(
-                    state,
-                    format(
-                        "{}{}=\"{}\", invalid entry.", routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+                ShowSevereError(state, format("{}{}=\"{}\", invalid entry.", routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
                 ShowContinueError(state, format("Invalid {}={}", s_ipsc->cAlphaFieldNames(4), s_ipsc->cAlphaArgs(4)));
                 errorsFound = true;
             } else if (s_ipsc->lAlphaFieldBlanks(4)) {
-                ShowSevereError(
-                    state,
-                    format(
-                        "{}{}=\"{}\", invalid entry.", routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+                ShowSevereError(state, format("{}{}=\"{}\", invalid entry.", routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
                 ShowContinueError(state, format("Invalid {} cannot be blank. But no entry found.", s_ipsc->cAlphaFieldNames(4)));
                 errorsFound = true;
             } else {
                 errorsFound |= Curve::CheckCurveDims(state,
-                                                     chargeCurveNum_,                            // Curve index
-                                                     {1},                                        // Valid dimensions
-                                                     routineName,                                // Routine name
+                                                     chargeCurveNum_,              // Curve index
+                                                     {1},                          // Valid dimensions
+                                                     routineName,                  // Routine name
                                                      s_ipsc->cCurrentModuleObject, // Object Type
-                                                     name_,                                      // Object Name
+                                                     name_,                        // Object Name
                                                      s_ipsc->cAlphaFieldNames(4)); // Field Name
             }
             dischargeCurveNum_ = Curve::GetCurveIndex(state, s_ipsc->cAlphaArgs(5)); // voltage calculation for discharging
             if (dischargeCurveNum_ == 0 && !s_ipsc->lAlphaFieldBlanks(5)) {
-                ShowSevereError(
-                    state,
-                    format(
-                        "{}{}=\"{}\", invalid entry.", routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+                ShowSevereError(state, format("{}{}=\"{}\", invalid entry.", routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
                 ShowContinueError(state, format("Invalid {}={}", s_ipsc->cAlphaFieldNames(5), s_ipsc->cAlphaArgs(5)));
                 errorsFound = true;
             } else if (s_ipsc->lAlphaFieldBlanks(5)) {
-                ShowSevereError(
-                    state,
-                    format(
-                        "{}{}=\"{}\", invalid entry.", routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+                ShowSevereError(state, format("{}{}=\"{}\", invalid entry.", routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
                 ShowContinueError(state, format("Invalid {} cannot be blank. But no entry found.", s_ipsc->cAlphaFieldNames(5)));
                 errorsFound = true;
             } else {
                 errorsFound |= Curve::CheckCurveDims(state,
-                                                     dischargeCurveNum_,                         // Curve index
-                                                     {1},                                        // Valid dimensions
-                                                     routineName,                                // Routine name
+                                                     dischargeCurveNum_,           // Curve index
+                                                     {1},                          // Valid dimensions
+                                                     routineName,                  // Routine name
                                                      s_ipsc->cCurrentModuleObject, // Object Type
-                                                     name_,                                      // Object Name
+                                                     name_,                        // Object Name
                                                      s_ipsc->cAlphaFieldNames(5)); // Field Name
             }
 
@@ -3300,10 +3271,7 @@ ElectricStorage::ElectricStorage( // main constructor
             } else if (Util::SameString(s_ipsc->cAlphaArgs(6), "No")) {
                 lifeCalculation_ = BatteryDegradationModelType::LifeCalculationNo;
             } else {
-                ShowWarningError(
-                    state,
-                    format(
-                        "{}{}=\"{}\", invalid entry.", routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+                ShowWarningError(state, format("{}{}=\"{}\", invalid entry.", routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
                 ShowContinueError(state, format("Invalid {} = {}", s_ipsc->cAlphaFieldNames(6), s_ipsc->cAlphaArgs(6)));
                 ShowContinueError(state, "Yes or No should be selected. Default value No is used to continue simulation");
                 lifeCalculation_ = BatteryDegradationModelType::LifeCalculationNo;
@@ -3312,31 +3280,22 @@ ElectricStorage::ElectricStorage( // main constructor
             if (lifeCalculation_ == BatteryDegradationModelType::LifeCalculationYes) {
                 lifeCurveNum_ = Curve::GetCurveIndex(state, s_ipsc->cAlphaArgs(7)); // Battery life calculation
                 if (lifeCurveNum_ == 0 && !s_ipsc->lAlphaFieldBlanks(7)) {
-                    ShowSevereError(state,
-                                    format("{}{}=\"{}\", invalid entry.",
-                                           routineName,
-                                           s_ipsc->cCurrentModuleObject,
-                                           s_ipsc->cAlphaArgs(1)));
+                    ShowSevereError(state, format("{}{}=\"{}\", invalid entry.", routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
                     ShowContinueError(state, format("Invalid {}={}", s_ipsc->cAlphaFieldNames(7), s_ipsc->cAlphaArgs(7)));
                     errorsFound = true;
                 } else if (s_ipsc->lAlphaFieldBlanks(7)) {
-                    ShowSevereError(state,
-                                    format("{}{}=\"{}\", invalid entry.",
-                                           routineName,
-                                           s_ipsc->cCurrentModuleObject,
-                                           s_ipsc->cAlphaArgs(1)));
-                    ShowContinueError(state,
-                                      format("Invalid {} cannot be blank when {} = Yes. But no entry found.",
-                                             s_ipsc->cAlphaFieldNames(7),
-                                             s_ipsc->cAlphaArgs(6)));
+                    ShowSevereError(state, format("{}{}=\"{}\", invalid entry.", routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+                    ShowContinueError(
+                        state,
+                        format("Invalid {} cannot be blank when {} = Yes. But no entry found.", s_ipsc->cAlphaFieldNames(7), s_ipsc->cAlphaArgs(6)));
                     errorsFound = true;
                 } else {
                     errorsFound |= Curve::CheckCurveDims(state,
-                                                         lifeCurveNum_,                              // Curve index
-                                                         {1},                                        // Valid dimensions
-                                                         routineName,                                // Routine name
+                                                         lifeCurveNum_,                // Curve index
+                                                         {1},                          // Valid dimensions
+                                                         routineName,                  // Routine name
                                                          s_ipsc->cCurrentModuleObject, // Object Type
-                                                         name_,                                      // Object Name
+                                                         name_,                        // Object Name
                                                          s_ipsc->cAlphaFieldNames(7)); // Field Name
                 }
 
@@ -4526,8 +4485,8 @@ void ElectricStorage::shift(std::vector<Real64> &A, int const m, int const n, st
 
 // constructor
 ElectricTransformer::ElectricTransformer(EnergyPlusData &state, std::string const &objectName)
-    : myOneTimeFlag_(true), usageMode_(TransformerUse::Invalid), heatLossesDestination_(ThermalLossDestination::Invalid),
-      zoneNum_(0), zoneRadFrac_(0.0), ratedCapacity_(0.0), factorTempCoeff_(0.0), tempRise_(0.0), eddyFrac_(0.0),
+    : myOneTimeFlag_(true), usageMode_(TransformerUse::Invalid), heatLossesDestination_(ThermalLossDestination::Invalid), zoneNum_(0),
+      zoneRadFrac_(0.0), ratedCapacity_(0.0), factorTempCoeff_(0.0), tempRise_(0.0), eddyFrac_(0.0),
       performanceInputMode_(TransformerPerformanceInput::Invalid), ratedEfficiency_(0.0), ratedPUL_(0.0), ratedTemp_(0.0), maxPUL_(0.0),
       considerLosses_(true), ratedNL_(0.0), ratedLL_(0.0), overloadErrorIndex_(0), efficiency_(0.0), powerIn_(0.0), energyIn_(0.0), powerOut_(0.0),
       energyOut_(0.0), noLoadLossRate_(0.0), noLoadLossEnergy_(0.0), loadLossRate_(0.0), loadLossEnergy_(0.0), thermalLossRate_(0.0),
@@ -4535,7 +4494,7 @@ ElectricTransformer::ElectricTransformer(EnergyPlusData &state, std::string cons
 {
     static constexpr std::string_view routineName = "ElectricTransformer constructor ";
     auto &s_ipsc = state.dataIPShortCut;
-    
+
     bool errorsFound = false;
     int transformerIDFObjectNum = 0;
     s_ipsc->cCurrentModuleObject = "ElectricLoadCenter:Transformer";
@@ -4585,12 +4544,13 @@ ElectricTransformer::ElectricTransformer(EnergyPlusData &state, std::string cons
             heatLossesDestination_ = ThermalLossDestination::LostToOutside;
         } else if ((zoneNum_ = Util::FindItemInList(s_ipsc->cAlphaArgs(4), state.dataHeatBal->Zone)) == 0) {
             heatLossesDestination_ = ThermalLossDestination::LostToOutside;
-            ShowWarningItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(4), s_ipsc->cAlphaArgs(4), "Transformer heat losses will not be added to a zone");
-                // continue with simulation but storage losses not sent to a zone.
+            ShowWarningItemNotFound(
+                state, eoh, s_ipsc->cAlphaFieldNames(4), s_ipsc->cAlphaArgs(4), "Transformer heat losses will not be added to a zone");
+            // continue with simulation but storage losses not sent to a zone.
         } else {
             heatLossesDestination_ = ThermalLossDestination::ZoneGains;
         }
-        
+
         zoneRadFrac_ = s_ipsc->rNumericArgs(1);
         ratedCapacity_ = s_ipsc->rNumericArgs(2);
         // unused phase_ = s_ipsc->rNumericArgs(3);
@@ -4614,11 +4574,10 @@ ElectricTransformer::ElectricTransformer(EnergyPlusData &state, std::string cons
             ShowSevereInvalidKey(state, eoh, s_ipsc->cAlphaFieldNames(6), s_ipsc->cAlphaArgs(6));
             errorsFound = true;
         }
-        
+
         if (ratedCapacity_ == 0) {
             if (performanceInputMode_ == TransformerPerformanceInput::LossesMethod) {
-                ShowWarningError(
-                    state, format("{}{}=\"{}\".", routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+                ShowWarningError(state, format("{}{}=\"{}\".", routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
                 ShowContinueError(state, format("Specified {} = {}", s_ipsc->cAlphaFieldNames(6), s_ipsc->cAlphaArgs(6)));
                 ShowContinueError(state, format("Specified {} = {:.1R}", s_ipsc->cNumericFieldNames(2), ratedCapacity_));
                 ShowContinueError(state, "Transformer load and no load losses cannot be calculated with 0.0 rated capacity.");
@@ -4636,12 +4595,8 @@ ElectricTransformer::ElectricTransformer(EnergyPlusData &state, std::string cons
             if (s_ipsc->lNumericFieldBlanks(11)) {
                 maxPUL_ = ratedPUL_;
             } else if (maxPUL_ <= 0 || maxPUL_ > 1) {
-                ShowSevereError(
-                    state,
-                    format(
-                        "{}{}=\"{}\", invalid entry.", routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
-                ShowContinueError(
-                    state, format("Invalid {}=[{:.3R}].", s_ipsc->cNumericFieldNames(11), s_ipsc->rNumericArgs(11)));
+                ShowSevereError(state, format("{}{}=\"{}\", invalid entry.", routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+                ShowContinueError(state, format("Invalid {}=[{:.3R}].", s_ipsc->cNumericFieldNames(11), s_ipsc->rNumericArgs(11)));
                 ShowContinueError(state, "Entered value must be > 0 and <= 1.");
                 errorsFound = true;
             }
@@ -4652,10 +4607,7 @@ ElectricTransformer::ElectricTransformer(EnergyPlusData &state, std::string cons
             considerLosses_ = false;
         } else {
             if (usageMode_ == TransformerUse::PowerInFromGrid) {
-                ShowSevereError(
-                    state,
-                    format(
-                        "{}{}=\"{}\", invalid entry.", routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+                ShowSevereError(state, format("{}{}=\"{}\", invalid entry.", routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
                 ShowContinueError(state, format("Invalid {} = {}", s_ipsc->cAlphaFieldNames(7), s_ipsc->cAlphaArgs(7)));
                 errorsFound = true;
             }

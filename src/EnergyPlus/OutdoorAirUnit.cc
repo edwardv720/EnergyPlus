@@ -453,23 +453,23 @@ namespace OutdoorAirUnit {
                 constexpr std::array<std::string_view, (int)OAUnitCtrlType::Num> ctrlTypeNamesUC = {
                     "NEUTRALCONTROL", "INVALID-UNCONDITIONED", "TEMPERATURECONTROL"};
                 OAUnitCtrlType tmpCtrlType = static_cast<OAUnitCtrlType>(getEnumValue(ctrlTypeNamesUC, state.dataIPShortCut->cAlphaArgs(9)));
-                if (tmpCtrlType == OAUnitCtrlType::Invalid) { 
+                if (tmpCtrlType == OAUnitCtrlType::Invalid) {
                     ShowWarningEmptyField(state, eoh, cAlphaFields(9), "Control reset to Unconditioned Control.");
-                } else if (tmpCtrlType == OAUnitCtrlType::Neutral || tmpCtrlType == OAUnitCtrlType::Temperature) { 
+                } else if (tmpCtrlType == OAUnitCtrlType::Neutral || tmpCtrlType == OAUnitCtrlType::Temperature) {
                     thisOutAirUnit.controlType = tmpCtrlType;
                 }
             }
 
             // A10:High Control Temp :
             if (lAlphaBlanks(10)) {
-            } else if ((thisOutAirUnit.hiCtrlTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(10))) == nullptr) { 
+            } else if ((thisOutAirUnit.hiCtrlTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(10))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(10), state.dataIPShortCut->cAlphaArgs(10));
                 ErrorsFound = true;
             }
 
             // A11:Low Control Temp :
             if (lAlphaBlanks(11)) {
-            } else if ((thisOutAirUnit.loCtrlTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(11))) == nullptr) { 
+            } else if ((thisOutAirUnit.loCtrlTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(11))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(11), state.dataIPShortCut->cAlphaArgs(11));
                 ErrorsFound = true;
             }

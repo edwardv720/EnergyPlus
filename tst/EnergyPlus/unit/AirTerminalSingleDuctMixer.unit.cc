@@ -345,9 +345,9 @@ TEST_F(EnergyPlusFixture, AirTerminalSingleDuctMixer_GetInputPTAC_InletSide)
 
     ASSERT_TRUE(process_idf(idf_objects));
 
-    state->dataGlobal->TimeStepsInHour = 1; // must initialize this to get schedules initialized
+    state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
     state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
-    state->init_state(*state); 
+    state->init_state(*state);
 
     GetZoneData(*state, ErrorsFound);
     ASSERT_FALSE(ErrorsFound);
@@ -598,7 +598,7 @@ TEST_F(EnergyPlusFixture, AirTerminalSingleDuctMixer_SimPTAC_ATMInletSide)
     state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->TimeStep = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
-    state->init_state(*state); 
+    state->init_state(*state);
 
     OutputReportPredefined::SetPredefinedTables(*state);
 
@@ -951,8 +951,8 @@ TEST_F(EnergyPlusFixture, AirTerminalSingleDuctMixer_SimPTAC_ATMSupplySide)
     state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->TimeStep = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
-    state->init_state(*state); 
-    
+    state->init_state(*state);
+
     OutputReportPredefined::SetPredefinedTables(*state);
 
     GetZoneData(*state, ErrorsFound);
@@ -1390,8 +1390,8 @@ TEST_F(EnergyPlusFixture, AirTerminalSingleDuctMixer_SimPTHP_ATMInletSide)
     state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->TimeStep = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
-    state->init_state(*state); 
-    
+    state->init_state(*state);
+
     OutputReportPredefined::SetPredefinedTables(*state);
 
     GetZoneData(*state, ErrorsFound);
@@ -1828,8 +1828,8 @@ TEST_F(EnergyPlusFixture, AirTerminalSingleDuctMixer_SimPTHP_ATMSupplySide)
     state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->TimeStep = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
-    state->init_state(*state); 
-    
+    state->init_state(*state);
+
     OutputReportPredefined::SetPredefinedTables(*state);
 
     GetZoneData(*state, ErrorsFound);
@@ -2522,7 +2522,7 @@ TEST_F(EnergyPlusFixture, AirTerminalSingleDuctMixer_SimVRF_ATMInletSide)
     ASSERT_TRUE(process_idf(idf_objects));
     state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
-    state->init_state(*state); 
+    state->init_state(*state);
 
     // set input variables
     state->dataEnvrn->OutBaroPress = 101325.0;
@@ -2620,7 +2620,7 @@ TEST_F(EnergyPlusFixture, AirTerminalSingleDuctMixer_SimVRF_ATMInletSide)
     state->dataZoneEnergyDemand->ZoneSysEnergyDemand(1).RemainingOutputReqToCoolSP = -5000.0;
     QZnReq = state->dataZoneEnergyDemand->ZoneSysEnergyDemand(1).RemainingOutputReqToCoolSP;
 
-    state->dataHVACVarRefFlow->VRFTU(VRFTUNum).availSched->currentVal = 1.0;         // unit is always available
+    state->dataHVACVarRefFlow->VRFTU(VRFTUNum).availSched->currentVal = 1.0;    // unit is always available
     state->dataHVACVarRefFlow->VRFTU(VRFTUNum).fanAvailSched->currentVal = 1.0; // fan is always available
 
     // set secondary air mass flow rate to zero
@@ -3208,8 +3208,8 @@ TEST_F(EnergyPlusFixture, AirTerminalSingleDuctMixer_SimVRF_ATMSupplySide)
     state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->TimeStep = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
-    state->init_state(*state); 
-    
+    state->init_state(*state);
+
     // set input variables before input processing
     state->dataEnvrn->OutBaroPress = 101325.0;
     state->dataEnvrn->OutDryBulbTemp = 35.0;
@@ -3301,7 +3301,7 @@ TEST_F(EnergyPlusFixture, AirTerminalSingleDuctMixer_SimVRF_ATMSupplySide)
     state->dataZoneEnergyDemand->ZoneSysEnergyDemand(1).RemainingOutputReqToCoolSP = -4000.0;
     QZnReq = state->dataZoneEnergyDemand->ZoneSysEnergyDemand(1).RemainingOutputReqToCoolSP;
 
-    state->dataHVACVarRefFlow->VRFTU(VRFTUNum).availSched->currentVal = 1.0;         // unit is always available
+    state->dataHVACVarRefFlow->VRFTU(VRFTUNum).availSched->currentVal = 1.0;    // unit is always available
     state->dataHVACVarRefFlow->VRFTU(VRFTUNum).fanAvailSched->currentVal = 1.0; // fan is always available
 
     // set secondary air mass flow rate to zero
@@ -4981,7 +4981,7 @@ TEST_F(EnergyPlusFixture, AirTerminalSingleDuctMixer_SimVRFfluidCntrl_ATMInletSi
     state->dataGlobal->TimeStep = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
     state->init_state(*state);
-    
+
     OutputReportPredefined::SetPredefinedTables(*state);
 
     GetZoneData(*state, ErrorsFound);
@@ -5075,7 +5075,7 @@ TEST_F(EnergyPlusFixture, AirTerminalSingleDuctMixer_SimVRFfluidCntrl_ATMInletSi
     state->dataZoneEnergyDemand->ZoneSysEnergyDemand(1).RemainingOutputReqToCoolSP = -5000.0;
     QZnReq = state->dataZoneEnergyDemand->ZoneSysEnergyDemand(1).RemainingOutputReqToCoolSP;
 
-    state->dataHVACVarRefFlow->VRFTU(VRFTUNum).availSched->currentVal = 1.0;         // unit is always available
+    state->dataHVACVarRefFlow->VRFTU(VRFTUNum).availSched->currentVal = 1.0;    // unit is always available
     state->dataHVACVarRefFlow->VRFTU(VRFTUNum).fanAvailSched->currentVal = 1.0; // fan is always available
 
     // set secondary air mass flow rate to zero
@@ -6760,7 +6760,7 @@ TEST_F(EnergyPlusFixture, AirTerminalSingleDuctMixer_SimVRFfluidCntrl_ATMSupplyS
     state->dataGlobal->TimeStep = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
     state->init_state(*state);
-    
+
     OutputReportPredefined::SetPredefinedTables(*state);
 
     GetZoneData(*state, ErrorsFound);
@@ -6851,7 +6851,7 @@ TEST_F(EnergyPlusFixture, AirTerminalSingleDuctMixer_SimVRFfluidCntrl_ATMSupplyS
     state->dataZoneEnergyDemand->ZoneSysEnergyDemand(1).RemainingOutputReqToCoolSP = -4000.0;
     QZnReq = state->dataZoneEnergyDemand->ZoneSysEnergyDemand(1).RemainingOutputReqToCoolSP;
 
-    state->dataHVACVarRefFlow->VRFTU(VRFTUNum).availSched->currentVal = 1.0;         // unit is always available
+    state->dataHVACVarRefFlow->VRFTU(VRFTUNum).availSched->currentVal = 1.0;    // unit is always available
     state->dataHVACVarRefFlow->VRFTU(VRFTUNum).fanAvailSched->currentVal = 1.0; // fan is always available
     state->dataHVACVarRefFlow->VRF(1).VRFCondCyclingRatio = 1.0;
     state->dataFans->fans(1)->set_size(*state); // add fan sizing
@@ -7012,7 +7012,7 @@ TEST_F(EnergyPlusFixture, AirTerminalSingleDuctMixer_SimUnitVent_ATMInletSide)
     state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->TimeStep = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
-    state->init_state(*state); 
+    state->init_state(*state);
 
     OutputReportPredefined::SetPredefinedTables(*state);
 
@@ -7098,9 +7098,9 @@ TEST_F(EnergyPlusFixture, AirTerminalSingleDuctMixer_SimUnitVent_ATMInletSide)
     state->dataZoneEnergyDemand->ZoneSysEnergyDemand(1).RemainingOutputRequired = 5000.0;
     state->dataUnitVentilators->QZnReq = state->dataZoneEnergyDemand->ZoneSysEnergyDemand(1).RemainingOutputRequired;
 
-    state->dataUnitVentilators->UnitVent(UnitVentNum).availSched->currentVal = 1.0; // unit is always available
+    state->dataUnitVentilators->UnitVent(UnitVentNum).availSched->currentVal = 1.0;    // unit is always available
     state->dataUnitVentilators->UnitVent(UnitVentNum).fanAvailSched->currentVal = 1.0; // fan is always available
-    state->dataUnitVentilators->UnitVent(UnitVentNum).minOASched->currentVal = 0.5; // min OA fraction is always available
+    state->dataUnitVentilators->UnitVent(UnitVentNum).minOASched->currentVal = 0.5;    // min OA fraction is always available
 
     // set secondary air mass flow rate to zero
     state->dataLoopNodes->Node(state->dataSingleDuct->SysATMixer(1).SecInNode).MassFlowRate = 0.0;
@@ -7259,7 +7259,7 @@ TEST_F(EnergyPlusFixture, AirTerminalSingleDuctMixer_SimUnitVent_ATMSupplySide)
     state->dataGlobal->TimeStep = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
     state->init_state(*state);
-    
+
     OutputReportPredefined::SetPredefinedTables(*state);
 
     GetZoneData(*state, ErrorsFound);
@@ -7344,9 +7344,9 @@ TEST_F(EnergyPlusFixture, AirTerminalSingleDuctMixer_SimUnitVent_ATMSupplySide)
     state->dataZoneEnergyDemand->ZoneSysEnergyDemand(ZoneNum).RemainingOutputRequired = 5000.0;
     QZnReq = state->dataZoneEnergyDemand->ZoneSysEnergyDemand(1).RemainingOutputRequired;
 
-    state->dataUnitVentilators->UnitVent(UnitVentNum).availSched->currentVal = 1.0; // unit is always available
+    state->dataUnitVentilators->UnitVent(UnitVentNum).availSched->currentVal = 1.0;    // unit is always available
     state->dataUnitVentilators->UnitVent(UnitVentNum).fanAvailSched->currentVal = 1.0; // fan is always available
-    state->dataUnitVentilators->UnitVent(UnitVentNum).minOASched->currentVal = 0.5; // min OA fraction is always available
+    state->dataUnitVentilators->UnitVent(UnitVentNum).minOASched->currentVal = 0.5;    // min OA fraction is always available
 
     // set secondary air mass flow rate to zero
     state->dataLoopNodes->Node(state->dataSingleDuct->SysATMixer(1).SecInNode).MassFlowRate = 0.0;
@@ -7510,7 +7510,7 @@ TEST_F(EnergyPlusFixture, AirTerminalSingleDuctMixer_GetInputDOASpecs)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     GetZoneData(*state, ErrorsFound);
     ASSERT_FALSE(ErrorsFound);
 
@@ -7705,9 +7705,9 @@ TEST_F(EnergyPlusFixture, AirTerminalSingleDuctMixer_SimFCU_ATMInletSideTest)
     state->dataGlobal->TimeStep = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
     state->init_state(*state);
-    
+
     state->dataSize->CurZoneEqNum = 1;
-    
+
     state->dataEnvrn->OutBaroPress = 101325.0;
     state->dataEnvrn->StdRhoAir = Psychrometrics::PsyRhoAirFnPbTdbW(*state, state->dataEnvrn->OutBaroPress, 20.0, 0.0);
     state->dataWaterCoils->GetWaterCoilsInputFlag = true;
@@ -8126,7 +8126,7 @@ TEST_F(EnergyPlusFixture, AirTerminalSingleDuctMixer_FCU_NightCycleTest)
     state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->TimeStep = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
-    state->init_state(*state); 
+    state->init_state(*state);
 
     OutputReportPredefined::SetPredefinedTables(*state);
     GetZoneData(*state, ErrorsFound);

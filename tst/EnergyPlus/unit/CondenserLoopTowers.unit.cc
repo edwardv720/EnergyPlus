@@ -480,7 +480,7 @@ TEST_F(EnergyPlusFixture, CondenserLoopTowers_MerkelNoCooling)
     state->dataGlobal->BeginSimFlag = true;
 
     state->init_state(*state);
-    
+
     OutputReportPredefined::SetPredefinedTables(*state);
 
     // OutputProcessor::TimeValue.allocate(2);
@@ -862,7 +862,7 @@ TEST_F(EnergyPlusFixture, CondenserLoopTowers_SingleSpeedSizing)
     state->dataGlobal->BeginSimFlag = true;
 
     state->init_state(*state);
-    
+
     OutputReportPredefined::SetPredefinedTables(*state);
 
     // OutputProcessor::TimeValue.allocate(2);
@@ -1692,7 +1692,7 @@ TEST_F(EnergyPlusFixture, CondenserLoopTowers_TwoSpeedUserInputTowerSizing)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
 
     state->dataGlobal->BeginSimFlag = true;
@@ -2169,7 +2169,7 @@ TEST_F(EnergyPlusFixture, CondenserLoopTowers_MerkelUserInputTowerSizing)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
 
     state->dataGlobal->BeginSimFlag = true;
@@ -2589,7 +2589,7 @@ TEST_F(EnergyPlusFixture, CondenserLoopTowers_TwoSpeedTowerLowSpeedNomCapSizing)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
 
     state->dataGlobal->BeginSimFlag = true;
@@ -2980,7 +2980,7 @@ TEST_F(EnergyPlusFixture, CondenserLoopTowers_SingleSpeedUser_SizingError_Sizing
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     state->dataGlobal->BeginSimFlag = true;
 
     OutputReportPredefined::SetPredefinedTables(*state);
@@ -3373,7 +3373,7 @@ TEST_F(EnergyPlusFixture, CondenserLoopTowers_SingleSpeedUser_SizingError_UserSp
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-                   
+
     state->dataGlobal->BeginSimFlag = true;
     OutputReportPredefined::SetPredefinedTables(*state);
 
@@ -3834,7 +3834,7 @@ TEST_F(EnergyPlusFixture, VSCoolingTowers_WaterOutletTempTest)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     state->dataGlobal->BeginSimFlag = true;
     OutputReportPredefined::SetPredefinedTables(*state);
 
@@ -4091,7 +4091,7 @@ TEST_F(EnergyPlusFixture, CondenserLoopTowers_CoolingTowersDefaultValuesTest)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     // cooling towers get input
     CondenserLoopTowers::GetTowerInput(*state);
 
@@ -4212,7 +4212,7 @@ TEST_F(EnergyPlusFixture, CondenserLoopTowers_CalculateVariableTowerOutletTemp)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     // cooling tower get input
     CondenserLoopTowers::GetTowerInput(*state);
     int index;

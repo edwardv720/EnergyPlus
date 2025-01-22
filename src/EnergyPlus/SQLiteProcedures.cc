@@ -185,11 +185,12 @@ void CreateSQLiteZoneExtendedOutput(EnergyPlusData &state)
             state.dataSQLiteProcedures->sqlite->addZoneGroupData(groupNum, state.dataHeatBal->ZoneGroup(groupNum));
         }
         for (auto *sched : state.dataSched->schedules) {
-            state.dataSQLiteProcedures->sqlite->addScheduleData(sched->Num,
-                                                                sched->Name,
-                                                                (sched->schedTypeNum == -1) ? "" : state.dataSched->scheduleTypes[sched->schedTypeNum]->Name,
-                                                                sched->getMinVal(state),
-                                                                sched->getMaxVal(state));
+            state.dataSQLiteProcedures->sqlite->addScheduleData(
+                sched->Num,
+                sched->Name,
+                (sched->schedTypeNum == -1) ? "" : state.dataSched->scheduleTypes[sched->schedTypeNum]->Name,
+                sched->getMinVal(state),
+                sched->getMaxVal(state));
         }
         for (int surfaceNumber = 1; surfaceNumber <= state.dataSurface->TotSurfaces; ++surfaceNumber) {
             auto const &surface = state.dataSurface->Surface(surfaceNumber);

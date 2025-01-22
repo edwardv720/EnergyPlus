@@ -104,7 +104,7 @@ TEST_F(EnergyPlusFixture, ZoneTempPredictorCorrector_CorrectZoneHumRatTest)
     state->dataHVACGlobal->TimeStepSysSec = state->dataHVACGlobal->TimeStepSys * Constant::rSecsInHour;
 
     state->init_state(*state);
-    
+
     state->dataZoneEquip->ZoneEquipConfig.allocate(1);
     state->dataZoneEquip->ZoneEquipConfig(1).ZoneName = "Zone 1";
 
@@ -450,7 +450,7 @@ TEST_F(EnergyPlusFixture, ZoneTempPredictorCorrector_ReportingTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
 
-    state->dataGlobal->TimeStepsInHour = 1; // must initialize this to get schedules initialized
+    state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
     state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
 
@@ -497,9 +497,12 @@ TEST_F(EnergyPlusFixture, ZoneTempPredictorCorrector_ReportingTest)
     CalcZoneAirTempSetPoints(*state);
     state->dataZoneTempPredictorCorrector->zoneHeatBalance(DualZoneNum).calcPredictedSystemLoad(*state, 1.0, DualZoneNum);
 
-    EXPECT_EQ(0.0, state->dataHeatBalFanSys->zoneTstatSetpts(DualZoneNum).setpt); // Set point initialized to 0 and never set since thermostat control type = 0
+    EXPECT_EQ(
+        0.0,
+        state->dataHeatBalFanSys->zoneTstatSetpts(DualZoneNum).setpt); // Set point initialized to 0 and never set since thermostat control type = 0
 
-    state->dataZoneCtrls->TempControlledZone(DualZoneNum).setptTypeSched->currentVal = (int)HVAC::SetptType::DualHeatCool; // reset Tstat control schedule to dual thermostat control
+    state->dataZoneCtrls->TempControlledZone(DualZoneNum).setptTypeSched->currentVal =
+        (int)HVAC::SetptType::DualHeatCool; // reset Tstat control schedule to dual thermostat control
 
     // set up a back calculated load
     // for the first few, TempIndZnLd() = 0.0
@@ -925,7 +928,7 @@ TEST_F(EnergyPlusFixture, ZoneTempPredictorCorrector_calcZoneOrSpaceSums_SurfCon
     // #5906 Adaptive convection resulting in extremely low zone temperature which causes fatal error
 
     state->init_state(*state);
-    
+
     int ZoneNum = 1; // Zone number
 
     state->dataHeatBal->ZoneIntGain.allocate(ZoneNum);
@@ -1211,8 +1214,8 @@ TEST_F(EnergyPlusFixture, SetPointWithCutoutDeltaT_test)
     state->dataHeatBalFanSys->TempControlTypeRpt.allocate(1);
     auto *heatSetptSched = Sched::AddScheduleConstant(*state, "HEAT SETPT-1");
     auto *coolSetptSched = Sched::AddScheduleConstant(*state, "COOL SETPT-1");
-    
-    state->dataZoneCtrls->TempControlledZone(1).setpts[(int)HVAC::SetptType::SingleHeat].heatSetptSched =  heatSetptSched;
+
+    state->dataZoneCtrls->TempControlledZone(1).setpts[(int)HVAC::SetptType::SingleHeat].heatSetptSched = heatSetptSched;
     state->dataZoneTempPredictorCorrector->tempSetptScheds[(int)HVAC::SetptType::SingleHeat].allocate(1);
     state->dataZoneTempPredictorCorrector->tempSetptScheds[(int)HVAC::SetptType::SingleHeat](1).heatSched = heatSetptSched;
     heatSetptSched->currentVal = 22.0;
@@ -1342,7 +1345,7 @@ TEST_F(EnergyPlusFixture, TempAtPrevTimeStepWithCutoutDeltaT_test)
 
     auto *heatSetptSched = Sched::AddScheduleConstant(*state, "HEAT SETPT-1");
     auto *coolSetptSched = Sched::AddScheduleConstant(*state, "COOL SETPT-1");
-    
+
     state->dataHeatBalFanSys->TempControlType.allocate(1);
     state->dataHeatBalFanSys->TempControlTypeRpt.allocate(1);
     state->dataZoneCtrls->TempControlledZone(1).setpts[(int)HVAC::SetptType::SingleHeat].heatSetptSched = heatSetptSched;
@@ -1444,7 +1447,7 @@ TEST_F(EnergyPlusFixture, TempAtPrevTimeStepWithCutoutDeltaT_test)
 TEST_F(EnergyPlusFixture, ReportMoistLoadsZoneMultiplier_Test)
 {
     state->init_state(*state);
-    
+
     int zoneNum = 1;
     state->dataZoneEnergyDemand->ZoneSysMoistureDemand.allocate(zoneNum);
     auto &thisZoneSysMoistureDemand = state->dataZoneEnergyDemand->ZoneSysMoistureDemand(zoneNum);
@@ -1526,7 +1529,7 @@ TEST_F(EnergyPlusFixture, ReportMoistLoadsZoneMultiplier_Test)
 TEST_F(EnergyPlusFixture, ReportSensibleLoadsZoneMultiplier_Test)
 {
     state->init_state(*state);
-    
+
     int zoneNum = 1;
     state->dataZoneEnergyDemand->ZoneSysEnergyDemand.allocate(zoneNum);
     auto &thisZoneSysEnergyDemand = state->dataZoneEnergyDemand->ZoneSysEnergyDemand(zoneNum);
@@ -1657,7 +1660,7 @@ TEST_F(EnergyPlusFixture, DownInterpolate4HistoryValues_Test)
     state->dataHVACGlobal->TimeStepSys = 0.125;
     state->dataHVACGlobal->TimeStepSysSec = state->dataHVACGlobal->TimeStepSys * Constant::rSecsInHour;
     state->init_state(*state);
-    
+
     Real64 PriorTimeStep = 0.25;
     Real64 myVarValue = 5.0;
     Real64 HistoryValue1 = 1.0;
@@ -1770,11 +1773,11 @@ TEST_F(EnergyPlusFixture, HybridModel_processInverseModelMultpHMTest)
     EXPECT_NEAR(calcHMavg, expectedHMavg, allowableTolerance);
     EXPECT_NE(state->dataZoneTempPredictorCorrector->zoneHeatBalance(numZones).hmThermalMassMultErrIndex,
               0); // This is now set, won't be zero anymore
-    std::string const error_string =
-        delimited_string({format("   ** Warning ** Version: missing in IDF, processing for EnergyPlus version=\"{}\"", DataStringGlobals::MatchVersion),
-                          "   ** Warning ** Hybrid model thermal mass multiplier higher than the limit for Hybrid Zone",
-                          "   **   ~~~   ** This means that the ratio of the zone air heat capacity for the current time step to the",
-                          "   **   ~~~   ** zone air heat storage is higher than the maximum limit of 30.0."});
+    std::string const error_string = delimited_string(
+        {format("   ** Warning ** Version: missing in IDF, processing for EnergyPlus version=\"{}\"", DataStringGlobals::MatchVersion),
+         "   ** Warning ** Hybrid model thermal mass multiplier higher than the limit for Hybrid Zone",
+         "   **   ~~~   ** This means that the ratio of the zone air heat capacity for the current time step to the",
+         "   **   ~~~   ** zone air heat storage is higher than the maximum limit of 30.0."});
     EXPECT_TRUE(compare_err_stream(error_string, true));
 
     // Test 5: Repeat of Test 1--verifying that it won't impact the statistical variables.  No error message.

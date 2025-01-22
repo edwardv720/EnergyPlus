@@ -55,7 +55,7 @@
 #include <EnergyPlus/Data/BaseData.hh>
 #include <EnergyPlus/DataGlobals.hh>
 #include <EnergyPlus/EnergyPlus.hh>
-#include <EnergyPlus/ScheduleManager.hh> 
+#include <EnergyPlus/ScheduleManager.hh>
 
 namespace EnergyPlus {
 
@@ -88,7 +88,7 @@ namespace CoolTower {
         Sched::Schedule *availSched = nullptr;                             // schedule
         int ZonePtr = 0;                                                   // Index to zone
         int spacePtr = 0;                                                  // Index to space (if applicable)
-        Sched::Schedule *pumpSched = nullptr;                                              // Index to schedule for water pump
+        Sched::Schedule *pumpSched = nullptr;                              // Index to schedule for water pump
         FlowCtrl FlowCtrlType = FlowCtrl::Invalid;                         // Type of cooltower operation
         WaterSupplyMode CoolTWaterSupplyMode = WaterSupplyMode::FromMains; // Type of water source
         std::string CoolTWaterSupplyName;                                  // Name of water source

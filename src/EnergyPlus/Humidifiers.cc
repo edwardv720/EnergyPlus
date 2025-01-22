@@ -214,7 +214,7 @@ namespace Humidifiers {
 
         // SUBROUTINE PARAMETER DEFINITIONS:
         static constexpr std::string_view RoutineName("GetHumidifierInputs: "); // include trailing blank space
-        static constexpr std::string_view routineName = "GetHumidifierInputs"; // include trailing blank space
+        static constexpr std::string_view routineName = "GetHumidifierInputs";  // include trailing blank space
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         int HumidifierIndex;             // loop index
@@ -287,7 +287,7 @@ namespace Humidifiers {
 
             if (lAlphaBlanks(2)) {
                 Humidifier.availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((Humidifier.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) { 
+            } else if ((Humidifier.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(2), Alphas(2));
                 ErrorsFound = true;
             }
@@ -342,7 +342,7 @@ namespace Humidifiers {
                                                                      cNumericFields);
 
             ErrorObjectHeader eoh{routineName, CurrentModuleObject, Alphas(1)};
-            
+
             HumNum = NumElecSteamHums + HumidifierIndex;
             auto &Humidifier = state.dataHumidifiers->Humidifier(HumNum);
             GlobalNames::VerifyUniqueInterObjectName(
@@ -352,7 +352,7 @@ namespace Humidifiers {
 
             if (lAlphaBlanks(2)) {
                 Humidifier.availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((Humidifier.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) { 
+            } else if ((Humidifier.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(2), Alphas(2));
                 ErrorsFound = true;
             }

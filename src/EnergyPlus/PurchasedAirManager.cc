@@ -215,7 +215,7 @@ void GetPurchasedAir(EnergyPlusData &state)
     static constexpr std::string_view RoutineName("GetPurchasedAir: "); // include trailing blank space
     static constexpr std::string_view routineName = "GetPurchasedAir";
 
-    bool ErrorsFound(false);                                            // If errors detected in input
+    bool ErrorsFound(false); // If errors detected in input
     auto &cCurrentModuleObject = state.dataIPShortCut->cCurrentModuleObject;
     cCurrentModuleObject = "ZoneHVAC:IdealLoadsAirSystem";
 
@@ -259,10 +259,10 @@ void GetPurchasedAir(EnergyPlusData &state)
             PurchAir(PurchAirNum).Name = state.dataIPShortCut->cAlphaArgs(1);
             // get optional  availability schedule
             if (state.dataIPShortCut->lAlphaFieldBlanks(2)) {
-                 PurchAir(PurchAirNum).availSched = Sched::GetScheduleAlwaysOn(state);
+                PurchAir(PurchAirNum).availSched = Sched::GetScheduleAlwaysOn(state);
             } else if ((PurchAir(PurchAirNum).availSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(2))) == nullptr) {
-                 ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(2), state.dataIPShortCut->cAlphaArgs(2));
-                 ErrorsFound = true;
+                ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(2), state.dataIPShortCut->cAlphaArgs(2));
+                ErrorsFound = true;
             }
             // Purchased air supply air node is an outlet node
             PurchAir(PurchAirNum).ZoneSupplyAirNodeNum = GetOnlySingleNode(state,
@@ -403,7 +403,7 @@ void GetPurchasedAir(EnergyPlusData &state)
                 ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(8), state.dataIPShortCut->cAlphaArgs(8));
                 ErrorsFound = true;
             }
-            
+
             // get optional cooling availability schedule
             if (state.dataIPShortCut->lAlphaFieldBlanks(9)) {
                 PurchAir(PurchAirNum).coolAvailSched = Sched::GetScheduleAlwaysOn(state);
@@ -411,7 +411,7 @@ void GetPurchasedAir(EnergyPlusData &state)
                 ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(9), state.dataIPShortCut->cAlphaArgs(9));
                 ErrorsFound = true;
             }
-            
+
             // get Dehumidification control type
             if (Util::SameString(state.dataIPShortCut->cAlphaArgs(10), "None")) {
                 PurchAir(PurchAirNum).DehumidCtrlType = HumControl::None;
@@ -1287,11 +1287,10 @@ void InitPurchasedAir(EnergyPlusData &state, int const PurchAirNum, int const Co
     }
 
     auto const &zoneTstatSetpt = state.dataHeatBalFanSys->zoneTstatSetpts(ControlledZoneNum);
-    
+
     // These initializations are done every iteration
     // check that supply air temps can meet the zone thermostat setpoints
-    if (PurchAir.MinCoolSuppAirTemp > zoneTstatSetpt.setptHi &&
-        zoneTstatSetpt.setptHi != 0 && PurchAir.CoolingLimit == LimitType::NoLimit) {
+    if (PurchAir.MinCoolSuppAirTemp > zoneTstatSetpt.setptHi && zoneTstatSetpt.setptHi != 0 && PurchAir.CoolingLimit == LimitType::NoLimit) {
         // Check if the unit is scheduled off
         UnitOn = true;
         //        IF (PurchAir(PurchAirNum)%AvailSchedPtr > 0) THEN
@@ -1338,9 +1337,7 @@ void InitPurchasedAir(EnergyPlusData &state, int const PurchAirNum, int const Co
         }
     }
 
-    
-    if (PurchAir.MaxHeatSuppAirTemp < zoneTstatSetpt.setptLo &&
-        zoneTstatSetpt.setptLo != 0 && PurchAir.HeatingLimit == LimitType::NoLimit) {
+    if (PurchAir.MaxHeatSuppAirTemp < zoneTstatSetpt.setptLo && zoneTstatSetpt.setptLo != 0 && PurchAir.HeatingLimit == LimitType::NoLimit) {
         // Check if the unit is scheduled off
         UnitOn = true;
         //        IF (PurchAir(PurchAirNum)%AvailSchedPtr > 0) THEN
@@ -2392,8 +2389,7 @@ void CalcPurchAirLoads(EnergyPlusData &state,
             }
             // Heating or no-load operation
         } else { // Heating or no-load case
-            if ((MinOASensOutput < QZnHeatSP) &&
-                (state.dataHeatBalFanSys->TempControlType(ControlledZoneNum) != HVAC::SetptType::SingleCool)) {
+            if ((MinOASensOutput < QZnHeatSP) && (state.dataHeatBalFanSys->TempControlType(ControlledZoneNum) != HVAC::SetptType::SingleCool)) {
                 OperatingMode = OpMode::Heat;
             } else { // DeadBand mode shuts off heat recovery and economizer
                 OperatingMode = OpMode::DeadBand;

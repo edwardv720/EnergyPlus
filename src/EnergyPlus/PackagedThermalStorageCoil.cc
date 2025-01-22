@@ -251,7 +251,7 @@ void GetTESCoilInput(EnergyPlusData &state)
             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(2), state.dataIPShortCut->cAlphaArgs(2));
             ErrorsFound = true;
         }
-        
+
         thisTESCoil.ModeControlType = static_cast<PTSCCtrlType>(getEnumValue(modeControlStrings, state.dataIPShortCut->cAlphaArgs(3)));
         if (thisTESCoil.ModeControlType == PTSCCtrlType::Invalid) {
             ShowSevereError(state, format("{}{}=\"{}\", invalid", RoutineName, cCurrentModuleObject, thisTESCoil.Name));
@@ -264,7 +264,7 @@ void GetTESCoilInput(EnergyPlusData &state)
             if (state.dataIPShortCut->lAlphaFieldBlanks(4)) {
                 ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaFieldNames(4));
                 ErrorsFound = true;
-            } else if ((thisTESCoil.controlModeSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(4))) == nullptr) { 
+            } else if ((thisTESCoil.controlModeSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(4))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(4), state.dataIPShortCut->cAlphaArgs(4));
                 ErrorsFound = true;
             }

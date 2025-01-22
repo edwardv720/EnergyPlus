@@ -201,7 +201,7 @@ namespace CondenserLoopTowers {
         // Uses "Get" routines to read in the data.
 
         static constexpr std::string_view routineName = "GetTowerInput";
-        
+
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         int TowerNum;                      // Tower number, reference counter for towers data array
         int NumVSCoolToolsModelCoeffs = 0; // Number of CoolTools VS cooling tower coefficient objects
@@ -228,7 +228,7 @@ namespace CondenserLoopTowers {
 
         auto const &s_ip = state.dataInputProcessing->inputProcessor;
         auto &s_ipsc = state.dataIPShortCut;
-        
+
         // Get number of all cooling towers specified in the input data file (idf)
         int NumSingleSpeedTowers = s_ip->getNumObjectsFound(state, cCoolingTower_SingleSpeed);
         int NumTwoSpeedTowers = s_ip->getNumObjectsFound(state, cCoolingTower_TwoSpeed);
@@ -260,21 +260,20 @@ namespace CondenserLoopTowers {
         for (int SingleSpeedTowerNumber = 1; SingleSpeedTowerNumber <= NumSingleSpeedTowers; ++SingleSpeedTowerNumber) {
             TowerNum = SingleSpeedTowerNumber;
             s_ip->getObjectItem(state,
-                                                                     s_ipsc->cCurrentModuleObject,
-                                                                     SingleSpeedTowerNumber,
-                                                                     AlphArray,
-                                                                     NumAlphas,
-                                                                     NumArray,
-                                                                     NumNums,
-                                                                     IOStat,
-                                                                     _,
-                                                                     s_ipsc->lAlphaFieldBlanks,
-                                                                     s_ipsc->cAlphaFieldNames,
-                                                                     s_ipsc->cNumericFieldNames);
-
+                                s_ipsc->cCurrentModuleObject,
+                                SingleSpeedTowerNumber,
+                                AlphArray,
+                                NumAlphas,
+                                NumArray,
+                                NumNums,
+                                IOStat,
+                                _,
+                                s_ipsc->lAlphaFieldBlanks,
+                                s_ipsc->cAlphaFieldNames,
+                                s_ipsc->cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, s_ipsc->cCurrentModuleObject, AlphArray(1)};
-            
+
             GlobalNames::VerifyUniqueInterObjectName(
                 state, UniqueSimpleTowerNames, AlphArray(1), s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaFieldNames(1), ErrorsFound);
             auto &tower = state.dataCondenserLoopTowers->towers(TowerNum);
@@ -389,10 +388,12 @@ namespace CondenserLoopTowers {
             }
 
             if (!AlphArray(5).empty()) {
-                if ((tower.basinHeaterSched = Sched::GetSchedule(state, AlphArray(5))) == nullptr) { 
-                    ShowWarningItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(5), AlphArray(5),
+                if ((tower.basinHeaterSched = Sched::GetSchedule(state, AlphArray(5))) == nullptr) {
+                    ShowWarningItemNotFound(state,
+                                            eoh,
+                                            s_ipsc->cAlphaFieldNames(5),
+                                            AlphArray(5),
                                             "Basin heater operation will not be modeled and the simulation continues");
-
                 }
             }
 
@@ -436,9 +437,11 @@ namespace CondenserLoopTowers {
                                                                                    NodeInputManager::CompFluidStream::Primary,
                                                                                    DataLoopNode::ObjectIsNotParent);
                 if (!OutAirNodeManager::CheckOutAirNodeNumber(state, tower.OutdoorAirInletNodeNum)) {
-                    ShowSevereCustom(state, eoh, format("Outdoor Air Inlet Node Name not valid Outdoor Air Node= {}"
-                                                        "does not appear in an OutdoorAir:NodeList or as an OutdoorAir:Node.", 
-                                                        AlphArray(10)));
+                    ShowSevereCustom(state,
+                                     eoh,
+                                     format("Outdoor Air Inlet Node Name not valid Outdoor Air Node= {}"
+                                            "does not appear in an OutdoorAir:NodeList or as an OutdoorAir:Node.",
+                                            AlphArray(10)));
                     ErrorsFound = true;
                 }
             }
@@ -446,7 +449,8 @@ namespace CondenserLoopTowers {
             //   fluid bypass for single speed tower
             if (s_ipsc->lAlphaFieldBlanks(11) || AlphArray(11).empty()) {
                 tower.CapacityControl = CapacityCtrl::FanCycling; // FanCycling
-            } else if ((tower.CapacityControl = static_cast<CapacityCtrl>(getEnumValue(CapacityCtrlNamesUC, AlphArray(11)))) == CapacityCtrl::Invalid) {
+            } else if ((tower.CapacityControl = static_cast<CapacityCtrl>(getEnumValue(CapacityCtrlNamesUC, AlphArray(11)))) ==
+                       CapacityCtrl::Invalid) {
                 tower.CapacityControl = CapacityCtrl::FanCycling;
                 ShowWarningInvalidKey(state, eoh, s_ipsc->cAlphaFieldNames(11), AlphArray(11), "The default Fan Cycling is used.");
             }
@@ -491,7 +495,8 @@ namespace CondenserLoopTowers {
                     ErrorsFound = true;
                 }
                 if (tower.FreeConvTowerUA > 0.0 && tower.FreeConvAirFlowRate == 0.0) {
-                    ShowSevereCustom(state, eoh, "Free convection air flow rate must be greater than zero when free convection UA is greater than zero.");
+                    ShowSevereCustom(
+                        state, eoh, "Free convection air flow rate must be greater than zero when free convection UA is greater than zero.");
                     ErrorsFound = true;
                 }
             } else if (tower.PerformanceInputMethod_Num == PIM::NominalCapacity) {
@@ -503,7 +508,8 @@ namespace CondenserLoopTowers {
                     if (tower.DesignWaterFlowRate > 0.0) {
                         ShowWarningCustom(state, eoh, "Nominal capacity input method and design water flow rate have been specified.");
                     } else {
-                        ShowSevereCustom(state, eoh, "Nominal capacity input method has been specified and design water flow rate is being autosized.");
+                        ShowSevereCustom(
+                            state, eoh, "Nominal capacity input method has been specified and design water flow rate is being autosized.");
                     }
                     ShowContinueError(state, "Design water flow rate will be set according to nominal tower capacity.");
                 }
@@ -528,14 +534,15 @@ namespace CondenserLoopTowers {
                     ErrorsFound = true;
                 }
                 if (tower.TowerFreeConvNomCap > 0.0 && tower.FreeConvAirFlowRate == 0.0) {
-                    ShowSevereCustom(state, eoh, "Free convection air flow must be greater than zero when tower free convection capacity is specified.");
+                    ShowSevereCustom(
+                        state, eoh, "Free convection air flow must be greater than zero when tower free convection capacity is specified.");
                     ErrorsFound = true;
                 }
             } else { // Tower performance input method is not specified as a valid "choice"
                 ShowSevereInvalidKey(state, eoh, s_ipsc->cAlphaFieldNames(4), AlphArray(4));
                 ErrorsFound = true;
             }
-            
+
             if (NumAlphas > 12) {
                 tower.EndUseSubcategory = AlphArray(13);
             } else {
@@ -547,20 +554,20 @@ namespace CondenserLoopTowers {
         for (int TwoSpeedTowerNumber = 1; TwoSpeedTowerNumber <= NumTwoSpeedTowers; ++TwoSpeedTowerNumber) {
             TowerNum = NumSingleSpeedTowers + TwoSpeedTowerNumber;
             s_ip->getObjectItem(state,
-                                                                     s_ipsc->cCurrentModuleObject,
-                                                                     TwoSpeedTowerNumber,
-                                                                     AlphArray,
-                                                                     NumAlphas,
-                                                                     NumArray,
-                                                                     NumNums,
-                                                                     IOStat,
-                                                                     _,
-                                                                     s_ipsc->lAlphaFieldBlanks,
-                                                                     s_ipsc->cAlphaFieldNames,
-                                                                     s_ipsc->cNumericFieldNames);
+                                s_ipsc->cCurrentModuleObject,
+                                TwoSpeedTowerNumber,
+                                AlphArray,
+                                NumAlphas,
+                                NumArray,
+                                NumNums,
+                                IOStat,
+                                _,
+                                s_ipsc->lAlphaFieldBlanks,
+                                s_ipsc->cAlphaFieldNames,
+                                s_ipsc->cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, s_ipsc->cCurrentModuleObject, AlphArray(1)};
-            
+
             GlobalNames::VerifyUniqueInterObjectName(
                 state, UniqueSimpleTowerNames, AlphArray(1), s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaFieldNames(1), ErrorsFound);
 
@@ -686,13 +693,16 @@ namespace CondenserLoopTowers {
                     tower.BasinHeaterSetPointTemp = 2.0;
                 }
                 if (tower.BasinHeaterSetPointTemp < 2.0) {
-                    ShowWarningCustom(state, eoh, format("{} is less than 2 deg C. Freezing could occur.",  s_ipsc->cNumericFieldNames(26)));
+                    ShowWarningCustom(state, eoh, format("{} is less than 2 deg C. Freezing could occur.", s_ipsc->cNumericFieldNames(26)));
                 }
             }
 
             if (!AlphArray(5).empty()) {
                 if ((tower.basinHeaterSched = Sched::GetSchedule(state, AlphArray(5))) == nullptr) {
-                    ShowWarningItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(5), AlphArray(5),
+                    ShowWarningItemNotFound(state,
+                                            eoh,
+                                            s_ipsc->cAlphaFieldNames(5),
+                                            AlphArray(5),
                                             "Basin heater operation will not be modeled and the simulation continues");
                 }
             }
@@ -707,7 +717,7 @@ namespace CondenserLoopTowers {
 
             tower.BlowdownMode = static_cast<Blowdown>(getEnumValue(BlowDownNamesUC, Util::makeUPPER(AlphArray(7))));
             if (tower.BlowdownMode == Blowdown::Schedule) {
-                if ((tower.blowdownSched = Sched::GetSchedule(state, AlphArray(8))) == nullptr) { 
+                if ((tower.blowdownSched = Sched::GetSchedule(state, AlphArray(8))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(8), AlphArray(8));
                     ErrorsFound = true;
                 }
@@ -765,9 +775,10 @@ namespace CondenserLoopTowers {
             //   High speed air flow rate must be greater than low speed air flow rate.
             //   Can't tell yet if autosized, check later in initialize.
             if (tower.HighSpeedAirFlowRate <= tower.LowSpeedAirFlowRate && tower.HighSpeedAirFlowRate != DataSizing::AutoSize) {
-                ShowSevereError(
-                    state,
-                    format("{} \"{}\". Low speed air flow rate must be less than the high speed air flow rate.", s_ipsc->cCurrentModuleObject, tower.Name));
+                ShowSevereError(state,
+                                format("{} \"{}\". Low speed air flow rate must be less than the high speed air flow rate.",
+                                       s_ipsc->cCurrentModuleObject,
+                                       tower.Name));
                 ErrorsFound = true;
             }
             //   Low speed air flow rate must be greater than free convection air flow rate.
@@ -903,14 +914,15 @@ namespace CondenserLoopTowers {
                     }
                 }
                 if (tower.TowerFreeConvNomCap > 0.0 && tower.FreeConvAirFlowRate == 0.0) {
-                    ShowSevereCustom(state, eoh, "Free convection air flow must be greater than zero when tower free convection capacity is specified.");
+                    ShowSevereCustom(
+                        state, eoh, "Free convection air flow must be greater than zero when tower free convection capacity is specified.");
                     ErrorsFound = true;
                 }
             } else { // Tower performance input method is not specified as a valid "choice"
                 ShowSevereInvalidKey(state, eoh, s_ipsc->cAlphaFieldNames(4), AlphArray(4));
                 ErrorsFound = true;
             }
-            
+
             if (NumAlphas > 11) {
                 tower.EndUseSubcategory = AlphArray(12);
             } else {
@@ -922,17 +934,17 @@ namespace CondenserLoopTowers {
         for (int VariableSpeedTowerNumber = 1; VariableSpeedTowerNumber <= NumVariableSpeedTowers; ++VariableSpeedTowerNumber) {
             TowerNum = NumSingleSpeedTowers + NumTwoSpeedTowers + VariableSpeedTowerNumber;
             s_ip->getObjectItem(state,
-                                                                     s_ipsc->cCurrentModuleObject,
-                                                                     VariableSpeedTowerNumber,
-                                                                     AlphArray,
-                                                                     NumAlphas,
-                                                                     NumArray,
-                                                                     NumNums,
-                                                                     IOStat,
-                                                                     _,
-                                                                     s_ipsc->lAlphaFieldBlanks,
-                                                                     s_ipsc->cAlphaFieldNames,
-                                                                     s_ipsc->cNumericFieldNames);
+                                s_ipsc->cCurrentModuleObject,
+                                VariableSpeedTowerNumber,
+                                AlphArray,
+                                NumAlphas,
+                                NumArray,
+                                NumNums,
+                                IOStat,
+                                _,
+                                s_ipsc->lAlphaFieldBlanks,
+                                s_ipsc->cAlphaFieldNames,
+                                s_ipsc->cNumericFieldNames);
             ErrorObjectHeader eoh{routineName, s_ipsc->cCurrentModuleObject, AlphArray(1)};
             GlobalNames::VerifyUniqueInterObjectName(
                 state, UniqueSimpleTowerNames, AlphArray(1), s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaFieldNames(1), ErrorsFound);
@@ -962,14 +974,17 @@ namespace CondenserLoopTowers {
 
             if ((Util::SameString(AlphArray(4), "CoolToolsUserDefined") || Util::SameString(AlphArray(4), "YorkCalcUserDefined")) &&
                 s_ipsc->lAlphaFieldBlanks(5)) {
-                ShowSevereCustom(state, eoh, 
+                ShowSevereCustom(state,
+                                 eoh,
                                  format("A {} must be specified when {} is specified as CoolToolsUserDefined or YorkCalcUserDefined",
                                         s_ipsc->cAlphaFieldNames(5),
                                         s_ipsc->cAlphaFieldNames(4)));
                 ErrorsFound = true;
             } else if ((Util::SameString(AlphArray(4), "CoolToolsCrossFlow") || Util::SameString(AlphArray(4), "YorkCalc")) &&
                        !s_ipsc->lAlphaFieldBlanks(5)) {
-                ShowWarningCustom(state, eoh, "A Tower Model Coefficient Name is specified and the Tower Model Type is not specified as "
+                ShowWarningCustom(state,
+                                  eoh,
+                                  "A Tower Model Coefficient Name is specified and the Tower Model Type is not specified as "
                                   "CoolToolsUserDefined or YorkCalcUserDefined. The CoolingTowerPerformance:CoolTools "
                                   "(orCoolingTowerPerformance:YorkCalc) data object will not be used.");
             } else {
@@ -979,10 +994,12 @@ namespace CondenserLoopTowers {
             if (!s_ipsc->lAlphaFieldBlanks(6)) {
                 tower.FanPowerfAirFlowCurve = Curve::GetCurveIndex(state, AlphArray(6));
                 if (tower.FanPowerfAirFlowCurve == 0) {
-                    ShowWarningCustom(state, eoh, 
+                    ShowWarningCustom(state,
+                                      eoh,
                                       format("The Fan Power Ratio as a function of Air Flow Rate Ratio Curve Name specified as {} was not found."
                                              "Fan Power as a function of Air Flow Rate Ratio will default to Fan Power = (Air Flow Rate Ratio)^3."
-                                             "The simulation continues.", AlphArray(6)));
+                                             "The simulation continues.",
+                                             AlphArray(6)));
                 }
             }
 
@@ -1085,7 +1102,8 @@ namespace CondenserLoopTowers {
                 tower.TowerModelType = ModelType::CoolToolsUserDefined;
                 // Nested Get-input routines below.  Should pull out of here and read in beforehand.
                 for (VSModelCoeffNum = 1; VSModelCoeffNum <= NumVSCoolToolsModelCoeffs; ++VSModelCoeffNum) {
-                    s_ip->getObjectItem(state, "CoolingTowerPerformance:CoolTools", VSModelCoeffNum, AlphArray2, NumAlphas2, NumArray2, NumNums2, IOStat);
+                    s_ip->getObjectItem(
+                        state, "CoolingTowerPerformance:CoolTools", VSModelCoeffNum, AlphArray2, NumAlphas2, NumArray2, NumNums2, IOStat);
 
                     if (!Util::SameString(AlphArray2(1), tower.ModelCoeffObjectName)) continue;
                     vstower.FoundModelCoeff = true;
@@ -1202,25 +1220,37 @@ namespace CondenserLoopTowers {
 
             tower.DesignInletWB = NumArray(1);
             if (NumArray(1) < vstower.MinInletAirWBTemp || NumArray(1) > vstower.MaxInletAirWBTemp) {
-                ShowSevereCustom(state, eoh, format("The design inlet air wet-bulb temperature of {:5.2F}"
-                                                    "must be within the model limits of {:5.2F} and {:5.2F} degrees C",
-                                                    tower.DesignInletWB, vstower.MinInletAirWBTemp, vstower.MaxInletAirWBTemp));
+                ShowSevereCustom(state,
+                                 eoh,
+                                 format("The design inlet air wet-bulb temperature of {:5.2F}"
+                                        "must be within the model limits of {:5.2F} and {:5.2F} degrees C",
+                                        tower.DesignInletWB,
+                                        vstower.MinInletAirWBTemp,
+                                        vstower.MaxInletAirWBTemp));
                 ErrorsFound = true;
             }
 
             tower.DesignApproach = NumArray(2);
             if (NumArray(2) < vstower.MinApproachTemp || NumArray(2) > vstower.MaxApproachTemp) {
-                ShowSevereCustom(state, eoh, format("The design approach temperature of {:5.2F}"
-                                                    "must be within the model limits of {:5.2F} and {:5.2F} degrees C",
-                                                    tower.DesignApproach, vstower.MinApproachTemp, vstower.MaxApproachTemp));
+                ShowSevereCustom(state,
+                                 eoh,
+                                 format("The design approach temperature of {:5.2F}"
+                                        "must be within the model limits of {:5.2F} and {:5.2F} degrees C",
+                                        tower.DesignApproach,
+                                        vstower.MinApproachTemp,
+                                        vstower.MaxApproachTemp));
                 ErrorsFound = true;
             }
 
             tower.DesignRange = NumArray(3);
             if (NumArray(3) < vstower.MinRangeTemp || NumArray(3) > vstower.MaxRangeTemp) {
-                ShowSevereCustom(state, eoh, format("The design range temperature of {:5.2F}"
-                                                    "must be within the model limits of {:5.2F} and {:5.2F} degrees C",
-                                                    tower.DesignRange, vstower.MinRangeTemp, vstower.MaxRangeTemp));
+                ShowSevereCustom(state,
+                                 eoh,
+                                 format("The design range temperature of {:5.2F}"
+                                        "must be within the model limits of {:5.2F} and {:5.2F} degrees C",
+                                        tower.DesignRange,
+                                        vstower.MinRangeTemp,
+                                        vstower.MaxRangeTemp));
                 ErrorsFound = true;
             }
 
@@ -1288,10 +1318,12 @@ namespace CondenserLoopTowers {
             tower.PerformanceInputMethod_Num = PIM::UFactor;
 
             if (!AlphArray(7).empty()) {
-                if ((tower.basinHeaterSched = Sched::GetSchedule(state, AlphArray(7))) == nullptr) { 
-                    ShowWarningItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(7), AlphArray(7),
+                if ((tower.basinHeaterSched = Sched::GetSchedule(state, AlphArray(7))) == nullptr) {
+                    ShowWarningItemNotFound(state,
+                                            eoh,
+                                            s_ipsc->cAlphaFieldNames(7),
+                                            AlphArray(7),
                                             "Basin heater operation will not be modeled and the simulation continues.");
-
                 }
             }
 
@@ -1305,7 +1337,7 @@ namespace CondenserLoopTowers {
 
             tower.BlowdownMode = static_cast<Blowdown>(getEnumValue(BlowDownNamesUC, Util::makeUPPER(AlphArray(9))));
             if (tower.BlowdownMode == Blowdown::Schedule) {
-                if ((tower.blowdownSched = Sched::GetSchedule(state, AlphArray(10))) == nullptr) { 
+                if ((tower.blowdownSched = Sched::GetSchedule(state, AlphArray(10))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(10), AlphArray(10));
                     ErrorsFound = true;
                 }
@@ -1372,16 +1404,16 @@ namespace CondenserLoopTowers {
             TowerNum = NumSingleSpeedTowers + NumTwoSpeedTowers + NumVariableSpeedTowers + MerkelVSTowerNum;
             s_ip->getObjectItem(state,
                                 s_ipsc->cCurrentModuleObject,
-                                                                     MerkelVSTowerNum,
-                                                                     AlphArray,
-                                                                     NumAlphas,
-                                                                     NumArray,
-                                                                     NumNums,
-                                                                     IOStat,
-                                                                     s_ipsc->lNumericFieldBlanks,
-                                                                     s_ipsc->lAlphaFieldBlanks,
-                                                                     s_ipsc->cAlphaFieldNames,
-                                                                     s_ipsc->cNumericFieldNames);
+                                MerkelVSTowerNum,
+                                AlphArray,
+                                NumAlphas,
+                                NumArray,
+                                NumNums,
+                                IOStat,
+                                s_ipsc->lNumericFieldBlanks,
+                                s_ipsc->lAlphaFieldBlanks,
+                                s_ipsc->cAlphaFieldNames,
+                                s_ipsc->cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, s_ipsc->cCurrentModuleObject, AlphArray(1)};
             GlobalNames::VerifyUniqueInterObjectName(
@@ -1526,9 +1558,11 @@ namespace CondenserLoopTowers {
 
             if (!AlphArray(9).empty()) {
                 if ((tower.basinHeaterSched = Sched::GetSchedule(state, AlphArray(9))) == nullptr) {
-                    ShowWarningItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(9), AlphArray(9),
+                    ShowWarningItemNotFound(state,
+                                            eoh,
+                                            s_ipsc->cAlphaFieldNames(9),
+                                            AlphArray(9),
                                             "Basin heater operation will not be modeled and the simulation continues");
-                    
                 }
             }
 

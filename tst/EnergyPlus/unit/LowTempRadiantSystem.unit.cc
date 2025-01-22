@@ -1122,14 +1122,13 @@ TEST_F(LowTempRadiantSystemTest, AutosizeLowTempRadiantVariableFlowTest)
     });
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetProjectControlData(*state, ErrorsFound);
     EXPECT_FALSE(ErrorsFound);
 
     GetZoneData(*state, ErrorsFound);
     EXPECT_FALSE(ErrorsFound);
     EXPECT_EQ("WEST ZONE", state->dataHeatBal->Zone(1).Name);
-
 
     HeatBalanceManager::SetPreConstructionInputParameters(*state);
     Material::GetMaterialData(*state, ErrorsFound);
@@ -1992,7 +1991,7 @@ TEST_F(LowTempRadiantSystemTest, SimulateCapacityPerFloorAreaError)
     });
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetProjectControlData(*state, ErrorsFound);
     EXPECT_FALSE(ErrorsFound);
 
@@ -2321,7 +2320,7 @@ TEST_F(LowTempRadiantSystemTest, LowTempElecRadSurfaceGroupTest)
     });
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataHeatBal->Zone.allocate(2);
     state->dataHeatBal->Zone(1).Name = "WEST ZONE";
     state->dataHeatBal->Zone(2).Name = "EAST ZONE";
@@ -2394,7 +2393,7 @@ TEST_F(LowTempRadiantSystemTest, CalcLowTempCFloRadiantSystem_OperationMode)
     state->dataLowTempRadSys->CFloRadSys(RadSysNum).availSched->currentVal = 1;
     state->dataLowTempRadSys->CFloRadSys(RadSysNum).hotCtrlHiTempSched->currentVal = 22.0;
     state->dataLowTempRadSys->CFloRadSys(RadSysNum).coldCtrlLoTempSched->currentVal = 25.0;
-    
+
     state->dataLowTempRadSys->CFloRadSys(RadSysNum).HotWaterInNode = 0;
     state->dataLowTempRadSys->CFloRadSys(RadSysNum).ColdWaterInNode = 0;
     state->dataLowTempRadSys->CFloRadSys(RadSysNum).volFlowSched = nullptr;
@@ -3173,7 +3172,7 @@ TEST_F(LowTempRadiantSystemTest, calculateOperationalFractionMaxLimitTest)
 TEST_F(LowTempRadiantSystemTest, setOffTemperatureLowTemperatureRadiantSystemTest)
 {
     state->init_state(*state);
-        
+
     Real64 expectedResult;
     Real64 actualResult;
     Real64 acceptibleError = 0.001;
@@ -3234,7 +3233,7 @@ TEST_F(LowTempRadiantSystemTest, setOffTemperatureLowTemperatureRadiantSystemTes
 TEST_F(LowTempRadiantSystemTest, errorCheckZonesAndConstructionsTest)
 {
     state->init_state(*state);
-        
+
     bool actualErrorsFound;
     std::string const Alpha1("Zone Name");
     std::string const Alpha2("An Amazing Zone");
@@ -3783,7 +3782,7 @@ TEST_F(LowTempRadiantSystemTest, GetLowTempRadiantSystem_MultipleTypes)
     });
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataHeatBal->Zone.allocate(3);
     state->dataHeatBal->Zone(1).Name = "WEST ZONE";
     state->dataHeatBal->Zone(2).Name = "EAST ZONE";
@@ -4607,7 +4606,7 @@ TEST_F(LowTempRadiantSystemTest, VariableFlowCoolingOnlyInputTest)
     });
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetProjectControlData(*state, ErrorsFound);
     EXPECT_FALSE(ErrorsFound);
 

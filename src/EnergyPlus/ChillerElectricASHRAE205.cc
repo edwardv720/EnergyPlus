@@ -126,13 +126,13 @@ void getChillerASHRAE205Input(EnergyPlusData &state)
     auto const &ChillerInstances = s_ip->epJSON.find(state.dataIPShortCut->cCurrentModuleObject).value();
     int ChillerNum{0};
     auto const &objectSchemaProps = s_ip->getObjectSchemaProps(state, state.dataIPShortCut->cCurrentModuleObject);
-    
+
     for (auto &instance : ChillerInstances.items()) {
         auto const &fields = instance.value();
         std::string const &thisObjectName = instance.key();
 
         ErrorObjectHeader eoh{routineName, s_ipsc->cCurrentModuleObject, thisObjectName};
-        
+
         GlobalNames::VerifyUniqueChillerName(
             state, state.dataIPShortCut->cCurrentModuleObject, thisObjectName, ErrorsFound, state.dataIPShortCut->cCurrentModuleObject + " Name");
 

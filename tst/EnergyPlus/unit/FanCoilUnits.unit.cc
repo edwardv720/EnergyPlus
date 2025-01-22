@@ -247,7 +247,7 @@ TEST_F(EnergyPlusFixture, MultiStage4PipeFanCoilHeatingTest)
     state->init_state(*state);
 
     GetZoneData(*state, ErrorsFound);
-    
+
     EXPECT_EQ("EAST ZONE", state->dataHeatBal->Zone(1).Name);
 
     GetZoneEquipmentData(*state);
@@ -879,7 +879,7 @@ TEST_F(EnergyPlusFixture, ConstantFanVariableFlowFanCoilHeatingTest)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     GetZoneData(*state, ErrorsFound);
     EXPECT_EQ("EAST ZONE", state->dataHeatBal->Zone(1).Name);
 
@@ -1273,7 +1273,7 @@ TEST_F(EnergyPlusFixture, ElectricCoilFanCoilHeatingTest)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     GetZoneData(*state, ErrorsFound);
     EXPECT_EQ("EAST ZONE", state->dataHeatBal->Zone(1).Name);
 
@@ -1598,7 +1598,7 @@ TEST_F(EnergyPlusFixture, ConstantFanVariableFlowFanCoilCoolingTest)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     GetZoneData(*state, ErrorsFound);
     EXPECT_EQ("EAST ZONE", state->dataHeatBal->Zone(1).Name);
 
@@ -1966,7 +1966,7 @@ TEST_F(EnergyPlusFixture, FanCoil_ASHRAE90VariableFan)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     GetZoneData(*state, ErrorsFound);
     EXPECT_EQ("EAST ZONE", state->dataHeatBal->Zone(1).Name);
 
@@ -2685,7 +2685,7 @@ TEST_F(EnergyPlusFixture, FanCoil_CyclingFanMode)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     GetZoneData(*state, ErrorsFound);
     EXPECT_EQ("EAST ZONE", state->dataHeatBal->Zone(1).Name);
 
@@ -3125,7 +3125,7 @@ TEST_F(EnergyPlusFixture, FanCoil_FanSystemModelCyclingFanMode)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     GetZoneData(*state, ErrorsFound);
     EXPECT_EQ("EAST ZONE", state->dataHeatBal->Zone(1).Name);
 
@@ -3521,7 +3521,7 @@ TEST_F(EnergyPlusFixture, FanCoil_ElecHeatCoilMultiSpeedFanCyclingFanMode)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     GetZoneData(*state, ErrorsFound);
     EXPECT_EQ("EAST ZONE", state->dataHeatBal->Zone(1).Name);
     GetZoneEquipmentData(*state);
@@ -3883,7 +3883,7 @@ TEST_F(EnergyPlusFixture, FanCoil_ElecHeatCoilMultiSpeedFanContFanMode)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     GetZoneData(*state, ErrorsFound);
     EXPECT_EQ("EAST ZONE", state->dataHeatBal->Zone(1).Name);
     GetZoneEquipmentData(*state);
@@ -4245,7 +4245,7 @@ TEST_F(EnergyPlusFixture, FanCoil_CalcFanCoilElecHeatCoilPLRResidual)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     GetZoneData(*state, ErrorsFound);
     EXPECT_EQ("EAST ZONE", state->dataHeatBal->Zone(1).Name);
     GetZoneEquipmentData(*state);
@@ -4554,7 +4554,7 @@ TEST_F(EnergyPlusFixture, FanCoil_ElectricHeatingCoilASHRAE90VariableFan)
     state->dataGlobal->TimeStep = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
     state->dataSize->CurZoneEqNum = 1;
-    
+
     state->init_state(*state);
 
     GetZoneData(*state, ErrorsFound);

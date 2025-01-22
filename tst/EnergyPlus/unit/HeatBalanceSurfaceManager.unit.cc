@@ -1266,15 +1266,15 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestSurfTempCalcHeatBalanceI
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesInTimeStep = 60;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
-    
+
     bool ErrorsFound(false); // If errors detected in input
 
-    state->dataEnvrn->DayOfYear_Schedule = 1;      // must initialize this to get schedules initialized
-    state->dataEnvrn->DayOfWeek = 1;               // must initialize this to get schedules initialized
-    state->dataGlobal->HourOfDay = 1;              // must initialize this to get schedules initialized
-    state->dataGlobal->TimeStep = 1;               // must initialize this to get schedules initialized
+    state->dataEnvrn->DayOfYear_Schedule = 1; // must initialize this to get schedules initialized
+    state->dataEnvrn->DayOfWeek = 1;          // must initialize this to get schedules initialized
+    state->dataGlobal->HourOfDay = 1;         // must initialize this to get schedules initialized
+    state->dataGlobal->TimeStep = 1;          // must initialize this to get schedules initialized
 
     state->files.inputWeatherFilePath.filePath = configured_source_directory() / "tst/EnergyPlus/unit/Resources/HeatBalanceKivaManagerOSkyTest.epw";
     state->dataWeather->WeatherFileExists = true;
@@ -2370,7 +2370,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestSurfPropertySrdSurfLWR)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
     HeatBalanceManager::GetProjectControlData(*state, ErrorsFound); // read project control data
     EXPECT_FALSE(ErrorsFound);                                      // expect no errors
@@ -2477,8 +2477,8 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestSurfPropertySrdSurfLWR)
 
     state->dataSurface->SurfAirSkyRadSplit.allocate(6);
     Sched::GetSchedule(*state, "SURROUNDING TEMP SCH 1")->currentVal = 25.0; // Srd Srfs Temp
-    Sched::GetSchedule(*state, "SKY TEMP SCH")->currentVal = 15.0; // Sky temp
-    Sched::GetSchedule(*state, "GROUND TEMP SCH")->currentVal = 22.0; // Grd temp
+    Sched::GetSchedule(*state, "SKY TEMP SCH")->currentVal = 15.0;           // Sky temp
+    Sched::GetSchedule(*state, "GROUND TEMP SCH")->currentVal = 22.0;        // Grd temp
 
     for (int SurfNum = 1; SurfNum <= 6; SurfNum++) {
         state->dataHeatBalSurf->SurfOutsideTempHist(1)(SurfNum) = 20; // Surf temp
@@ -3198,7 +3198,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestResilienceMetricReport)
     state->dataOutRptTab->displayThermalResilienceSummary = true;
     state->dataEnvrn->Month = 7;
     state->dataEnvrn->DayOfMonth = 1;
-    state->dataGlobal->TimeStepsInHour = 4; // must initialize this to get schedules initialized
+    state->dataGlobal->TimeStepsInHour = 4;    // must initialize this to get schedules initialized
     state->dataGlobal->MinutesInTimeStep = 15; // must initialize this to get schedules initialized
 
     state->dataGlobal->TimeStep = 1;
@@ -3744,7 +3744,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestThermalResilienceReportR
     state->dataOutRptTab->displayThermalResilienceSummary = true;
     state->dataEnvrn->Month = 1;
     state->dataEnvrn->DayOfMonth = 1;
-    state->dataGlobal->TimeStepsInHour = 4; // must initialize this to get schedules initialized
+    state->dataGlobal->TimeStepsInHour = 4;    // must initialize this to get schedules initialized
     state->dataGlobal->MinutesInTimeStep = 15; // must initialize this to get schedules initialized
 
     state->dataGlobal->TimeStep = 1;
@@ -3758,7 +3758,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestThermalResilienceReportR
     state->dataZoneTempPredictorCorrector->zoneHeatBalance(1).airHumRatAvg = 0.0;
 
     state->dataHeatBal->Zone.allocate(state->dataGlobal->NumOfZones);
-    
+
     state->dataHeatBalFanSys->zoneTstatSetpts.allocate(state->dataGlobal->NumOfZones);
     for (auto &zoneTstatSetpt : state->dataHeatBalFanSys->zoneTstatSetpts) {
         zoneTstatSetpt.setptLo = 22.0;
@@ -4241,7 +4241,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestCO2ResilienceReportRepPe
     state->dataGlobal->KindOfSim = Constant::KindOfSim::RunPeriodWeather;
     state->dataEnvrn->Month = 1;
     state->dataEnvrn->DayOfMonth = 1;
-    state->dataGlobal->TimeStepsInHour = 4; // must initialize this to get schedules initialized
+    state->dataGlobal->TimeStepsInHour = 4;    // must initialize this to get schedules initialized
     state->dataGlobal->MinutesInTimeStep = 15; // must initialize this to get schedules initialized
 
     state->dataGlobal->TimeStep = 1;
@@ -4394,7 +4394,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestVisualResilienceReportRe
     state->dataGlobal->KindOfSim = Constant::KindOfSim::RunPeriodWeather;
     state->dataEnvrn->Month = 1;
     state->dataEnvrn->DayOfMonth = 1;
-    state->dataGlobal->TimeStepsInHour = 4; // must initialize this to get schedules initialized
+    state->dataGlobal->TimeStepsInHour = 4;    // must initialize this to get schedules initialized
     state->dataGlobal->MinutesInTimeStep = 15; // must initialize this to get schedules initialized
 
     state->dataGlobal->TimeStep = 1;
@@ -4809,7 +4809,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestInitHBInterzoneWindow)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
     HeatBalanceManager::GetProjectControlData(*state, ErrorsFound); // read project control data
     EXPECT_FALSE(ErrorsFound);                                      // expect no errors
@@ -5875,7 +5875,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestTDDSurfWinHeatGain)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
 
     HeatBalanceManager::GetProjectControlData(*state, ErrorsFound); // read project control data
@@ -6458,7 +6458,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestSurfPropertyViewFactorsI
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
     HeatBalanceManager::GetZoneData(*state, ErrorsFound);
     EXPECT_FALSE(ErrorsFound);
@@ -7142,8 +7142,8 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestSurfPropertySurfToGndLWR
     InitSurfaceHeatBalance(*state);
     state->dataSurface->SurfAirSkyRadSplit.allocate(6);
     Sched::GetSchedule(*state, "SURROUNDING TEMP SCH 1")->currentVal = 25.0; // Srd Srfs Temp
-    Sched::GetSchedule(*state, "SKY TEMP SCH")->currentVal = 15.0; // Sky temp
-    Sched::GetSchedule(*state, "GROUND TEMP SCH")->currentVal = 22.0; // Grd temp
+    Sched::GetSchedule(*state, "SKY TEMP SCH")->currentVal = 15.0;           // Sky temp
+    Sched::GetSchedule(*state, "GROUND TEMP SCH")->currentVal = 22.0;        // Grd temp
 
     for (int SurfNum = 1; SurfNum <= 6; SurfNum++) {
         state->dataHeatBalSurf->SurfOutsideTempHist(1)(SurfNum) = 20; // Surf temp
@@ -7382,7 +7382,6 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestGroundSurfsAverageTemp)
     state->dataEnvrn->HolidayIndex = 0;
     state->dataEnvrn->DayOfYear_Schedule = General::OrdinalDay(state->dataEnvrn->Month, state->dataEnvrn->DayOfMonth, 1);
     state->dataEnvrn->OutBaroPress = 100000;
-
 
     state->dataHeatBal->ZoneIntGain.allocate(1);
     createFacilityElectricPowerServiceObject(*state);
@@ -7702,7 +7701,6 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestGroundSurfsAverageRefl)
     state->dataEnvrn->DayOfYear_Schedule = General::OrdinalDay(state->dataEnvrn->Month, state->dataEnvrn->DayOfMonth, 1);
     state->dataEnvrn->OutBaroPress = 100000;
 
-    
     state->dataHeatBal->ZoneIntGain.allocate(1);
     createFacilityElectricPowerServiceObject(*state);
     HeatBalanceManager::SetPreConstructionInputParameters(*state);
@@ -8255,7 +8253,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestSurfPropertyViewFactorsR
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
     HeatBalanceManager::GetProjectControlData(*state, ErrorsFound);
     EXPECT_FALSE(ErrorsFound);
@@ -8500,9 +8498,9 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_TestUpdateVariableAbsorptanc
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesInTimeStep = 60;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
-    
+
     Curve::GetCurveInput(*state);
     EXPECT_EQ(state->dataCurveManager->PerfCurve(1)->Name, "SOLAR_ABSORPTANCE_CURVE");
     EXPECT_EQ(state->dataCurveManager->PerfCurve(2)->Name, "THERMAL_ABSORPTANCE_TABLE");
@@ -8873,7 +8871,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceSurfaceManager_SurroundingSurfacesTempTest)
     state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
     state->init_state(*state);
-    
+
     // set global and environmental variables
     state->dataGlobal->BeginSimFlag = true;
     state->dataGlobal->BeginEnvrnFlag = true;

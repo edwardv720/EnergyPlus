@@ -478,8 +478,10 @@ void GetFanInput(EnergyPlusData &state)
             ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(2), cAlphaArgs(2));
             ErrorsFound = true;
         } else if (fan->availSched->hasFractionalVal(state)) {
-            ShowWarningCustom(state, eoh, format("{}={} has fracdtional values. Only 0.0 in the schedule value turns the fan off.",
-                                                 cAlphaFieldNames(2), cAlphaArgs(2)));
+            ShowWarningCustom(
+                state,
+                eoh,
+                format("{}={} has fracdtional values. Only 0.0 in the schedule value turns the fan off.", cAlphaFieldNames(2), cAlphaArgs(2)));
         }
 
         fan->totalEff = rNumericArgs(1);
@@ -1647,13 +1649,8 @@ void FanComponent::simulateConstant(EnergyPlusData &state)
         // Check fault availability schedules
         if (fault.availSched->getCurrentVal() > 0.0) {
             // Decrease of the Fan Design Volume Flow Rate [m3/sec]
-            Real64 _fanDesignFlowRateDec =
-                CalFaultyFanAirFlowReduction(state,
-                                             Name,
-                                             maxAirFlowRate,
-                                             deltaPress,
-                                             (fault.pressFracSched->getCurrentVal() - 1) * deltaPress,
-                                             fault.fanCurveNum);
+            Real64 _fanDesignFlowRateDec = CalFaultyFanAirFlowReduction(
+                state, Name, maxAirFlowRate, deltaPress, (fault.pressFracSched->getCurrentVal() - 1) * deltaPress, fault.fanCurveNum);
 
             // Update MassFlow & DeltaPress of the fan
             _massFlow = min(_massFlow, maxAirMassFlowRate - _fanDesignFlowRateDec * _rhoAir);
@@ -1670,8 +1667,7 @@ void FanComponent::simulateConstant(EnergyPlusData &state)
     _massFlow = max(_massFlow, minAirMassFlowRate);
 
     // Determine the Fan Schedule for the Time step
-    if ((availSched->getCurrentVal() > 0.0 || state.dataHVACGlobal->TurnFansOn) &&
-        !state.dataHVACGlobal->TurnFansOff && _massFlow > 0.0) {
+    if ((availSched->getCurrentVal() > 0.0 || state.dataHVACGlobal->TurnFansOn) && !state.dataHVACGlobal->TurnFansOff && _massFlow > 0.0) {
         // Fan is operating
         totalPower = max(0.0, _massFlow * _deltaPress / (_totalEff * _rhoAir)); // total fan power
         _shaftPower = _motorEff * totalPower;                                   // power delivered to shaft
@@ -1764,12 +1760,8 @@ void FanComponent::simulateVAV(EnergyPlusData &state, ObjexxFCL::Optional<Real64
         // Check fault availability schedules
         if (fault.availSched->getCurrentVal() > 0.0) {
             Real64 _fanDesignFlowRateDec = // Decrease of the Fan Design Volume Flow Rate [m3/sec]
-                CalFaultyFanAirFlowReduction(state,
-                                             Name,
-                                             maxAirFlowRate,
-                                             deltaPress,
-                                             (fault.pressFracSched->getCurrentVal() - 1) * deltaPress,
-                                             fault.fanCurveNum);
+                CalFaultyFanAirFlowReduction(
+                    state, Name, maxAirFlowRate, deltaPress, (fault.pressFracSched->getCurrentVal() - 1) * deltaPress, fault.fanCurveNum);
 
             // Update MassFlow & DeltaPress of the fan
             _maxAirFlowRate = maxAirFlowRate - _fanDesignFlowRateDec;
@@ -1786,8 +1778,7 @@ void FanComponent::simulateVAV(EnergyPlusData &state, ObjexxFCL::Optional<Real64
     _massFlow = min(_massFlow, _maxAirMassFlowRate);
 
     // Determine the Fan Schedule for the Time step
-    if ((availSched->getCurrentVal() > 0.0 || state.dataHVACGlobal->TurnFansOn) &&
-        !state.dataHVACGlobal->TurnFansOff && _massFlow > 0.0) {
+    if ((availSched->getCurrentVal() > 0.0 || state.dataHVACGlobal->TurnFansOn) && !state.dataHVACGlobal->TurnFansOff && _massFlow > 0.0) {
         // Fan is operating - calculate power loss and enthalpy rise
         //  fan%FanPower = PartLoadFrac*FullMassFlow*DeltaPress/(FanEff*RhoAir) ! total fan power
         // Calculate and check limits on fraction of system flow
@@ -1907,12 +1898,8 @@ void FanComponent::simulateOnOff(EnergyPlusData &state, ObjexxFCL::Optional<Real
         // Check fault availability schedules
         if (fault.availSched->getCurrentVal() > 0.0) {
             Real64 _fanDesignFlowRateDec = // Decrease of the Fan Design Volume Flow Rate [m3/sec]
-                CalFaultyFanAirFlowReduction(state,
-                                             Name,
-                                             maxAirFlowRate,
-                                             deltaPress,
-                                             (fault.pressFracSched->getCurrentVal() - 1) * deltaPress,
-                                             fault.fanCurveNum);
+                CalFaultyFanAirFlowReduction(
+                    state, Name, maxAirFlowRate, deltaPress, (fault.pressFracSched->getCurrentVal() - 1) * deltaPress, fault.fanCurveNum);
 
             // Update MassFlow & DeltaPress of the fan
             _maxAirMassFlowRate = maxAirMassFlowRate - _fanDesignFlowRateDec * _rhoAir;
@@ -1930,8 +1917,8 @@ void FanComponent::simulateOnOff(EnergyPlusData &state, ObjexxFCL::Optional<Real
     runtimeFrac = 0.0;
 
     // Determine the Fan Schedule for the Time step
-    if ((availSched->getCurrentVal() > 0.0 || state.dataHVACGlobal->TurnFansOn) &&
-        !state.dataHVACGlobal->TurnFansOff && _massFlow > 0.0 && maxAirMassFlowRate > 0.0) {
+    if ((availSched->getCurrentVal() > 0.0 || state.dataHVACGlobal->TurnFansOn) && !state.dataHVACGlobal->TurnFansOff && _massFlow > 0.0 &&
+        maxAirMassFlowRate > 0.0) {
         // The actual flow fraction is calculated from MassFlow and the MaxVolumeFlow * AirDensity
         Real64 _flowFrac = _massFlow / _maxAirMassFlowRate;
 
@@ -2066,8 +2053,8 @@ void FanComponent::simulateZoneExhaust(EnergyPlusData &state)
 
     // apply controls to determine if operating
     if (availManagerMode == AvailManagerMode::Coupled) {
-        if (((availSched->getCurrentVal() > 0.0) || state.dataHVACGlobal->TurnFansOn) &&
-            !state.dataHVACGlobal->TurnFansOff && _massFlow > 0.0) { // available
+        if (((availSched->getCurrentVal() > 0.0) || state.dataHVACGlobal->TurnFansOn) && !state.dataHVACGlobal->TurnFansOff &&
+            _massFlow > 0.0) { // available
             _fanIsRunning = (minTempLimitSched != nullptr) ? (_Tin >= minTempLimitSched->getCurrentVal()) : true;
         } else {
             _fanIsRunning = false;
@@ -2166,8 +2153,7 @@ void FanComponent::simulateComponentModel(EnergyPlusData &state)
     //  IF (fan%EMSMaxMassFlowOverrideOn) MassFlow   = fan%EMSAirMassFlowValue
 
     // Determine the Fan Schedule for the Time step
-    if ((availSched->getCurrentVal() > 0.0 || state.dataHVACGlobal->TurnFansOn) &&
-        !state.dataHVACGlobal->TurnFansOff && _massFlow > 0.0) {
+    if ((availSched->getCurrentVal() > 0.0 || state.dataHVACGlobal->TurnFansOn) && !state.dataHVACGlobal->TurnFansOff && _massFlow > 0.0) {
         // Fan is operating - calculate fan pressure rise, component efficiencies and power, and also air enthalpy rise
 
         // Calculate fan static pressure rise using fan volumetric flow, std air density, air-handling system characteristics,
@@ -2338,8 +2324,7 @@ void FanComponent::update(EnergyPlusData &state)
         if (state.afn->AirflowNetworkNumOfExhFan == 0) {
             state.dataHVACGlobal->UnbalExhMassFlow = inletAirMassFlowRate;
             if (balancedFractSched != nullptr) {
-                state.dataHVACGlobal->BalancedExhMassFlow =
-                    state.dataHVACGlobal->UnbalExhMassFlow * balancedFractSched->getCurrentVal();
+                state.dataHVACGlobal->BalancedExhMassFlow = state.dataHVACGlobal->UnbalExhMassFlow * balancedFractSched->getCurrentVal();
                 state.dataHVACGlobal->UnbalExhMassFlow = state.dataHVACGlobal->UnbalExhMassFlow - state.dataHVACGlobal->BalancedExhMassFlow;
             } else {
                 state.dataHVACGlobal->BalancedExhMassFlow = 0.0;
@@ -2823,8 +2808,8 @@ void FanSystem::calcSimpleSystemFan(
         }
     }
 
-    if ((availSched->getCurrentVal() > 0.0 || state.dataHVACGlobal->TurnFansOn) &&
-        !state.dataHVACGlobal->TurnFansOff && ((_localAirMassFlow[0] + _localAirMassFlow[1]) > 0.0)) {
+    if ((availSched->getCurrentVal() > 0.0 || state.dataHVACGlobal->TurnFansOn) && !state.dataHVACGlobal->TurnFansOff &&
+        ((_localAirMassFlow[0] + _localAirMassFlow[1]) > 0.0)) {
         // fan is running
 
         for (int mode = 0; mode < _numModes; ++mode) {

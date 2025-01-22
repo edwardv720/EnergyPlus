@@ -629,7 +629,7 @@ TEST_F(SQLiteFixture, SQLiteProcedures_DaylightMaping)
 TEST_F(SQLiteFixture, SQLiteProcedures_createZoneExtendedOutput)
 {
     state->init_state(*state);
-    
+
     auto const &zoneData0 = std::make_unique<DataHeatBalance::ZoneData>(); // Why make_unique here? And why is this a reference?
     zoneData0->Name = "test zone 1";
     zoneData0->CeilingHeight = 1;
@@ -741,7 +741,7 @@ TEST_F(SQLiteFixture, SQLiteProcedures_createZoneExtendedOutput)
     auto const lightingData0 = std::make_unique<DataHeatBalance::LightsData>();
     lightingData0->Name = "test lighting 1";
     lightingData0->sched = Sched::GetScheduleAlwaysOff(*state);
-    
+
     auto const lightingData1 = std::make_unique<DataHeatBalance::LightsData>();
     lightingData1->Name = "test lighting 2";
     lightingData1->ZonePtr = 1;
@@ -761,7 +761,7 @@ TEST_F(SQLiteFixture, SQLiteProcedures_createZoneExtendedOutput)
     peopleData0->workEffSched = Sched::GetScheduleAlwaysOff(*state);
     peopleData0->clothingSched = Sched::GetScheduleAlwaysOff(*state);
     peopleData0->airVelocitySched = Sched::GetScheduleAlwaysOff(*state);
-    
+
     auto const peopleData1 = std::make_unique<DataHeatBalance::PeopleData>();
     peopleData1->Name = "test people 2";
     peopleData1->ZonePtr = 1;
@@ -786,7 +786,7 @@ TEST_F(SQLiteFixture, SQLiteProcedures_createZoneExtendedOutput)
     auto const elecEquipData0 = std::make_unique<DataHeatBalance::ZoneEquipData>();
     elecEquipData0->Name = "test elecEquip 1";
     elecEquipData0->sched = Sched::GetScheduleAlwaysOff(*state);
-    
+
     auto const elecEquipData1 = std::make_unique<DataHeatBalance::ZoneEquipData>();
     elecEquipData1->Name = "test elecEquip 2";
     elecEquipData1->ZonePtr = 1;

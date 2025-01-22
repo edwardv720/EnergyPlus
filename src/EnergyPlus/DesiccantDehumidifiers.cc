@@ -303,7 +303,7 @@ namespace DesiccantDehumidifiers {
 
             if (lAlphaBlanks(2)) {
                 desicDehum.availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((desicDehum.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) { 
+            } else if ((desicDehum.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(2), Alphas(2));
                 ErrorsFound = true;
             }
@@ -666,7 +666,7 @@ namespace DesiccantDehumidifiers {
             desicDehum.Sched = Alphas(2);
             if (lAlphaBlanks(2)) {
                 desicDehum.availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((desicDehum.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) { 
+            } else if ((desicDehum.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(2), Alphas(2));
                 ErrorsFound = true;
             }

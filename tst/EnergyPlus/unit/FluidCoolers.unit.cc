@@ -67,7 +67,7 @@ using namespace EnergyPlus::DataSizing;
 TEST_F(EnergyPlusFixture, TwoSpeedFluidCoolerInput_Test1)
 {
     state->init_state(*state);
-        
+
     using DataSizing::AutoSize;
     int StringArraySize = 20;
     Array1D_string cNumericFieldNames;
@@ -198,7 +198,7 @@ TEST_F(EnergyPlusFixture, TwoSpeedFluidCoolerInput_Test2)
 TEST_F(EnergyPlusFixture, SingleSpeedFluidCoolerInput_Test3)
 {
     state->init_state(*state);
-    
+
     using DataSizing::AutoSize;
     int StringArraySize = 20;
     Array1D_string cNumericFieldNames;

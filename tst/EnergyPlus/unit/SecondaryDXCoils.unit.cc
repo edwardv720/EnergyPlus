@@ -218,7 +218,7 @@ TEST_F(EnergyPlusFixture, SecondaryDXHeatingCoilMultiSpeed_Test5)
 {
     // tests secondary DX coil calculation of multi speed heat pump
     state->init_state(*state);
-        
+
     int DXCoilNum;
 
     state->dataDXCoils->NumDXCoils = 1;

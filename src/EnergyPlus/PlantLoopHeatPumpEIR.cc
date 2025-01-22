@@ -535,7 +535,7 @@ Real64 EIRPlantLoopHeatPump::heatingCapacityModifierASHP(EnergyPlusData &state) 
     }
 }
 
-void EIRPlantLoopHeatPump::setPartLoadAndCyclingRatio([[maybe_unused ]] EnergyPlusData &state, Real64 &partLoadRatio)
+void EIRPlantLoopHeatPump::setPartLoadAndCyclingRatio([[maybe_unused]] EnergyPlusData &state, Real64 &partLoadRatio)
 {
     // Initialize cycling ratio to 1.0
     Real64 cyclingRatio = 1.0;

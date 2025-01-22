@@ -189,7 +189,7 @@ namespace Dayltg {
         int spaceIndex = 0;   // Index to space where the daylighting:controls object is located (0 if specified for a zone)
         int enclIndex = 0;    // Index to enclosure where the daylighting:controls object is located
         Dayltg::DaylightingMethod DaylightMethod = DaylightingMethod::None; // Type of Daylighting (1=SplitFlux, 2=DElight)
-        Sched::Schedule *availSched = nullptr;                                              // availability schedule if present
+        Sched::Schedule *availSched = nullptr;                              // availability schedule if present
         int TotalExtWindows = 0;
         int TotalDaylRefPoints = 0; // Number of daylighting reference points for this control
 

@@ -205,7 +205,7 @@ namespace PlantManager {
 
         ASSERT_TRUE(process_idf(idf_objects));
         state->init_state(*state);
-        
+
         // get input and checks if there are two setpointmanagers
         // for a TwoWayCommonPipe and one of them setpoints can be
         // a SetpointManager:OutdoorAirReset type.

@@ -159,13 +159,13 @@ void GetSwimmingPool(EnergyPlusData &state)
 
     // SUBROUTINE PARAMETER DEFINITIONS:
     static constexpr std::string_view RoutineName("GetSwimmingPool: "); // include trailing blank space
-    static constexpr std::string_view routineName = "GetSwimmingPool"; 
-    
-    Real64 constexpr MinCoverFactor(0.0);                               // minimum value for cover factors
-    Real64 constexpr MaxCoverFactor(1.0);                               // maximum value for cover factors
-    Real64 constexpr MinDepth(0.05);                                    // minimum average pool depth (to avoid obvious input errors)
-    Real64 constexpr MaxDepth(10.0);                                    // maximum average pool depth (to avoid obvious input errors)
-    Real64 constexpr MinPowerFactor(0.0);                               // minimum power factor for miscellaneous equipment
+    static constexpr std::string_view routineName = "GetSwimmingPool";
+
+    Real64 constexpr MinCoverFactor(0.0); // minimum value for cover factors
+    Real64 constexpr MaxCoverFactor(1.0); // maximum value for cover factors
+    Real64 constexpr MinDepth(0.05);      // minimum average pool depth (to avoid obvious input errors)
+    Real64 constexpr MaxDepth(10.0);      // maximum average pool depth (to avoid obvious input errors)
+    Real64 constexpr MinPowerFactor(0.0); // minimum power factor for miscellaneous equipment
 
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
     bool ErrorsFound(false);         // Set to true if something goes wrong
@@ -226,7 +226,7 @@ void GetSwimmingPool(EnergyPlusData &state)
                                                                  cNumericFields);
 
         ErrorObjectHeader eoh{routineName, CurrentModuleObject, Alphas(1)};
-        
+
         Util::IsNameEmpty(state, Alphas(1), CurrentModuleObject, ErrorsFound);
         state.dataSwimmingPools->Pool(Item).Name = Alphas(1);
 
@@ -255,26 +255,26 @@ void GetSwimmingPool(EnergyPlusData &state)
         }
 
         if (lAlphaBlanks(3)) {
-        } else if ((state.dataSwimmingPools->Pool(Item).activityFactorSched = Sched::GetSchedule(state, Alphas(3))) == nullptr) { 
+        } else if ((state.dataSwimmingPools->Pool(Item).activityFactorSched = Sched::GetSchedule(state, Alphas(3))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, cAlphaFields(3), Alphas(3));
             ErrorsFound = true;
         }
 
         if (lAlphaBlanks(4)) {
-        } else if ((state.dataSwimmingPools->Pool(Item).makeupWaterSupplySched = Sched::GetSchedule(state, Alphas(4))) == nullptr) { 
+        } else if ((state.dataSwimmingPools->Pool(Item).makeupWaterSupplySched = Sched::GetSchedule(state, Alphas(4))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, cAlphaFields(4), Alphas(4));
             ErrorsFound = true;
         }
 
         if (lAlphaBlanks(5)) {
-        } else if ((state.dataSwimmingPools->Pool(Item).coverSched = Sched::GetSchedule(state, Alphas(5))) == nullptr) { 
+        } else if ((state.dataSwimmingPools->Pool(Item).coverSched = Sched::GetSchedule(state, Alphas(5))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, cAlphaFields(5), Alphas(5));
             ErrorsFound = true;
         } else if (!state.dataSwimmingPools->Pool(Item).coverSched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
             Sched::ShowSevereBadMinMax(state, eoh, cAlphaFields(5), Alphas(5), Clusive::In, 0.0, Clusive::In, 1.0);
             ErrorsFound = true;
         }
-                
+
         state.dataSwimmingPools->Pool(Item).CoverEvapFactor = Numbers(2);
         if (state.dataSwimmingPools->Pool(Item).CoverEvapFactor < MinCoverFactor) {
             ShowWarningError(state, format("{}{}=\"{} has an evaporation cover factor less than zero.", RoutineName, CurrentModuleObject, Alphas(1)));
@@ -364,11 +364,11 @@ void GetSwimmingPool(EnergyPlusData &state)
         if (lAlphaBlanks(8)) {
             ShowSevereEmptyField(state, eoh, cAlphaFields(8));
             ErrorsFound = true;
-        } else if ((state.dataSwimmingPools->Pool(Item).setPtTempSched = Sched::GetSchedule(state, Alphas(8))) == nullptr) { 
+        } else if ((state.dataSwimmingPools->Pool(Item).setPtTempSched = Sched::GetSchedule(state, Alphas(8))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, cAlphaFields(8), Alphas(8));
             ErrorsFound = true;
         }
-        
+
         state.dataSwimmingPools->Pool(Item).MaxNumOfPeople = Numbers(8);
         if (state.dataSwimmingPools->Pool(Item).MaxNumOfPeople < 0.0) {
             ShowWarningError(
@@ -378,13 +378,13 @@ void GetSwimmingPool(EnergyPlusData &state)
         }
 
         if (lAlphaBlanks(9)) {
-        } else if ((state.dataSwimmingPools->Pool(Item).peopleSched = Sched::GetSchedule(state, Alphas(9))) == nullptr) { 
+        } else if ((state.dataSwimmingPools->Pool(Item).peopleSched = Sched::GetSchedule(state, Alphas(9))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, cAlphaFields(9), Alphas(9));
             ErrorsFound = true;
         }
 
         if (lAlphaBlanks(10)) {
-        } else if ((state.dataSwimmingPools->Pool(Item).peopleHeatGainSched = Sched::GetSchedule(state, Alphas(10))) == nullptr) { 
+        } else if ((state.dataSwimmingPools->Pool(Item).peopleHeatGainSched = Sched::GetSchedule(state, Alphas(10))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, cAlphaFields(10), Alphas(10));
             ErrorsFound = true;
         }

@@ -229,13 +229,13 @@ namespace HybridEvapCoolingModel {
         Model();
 
         // Default Constructor
-        std::string Name;     // user identifier
-        bool Initialized;     // initialization flag ensures the system object is initialized only once.
-        int ZoneNum;  // stores the current zone associated with the system, this is currently not used but is expected to be used in the next set of
-                      // functionality additions.
+        std::string Name; // user identifier
+        bool Initialized; // initialization flag ensures the system object is initialized only once.
+        int ZoneNum; // stores the current zone associated with the system, this is currently not used but is expected to be used in the next set of
+                     // functionality additions.
         Sched::Schedule *availSched = nullptr; // Pointer to the correct schedule
-        int ZoneNodeNum;                  // index of zone air node in node structure
-        std::string AvailManagerListName; // Name of an availability manager list object
+        int ZoneNodeNum;                       // index of zone air node in node structure
+        std::string AvailManagerListName;      // Name of an availability manager list object
         Avail::Status availStatus = Avail::Status::NoAction;
 
         Real64 SystemMaximumSupplyAirFlowRate;           // taken from IDF N1, the system max supply flow rate in m3/s.

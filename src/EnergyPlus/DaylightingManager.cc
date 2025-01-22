@@ -4304,7 +4304,7 @@ void GetDaylightingControls(EnergyPlusData &state, bool &ErrorsFound)
     // Obtain the user input data for Daylighting:Controls object in the input file.
 
     static constexpr std::string_view routineName = "GetDaylightingControls";
-        
+
     auto &dl = state.dataDayltg;
 
     int IOStat;
@@ -4345,7 +4345,7 @@ void GetDaylightingControls(EnergyPlusData &state, bool &ErrorsFound)
                           s_ipsc->cNumericFieldNames);
 
         ErrorObjectHeader eoh{routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)};
-        
+
         auto &daylightControl = dl->daylightControl(controlNum);
         daylightControl.Name = s_ipsc->cAlphaArgs(1);
 
@@ -4385,7 +4385,8 @@ void GetDaylightingControls(EnergyPlusData &state, bool &ErrorsFound)
         } else {
             int const spaceNum = Util::FindItemInList(state.dataIPShortCut->cAlphaArgs(2), state.dataHeatBal->space);
             if (spaceNum == 0) {
-                ShowSevereError(state, format("{}: invalid {}=\"{}\".", s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaFieldNames(2), s_ipsc->cAlphaArgs(2)));
+                ShowSevereError(state,
+                                format("{}: invalid {}=\"{}\".", s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaFieldNames(2), s_ipsc->cAlphaArgs(2)));
                 ErrorsFound = true;
                 continue;
             } else {
@@ -4432,14 +4433,18 @@ void GetDaylightingControls(EnergyPlusData &state, bool &ErrorsFound)
         if (s_ipsc->lAlphaFieldBlanks(4)) { // Field: Availability Schedule Name
             daylightControl.availSched = Sched::GetScheduleAlwaysOn(state);
         } else if ((daylightControl.availSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(4))) == nullptr) {
-            ShowWarningItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(4), s_ipsc->cAlphaArgs(4),
+            ShowWarningItemNotFound(state,
+                                    eoh,
+                                    s_ipsc->cAlphaFieldNames(4),
+                                    s_ipsc->cAlphaArgs(4),
                                     "Schedule was not found so controls will always be available, and the simulation continues.");
             daylightControl.availSched = Sched::GetScheduleAlwaysOn(state);
         }
 
         daylightControl.LightControlType = static_cast<LtgCtrlType>(getEnumValue(LtgCtrlTypeNamesUC, s_ipsc->cAlphaArgs(5)));
         if (daylightControl.LightControlType == LtgCtrlType::Invalid) {
-            ShowWarningInvalidKey(state, eoh, s_ipsc->cAlphaFieldNames(5), s_ipsc->cAlphaArgs(5), "Continuous assumed, and the simulation continues.");
+            ShowWarningInvalidKey(
+                state, eoh, s_ipsc->cAlphaFieldNames(5), s_ipsc->cAlphaArgs(5), "Continuous assumed, and the simulation continues.");
         }
 
         daylightControl.MinPowerFraction = s_ipsc->rNumericArgs(1);  // Field: Minimum Input Power Fraction for Continuous Dimming Control
@@ -4578,7 +4583,8 @@ void GetDaylightingControls(EnergyPlusData &state, bool &ErrorsFound)
 
         if (daylightControl.LightControlType == LtgCtrlType::Stepped && daylightControl.LightControlSteps <= 0) {
             ShowWarningError(state, "GetDaylightingControls: For Stepped Control, the number of steps must be > 0");
-            ShowContinueError(state, format("..discovered in \"{}\" for Zone=\"{}\", will use 1", s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(2)));
+            ShowContinueError(state,
+                              format("..discovered in \"{}\" for Zone=\"{}\", will use 1", s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(2)));
             daylightControl.LightControlSteps = 1;
         }
         SetupOutputVariable(state,
@@ -4906,8 +4912,8 @@ void GetLightWellData(EnergyPlusData &state, bool &ErrorsFound) // If errors fou
 
         int SurfNum = Util::FindItemInList(s_ipsc->cAlphaArgs(1), s_surf->Surface);
         if (SurfNum == 0) {
-            ShowSevereError(state,
-                            format("{}: invalid {}=\"{}\" not found.", s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaFieldNames(1), s_ipsc->cAlphaArgs(1)));
+            ShowSevereError(
+                state, format("{}: invalid {}=\"{}\" not found.", s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaFieldNames(1), s_ipsc->cAlphaArgs(1)));
             ErrorsFound = true;
             continue;
         }
@@ -4917,10 +4923,11 @@ void GetLightWellData(EnergyPlusData &state, bool &ErrorsFound) // If errors fou
         // Check that associated surface is an exterior window
         // True if associated surface is not an exterior window
         if (surf.Class != SurfaceClass::Window && surf.ExtBoundCond != ExternalEnvironment) {
-            ShowSevereError(
-                state,
-                format(
-                    "{}: invalid {}=\"{}\" - not an exterior window.", s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaFieldNames(1), s_ipsc->cAlphaArgs(1)));
+            ShowSevereError(state,
+                            format("{}: invalid {}=\"{}\" - not an exterior window.",
+                                   s_ipsc->cCurrentModuleObject,
+                                   s_ipsc->cAlphaFieldNames(1),
+                                   s_ipsc->cAlphaArgs(1)));
             ErrorsFound = true;
             continue;
         }
@@ -4934,8 +4941,8 @@ void GetLightWellData(EnergyPlusData &state, bool &ErrorsFound) // If errors fou
 
         // Warning if light well area is less than window area
         if (AreaWell < (surf.Area + s_surf->SurfWinDividerArea(SurfNum) - 0.1)) {
-            ShowSevereError(state,
-                            format("{}: invalid {}=\"{}\" - Areas.", s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaFieldNames(1), s_ipsc->cAlphaArgs(1)));
+            ShowSevereError(
+                state, format("{}: invalid {}=\"{}\" - Areas.", s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaFieldNames(1), s_ipsc->cAlphaArgs(1)));
             ShowContinueError(state, format("has Area of Bottom of Well={:.1R} that is less than window area={:.1R}", surf.Area, AreaWell));
         }
 
@@ -8387,8 +8394,8 @@ Real64 ProfileAngle(EnergyPlusData &state,
         return std::atan(std::sin(ElevSun) / std::abs(std::cos(ElevSun) * std::cos(AzimWin - AzimSun))) - ElevWin;
     } else { // Profile angle for vertical structures
         Real64 ElevWin = Constant::PiOvr2 - surf.Tilt * Constant::DegToRad;
-        Real64 AzimWin = surf.Azimuth * Constant::DegToRad; // 7952
-        Real64 AzimSun = std::atan2(CosDirSun.x, CosDirSun.y);  // 7952
+        Real64 AzimWin = surf.Azimuth * Constant::DegToRad;    // 7952
+        Real64 AzimSun = std::atan2(CosDirSun.x, CosDirSun.y); // 7952
 
         Real64 ProfileAng;
         if (std::abs(ElevWin) < 0.1) {      // Near-vertical window

@@ -470,7 +470,7 @@ namespace Avail {
                 if (lAlphaFieldBlanks(2)) {
                     ShowSevereEmptyField(state, eoh, cAlphaFieldNames(2));
                     ErrorsFound = true;
-                } else if ((schedOnMgr.availSched = Sched::GetSchedule(state, cAlphaArgs(2))) == nullptr) { 
+                } else if ((schedOnMgr.availSched = Sched::GetSchedule(state, cAlphaArgs(2))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(2), cAlphaArgs(2));
                     ErrorsFound = true;
                 }
@@ -516,7 +516,7 @@ namespace Avail {
                 if (lAlphaFieldBlanks(2)) {
                     ShowSevereEmptyField(state, eoh, cAlphaFieldNames(2));
                     ErrorsFound = true;
-                } else if ((schedOffMgr.availSched = Sched::GetSchedule(state, cAlphaArgs(2))) == nullptr) { 
+                } else if ((schedOffMgr.availSched = Sched::GetSchedule(state, cAlphaArgs(2))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(2), cAlphaArgs(2));
                     ErrorsFound = true;
                 }
@@ -564,11 +564,10 @@ namespace Avail {
                 CyclingTimeSteps = max(1, CyclingTimeSteps);
                 nightCycleMgr.CyclingTimeSteps = CyclingTimeSteps;
 
-
                 if (lAlphaFieldBlanks(2)) {
                     ShowSevereEmptyField(state, eoh, cAlphaFieldNames(2));
                     ErrorsFound = true;
-                } else if ((nightCycleMgr.availSched = Sched::GetSchedule(state, cAlphaArgs(2))) == nullptr) { 
+                } else if ((nightCycleMgr.availSched = Sched::GetSchedule(state, cAlphaArgs(2))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(2), cAlphaArgs(2));
                     ErrorsFound = true;
                 }
@@ -576,7 +575,7 @@ namespace Avail {
                 if (lAlphaFieldBlanks(3)) {
                     ShowSevereEmptyField(state, eoh, cAlphaFieldNames(3));
                     ErrorsFound = true;
-                } else if ((nightCycleMgr.fanSched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) { 
+                } else if ((nightCycleMgr.fanSched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(3), cAlphaArgs(3));
                     ErrorsFound = true;
                 }
@@ -735,7 +734,7 @@ namespace Avail {
                     ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(2), cAlphaArgs(2));
                     ErrorsFound = true;
                 }
-                
+
                 if (lAlphaFieldBlanks(3)) {
                     ShowSevereEmptyField(state, eoh, cAlphaFieldNames(3));
                     ErrorsFound = true;
@@ -1163,19 +1162,19 @@ namespace Avail {
                 if (lAlphaFieldBlanks(2)) {
                     ShowSevereEmptyField(state, eoh, cAlphaFieldNames(2));
                     ErrorsFound = true;
-                } else if ((nightVentMgr.availSched = Sched::GetSchedule(state, cAlphaArgs(2))) == nullptr) { 
+                } else if ((nightVentMgr.availSched = Sched::GetSchedule(state, cAlphaArgs(2))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(2), cAlphaArgs(2));
                     ErrorsFound = true;
                 }
-                
+
                 if (lAlphaFieldBlanks(3)) {
                     ShowSevereEmptyField(state, eoh, cAlphaFieldNames(3));
                     ErrorsFound = true;
-                } else if ((nightVentMgr.fanSched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) { 
+                } else if ((nightVentMgr.fanSched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(3), cAlphaArgs(3));
                     ErrorsFound = true;
                 }
-                
+
                 if (lAlphaFieldBlanks(4)) {
                     ShowSevereEmptyField(state, eoh, cAlphaFieldNames(4));
                     ErrorsFound = true;
@@ -1183,7 +1182,7 @@ namespace Avail {
                     ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(4), cAlphaArgs(4));
                     ErrorsFound = true;
                 }
-                
+
                 nightVentMgr.VentDelT = rNumericArgs(1);
                 nightVentMgr.VentTempLowLim = rNumericArgs(2);
                 nightVentMgr.VentFlowFrac = rNumericArgs(3);
@@ -1900,7 +1899,7 @@ namespace Avail {
                     int ZoneNum = nightCycleMgr.CtrlZonePtrs(1);
 
                     auto const &zoneTstatSetpt = state.dataHeatBalFanSys->zoneTstatSetpts(ZoneNum);
-                    
+
                     switch (state.dataHeatBalFanSys->TempControlType(ZoneNum)) { // select on thermostat control
 
                     case HVAC::SetptType::SingleHeat: {
@@ -2111,12 +2110,12 @@ namespace Avail {
                                    Real64 const TempTolerance     // temperature tolerance
     )
     {
-            
+
         // Check if any zone temperature is above the cooling setpoint plus tolerance
         for (int Index = 1; Index <= NumZones; ++Index) { // loop over zones in list
             int ZoneNum = ZonePtrList(Index);
             auto const &zoneTstatSetpt = state.dataHeatBalFanSys->zoneTstatSetpts(ZoneNum);
-            
+
             switch (state.dataHeatBalFanSys->TempControlType(ZoneNum)) {
             case HVAC::SetptType::SingleCool:
             case HVAC::SetptType::SingleHeatCool:
@@ -2147,7 +2146,7 @@ namespace Avail {
             int ZoneNum = ZonePtrList(Index);
             { // Why is this a new scope?
                 auto const &zoneTstatSetpt = state.dataHeatBalFanSys->zoneTstatSetpts(ZoneNum);
-                    
+
                 HVAC::SetptType const tstatType(state.dataHeatBalFanSys->TempControlType(ZoneNum));
 
                 if ((tstatType == HVAC::SetptType::SingleHeat) || (tstatType == HVAC::SetptType::SingleHeatCool)) {
@@ -3691,7 +3690,7 @@ namespace Avail {
             if (ipsc->lAlphaFieldBlanks(4)) {
                 ShowSevereEmptyField(state, eoh, ipsc->cAlphaFieldNames(4));
                 ErrorsFound = true;
-            } else if ((hybridVentMgr.controlModeSched = Sched::GetSchedule(state, ipsc->cAlphaArgs(4))) == nullptr) { 
+            } else if ((hybridVentMgr.controlModeSched = Sched::GetSchedule(state, ipsc->cAlphaArgs(4))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, ipsc->cAlphaFieldNames(4), ipsc->cAlphaArgs(4));
                 ErrorsFound = true;
             }
@@ -3700,29 +3699,41 @@ namespace Avail {
             SchedMin = hybridVentMgr.controlModeSched->getMinVal(state);
             SchedMax = hybridVentMgr.controlModeSched->getMaxVal(state);
             if (SchedMin == 0 && SchedMax == 0) {
-                ShowWarningCustomField(state, eoh, ipsc->cAlphaFieldNames(4), ipsc->cAlphaArgs(4),
+                ShowWarningCustomField(state,
+                                       eoh,
+                                       ipsc->cAlphaFieldNames(4),
+                                       ipsc->cAlphaArgs(4),
                                        "Schedule specifies control mode 0 for all entries, "
                                        "All zones using this schedule have no hybrid ventilation control.");
             }
             if (SchedMax > 7.0) {
-                ShowSevereCustomField(state, eoh, ipsc->cAlphaFieldNames(4), ipsc->cAlphaArgs(4),
+                ShowSevereCustomField(state,
+                                      eoh,
+                                      ipsc->cAlphaFieldNames(4),
+                                      ipsc->cAlphaArgs(4),
                                       format("Maximum value should be 7. However, the maximum value in the schedule is {:.1T}", SchedMax));
                 ErrorsFound = true;
             }
-            
+
             if (SchedMin < 0.0) {
-                ShowSevereCustomField(state, eoh, ipsc->cAlphaFieldNames(4), ipsc->cAlphaArgs(4),
+                ShowSevereCustomField(state,
+                                      eoh,
+                                      ipsc->cAlphaFieldNames(4),
+                                      ipsc->cAlphaArgs(4),
                                       format("Minimum value should be 0. However, the minimum value in the schedule is {:.1T}", SchedMin));
                 ErrorsFound = true;
             }
-            
+
             if (SchedMax == 7.0 && !state.dataContaminantBalance->Contaminant.CO2Simulation) {
-                ShowSevereCustomField(state, eoh, ipsc->cAlphaFieldNames(4), ipsc->cAlphaArgs(4),
+                ShowSevereCustomField(state,
+                                      eoh,
+                                      ipsc->cAlphaFieldNames(4),
+                                      ipsc->cAlphaArgs(4),
                                       "When the schedule value is 7, carbon dioxide (CO2) control is requested."
                                       "However, CO2 simulation is not enabled. Please use ZoneAirContaminantBalance object to simulate CO2.");
                 ErrorsFound = true;
             }
-            
+
             // Read use weather rain indicator
             BooleanSwitch b = static_cast<BooleanSwitch>(getYesNoValue(ipsc->cAlphaArgs(5)));
             if (b == BooleanSwitch::Invalid) {
@@ -3861,7 +3872,6 @@ namespace Avail {
                 ErrorsFound = true;
             }
 
-
             if (ipsc->lAlphaFieldBlanks(6)) {
                 ShowSevereEmptyField(state, eoh, ipsc->cAlphaFieldNames(6));
                 ErrorsFound = true;
@@ -3937,24 +3947,28 @@ namespace Avail {
                 ShowSevereItemNotFound(state, eoh, ipsc->cAlphaFieldNames(9), ipsc->cAlphaArgs(9));
                 ErrorsFound = true;
             } else if (hybridVentMgr.afnControlTypeSched != nullptr) {
-                ShowWarningCustom(state, eoh, format("{} and {} cannot be used at the same time, {} is disabled.",
-                                                     ipsc->cAlphaFieldNames(8), ipsc->cAlphaFieldNames(9), ipsc->cAlphaFieldNames(9)));
+                ShowWarningCustom(state,
+                                  eoh,
+                                  format("{} and {} cannot be used at the same time, {} is disabled.",
+                                         ipsc->cAlphaFieldNames(8),
+                                         ipsc->cAlphaFieldNames(9),
+                                         ipsc->cAlphaFieldNames(9)));
                 hybridVentMgr.simpleControlTypeSched = nullptr;
-            } else if (!hybridVentMgr.simpleControlTypeSched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) { 
+            } else if (!hybridVentMgr.simpleControlTypeSched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
                 Sched::ShowSevereBadMinMax(state, eoh, ipsc->cAlphaFieldNames(9), ipsc->cAlphaArgs(9), Clusive::In, 0.0, Clusive::In, 1.0);
                 ErrorsFound = true;
             }
 
             if (hybridVentMgr.simpleControlTypeSched != nullptr) {
-                    
+
                 hybridVentMgr.VentilationName = ipsc->cAlphaArgs(10);
                 if (state.dataHeatBal->TotVentilation > 0) {
 
                     hybridVentMgr.VentilationPtr = Util::FindItemInList(ipsc->cAlphaArgs(10), state.dataHeatBal->Ventilation);
                     hybridVentMgr.Master = hybridVentMgr.VentilationPtr;
-                    
+
                     if (hybridVentMgr.VentilationPtr <= 0) {
-                        if (int(hybridVentMgr.simpleControlTypeSched->getMaxVal(state)) == 1) { 
+                        if (int(hybridVentMgr.simpleControlTypeSched->getMaxVal(state)) == 1) {
                             ShowSevereItemNotFound(state, eoh, ipsc->cAlphaFieldNames(10), ipsc->cAlphaArgs(10));
                             ErrorsFound = true;
                         }
@@ -3962,18 +3976,20 @@ namespace Avail {
                         if (state.afn->simulation_control.type == AirflowNetwork::ControlType::NoMultizoneOrDistribution) {
                             ShowWarningError(state, format("{}{}=\"{}\"", RoutineName, cCurrentModuleObject, hybridVentMgr.Name));
                             ShowContinueError(state, "The Airflow Network model is not available for Hybrid Ventilation Control.");
-                        } else if (state.afn->simulation_control.type == AirflowNetwork::ControlType::MultizoneWithDistributionOnlyDuringFanOperation) {
+                        } else if (state.afn->simulation_control.type ==
+                                   AirflowNetwork::ControlType::MultizoneWithDistributionOnlyDuringFanOperation) {
                             ShowWarningError(state, format("{}{}=\"{}\"", RoutineName, cCurrentModuleObject, hybridVentMgr.Name));
                             ShowContinueError(state, "Please check the AirflowNetwork Control field in the AirflowNetwork:SimulationControl object.");
                             ShowContinueError(state, "The suggested choices are MultizoneWithDistribution or MultizoneWithoutDistribution.");
                         }
-                        
+
                     } else { // hybridVentMgr.VentilationPtr > 0
                         if (hybridVentMgr.ControlledZoneNum != state.dataHeatBal->Ventilation(hybridVentMgr.VentilationPtr).ZonePtr) {
                             ShowSevereError(state, format("{}{}=\"{}\"", RoutineName, cCurrentModuleObject, ipsc->cAlphaArgs(1)));
-                            ShowContinueError(state,
-                                              format("The Zone name specified in the Ventilation object {}",
-                                                     state.dataHeatBal->Zone(state.dataHeatBal->Ventilation(hybridVentMgr.VentilationPtr).ZonePtr).Name));
+                            ShowContinueError(
+                                state,
+                                format("The Zone name specified in the Ventilation object {}",
+                                       state.dataHeatBal->Zone(state.dataHeatBal->Ventilation(hybridVentMgr.VentilationPtr).ZonePtr).Name));
                             ShowContinueError(state, format("is not equal to the {}=\"{}\".", ipsc->cAlphaFieldNames(3), ipsc->cAlphaArgs(3)));
                             ErrorsFound = true;
                         }
@@ -3981,19 +3997,22 @@ namespace Avail {
                         if (state.afn->simulation_control.type != AirflowNetwork::ControlType::NoMultizoneOrDistribution) {
                             ShowSevereError(state, format("{}{}=\"{}\"", RoutineName, cCurrentModuleObject, hybridVentMgr.Name));
                             ShowContinueError(state, "The simple airflow objects are used for natural ventilation calculation.");
-                            ShowContinueError(state,
-                                              "The Airflow Network model is not allowed to perform. Please set the control type = NoMultizoneOrDistribution");
+                            ShowContinueError(
+                                state,
+                                "The Airflow Network model is not allowed to perform. Please set the control type = NoMultizoneOrDistribution");
                             ErrorsFound = true;
                         }
                     }
                 }
             }
-            
+
             // Disallow combination of simple control and OA control mode
             if (hybridVentMgr.simpleControlTypeSched != nullptr && hybridVentMgr.controlModeSched->getMaxVal(state) == 4.0) {
-                ShowSevereCustom(state, eoh, format("The outdoor ventilation air control type defined in {} cannot work together with {}",
-                                                    ipsc->cAlphaArgs(4),
-                                                    ipsc->cAlphaFieldNames(9)));
+                ShowSevereCustom(state,
+                                 eoh,
+                                 format("The outdoor ventilation air control type defined in {} cannot work together with {}",
+                                        ipsc->cAlphaArgs(4),
+                                        ipsc->cAlphaFieldNames(9)));
                 ErrorsFound = true;
             }
 
@@ -4598,7 +4617,7 @@ namespace Avail {
                         }
 
                     } break;
-                            
+
                     case HVAC::SetptType::DualHeatCool: {
                         if (thisZoneHB.MAT < zoneTstatSetpt.setptLo || thisZoneHB.MAT > zoneTstatSetpt.setptHi) {
                             hybridVentMgr.ctrlStatus = VentCtrlStatus::Close;

@@ -106,7 +106,7 @@ namespace UnitVentilator {
 
     struct UnitVentilatorData
     {
-        std::string Name;      // name of unit
+        std::string Name; // name of unit
         Sched::Schedule *availSched = nullptr;
         int AirInNode = 0;     // inlet air node number
         int AirOutNode = 0;    // outlet air node number
@@ -115,14 +115,14 @@ namespace UnitVentilator {
         HVAC::FanType fanType = HVAC::FanType::Invalid; // Fan type number (see DataHVACGlobals)
         std::string FanName;                            // name of fan
         int Fan_Index = 0;
-        Sched::Schedule *fanOpModeSched = nullptr;                      // index to fan operating mode schedule
+        Sched::Schedule *fanOpModeSched = nullptr; // index to fan operating mode schedule
         Sched::Schedule *fanAvailSched = nullptr;
         HVAC::FanOp fanOp = HVAC::FanOp::Invalid; // mode of operation; 1=cycling fan, cycling coil, 2=continuous fan, cycling coil
         int ControlCompTypeNum = 0;
         int CompErrIndex = 0;
-        Real64 MaxAirVolFlow = 0.0;                     // m3/s
-        Real64 MaxAirMassFlow = 0.0;                    // kg/s
-        OAControl OAControlType = OAControl::Invalid;   // type of control; options are VARIABLE PERCENT and FIXED TEMPERATURE
+        Real64 MaxAirVolFlow = 0.0;                   // m3/s
+        Real64 MaxAirMassFlow = 0.0;                  // kg/s
+        OAControl OAControlType = OAControl::Invalid; // type of control; options are VARIABLE PERCENT and FIXED TEMPERATURE
         Sched::Schedule *minOASched = nullptr;
         Sched::Schedule *maxOASched = nullptr;
         Sched::Schedule *tempSched = nullptr;

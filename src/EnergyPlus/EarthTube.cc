@@ -143,7 +143,7 @@ void GetEarthTube(EnergyPlusData &state, bool &ErrorsFound) // If errors found i
     // stores it in the EarthTube data structure.
 
     static constexpr std::string_view routineName = "GetEarthTube";
-    
+
     // SUBROUTINE PARAMETER DEFINITIONS:
     Real64 constexpr EarthTubeTempLimit(100.0); // degrees Celsius
 
@@ -160,9 +160,9 @@ void GetEarthTube(EnergyPlusData &state, bool &ErrorsFound) // If errors found i
     state.dataEarthTube->ZnRptET.allocate(state.dataGlobal->NumOfZones);
 
     auto &s_ipsc = state.dataIPShortCut;
-    
+
     s_ipsc->cCurrentModuleObject = "ZoneEarthtube:Parameters";
-    
+
     int totEarthTubePars = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, s_ipsc->cCurrentModuleObject);
 
     state.dataEarthTube->EarthTubePars.allocate(totEarthTubePars);
@@ -186,11 +186,9 @@ void GetEarthTube(EnergyPlusData &state, bool &ErrorsFound) // If errors found i
         // Check to make sure name is unique
         for (int otherParams = 1; otherParams < Loop; ++otherParams) {
             if (Util::SameString(thisEarthTubePars.nameParameters, state.dataEarthTube->EarthTubePars(otherParams).nameParameters)) {
-                ShowSevereError(state,
-                                format("{}: {} = {} is not a unique name.",
-                                       s_ipsc->cCurrentModuleObject,
-                                       s_ipsc->cAlphaFieldNames(1),
-                                       s_ipsc->cAlphaArgs(1)));
+                ShowSevereError(
+                    state,
+                    format("{}: {} = {} is not a unique name.", s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaFieldNames(1), s_ipsc->cAlphaArgs(1)));
                 ShowContinueError(state, format("Check the other {} names for a duplicate.", s_ipsc->cCurrentModuleObject));
                 ErrorsFound = true;
             }
@@ -224,13 +222,11 @@ void GetEarthTube(EnergyPlusData &state, bool &ErrorsFound) // If errors found i
                                                                  s_ipsc->cNumericFieldNames);
 
         ErrorObjectHeader eoh{routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)};
-        
+
         // First Alpha is Zone Name
         thisEarthTube.ZonePtr = Util::FindItemInList(s_ipsc->cAlphaArgs(1), state.dataHeatBal->Zone);
         if (thisEarthTube.ZonePtr == 0) {
-            ShowSevereError(
-                state,
-                format("{}: {} not found={}", s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaFieldNames(1), s_ipsc->cAlphaArgs(1)));
+            ShowSevereError(state, format("{}: {} not found={}", s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaFieldNames(1), s_ipsc->cAlphaArgs(1)));
             ErrorsFound = true;
         }
 
@@ -238,7 +234,7 @@ void GetEarthTube(EnergyPlusData &state, bool &ErrorsFound) // If errors found i
         if (s_ipsc->lAlphaFieldBlanks(2)) {
             ShowSevereEmptyField(state, eoh, s_ipsc->cAlphaFieldNames(2));
             ErrorsFound = true;
-        } else if ((thisEarthTube.availSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(2))) == nullptr) { 
+        } else if ((thisEarthTube.availSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(2))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(2), s_ipsc->cAlphaArgs(2));
             ErrorsFound = true;
         }

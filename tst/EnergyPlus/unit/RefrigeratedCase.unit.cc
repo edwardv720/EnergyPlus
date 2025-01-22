@@ -481,7 +481,7 @@ Refrigeration:WalkIn,
 
     ASSERT_TRUE(process_idf(fmt::format("{}\n{}", oneZoneBuildingWithIdealLoads, idf_objects))); // read idf objects
     state->init_state(*state);
-    
+
     state->dataZoneEquip->ZoneEquipInputsFilled = true;
     state->dataEnvrn->OutBaroPress = 101325.0;
     bool ErrorsFound = false;
@@ -579,7 +579,7 @@ Refrigeration:WalkIn,
 
     ASSERT_TRUE(process_idf(fmt::format("{}\n{}", oneZoneBuildingWithIdealLoads, idf_objects))); // read idf objects
     state->init_state(*state);
-    
+
     state->dataZoneEquip->ZoneEquipInputsFilled = true;
     state->dataEnvrn->OutBaroPress = 101325.0;
     bool ErrorsFound = false;
@@ -737,7 +737,7 @@ Schedule:Compact,
 
     ASSERT_TRUE(process_idf(fmt::format("{}\n{}", oneZoneBuildingWithIdealLoads, idf_objects))); // read idf objects
     state->init_state(*state);
-    
+
     state->dataZoneEquip->ZoneEquipInputsFilled = true;
     state->dataEnvrn->OutBaroPress = 101325.0;
     bool ErrorsFound = false;

@@ -738,10 +738,11 @@ void processShadowingInput(EnergyPlusData &state)
 
     if (state.dataSysVars->shadingMethod == DataSystemVariables::ShadingMethod::Imported) {
         for (auto &surf : state.dataSurface->Surface) {
-            if ((surf.surfExternalShadingSched = Sched::GetSchedule(state, surf.Name + "_shading")) != nullptr) { 
+            if ((surf.surfExternalShadingSched = Sched::GetSchedule(state, surf.Name + "_shading")) != nullptr) {
                 surf.SurfSchedExternalShadingFrac = true;
             } else {
-                ShowWarningError(state, format("processShadowingInput: sunlit fraction schedule not found for {} when using ImportedShading.", surf.Name));
+                ShowWarningError(state,
+                                 format("processShadowingInput: sunlit fraction schedule not found for {} when using ImportedShading.", surf.Name));
                 ShowContinueError(state, "These values are set to 1.0.");
             }
         }
@@ -4968,7 +4969,7 @@ void FigureSolarBeamAtTimestep(EnergyPlusData &state, int const iHour, int const
     if ((state.dataSysVars->shadingMethod == ShadingMethod::Scheduled || state.dataSysVars->shadingMethod == ShadingMethod::Imported) &&
         !state.dataGlobal->DoingSizing && state.dataGlobal->KindOfSim == Constant::KindOfSim::RunPeriodWeather) {
         for (int SurfNum = 1; SurfNum <= s_surf->TotSurfaces; ++SurfNum) {
-            auto &surf = s_surf->Surface(SurfNum); 
+            auto &surf = s_surf->Surface(SurfNum);
             if (surf.SurfSchedExternalShadingFrac) {
                 state.dataHeatBal->SurfSunlitFrac(iHour, iTimeStep, SurfNum) = surf.surfExternalShadingSched->getHrTsVal(state, iHour, iTimeStep);
             } else {
@@ -6014,8 +6015,7 @@ void SHDGSS(EnergyPlusData &state,
                 }
             }
             HTRANS0(state, NS3, state.dataSolarShading->NumVertInShadowOrClippedSurface);
-            if (!state.dataSolarShading->CalcSkyDifShading &&
-                surface.shadowSurfSched != nullptr) {
+            if (!state.dataSolarShading->CalcSkyDifShading && surface.shadowSurfSched != nullptr) {
                 if (iHour != 0) {
                     SchValue = surface.shadowSurfSched->getHrTsVal(state, iHour, TS);
                 } else {
@@ -10111,7 +10111,7 @@ void WindowGapAirflowControl(EnergyPlusData &state)
                 } break;
                 case WindowAirFlowControlType::Schedule: {
                     if (s_surf->SurfWinAirflowHasSchedule(ISurf)) {
-                        auto const *sched = s_surf->SurfWinAirflowScheds(ISurf);       
+                        auto const *sched = s_surf->SurfWinAirflowScheds(ISurf);
                         Real64 ScheduleMult = sched->getCurrentVal(); // Multiplier value from schedule
                         if (ScheduleMult < 0.0 || ScheduleMult > 1.0) {
                             ShowFatalError(

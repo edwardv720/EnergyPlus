@@ -104,9 +104,9 @@ namespace DualDuct {
     {
         std::string Name;                                    // Name of the Damper
         DualDuctDamper DamperType = DualDuctDamper::Invalid; // Type of Damper ie. VAV, Mixing, Inducing, etc.
-        Sched::Schedule *availSched = nullptr;                                    // Pointer to the correct schedule // brazenly assume that this is an availability schedule
-        Real64 MaxAirVolFlowRate = 0.0;                      // Max Specified Volume Flow Rate of Damper [m3/sec]
-        Real64 MaxAirMassFlowRate = 0.0;                     // Max Specified MAss Flow Rate of Damper [kg/s]
+        Sched::Schedule *availSched = nullptr; // Pointer to the correct schedule // brazenly assume that this is an availability schedule
+        Real64 MaxAirVolFlowRate = 0.0;        // Max Specified Volume Flow Rate of Damper [m3/sec]
+        Real64 MaxAirMassFlowRate = 0.0;       // Max Specified MAss Flow Rate of Damper [kg/s]
         int HotAirInletNodeNum = 0;
         int ColdAirInletNodeNum = 0;
         int OutletNodeNum = 0;
@@ -130,11 +130,11 @@ namespace DualDuct {
         int OARequirementsPtr = 0;                                 // - Index to DesignSpecification:OutdoorAir object
         PerPersonMode OAPerPersonMode = PerPersonMode::ModeNotSet; // mode for how per person rates are determined, DCV or design.
         int AirLoopNum = 0;                                        // index to airloop that this terminal unit is connected to
-        Sched::Schedule *zoneTurndownMinAirFracSched = nullptr;                      // pointer to the schedule for turndown minimum airflow fraction
-        Real64 ZoneTurndownMinAirFrac = 1.0;         // turndown minimum airflow fraction value, multiplier of zone design minimum air flow
-        bool MyEnvrnFlag = true;                     // environment flag
-        bool MySizeFlag = true;                      // sizing flag
-        bool MyAirLoopFlag = true;                   // airloop flag
+        Sched::Schedule *zoneTurndownMinAirFracSched = nullptr;    // pointer to the schedule for turndown minimum airflow fraction
+        Real64 ZoneTurndownMinAirFrac = 1.0; // turndown minimum airflow fraction value, multiplier of zone design minimum air flow
+        bool MyEnvrnFlag = true;             // environment flag
+        bool MySizeFlag = true;              // sizing flag
+        bool MyAirLoopFlag = true;           // airloop flag
         bool CheckEquipName = true;
         DualDuctAirTerminalFlowConditions dd_airterminalHotAirInlet;
         DualDuctAirTerminalFlowConditions dd_airterminalColdAirInlet;

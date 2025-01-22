@@ -184,7 +184,7 @@ namespace ThermalChimney {
                                                                      state.dataIPShortCut->cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
-            
+
             if (Util::IsNameEmpty(state, state.dataIPShortCut->cAlphaArgs(1), cCurrentModuleObject, ErrorsFound)) {
                 continue;
             }
@@ -213,7 +213,8 @@ namespace ThermalChimney {
 
             if (state.dataIPShortCut->lAlphaFieldBlanks(3)) {
                 state.dataThermalChimneys->ThermalChimneySys(Loop).availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((state.dataThermalChimneys->ThermalChimneySys(Loop).availSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(3))) == nullptr) { 
+            } else if ((state.dataThermalChimneys->ThermalChimneySys(Loop).availSched =
+                            Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(3))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(3), state.dataIPShortCut->cAlphaArgs(3));
                 ErrorsFound = true;
             }

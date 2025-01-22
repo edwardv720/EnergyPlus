@@ -83,7 +83,7 @@ TEST_F(EnergyPlusFixture, OutAirNodeManager_OATdbTwbOverrideTest)
     state->dataLoopNodes->Node(1).IsLocalNode = true;
     state->dataLoopNodes->Node(1).outAirDryBulbSched = Sched::AddScheduleConstant(*state, "Out Air Dry Bulb");
     state->dataLoopNodes->Node(1).outAirDryBulbSched->currentVal = 24.0;
-    
+
     state->dataLoopNodes->Node(1).OutAirDryBulb = state->dataEnvrn->OutDryBulbTemp;
     state->dataLoopNodes->Node(1).OutAirWetBulb = state->dataEnvrn->OutWetBulbTemp;
     // EMS override value

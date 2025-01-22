@@ -765,7 +765,7 @@ namespace HVACUnitaryBypassVAV {
                 }
             }
 
-            thisCBVAV.fanOpModeSched = Sched::GetSchedule(state, Alphas(13)); 
+            thisCBVAV.fanOpModeSched = Sched::GetSchedule(state, Alphas(13));
             if (thisCBVAV.fanOpModeSched != nullptr) {
                 if (!thisCBVAV.fanOpModeSched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
                     Sched::ShowSevereBadMinMax(state, eoh, cAlphaFields(13), Alphas(13), Clusive::In, 0.0, Clusive::In, 1.0);
@@ -779,7 +779,8 @@ namespace HVACUnitaryBypassVAV {
                     //       UseCompressorOnFlow  = operate at last cooling or heating air flow requested when compressor is off
                     //       UseCompressorOffFlow = operate at value specified by user (no input for this object type, UseCompONFlow)
                     //       AirFlowControl only valid if fan opmode = HVAC::FanOp::Continuous
-                    thisCBVAV.AirFlowControl = (thisCBVAV.MaxNoCoolHeatAirVolFlow == 0.0) ? AirFlowCtrlMode::UseCompressorOnFlow : AirFlowCtrlMode::UseCompressorOffFlow;
+                    thisCBVAV.AirFlowControl =
+                        (thisCBVAV.MaxNoCoolHeatAirVolFlow == 0.0) ? AirFlowCtrlMode::UseCompressorOnFlow : AirFlowCtrlMode::UseCompressorOffFlow;
                 }
 
             } else {

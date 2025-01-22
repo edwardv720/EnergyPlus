@@ -74,7 +74,6 @@ namespace DataHeatBalSurface {
     int constexpr MinEMPDIterations(4);                      // Minimum number of iterations required for EMPD solution
     int constexpr IterationsForCondFDRelaxChange(5);         // number of iterations for inside temps that triggers a change
 
-
 } // namespace DataHeatBalSurface
 
 struct HeatBalSurfData : BaseGlobalStruct

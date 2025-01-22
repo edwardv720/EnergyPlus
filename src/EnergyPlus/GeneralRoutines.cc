@@ -798,7 +798,7 @@ void ValidateComponent(EnergyPlusData &state,
 
 void CalcBasinHeaterPower(EnergyPlusData &state,
                           Real64 const Capacity,     // Basin heater capacity per degree C below setpoint (W/C)
-                          Sched::Schedule *sched,     // basin heater schedule
+                          Sched::Schedule *sched,    // basin heater schedule
                           Real64 const SetPointTemp, // setpoint temperature for basin heater operation (C)
                           Real64 &Power              // Basin heater power (W)
 )

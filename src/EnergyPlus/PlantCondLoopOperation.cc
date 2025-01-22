@@ -335,7 +335,7 @@ void GetPlantOperationInput(EnergyPlusData &state, bool &GetInputOK)
 
     // SUBROUTINE PARAMETER DEFINITIONS:
     static constexpr std::string_view RoutineName("GetPlantOperationInput: "); // include trailing blank space
-    static constexpr std::string_view routineName = "GetPlantOperationInput"; 
+    static constexpr std::string_view routineName = "GetPlantOperationInput";
 
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
     int LoopNum;           // Loop counter (Plant or Cond)
@@ -402,7 +402,7 @@ void GetPlantOperationInput(EnergyPlusData &state, bool &GetInputOK)
                                                                      state.dataIPShortCut->cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, CurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
-            
+
             state.dataPlnt->PlantLoop(LoopNum).NumOpSchemes = (NumAlphas - 1) / 3;
             if (state.dataPlnt->PlantLoop(LoopNum).NumOpSchemes > 0) {
                 state.dataPlnt->PlantLoop(LoopNum).OpScheme.clear();
@@ -456,8 +456,10 @@ void GetPlantOperationInput(EnergyPlusData &state, bool &GetInputOK)
 
                     state.dataPlnt->PlantLoop(LoopNum).OpScheme(Num).Name = state.dataIPShortCut->cAlphaArgs(Num * 3);
 
-                    if ((state.dataPlnt->PlantLoop(LoopNum).OpScheme(Num).sched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(Num * 3 + 1))) == nullptr) { 
-                        ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(Num * 3 + 1), state.dataIPShortCut->cAlphaArgs(Num * 3 + 1));
+                    if ((state.dataPlnt->PlantLoop(LoopNum).OpScheme(Num).sched =
+                             Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(Num * 3 + 1))) == nullptr) {
+                        ShowSevereItemNotFound(
+                            state, eoh, state.dataIPShortCut->cAlphaFieldNames(Num * 3 + 1), state.dataIPShortCut->cAlphaArgs(Num * 3 + 1));
                         ErrorsFound = true;
                     }
                 }
@@ -1354,7 +1356,7 @@ void FindCompSPInput(EnergyPlusData &state,
     //    PlantEquipmentOperation:ThermalEnergyStorage
 
     static constexpr std::string_view routineName = "FindCompSPInput";
-        
+
     // Using/Aliasing
     using namespace DataLoopNode;
     using NodeInputManager::GetOnlySingleNode;
@@ -1386,14 +1388,8 @@ void FindCompSPInput(EnergyPlusData &state,
         int NumNums;
         int IOStat;
         for (int Num = 1; Num <= NumSchemes; ++Num) {
-            state.dataInputProcessing->inputProcessor->getObjectItem(state,
-                                                                     CurrentModuleObject,
-                                                                     Num,
-                                                                     state.dataIPShortCut->cAlphaArgs,
-                                                                     NumAlphas,
-                                                                     state.dataIPShortCut->rNumericArgs,
-                                                                     NumNums,
-                                                                     IOStat);
+            state.dataInputProcessing->inputProcessor->getObjectItem(
+                state, CurrentModuleObject, Num, state.dataIPShortCut->cAlphaArgs, NumAlphas, state.dataIPShortCut->rNumericArgs, NumNums, IOStat);
 
             if (Util::SameString(state.dataPlnt->PlantLoop(LoopNum).OpScheme(SchemeNum).Name, state.dataIPShortCut->cAlphaArgs(1))) break;
             if (Num == NumSchemes) {
@@ -1417,7 +1413,7 @@ void FindCompSPInput(EnergyPlusData &state,
             Sched::Schedule *onPeakSched = nullptr;
 
             ErrorObjectHeader eoh{routineName, CurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
-            
+
             if (CurrentModuleObject == "PlantEquipmentOperation:ThermalEnergyStorage") {
                 // Read all of the additional parameters for ice storage control scheme and error check various parameters
                 onPeakSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(2));
@@ -1426,7 +1422,6 @@ void FindCompSPInput(EnergyPlusData &state,
                     ErrorsFound = true;
                 }
 
-                
                 chargeSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(3));
                 if (chargeSched == nullptr) {
                     ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(3), state.dataIPShortCut->cAlphaArgs(3));

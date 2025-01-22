@@ -187,7 +187,7 @@ namespace PhotovoltaicThermalCollectors {
         // Get input for PVT Simple objects
 
         static constexpr std::string_view routineName = "GetPVTSimpleCollectorsInput";
-            
+
         int Item;                // Item to be "gotten"
         int NumAlphas;           // Number of Alphas for each GetObjectItem call
         int NumNumbers;          // Number of Numbers for each GetObjectItem call
@@ -210,7 +210,7 @@ namespace PhotovoltaicThermalCollectors {
                                                                      state.dataIPShortCut->cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
-            
+
             auto &thisTmpSimplePVTperf = tmpSimplePVTperf(Item);
             thisTmpSimplePVTperf.Name = state.dataIPShortCut->cAlphaArgs(1);
             thisTmpSimplePVTperf.ThermEfficMode =
@@ -236,7 +236,7 @@ namespace PhotovoltaicThermalCollectors {
         // PURPOSE OF THIS SUBROUTINE:
         // Get input for BIPVT objects
         static constexpr std::string_view routineName = "GetBIPVTCollectorsInput";
-            
+
         int Item;       // Item to be "gotten"
         int NumAlphas;  // Number of Alphas for each GetObjectItem call
         int NumNumbers; // Number of Numbers for each GetObjectItem call
@@ -259,7 +259,7 @@ namespace PhotovoltaicThermalCollectors {
                                                                      state.dataIPShortCut->cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
-            
+
             auto &thisTmpBIPVTperf = tmpBIPVTperf(Item);
             thisTmpBIPVTperf.Name = state.dataIPShortCut->cAlphaArgs(1);
             thisTmpBIPVTperf.OSCMName = state.dataIPShortCut->cAlphaArgs(2);

@@ -671,14 +671,21 @@ namespace HVACMultiSpeedHeatPump {
             thisMSHP.fanPlace = static_cast<HVAC::FanPlace>(getEnumValue(HVAC::fanPlaceNamesUC, Alphas(8)));
             assert(thisMSHP.fanPlace != HVAC::FanPlace::Invalid);
 
-            if ((thisMSHP.fanOpModeSched = Sched::GetSchedule(state, Alphas(9))) == nullptr) { 
+            if ((thisMSHP.fanOpModeSched = Sched::GetSchedule(state, Alphas(9))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(9), Alphas(9));
                 ErrorsFound = true;
             }
 
             if (thisMSHP.fanOpModeSched != nullptr && thisMSHP.fanType == HVAC::FanType::Constant) {
                 if (!thisMSHP.fanOpModeSched->checkMinMaxVals(state, Clusive::Ex, 0.0, Clusive::In, 1.0)) {
-                    Sched::ShowSevereBadMinMax(state, eoh, cAlphaFields(9), Alphas(9), Clusive::Ex, 0.0, Clusive::In, 1.0, 
+                    Sched::ShowSevereBadMinMax(state,
+                                               eoh,
+                                               cAlphaFields(9),
+                                               Alphas(9),
+                                               Clusive::Ex,
+                                               0.0,
+                                               Clusive::In,
+                                               1.0,
                                                "Fan mode must be continuous (schedule values > 0) for Fan:ConstantVolume.");
                     ErrorsFound = true;
                 }
@@ -2237,8 +2244,8 @@ namespace HVACMultiSpeedHeatPump {
         }
 
         if (MSHeatPump(MSHeatPumpNum).fanOpModeSched != nullptr) {
-            MSHeatPump(MSHeatPumpNum).fanOp = (MSHeatPump(MSHeatPumpNum).fanOpModeSched->getCurrentVal() == 0.0) ?
-                    HVAC::FanOp::Cycling : HVAC::FanOp::Continuous;
+            MSHeatPump(MSHeatPumpNum).fanOp =
+                (MSHeatPump(MSHeatPumpNum).fanOpModeSched->getCurrentVal() == 0.0) ? HVAC::FanOp::Cycling : HVAC::FanOp::Continuous;
         }
 
         // Calculate air distribution losses
@@ -2411,10 +2418,10 @@ namespace HVACMultiSpeedHeatPump {
             if (MSHeatPump(MSHeatPumpNum).HeatCoolMode == ModeOfOperation::HeatingMode &&
                 MSHeatPump(MSHeatPumpNum).HeatCoilType == MultiSpeedHeatingCoil) {
                 auto *coilAvailSched = DXCoils::GetDXCoilAvailSched(state,
-                                                                "Coil:Heating:DX:MultiSpeed",
-                                                                MSHeatPump(MSHeatPumpNum).DXHeatCoilName,
-                                                                ErrorsFound,
-                                                                MSHeatPump(MSHeatPumpNum).DXHeatCoilIndex);
+                                                                    "Coil:Heating:DX:MultiSpeed",
+                                                                    MSHeatPump(MSHeatPumpNum).DXHeatCoilName,
+                                                                    ErrorsFound,
+                                                                    MSHeatPump(MSHeatPumpNum).DXHeatCoilIndex);
                 if (ErrorsFound) {
                     ShowFatalError(state, "InitMSHeatPump, The previous error causes termination.");
                 }
@@ -2427,8 +2434,7 @@ namespace HVACMultiSpeedHeatPump {
                                    MSHeatPump(MSHeatPumpNum).Name,
                                    MSHeatPump(MSHeatPumpNum).DXCoolCoilName,
                                    coilAvailSched->Name));
-                        ShowContinueErrorTimeStamp(
-                                   state, format("Availability schedule returned={:.1R}", coilAvailSched->getCurrentVal()));
+                        ShowContinueErrorTimeStamp(state, format("Availability schedule returned={:.1R}", coilAvailSched->getCurrentVal()));
                     } else {
                         ++MSHeatPump(MSHeatPumpNum).HeatCountAvail;
                         ShowRecurringWarningErrorAtEnd(state,

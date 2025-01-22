@@ -498,7 +498,7 @@ TEST_F(EnergyPlusFixture, MixedAir_HXBypassOptionTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetOAControllerInputs(*state);
     EXPECT_EQ(2, state->dataMixedAir->OAController(1).OANode);
     EXPECT_TRUE(OutAirNodeManager::CheckOutAirNodeNumber(*state, state->dataMixedAir->OAController(1).OANode));
@@ -807,13 +807,13 @@ TEST_F(EnergyPlusFixture, CO2ControlDesignOccupancyTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
 
-    state->dataGlobal->TimeStepsInHour = 4; // must initialize this to get schedules initialized
+    state->dataGlobal->TimeStepsInHour = 4;    // must initialize this to get schedules initialized
     state->dataGlobal->MinutesInTimeStep = 15; // must initialize this to get schedules initialized
     state->init_state(*state);
 
     state->dataContaminantBalance->Contaminant.CO2Simulation = true;
     state->dataContaminantBalance->Contaminant.CO2OutdoorSched = Sched::GetSchedule(*state, "OCCUPY-1");
-    
+
     state->dataAirLoop->AirLoopControlInfo.allocate(1);
     state->dataAirLoop->AirLoopControlInfo(1).LoopFlowRateSet = true;
     state->dataSize->OARequirements.allocate(1);
@@ -823,7 +823,7 @@ TEST_F(EnergyPlusFixture, CO2ControlDesignOccupancyTest)
     oaRequirements.OAFlowPerPerson = 0.003149;
     oaRequirements.OAFlowPerArea = 0.000407;
     oaRequirements.oaFlowFracSched = Sched::GetScheduleAlwaysOn(*state);
-    
+
     state->dataSize->ZoneAirDistribution.allocate(1);
     state->dataSize->ZoneAirDistribution(1).Name = "CM DSZAD WEST ZONE";
     state->dataSize->ZoneAirDistribution(1).zoneADEffSched = Sched::GetSchedule(*state, "ZONEADEFFSCH");
@@ -867,10 +867,10 @@ TEST_F(EnergyPlusFixture, CO2ControlDesignOccupancyTest)
 
     ventMechanical.VentMechZone(1).zoneADEffSched = Sched::GetSchedule(*state, "ACTSCHD");
     ventMechanical.VentMechZone(1).zoneADEffSched->currentVal = 1.0;
-    
+
     state->dataHeatBal->Zone(1).TotOccupants = 3;
     Sched::GetSchedule(*state, "ZONEADEFFSCH")->currentVal = 1.0;
-    
+
     state->dataContaminantBalance->ZoneCO2GainFromPeople.allocate(1);
     state->dataContaminantBalance->ZoneCO2GainFromPeople(1) = 3.82E-8;
     state->dataContaminantBalance->OutdoorCO2 = 400;
@@ -1084,7 +1084,7 @@ TEST_F(EnergyPlusFixture, CO2ControlDesignOccupancyTest3Zone)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataContaminantBalance->Contaminant.CO2Simulation = true;
     state->dataContaminantBalance->Contaminant.CO2OutdoorSched = Sched::GetSchedule(*state, "OCCUPY-1");
 
@@ -1135,7 +1135,7 @@ TEST_F(EnergyPlusFixture, CO2ControlDesignOccupancyTest3Zone)
     state->dataAirLoop->AirLoopFlow(1).OAFrac = 0.01;    // DataAirLoop variable (AirloopHVAC)
     state->dataAirLoop->AirLoopFlow(1).OAMinFrac = 0.01; // DataAirLoop variable (AirloopHVAC)
 
-    state->dataGlobal->TimeStepsInHour = 4; // must initialize this to get schedules initialized
+    state->dataGlobal->TimeStepsInHour = 4;    // must initialize this to get schedules initialized
     state->dataGlobal->MinutesInTimeStep = 15; // must initialize this to get schedules initialized
     state->dataEnvrn->StdBaroPress = StdPressureSeaLevel;
     state->dataEnvrn->OutDryBulbTemp = 13.0;
@@ -1165,7 +1165,7 @@ TEST_F(EnergyPlusFixture, CO2ControlDesignOccupancyTest3Zone)
     ventMechanical.VentMechZone(2).zoneADEffSched = Sched::GetSchedule(*state, "ACTSCHD");
     ventMechanical.VentMechZone(3).zoneADEffSched = Sched::GetSchedule(*state, "ACTSCHD");
     Sched::GetSchedule(*state, "ACTSCHD")->currentVal = 1.0;
-    
+
     state->dataHeatBal->Zone(1).TotOccupants = 3;
     state->dataHeatBal->Zone(2).TotOccupants = 3;
     state->dataHeatBal->Zone(3).TotOccupants = 3;
@@ -1522,7 +1522,7 @@ TEST_F(EnergyPlusFixture, MixedAir_TestHXinOASystem)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataMixedAir->GetOASysInputFlag = true;
     state->dataGlobal->BeginEnvrnFlag = true;
     int AirloopNum = 1;
@@ -1670,7 +1670,7 @@ TEST_F(EnergyPlusFixture, MixedAir_HumidifierOnOASystemTest)
     state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->MinutesInTimeStep = 60 / state->dataGlobal->TimeStepsInHour;
     state->init_state(*state);
-    
+
     state->dataGlobal->TimeStep = 1;
     state->dataGlobal->HourOfDay = 1;
     state->dataEnvrn->DayOfWeek = 1;
@@ -1912,7 +1912,7 @@ TEST_F(EnergyPlusFixture, MixedAir_MissingHIghRHControlInputTest)
     compare_err_stream(""); // just for debugging
 
     state->init_state(*state);
-    
+
     bool ErrorsFound(false); // If errors detected in input
     int ControllerNum(0);    // Controller number
     int NumArg(0);
@@ -2044,7 +2044,7 @@ TEST_F(EnergyPlusFixture, MixedAir_HIghRHControlTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     compare_err_stream(""); // just for debugging
 
     bool ErrorsFound(false); // If errors detected in input
@@ -2367,7 +2367,7 @@ TEST_F(EnergyPlusFixture, MixedAir_MiscGetsPart1)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetOAControllerInputs(*state);
 
     EXPECT_EQ(1, GetNumOAMixers(*state));
@@ -5782,7 +5782,7 @@ TEST_F(EnergyPlusFixture, MixedAir_MiscGetsPart2)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetOAControllerInputs(*state);
 
     EXPECT_EQ(6, GetNumOAMixers(*state));
@@ -5867,7 +5867,7 @@ TEST_F(EnergyPlusFixture, MechVentController_VRPCap)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     Real64 SysMassFlow(0.0);        // System supply mass flow rate [kg/s]
     Real64 OAMassFlow(0.0);         // OA mass flow rate [kg/s]
     Real64 ExpectedOAMassFlow(0.8); // System design OA flow rate
@@ -5977,7 +5977,7 @@ TEST_F(EnergyPlusFixture, MechVentController_VRPNoCap)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     Real64 OAMassFlow = 0.0; // OA mass flow rate [kg/s]
     bool ErrorsFound = false;
 
@@ -6138,7 +6138,7 @@ TEST_F(EnergyPlusFixture, MechVentController_ACHflow)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     Real64 SysMassFlow(0.0);              // System supply mass flow rate [kg/s]
     Real64 OAMassFlow(0.0);               // OA mass flow rate [kg/s]
     Real64 ExpectedOAMassFlow(0.0027778); // System design OA flow rate
@@ -6187,7 +6187,7 @@ TEST_F(EnergyPlusFixture, MechVentController_IAQPTests)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool ErrorsFound(false);
     GetZoneData(*state, ErrorsFound);
     EXPECT_FALSE(ErrorsFound);
@@ -6858,7 +6858,7 @@ TEST_F(EnergyPlusFixture, MixedAir_OAControllerOrderInControllersListTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetOAControllerInputs(*state);
 
     GetOutsideAirSysInputs(*state);
@@ -6942,7 +6942,7 @@ TEST_F(EnergyPlusFixture, OAController_ProportionalMinimum_HXBypassTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetOAControllerInputs(*state);
     EXPECT_EQ(2, state->dataMixedAir->OAController(1).OANode);
     EXPECT_TRUE(OutAirNodeManager::CheckOutAirNodeNumber(*state, state->dataMixedAir->OAController(1).OANode));
@@ -7126,7 +7126,7 @@ TEST_F(EnergyPlusFixture, OAController_FixedMinimum_MinimumLimitTypeTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetOutsideAirSysInputs(*state);
     EXPECT_EQ(1, state->dataAirLoop->NumOASystems);
     EXPECT_EQ("OA SYS", state->dataAirLoop->OutsideAirSys(1).Name);
@@ -7331,7 +7331,7 @@ TEST_F(EnergyPlusFixture, OAController_HighExhaustMassFlowTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetOutsideAirSysInputs(*state);
     EXPECT_EQ(1, state->dataAirLoop->NumOASystems);
     EXPECT_EQ("OA SYS", state->dataAirLoop->OutsideAirSys(1).Name);
@@ -7580,7 +7580,7 @@ TEST_F(EnergyPlusFixture, OAController_LowExhaustMassFlowTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetOutsideAirSysInputs(*state);
     EXPECT_EQ(1, state->dataAirLoop->NumOASystems);
     EXPECT_EQ("OA SYS", state->dataAirLoop->OutsideAirSys(1).Name);
@@ -7790,7 +7790,7 @@ TEST_F(EnergyPlusFixture, MixedAir_TemperatureError)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetOAControllerInputs(*state);
 
     EXPECT_EQ(1, GetNumOAMixers(*state));

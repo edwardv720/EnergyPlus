@@ -7985,8 +7985,7 @@ Real64 HCInWindowStandardRatings(EnergyPlusData &state,
     mu = 3.723E-6 + 4.94E-8 * TmeanFilmKelvin;     // Table B.2 in ISO 15099
     Cp = 1002.737 + 1.2324E-2 * TmeanFilmKelvin;   // Table B.3 in ISO 15099
 
-    RaH = (pow_2(rho) * pow_3(Height) * Constant::Gravity * Cp * std::abs(TSurfIn - TAirIn)) /
-          (TmeanFilmKelvin * mu * lambda); // eq 132 in ISO 15099
+    RaH = (pow_2(rho) * pow_3(Height) * Constant::Gravity * Cp * std::abs(TSurfIn - TAirIn)) / (TmeanFilmKelvin * mu * lambda); // eq 132 in ISO 15099
 
     // eq. 135 in ISO 15099 (only need this one because tilt is 90 deg)
     Nuint = 0.56 * root_4(RaH * sineTilt);

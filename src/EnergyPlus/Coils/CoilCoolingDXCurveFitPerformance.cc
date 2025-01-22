@@ -69,7 +69,7 @@ void CoilCoolingDXCurveFitPerformance::instantiateFromInputSpec(EnergyPlus::Ener
     static constexpr std::string_view routineName = "CoilCoolingDXCurveFitOperatingMode::instantiateFromInputSpec";
 
     ErrorObjectHeader eoh{routineName, this->object_name, input_data.name};
-    
+
     bool errorsFound(false);
     this->original_input_specs = input_data;
     this->name = input_data.name;
@@ -94,7 +94,8 @@ void CoilCoolingDXCurveFitPerformance::instantiateFromInputSpec(EnergyPlus::Ener
     if (input_data.basin_heater_operating_schedule_name.empty()) {
         this->evapCondBasinHeatSched = Sched::GetScheduleAlwaysOn(state);
     } else if ((this->evapCondBasinHeatSched = Sched::GetSchedule(state, input_data.basin_heater_operating_schedule_name)) == nullptr) {
-        ShowSevereItemNotFound(state, eoh, "Evaporative Condenser Basin Heater Operating Schedule Name", input_data.basin_heater_operating_schedule_name);
+        ShowSevereItemNotFound(
+            state, eoh, "Evaporative Condenser Basin Heater Operating Schedule Name", input_data.basin_heater_operating_schedule_name);
         errorsFound = true;
     }
 

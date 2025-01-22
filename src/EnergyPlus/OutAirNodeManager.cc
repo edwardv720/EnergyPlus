@@ -566,20 +566,16 @@ namespace OutAirNodeManager {
         if (InitCall) {
             // Set node data to local air node values if defined
             if (state.dataLoopNodes->Node(NodeNum).outAirDryBulbSched != nullptr) {
-                state.dataLoopNodes->Node(NodeNum).OutAirDryBulb =
-                    state.dataLoopNodes->Node(NodeNum).outAirDryBulbSched->getCurrentVal();
+                state.dataLoopNodes->Node(NodeNum).OutAirDryBulb = state.dataLoopNodes->Node(NodeNum).outAirDryBulbSched->getCurrentVal();
             }
             if (state.dataLoopNodes->Node(NodeNum).outAirWetBulbSched != nullptr) {
-                state.dataLoopNodes->Node(NodeNum).OutAirWetBulb =
-                    state.dataLoopNodes->Node(NodeNum).outAirWetBulbSched->getCurrentVal();
+                state.dataLoopNodes->Node(NodeNum).OutAirWetBulb = state.dataLoopNodes->Node(NodeNum).outAirWetBulbSched->getCurrentVal();
             }
             if (state.dataLoopNodes->Node(NodeNum).outAirWindSpeedSched != nullptr) {
-                state.dataLoopNodes->Node(NodeNum).OutAirWindSpeed =
-                    state.dataLoopNodes->Node(NodeNum).outAirWindSpeedSched->getCurrentVal();
+                state.dataLoopNodes->Node(NodeNum).OutAirWindSpeed = state.dataLoopNodes->Node(NodeNum).outAirWindSpeedSched->getCurrentVal();
             }
             if (state.dataLoopNodes->Node(NodeNum).outAirWindDirSched != nullptr) {
-                state.dataLoopNodes->Node(NodeNum).OutAirWindDir =
-                    state.dataLoopNodes->Node(NodeNum).outAirWindDirSched->getCurrentVal();
+                state.dataLoopNodes->Node(NodeNum).OutAirWindDir = state.dataLoopNodes->Node(NodeNum).outAirWindDirSched->getCurrentVal();
             }
 
             // Set node data to EMS overwritten values if defined
@@ -599,8 +595,10 @@ namespace OutAirNodeManager {
                 if (state.dataLoopNodes->Node(NodeNum).OutAirWetBulb > state.dataLoopNodes->Node(NodeNum).OutAirDryBulb) {
                     state.dataLoopNodes->Node(NodeNum).OutAirWetBulb = state.dataLoopNodes->Node(NodeNum).OutAirDryBulb;
                 }
-                if (state.dataLoopNodes->Node(NodeNum).outAirWetBulbSched == nullptr && !state.dataLoopNodes->Node(NodeNum).EMSOverrideOutAirWetBulb &&
-                    (state.dataLoopNodes->Node(NodeNum).EMSOverrideOutAirDryBulb || state.dataLoopNodes->Node(NodeNum).outAirDryBulbSched != nullptr)) {
+                if (state.dataLoopNodes->Node(NodeNum).outAirWetBulbSched == nullptr &&
+                    !state.dataLoopNodes->Node(NodeNum).EMSOverrideOutAirWetBulb &&
+                    (state.dataLoopNodes->Node(NodeNum).EMSOverrideOutAirDryBulb ||
+                     state.dataLoopNodes->Node(NodeNum).outAirDryBulbSched != nullptr)) {
                     state.dataLoopNodes->Node(NodeNum).HumRat = state.dataEnvrn->OutHumRat;
                     state.dataLoopNodes->Node(NodeNum).OutAirWetBulb = PsyTwbFnTdbWPb(
                         state, state.dataLoopNodes->Node(NodeNum).OutAirDryBulb, state.dataEnvrn->OutHumRat, state.dataEnvrn->OutBaroPress);

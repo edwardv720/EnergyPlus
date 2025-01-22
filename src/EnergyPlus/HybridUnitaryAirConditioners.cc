@@ -442,8 +442,8 @@ void GetInputZoneHybridUnitaryAirConditioners(EnergyPlusData &state, bool &Error
     //       RE-ENGINEERED  na
 
     // Using/Aliasing
-    using BranchNodeConnections::TestCompSet;
     using BranchNodeConnections::SetUpCompSets;
+    using BranchNodeConnections::TestCompSet;
     using NodeInputManager::GetOnlySingleNode;
     using namespace DataLoopNode;
     std::string cCurrentModuleObject; // Object type for getting and error messages
@@ -511,7 +511,7 @@ void GetInputZoneHybridUnitaryAirConditioners(EnergyPlusData &state, bool &Error
             // A2, \field Availability Schedule Name
             if (lAlphaBlanks(2)) {
                 hybridUnitaryAC.availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((hybridUnitaryAC.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) { 
+            } else if ((hybridUnitaryAC.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(2), Alphas(2));
                 ErrorsFound = true;
             }
@@ -526,7 +526,7 @@ void GetInputZoneHybridUnitaryAirConditioners(EnergyPlusData &state, bool &Error
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(4), Alphas(4));
                 ErrorsFound = true;
             }
-            
+
             // A5, \field Maximum Supply Air Temperature Schedule Name
             if (lAlphaBlanks(5)) {
             } else if ((hybridUnitaryAC.TsaMaxSched = Sched::GetSchedule(state, Alphas(5))) == nullptr) {
@@ -536,11 +536,11 @@ void GetInputZoneHybridUnitaryAirConditioners(EnergyPlusData &state, bool &Error
 
             // A6, \field Minimum Supply Air Humidity Ratio Schedule Name
             if (lAlphaBlanks(6)) {
-            } else if ((hybridUnitaryAC.RHsaMinSched = Sched::GetSchedule(state, Alphas(6))) == nullptr) { 
+            } else if ((hybridUnitaryAC.RHsaMinSched = Sched::GetSchedule(state, Alphas(6))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(6), Alphas(6));
                 ErrorsFound = true;
             }
-            
+
             // A7, \field Maximum Supply Air Humidity Ratio Schedule Name
             if (lAlphaBlanks(7)) {
             } else if ((hybridUnitaryAC.RHsaMaxSched = Sched::GetSchedule(state, Alphas(7))) == nullptr) {

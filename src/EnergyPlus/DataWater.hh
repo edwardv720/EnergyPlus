@@ -155,15 +155,15 @@ namespace DataWater {
         Real64 MaxInFlowRate;  // limit on rate of inlet [m3/s]
         Real64 MaxOutFlowRate; // limit on rate of outlet [m3/s]
         TankThermalMode ThermalMode;
-        Real64 InitialTankTemp;               // initial tank temperature [C]
-        Sched::Schedule *tempSched = nullptr;                      // temp schedule
-        AmbientTempType AmbientTempIndicator; // Indicator for ambient tank losses (SCHEDULE, ZONE, EXTERIOR)
-        Sched::Schedule *ambientTempSched = nullptr;              // Ambient temp schedule
-        int ZoneID;                           // index "pointer" to zone where tank is
-        Real64 UValue;                        // U-value for tank [W/m2-k]
-        Real64 SurfArea;                      // surface are of tank on Zone side... [m2]
-        int InternalMassID;                   // index "pointer" to internal mass object for thermal coupling
-        std::string SurfMaterialName;         // surface properties
+        Real64 InitialTankTemp;                      // initial tank temperature [C]
+        Sched::Schedule *tempSched = nullptr;        // temp schedule
+        AmbientTempType AmbientTempIndicator;        // Indicator for ambient tank losses (SCHEDULE, ZONE, EXTERIOR)
+        Sched::Schedule *ambientTempSched = nullptr; // Ambient temp schedule
+        int ZoneID;                                  // index "pointer" to zone where tank is
+        Real64 UValue;                               // U-value for tank [W/m2-k]
+        Real64 SurfArea;                             // surface are of tank on Zone side... [m2]
+        int InternalMassID;                          // index "pointer" to internal mass object for thermal coupling
+        std::string SurfMaterialName;                // surface properties
         // calculated data and from elsewhere
         Real64 ThisTimeStepVolume;
         Real64 LastTimeStepVolume;
@@ -199,11 +199,11 @@ namespace DataWater {
             : MaxCapacity(0.0), OverflowMode(Overflow::Invalid), OverflowTankID(0), OverflowTankSupplyARRID(0), ValveOnCapacity(0.0),
               ValveOffCapacity(0.0), LastTimeStepFilling(false), ControlSupply(ControlSupplyType::Invalid), GroundWellID(0), SupplyTankID(0),
               SupplyTankDemandARRID(0), BackupMainsCapacity(0.0), InitialVolume(0.0), MaxInFlowRate(0.0), MaxOutFlowRate(0.0),
-              ThermalMode(TankThermalMode::Invalid), InitialTankTemp(20.0), AmbientTempIndicator(AmbientTempType::Invalid),
-              ZoneID(0), UValue(0.0), SurfArea(0.0), InternalMassID(0), ThisTimeStepVolume(0.0), LastTimeStepVolume(0.0),
-              LastTimeStepTemp(0.0), NumWaterSupplies(0), NumWaterDemands(0), VdotFromTank(0.0), VdotToTank(0.0), VdotOverflow(0.0), VolOverflow(0.0),
-              NetVdot(0.0), Twater(0.0), TouterSkin(0.0), TwaterOverflow(0.0), MainsDrawVdot(0.0), MainsDrawVol(0.0), SkinLossPower(0.0),
-              SkinLossEnergy(0.0), SkinLossConvect(0.0), SkinLossRadiat(0.0)
+              ThermalMode(TankThermalMode::Invalid), InitialTankTemp(20.0), AmbientTempIndicator(AmbientTempType::Invalid), ZoneID(0), UValue(0.0),
+              SurfArea(0.0), InternalMassID(0), ThisTimeStepVolume(0.0), LastTimeStepVolume(0.0), LastTimeStepTemp(0.0), NumWaterSupplies(0),
+              NumWaterDemands(0), VdotFromTank(0.0), VdotToTank(0.0), VdotOverflow(0.0), VolOverflow(0.0), NetVdot(0.0), Twater(0.0), TouterSkin(0.0),
+              TwaterOverflow(0.0), MainsDrawVdot(0.0), MainsDrawVol(0.0), SkinLossPower(0.0), SkinLossEnergy(0.0), SkinLossConvect(0.0),
+              SkinLossRadiat(0.0)
         {
         }
     };
@@ -216,9 +216,9 @@ namespace DataWater {
         std::string StorageTankName;
         int StorageTankID; // index "pointer" to storage tank array
         int StorageTankSupplyARRID;
-        RainLossFactor LossFactorMode; // control how loss factor(s) are entered
-        Real64 LossFactor;             // loss factor when constant
-        Sched::Schedule *lossFactorSched = nullptr;         // schedule
+        RainLossFactor LossFactorMode;              // control how loss factor(s) are entered
+        Real64 LossFactor;                          // loss factor when constant
+        Sched::Schedule *lossFactorSched = nullptr; // schedule
         Real64 MaxCollectRate;
         int NumCollectSurfs; // number of surfaces used in the collector
         Array1D_string SurfName;
@@ -232,8 +232,8 @@ namespace DataWater {
 
         // Default Constructor
         RainfallCollectorDataStruct()
-            : StorageTankID(0), StorageTankSupplyARRID(0), LossFactorMode(RainLossFactor::Invalid), LossFactor(0.0), 
-              MaxCollectRate(0.0), NumCollectSurfs(0), HorizArea(0.0), VdotAvail(0.0), VolCollected(0.0), MeanHeight(0.0)
+            : StorageTankID(0), StorageTankSupplyARRID(0), LossFactorMode(RainLossFactor::Invalid), LossFactor(0.0), MaxCollectRate(0.0),
+              NumCollectSurfs(0), HorizArea(0.0), VdotAvail(0.0), VolCollected(0.0), MeanHeight(0.0)
         {
         }
     };
@@ -267,8 +267,7 @@ namespace DataWater {
         GroundwaterWellDataStruct()
             : StorageTankID(0), StorageTankSupplyARRID(0), PumpDepth(0.0), PumpNomVolFlowRate(0.0), PumpNomHead(0.0), PumpNomPowerUse(0.0),
               PumpEfficiency(0.0), WellRecoveryRate(0.0), NomWellStorageVol(0.0), GroundwaterTableMode(GroundWaterTable::Invalid),
-              WaterTableDepth(0.0), VdotRequest(0.0), VdotDelivered(0.0), VolDelivered(0.0), PumpPower(0.0),
-              PumpEnergy(0.0)
+              WaterTableDepth(0.0), VdotRequest(0.0), VdotDelivered(0.0), VolDelivered(0.0), PumpPower(0.0), PumpEnergy(0.0)
         {
         }
     };
@@ -288,8 +287,7 @@ namespace DataWater {
         std::array<int, 12> numRainyHoursInWeather = {0};          // Monthly number of rainy hours
 
         // Default Constructor
-        SiteRainFallDataStruct()
-            : ModeID(RainfallMode::None), DesignAnnualRain(0.0), NomAnnualRain(0.0), CurrentRate(0.0), CurrentAmount(0.0)
+        SiteRainFallDataStruct() : ModeID(RainfallMode::None), DesignAnnualRain(0.0), NomAnnualRain(0.0), CurrentRate(0.0), CurrentAmount(0.0)
         {
         }
     };

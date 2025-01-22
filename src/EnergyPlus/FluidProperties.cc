@@ -509,14 +509,14 @@ namespace Fluid {
     void InitConstantFluidPropertiesData(EnergyPlusData &state)
     {
         constexpr std::string_view routineName = "InitConstantFluidPropertiesData";
-            
+
         auto &df = state.dataFluid;
         bool ErrorsFound = false;
 
         // Where are these things initialized?
         Array2D<Real64> DefaultSteamSuperheatedEnthalpyData(DefaultNumSteamSuperheatedPressure, DefaultNumSteamSuperheatedTemps);
         Array2D<Real64> DefaultSteamSuperheatedDensityData(DefaultNumSteamSuperheatedPressure, DefaultNumSteamSuperheatedTemps);
-        
+
         // Add refrigerant object for Steam.
         auto *steam = new RefrigProps;
         steam->Name = "STEAM";
@@ -564,7 +564,7 @@ namespace Fluid {
         steam->RhoshValues = DefaultSteamSuperheatedDensityData;
 
         steam->setTempLimits(state, ErrorsFound);
-        
+
         // Water is always available
         auto *waterRaw = GetGlycolRaw(state, "WATER");
         if (waterRaw == nullptr) {
@@ -671,7 +671,7 @@ namespace Fluid {
 #endif // PERFORMANCE_OPT
 
     } // InitConstantFluidPropertiesData()
-        
+
     void GetFluidPropertiesData(EnergyPlusData &state)
     {
 
@@ -1006,44 +1006,65 @@ namespace Fluid {
 
             ErrorObjectHeader eoh{routineName, CurrentModuleObject, refrig->Name};
             if (refrig->PsValues.size() == 0) {
-                ShowSevereCustom(state, eoh, format(R"(No Gas/Fluid Saturation Pressure found. Need properties with {}="Pressure" and {}="FluidGas".)",
-                                                    cAlphaFields(2), cAlphaFields(3)));
+                ShowSevereCustom(state,
+                                 eoh,
+                                 format(R"(No Gas/Fluid Saturation Pressure found. Need properties with {}="Pressure" and {}="FluidGas".)",
+                                        cAlphaFields(2),
+                                        cAlphaFields(3)));
                 ErrorsFound = true;
             }
 
             if (refrig->HfValues.size() == 0) {
-                ShowSevereCustom(state, eoh, format(R"(No Saturated Fluid Enthalpy found. Need properties with {}="Enthalpy" and {}="Fluid".)",
-                                                    cAlphaFields(2), cAlphaFields(3)));
+                ShowSevereCustom(state,
+                                 eoh,
+                                 format(R"(No Saturated Fluid Enthalpy found. Need properties with {}="Enthalpy" and {}="Fluid".)",
+                                        cAlphaFields(2),
+                                        cAlphaFields(3)));
                 ErrorsFound = true;
             }
 
             if (refrig->HfgValues.size() == 0) {
-                ShowSevereCustom(state, eoh, format(R"(No Saturated Gas/Fluid Enthalpy found. Need properties with {}="Enthalpy" and {}="FluidGas".)",
-                                                    cAlphaFields(2), cAlphaFields(3)));
+                ShowSevereCustom(state,
+                                 eoh,
+                                 format(R"(No Saturated Gas/Fluid Enthalpy found. Need properties with {}="Enthalpy" and {}="FluidGas".)",
+                                        cAlphaFields(2),
+                                        cAlphaFields(3)));
                 ErrorsFound = true;
             }
 
             if (refrig->CpfValues.size() == 0) {
-                ShowSevereCustom(state, eoh, format(R"(No Saturated Fluid Specific Heat found. Need properties with {}="SpecificHeat" and {}="Fluid".)",
-                                                    cAlphaFields(2), cAlphaFields(3)));
+                ShowSevereCustom(state,
+                                 eoh,
+                                 format(R"(No Saturated Fluid Specific Heat found. Need properties with {}="SpecificHeat" and {}="Fluid".)",
+                                        cAlphaFields(2),
+                                        cAlphaFields(3)));
                 ErrorsFound = true;
             }
 
             if (refrig->CpfgValues.size() == 0) {
-                ShowSevereCustom(state, eoh, format(R"(No Saturated Gas/Fluid Specific Heat found. Need properties with {}="SpecificHeat" and {}="FluidGas".)",
-                                                    cAlphaFields(2), cAlphaFields(3)));
+                ShowSevereCustom(state,
+                                 eoh,
+                                 format(R"(No Saturated Gas/Fluid Specific Heat found. Need properties with {}="SpecificHeat" and {}="FluidGas".)",
+                                        cAlphaFields(2),
+                                        cAlphaFields(3)));
                 ErrorsFound = true;
             }
 
             if (refrig->RhofValues.size() == 0) {
-                ShowSevereCustom(state, eoh, format(R"(No Saturated Fluid Density found. Need properties with {}="Density" and {}="Fluid".)",
-                                                    cAlphaFields(2), cAlphaFields(3)));
+                ShowSevereCustom(state,
+                                 eoh,
+                                 format(R"(No Saturated Fluid Density found. Need properties with {}="Density" and {}="Fluid".)",
+                                        cAlphaFields(2),
+                                        cAlphaFields(3)));
                 ErrorsFound = true;
             }
 
             if (refrig->RhofgValues.size() == 0) {
-                ShowSevereCustom(state, eoh, format(R"(No Saturated Gas/Fluid Density found. Need properties with {}="Density" and {}="FluidGas".)",
-                                                    cAlphaFields(2), cAlphaFields(3)));
+                ShowSevereCustom(state,
+                                 eoh,
+                                 format(R"(No Saturated Gas/Fluid Density found. Need properties with {}="Density" and {}="FluidGas".)",
+                                        cAlphaFields(2),
+                                        cAlphaFields(3)));
                 ErrorsFound = true;
             }
         } // for (refrigNum)
@@ -1172,8 +1193,12 @@ namespace Fluid {
             }
 
             if ((NumNumbers - 1) != refrig->NumSupTempPoints) {
-                ShowSevereCustom(state, eoh, format("Number of superheated {} points ({}) not equal to number of temperature points ({})",
-                                                    Alphas(2), NumNumbers - 1, refrig->NumSupTempPoints));
+                ShowSevereCustom(state,
+                                 eoh,
+                                 format("Number of superheated {} points ({}) not equal to number of temperature points ({})",
+                                        Alphas(2),
+                                        NumNumbers - 1,
+                                        refrig->NumSupTempPoints));
                 ErrorsFound = true;
                 continue;
             }
@@ -1200,9 +1225,10 @@ namespace Fluid {
         } // for (InData)
 
         if (!ErrorsFound) {
-            for (auto *refrig : df->refrigs) refrig->setTempLimits(state, ErrorsFound);
+            for (auto *refrig : df->refrigs)
+                refrig->setTempLimits(state, ErrorsFound);
         }
-        
+
         // Ethylene and Propylene are available
         auto *ethylene = GetGlycolRaw(state, "ETHYLENEGLYCOL");
         if (ethylene == nullptr) {
@@ -1388,9 +1414,12 @@ namespace Fluid {
             // Can temperatue and pressure points be different for different properties?  Why is this allowed?
             if (Alphas(2) == "SPECIFICHEAT") {
                 if (glycolRaw->CpTempArrayName != "" && glycolRaw->CpTempArrayName != Alphas(3)) {
-                    ShowSevereCustom(state, eoh,
+                    ShowSevereCustom(state,
+                                     eoh,
                                      format("All specific heat data for the same glycol must use the same temperature list"
-                                            "Expected name={}, Entered name={}", glycolRaw->CpTempArrayName, Alphas(3)));
+                                            "Expected name={}, Entered name={}",
+                                            glycolRaw->CpTempArrayName,
+                                            Alphas(3)));
                     ErrorsFound = true;
                     continue;
                 }
@@ -1404,8 +1433,12 @@ namespace Fluid {
 
             } else if (Alphas(2) == "DENSITY") {
                 if (glycolRaw->RhoTempArrayName != "" && glycolRaw->RhoTempArrayName != Alphas(3)) {
-                    ShowSevereCustom(state, eoh, format("All density data for the same glycol must use the same temperature list"
-                                                        "Expected name={}, Entered name={}", glycolRaw->RhoTempArrayName, Alphas(3)));
+                    ShowSevereCustom(state,
+                                     eoh,
+                                     format("All density data for the same glycol must use the same temperature list"
+                                            "Expected name={}, Entered name={}",
+                                            glycolRaw->RhoTempArrayName,
+                                            Alphas(3)));
                     ErrorsFound = true;
                     continue;
                 }
@@ -1419,8 +1452,12 @@ namespace Fluid {
 
             } else if (Alphas(2) == "CONDUCTIVITY") {
                 if (glycolRaw->CondTempArrayName != "" && glycolRaw->CondTempArrayName != Alphas(3)) {
-                    ShowSevereCustom(state, eoh, format("All conductivity data for the same glycol must use the same temperature list"
-                                                        "Expected name={}, Entered name={}", glycolRaw->CondTempArrayName, Alphas(3)));
+                    ShowSevereCustom(state,
+                                     eoh,
+                                     format("All conductivity data for the same glycol must use the same temperature list"
+                                            "Expected name={}, Entered name={}",
+                                            glycolRaw->CondTempArrayName,
+                                            Alphas(3)));
                     ErrorsFound = true;
                     continue;
                 }
@@ -1434,8 +1471,12 @@ namespace Fluid {
 
             } else if (Alphas(2) == "VISCOSITY") {
                 if (glycolRaw->ViscTempArrayName != "" && glycolRaw->ViscTempArrayName != Alphas(3)) {
-                    ShowSevereCustom(state, eoh, format("All conductivity data for the same glycol must use the same temperature list"
-                                                        "Expected name={}, Entered name={}", glycolRaw->ViscTempArrayName, Alphas(3)));
+                    ShowSevereCustom(state,
+                                     eoh,
+                                     format("All conductivity data for the same glycol must use the same temperature list"
+                                            "Expected name={}, Entered name={}",
+                                            glycolRaw->ViscTempArrayName,
+                                            Alphas(3)));
                     ErrorsFound = true;
                     continue;
                 }
@@ -1526,8 +1567,11 @@ namespace Fluid {
 
             if (Alphas(2) == "SPECIFICHEAT") {
                 if ((NumNumbers - 1) != glycolRaw->NumCpTempPoints) {
-                    ShowSevereCustom(state, eoh, format("Number of specific heat points ({}) not equal to number of temperature points ({})",
-                                                        NumNumbers - 1, glycolRaw->NumCpTempPoints));
+                    ShowSevereCustom(state,
+                                     eoh,
+                                     format("Number of specific heat points ({}) not equal to number of temperature points ({})",
+                                            NumNumbers - 1,
+                                            glycolRaw->NumCpTempPoints));
                     ErrorsFound = true;
                     continue;
                 }
@@ -1538,8 +1582,11 @@ namespace Fluid {
 
             } else if (Alphas(2) == "DENSITY") {
                 if ((NumNumbers - 1) != glycolRaw->NumRhoTempPoints) {
-                    ShowSevereCustom(state, eoh, format("Number of density points ({}) not equal to number of temperature points ({})",
-                                                        NumNumbers - 1, glycolRaw->NumRhoTempPoints));
+                    ShowSevereCustom(state,
+                                     eoh,
+                                     format("Number of density points ({}) not equal to number of temperature points ({})",
+                                            NumNumbers - 1,
+                                            glycolRaw->NumRhoTempPoints));
                     ErrorsFound = true;
                     continue;
                 }
@@ -1550,8 +1597,11 @@ namespace Fluid {
 
             } else if (Alphas(2) == "CONDUCTIVITY") {
                 if ((NumNumbers - 1) != glycolRaw->NumCondTempPoints) {
-                    ShowSevereCustom(state, eoh, format("Number of conductivity points ({}) not equal to number of temperature points ({})",
-                                                        NumNumbers - 1, glycolRaw->NumCondTempPoints));
+                    ShowSevereCustom(state,
+                                     eoh,
+                                     format("Number of conductivity points ({}) not equal to number of temperature points ({})",
+                                            NumNumbers - 1,
+                                            glycolRaw->NumCondTempPoints));
                     ErrorsFound = true;
                     continue;
                 }
@@ -1562,8 +1612,11 @@ namespace Fluid {
 
             } else if (Alphas(2) == "VISCOSITY") {
                 if ((NumNumbers - 1) != glycolRaw->NumViscTempPoints) {
-                    ShowSevereCustom(state, eoh, format("Number of viscosity points ({}) not equal to number of temperature points ({})",
-                                                        NumNumbers - 1, glycolRaw->NumViscTempPoints));
+                    ShowSevereCustom(state,
+                                     eoh,
+                                     format("Number of viscosity points ({}) not equal to number of temperature points ({})",
+                                            NumNumbers - 1,
+                                            glycolRaw->NumViscTempPoints));
                     ErrorsFound = true;
                     continue;
                 }
@@ -1914,10 +1967,10 @@ namespace Fluid {
             }
             // check for highest non-zero value  by referencing temp data
             for (int IndexNum = this->NumRhoTempPoints; IndexNum >= 1; --IndexNum) {
-              if (this->RhoValues(IndexNum) <= 0.0) continue;
-              this->RhoHighTempIndex = IndexNum;
-              this->RhoHighTempValue = this->RhoTemps(IndexNum);
-              break;
+                if (this->RhoValues(IndexNum) <= 0.0) continue;
+                this->RhoHighTempIndex = IndexNum;
+                this->RhoHighTempValue = this->RhoTemps(IndexNum);
+                break;
             }
         }
 
@@ -1953,25 +2006,25 @@ namespace Fluid {
                 break;
             }
         }
-        
+
         bool Failure = false;
         // Check to see that all are set to non-zero
         if (this->CpDataPresent) {
-          Failure = this->CpLowTempIndex == 0 || this->CpHighTempIndex == 0;
+            Failure = this->CpLowTempIndex == 0 || this->CpHighTempIndex == 0;
         }
         if (this->RhoDataPresent) {
-          Failure = this->RhoLowTempIndex == 0 || this->RhoHighTempIndex == 0;
+            Failure = this->RhoLowTempIndex == 0 || this->RhoHighTempIndex == 0;
         }
         if (this->CondDataPresent) {
-          Failure = this->CondLowTempIndex == 0 || this->CondHighTempIndex == 0;
+            Failure = this->CondLowTempIndex == 0 || this->CondHighTempIndex == 0;
         }
         if (this->ViscDataPresent) {
-          Failure = this->ViscLowTempIndex == 0 || this->ViscHighTempIndex == 0;
+            Failure = this->ViscLowTempIndex == 0 || this->ViscHighTempIndex == 0;
         }
         if (Failure) {
-          ShowSevereError(
-                          state, format("InitializeGlycolTempLimits: Required values for Glycol={} are all zeroes for some data types.", this->Name));
-          ErrorsFound = true;
+            ShowSevereError(state,
+                            format("InitializeGlycolTempLimits: Required values for Glycol={} are all zeroes for some data types.", this->Name));
+            ErrorsFound = true;
         }
     }
 
@@ -2084,20 +2137,16 @@ namespace Fluid {
             Failure = this->PsLowPresIndex == 0 || this->PsLowTempIndex == 0 || this->PsHighPresIndex == 0 || this->PsHighTempIndex == 0;
         }
         if (this->NumHPoints > 0) {
-            Failure =
-              this->HfLowTempIndex == 0 || this->HfgLowTempIndex == 0 || this->HfHighTempIndex == 0 || this->HfgHighTempIndex == 0;
+            Failure = this->HfLowTempIndex == 0 || this->HfgLowTempIndex == 0 || this->HfHighTempIndex == 0 || this->HfgHighTempIndex == 0;
         }
         if (this->NumCpPoints > 0) {
-            Failure =
-              this->CpfLowTempIndex == 0 || this->CpfgLowTempIndex == 0 || this->CpfHighTempIndex == 0 || this->CpfgHighTempIndex == 0;
+            Failure = this->CpfLowTempIndex == 0 || this->CpfgLowTempIndex == 0 || this->CpfHighTempIndex == 0 || this->CpfgHighTempIndex == 0;
         }
         if (this->NumRhoPoints > 0) {
-            Failure = this->RhofLowTempIndex == 0 || this->RhofgLowTempIndex == 0 || this->RhofHighTempIndex == 0 ||
-           this->RhofgHighTempIndex == 0;
+            Failure = this->RhofLowTempIndex == 0 || this->RhofgLowTempIndex == 0 || this->RhofHighTempIndex == 0 || this->RhofgHighTempIndex == 0;
         }
         if (Failure) {
-            ShowSevereError(
-                            state,
+            ShowSevereError(state,
                             format("RefrigProps::setTempimits: Required values for Refrigerant={} are all zeroes for some data types.", this->Name));
             ErrorsFound = true;
         }

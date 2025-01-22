@@ -67,10 +67,10 @@ namespace DataContaminantBalance {
     struct ContaminantData
     {
         // Members
-        bool SimulateContaminants = false;    // A logical flag to determine whether any contaminants are simulated or not
-        bool CO2Simulation = false;           // CO2 simulation flag
-        Sched::Schedule *CO2OutdoorSched = nullptr;           // CO2 outdoor level schedule
-        bool GenericContamSimulation = false; // Generic contaminant simulation flag
+        bool SimulateContaminants = false;              // A logical flag to determine whether any contaminants are simulated or not
+        bool CO2Simulation = false;                     // CO2 simulation flag
+        Sched::Schedule *CO2OutdoorSched = nullptr;     // CO2 outdoor level schedule
+        bool GenericContamSimulation = false;           // Generic contaminant simulation flag
         Sched::Schedule *genericOutdoorSched = nullptr; // Generic contaminant outdoor level schedule
     };
 
@@ -80,20 +80,20 @@ namespace DataContaminantBalance {
         std::string Name;     // Name of the contaminant controller
         std::string ZoneName; // Name of the zone
         int ActualZoneNum = 0;
-        Sched::Schedule *availSched = nullptr;         // Availability schedule
-        Sched::Schedule *setptSched = nullptr;                     // Setpoint schedule
-        bool EMSOverrideCO2SetPointOn = false;    // EMS is calling to override CO2 setpoint
-        Real64 EMSOverrideCO2SetPointValue = 0.0; // value EMS is directing to use for CO2 setpoint
-        int NumOfZones = 0;                       // Number of controlled zones in the same airloop
-        Array1D_int ControlZoneNum;               // Controlled zone number
-        Sched::Schedule *zoneMinCO2Sched = nullptr;             // Minimum CO2 concentration schedule  
-        Sched::Schedule *zoneMaxCO2Sched = nullptr;  // Maximum CO2 concentration schedule
+        Sched::Schedule *availSched = nullptr;      // Availability schedule
+        Sched::Schedule *setptSched = nullptr;      // Setpoint schedule
+        bool EMSOverrideCO2SetPointOn = false;      // EMS is calling to override CO2 setpoint
+        Real64 EMSOverrideCO2SetPointValue = 0.0;   // value EMS is directing to use for CO2 setpoint
+        int NumOfZones = 0;                         // Number of controlled zones in the same airloop
+        Array1D_int ControlZoneNum;                 // Controlled zone number
+        Sched::Schedule *zoneMinCO2Sched = nullptr; // Minimum CO2 concentration schedule
+        Sched::Schedule *zoneMaxCO2Sched = nullptr; // Maximum CO2 concentration schedule
 
-        Sched::Schedule *zoneContamControllerSched = nullptr;   // Index for this schedule
-        Sched::Schedule *genericContamAvailSched = nullptr;               // Availability Schedule name for generic contamiant
-        Sched::Schedule *genericContamSetptSched = nullptr;          // Schedule which determines the generic contaminant setpoint
-        bool EMSOverrideGCSetPointOn = false;     // EMS is calling to override generic contaminant setpoint
-        Real64 EMSOverrideGCSetPointValue = 0.0;  // value EMS is directing to use for generic contaminant setpoint
+        Sched::Schedule *zoneContamControllerSched = nullptr; // Index for this schedule
+        Sched::Schedule *genericContamAvailSched = nullptr;   // Availability Schedule name for generic contamiant
+        Sched::Schedule *genericContamSetptSched = nullptr;   // Schedule which determines the generic contaminant setpoint
+        bool EMSOverrideGCSetPointOn = false;                 // EMS is calling to override generic contaminant setpoint
+        Real64 EMSOverrideGCSetPointValue = 0.0;              // value EMS is directing to use for generic contaminant setpoint
     };
 
     struct ZoneSystemContaminantDemandData // Contaminent loads to be met (kg air per second)
@@ -108,51 +108,51 @@ namespace DataContaminantBalance {
     struct ZoneContamGenericDataConstant
     {
         // Members
-        std::string Name;               // Name of the constant generic contaminant source and sink
-        std::string ZoneName;           // Name of the zone
-        int ActualZoneNum = 0;          // Zone number
-        Real64 GenerateRate = 0.0;    // Generic contaminant design generation rate [m3/s]
+        std::string Name;                             // Name of the constant generic contaminant source and sink
+        std::string ZoneName;                         // Name of the zone
+        int ActualZoneNum = 0;                        // Zone number
+        Real64 GenerateRate = 0.0;                    // Generic contaminant design generation rate [m3/s]
         Sched::Schedule *generateRateSched = nullptr; // Generic contaminant design generation rate schedule pointer
-        Real64 RemovalCoef = 0.0;     // Generic contaminant design removal coefficient [m3/s]
+        Real64 RemovalCoef = 0.0;                     // Generic contaminant design removal coefficient [m3/s]
         Sched::Schedule *removalCoefSched = nullptr;  // Generic contaminant design removal coefficient schedule pointer
-        Real64 GenRate = 0.0;         // Generic contaminant design generation rate [m3/s] for reporting
+        Real64 GenRate = 0.0;                         // Generic contaminant design generation rate [m3/s] for reporting
     };
 
     struct ZoneContamGenericDataPDriven
     {
         // Members
-        std::string Name;              // Name of the pressure driven generic contaminant source and sink
-        std::string SurfName;          // Name of the surface
-        int SurfNum = 0;               // Surface number
-        Real64 GenRateCoef = 0.0;    // Generic contaminant design generation rate coefficeint [m3/s]
-        Sched::Schedule * generateRateCoefSched = nullptr; // Generic contaminant design generation rate schedule
-        Real64 Expo = 0.0;           // Generic contaminant exponent []
-        Real64 GenRate = 0.0;        // Generic contaminant design generation rate [m3/s] for reporting
+        std::string Name;                                 // Name of the pressure driven generic contaminant source and sink
+        std::string SurfName;                             // Name of the surface
+        int SurfNum = 0;                                  // Surface number
+        Real64 GenRateCoef = 0.0;                         // Generic contaminant design generation rate coefficeint [m3/s]
+        Sched::Schedule *generateRateCoefSched = nullptr; // Generic contaminant design generation rate schedule
+        Real64 Expo = 0.0;                                // Generic contaminant exponent []
+        Real64 GenRate = 0.0;                             // Generic contaminant design generation rate [m3/s] for reporting
     };
 
     struct ZoneContamGenericDataCutoff
     {
         // Members
-        std::string Name;               // Name of the cutoff generic contaminant source and sink
-        std::string ZoneName;           // Name of the zone
-        int ActualZoneNum = 0;          // Zone number
-        Real64 GenerateRate = 0.0;    // Generic contaminant design generation rate [m3/s]
+        std::string Name;                             // Name of the cutoff generic contaminant source and sink
+        std::string ZoneName;                         // Name of the zone
+        int ActualZoneNum = 0;                        // Zone number
+        Real64 GenerateRate = 0.0;                    // Generic contaminant design generation rate [m3/s]
         Sched::Schedule *generateRateSched = nullptr; // Generic contaminant design generation rate schedule pointer
-        Real64 CutoffValue = 0.0;     // Cutoff value [ppm]
-        Real64 GenRate = 0.0;         // Generic contaminant design generation rate [m3/s] for reporting
+        Real64 CutoffValue = 0.0;                     // Cutoff value [ppm]
+        Real64 GenRate = 0.0;                         // Generic contaminant design generation rate [m3/s] for reporting
     };
 
     struct ZoneContamGenericDataDecay
     {
         // Members
-        std::string Name;           // Name of the decay generic contaminant source and sink
-        std::string ZoneName;       // Name of the zone
-        int ActualZoneNum = 0;      // Zone number
-        Real64 InitEmitRate = 0.0; // Generic contaminant design generation rate [m3/s]
-        Sched::Schedule *emitRateSched = nullptr;  // Generic contaminant emission rate schedule pointer
-        Real64 Time = 0.0;        // Time since the styart of emission [s]
-        Real64 DelayTime = 0.0;   // Delay time constant [s]
-        Real64 GenRate = 0.0;     // Generic contaminant design generation rate [m3/s] for reporting
+        std::string Name;                         // Name of the decay generic contaminant source and sink
+        std::string ZoneName;                     // Name of the zone
+        int ActualZoneNum = 0;                    // Zone number
+        Real64 InitEmitRate = 0.0;                // Generic contaminant design generation rate [m3/s]
+        Sched::Schedule *emitRateSched = nullptr; // Generic contaminant emission rate schedule pointer
+        Real64 Time = 0.0;                        // Time since the styart of emission [s]
+        Real64 DelayTime = 0.0;                   // Delay time constant [s]
+        Real64 GenRate = 0.0;                     // Generic contaminant design generation rate [m3/s] for reporting
     };
 
     struct ZoneContamGenericDataBLDiff
@@ -160,11 +160,11 @@ namespace DataContaminantBalance {
         // Members
         std::string Name; // Name of the boundary layer diffusion generic contaminant source
         // and sink
-        std::string SurfName;       // Name of the surface
-        int SurfNum = 0;            // Surface number
-        Real64 TransCoef = 0.0;    // Generic contaminant mass transfer coefficeint [m/s]
+        std::string SurfName;                      // Name of the surface
+        int SurfNum = 0;                           // Surface number
+        Real64 TransCoef = 0.0;                    // Generic contaminant mass transfer coefficeint [m/s]
         Sched::Schedule *transCoefSched = nullptr; // Generic contaminant mass transfer coefficeint schedule pointer
-        Real64 HenryCoef = 0.0;   // Generic contaminant Henry adsorption constant or
+        Real64 HenryCoef = 0.0;                    // Generic contaminant Henry adsorption constant or
         // partition coefficient []
         Real64 GenRate = 0.0; // Generic contaminant design generation rate [m3/s] for reporting
     };
@@ -172,23 +172,23 @@ namespace DataContaminantBalance {
     struct ZoneContamGenericDataDVS
     {
         // Members
-        std::string Name;        // Name of the deposition velocity generic contaminant sink
-        std::string SurfName;    // Name of the surface
-        int SurfNum = 0;         // Surface number
-        Real64 DepoVelo = 0.0; // Generic contaminant deposition velocity [m/s]
-        Sched::Schedule *depoVeloSched = nullptr;   // Generic contaminant deposition velocity sink schedule pointer
-        Real64 GenRate = 0.0;  // Generic contaminant design generation rate [m3/s] for reporting
+        std::string Name;                         // Name of the deposition velocity generic contaminant sink
+        std::string SurfName;                     // Name of the surface
+        int SurfNum = 0;                          // Surface number
+        Real64 DepoVelo = 0.0;                    // Generic contaminant deposition velocity [m/s]
+        Sched::Schedule *depoVeloSched = nullptr; // Generic contaminant deposition velocity sink schedule pointer
+        Real64 GenRate = 0.0;                     // Generic contaminant design generation rate [m3/s] for reporting
     };
 
     struct ZoneContamGenericDataDRS
     {
         // Members
-        std::string Name;        // Name of the deposition rate generic contaminant sink
-        std::string ZoneName;    // Name of the zone
-        int ActualZoneNum = 0;   // Zone number
-        Real64 DepoRate = 0.0; // Generic contaminant deposition rate [m/s]
-        Sched::Schedule *depoRateSched = nullptr;   // Generic contaminant deposition rate sink schedule
-        Real64 GenRate = 0.0;  // Generic contaminant design generation rate [m3/s] for reporting
+        std::string Name;                         // Name of the deposition rate generic contaminant sink
+        std::string ZoneName;                     // Name of the zone
+        int ActualZoneNum = 0;                    // Zone number
+        Real64 DepoRate = 0.0;                    // Generic contaminant deposition rate [m/s]
+        Sched::Schedule *depoRateSched = nullptr; // Generic contaminant deposition rate sink schedule
+        Real64 GenRate = 0.0;                     // Generic contaminant design generation rate [m3/s] for reporting
     };
 
 } // namespace DataContaminantBalance

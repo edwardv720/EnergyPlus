@@ -131,7 +131,7 @@ TEST_F(EnergyPlusFixture, DaylightingManager_GetInputDaylightingControls_Test)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     auto &dl = state->dataDayltg;
 
     bool foundErrors = false;
@@ -245,7 +245,7 @@ TEST_F(EnergyPlusFixture, DaylightingManager_GetInputDaylightingControls_3RefPt_
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     auto &dl = state->dataDayltg;
 
     bool foundErrors = false;
@@ -343,7 +343,7 @@ TEST_F(EnergyPlusFixture, DaylightingManager_GetInputDayliteRefPt_Test)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     auto &dl = state->dataDayltg;
 
     bool foundErrors = false;
@@ -408,7 +408,7 @@ TEST_F(EnergyPlusFixture, DaylightingManager_GetInputOutputIlluminanceMap_Test)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     auto &dl = state->dataDayltg;
 
     bool foundErrors = false;
@@ -859,10 +859,10 @@ TEST_F(EnergyPlusFixture, DaylightingManager_GetDaylParamInGeoTrans_Test)
     });
 
     ASSERT_TRUE(process_idf(idf_objects));
-    state->dataGlobal->TimeStepsInHour = 1; // must initialize this to get schedules initialized
+    state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
     state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
-    
+
     auto &dl = state->dataDayltg;
 
     bool foundErrors = false;
@@ -991,7 +991,7 @@ TEST_F(EnergyPlusFixture, DaylightingManager_ProfileAngle_Test)
 TEST_F(EnergyPlusFixture, AssociateWindowShadingControlWithDaylighting_Test)
 {
     state->init_state(*state);
-    
+
     auto &dl = state->dataDayltg;
 
     state->dataGlobal->NumOfZones = 4;
@@ -1023,7 +1023,7 @@ TEST_F(EnergyPlusFixture, AssociateWindowShadingControlWithDaylighting_Test)
 TEST_F(EnergyPlusFixture, CreateShadeDeploymentOrder_test)
 {
     state->init_state(*state);
-    
+
     auto &dl = state->dataDayltg;
     state->dataSurface->TotWinShadingControl = 3;
     state->dataSurface->WindowShadingControl.allocate(state->dataSurface->TotWinShadingControl);
@@ -1749,7 +1749,7 @@ TEST_F(EnergyPlusFixture, DaylightingManager_DayltgInteriorIllum_Test)
 
     state->dataGlobal->TimeStepsInHour = 1;
     state->init_state(*state);
-    
+
     auto &dl = state->dataDayltg;
 
     state->dataGlobal->TimeStep = 1;
@@ -1988,7 +1988,7 @@ TEST_F(EnergyPlusFixture, DaylightingManager_GetInputDaylightingControls_Roundin
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     auto &dl = state->dataDayltg;
 
     bool foundErrors = false;
@@ -2107,7 +2107,7 @@ TEST_F(EnergyPlusFixture, DaylightingManager_GetInputDaylightingControls_NotArou
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     auto &dl = state->dataDayltg;
 
     bool foundErrors = false;
@@ -2553,10 +2553,10 @@ TEST_F(EnergyPlusFixture, DaylightingManager_OutputFormats)
     });
 
     ASSERT_TRUE(process_idf(idf_objects));
-    state->dataGlobal->TimeStepsInHour = 1; // must initialize this to get schedules initialized
+    state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
     state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
-    
+
     auto &dl = state->dataDayltg;
 
     bool foundErrors = false;
@@ -3335,7 +3335,7 @@ TEST_F(EnergyPlusFixture, DaylightingManager_TDD_NoDaylightingControls)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool foundErrors = false;
 
     Material::GetMaterialData(*state, foundErrors); // read material data
@@ -3696,7 +3696,7 @@ TEST_F(EnergyPlusFixture, DaylightingManager_DayltgIlluminanceMap)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     auto &dl = state->dataDayltg;
 
     SimulationManager::ManageSimulation(*state);

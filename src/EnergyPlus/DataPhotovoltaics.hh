@@ -102,12 +102,12 @@ namespace DataPhotovoltaics {
     struct SimplePVParamsStruct
     {
         // Members
-        std::string Name;              // name as identified in Sandia database
-        Real64 AreaCol;                // effective area of solar collection
-        Real64 ActiveFraction;         // fraction of parent surface that has active solar cells
-        Efficiency EfficencyInputMode; // to schedule or not
-        Sched::Schedule *effSched = nullptr;               // index pointer for efficiency schedule
-        Real64 PVEfficiency;           // fixed or current PV efficiency
+        std::string Name;                    // name as identified in Sandia database
+        Real64 AreaCol;                      // effective area of solar collection
+        Real64 ActiveFraction;               // fraction of parent surface that has active solar cells
+        Efficiency EfficencyInputMode;       // to schedule or not
+        Sched::Schedule *effSched = nullptr; // index pointer for efficiency schedule
+        Real64 PVEfficiency;                 // fixed or current PV efficiency
 
         // Default Constructor
         SimplePVParamsStruct() : AreaCol(0.0), ActiveFraction(0.0), EfficencyInputMode(Efficiency::Invalid), PVEfficiency(0.0)

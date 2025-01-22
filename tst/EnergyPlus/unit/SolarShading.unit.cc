@@ -627,12 +627,12 @@ TEST_F(EnergyPlusFixture, SolarShadingTest_FigureSolarBeamAtTimestep)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool FoundError = false;
 
     HeatBalanceManager::GetProjectControlData(*state, FoundError);
     EXPECT_FALSE(FoundError);
-    
+
     HeatBalanceManager::SetPreConstructionInputParameters(*state);
 
     Material::GetMaterialData(*state, FoundError);
@@ -1030,7 +1030,7 @@ TEST_F(EnergyPlusFixture, SolarShadingTest_ExternalShadingIO)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool FoundError = false;
 
     HeatBalanceManager::GetProjectControlData(*state, FoundError); // read project control data
@@ -1442,7 +1442,7 @@ TEST_F(EnergyPlusFixture, SolarShadingTest_DisableGroupSelfShading)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool FoundError = false;
     HeatBalanceManager::GetProjectControlData(*state, FoundError); // read project control data
     HeatBalanceManager::SetPreConstructionInputParameters(*state);
@@ -1815,7 +1815,7 @@ TEST_F(EnergyPlusFixture, SolarShadingTest_PolygonClippingDirect)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool FoundError = false;
 
     HeatBalanceManager::GetProjectControlData(*state, FoundError); // read project control data
@@ -2549,7 +2549,7 @@ WindowMaterial:SimpleGlazingSystem,
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool FoundError = false;
 
     HeatBalanceManager::GetProjectControlData(*state, FoundError); // read project control data
@@ -3104,7 +3104,7 @@ TEST_F(EnergyPlusFixture, SolarShading_TestSurfsPropertyViewFactor)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool FoundError = false;
 
     HeatBalanceManager::GetProjectControlData(*state, FoundError); // read project control data
@@ -3392,7 +3392,7 @@ TEST_F(EnergyPlusFixture, SolarShadingTest_CTRANS)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
 
     Material::GetMaterialData(*state, ErrorsFound); // read material data
@@ -3845,7 +3845,7 @@ TEST_F(EnergyPlusFixture, SolarShadingTest_Warn_Pixel_Count_and_TM_Schedule)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool FoundError = false;
 
     HeatBalanceManager::GetProjectControlData(*state, FoundError);
@@ -4166,7 +4166,7 @@ TEST_F(EnergyPlusFixture, SolarShadingTest_PolygonOverlap)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool FoundError = false;
 
     HeatBalanceManager::GetProjectControlData(*state, FoundError); // read project control data
@@ -4592,7 +4592,7 @@ TEST_F(EnergyPlusFixture, SolarShadingTest_PolygonOverlap2)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool FoundError = false;
 
     HeatBalanceManager::GetProjectControlData(*state, FoundError); // read project control data
@@ -4952,7 +4952,7 @@ TEST_F(EnergyPlusFixture, SolarShadingTest_PolygonOverlap3)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool FoundError = false;
 
     HeatBalanceManager::GetProjectControlData(*state, FoundError); // read project control data
@@ -5972,7 +5972,7 @@ TEST_F(EnergyPlusFixture, SolarShadingTest_GetShadowingInputTest1)
     });
 
     ASSERT_TRUE(process_idf(idf_objects));
-    
+
     state->dataSolarShading->anyScheduledShadingSurface = false;
 
     // Test 1 of 6: Polygon Clipping and ConvexWeilerAtherton
@@ -6005,7 +6005,7 @@ TEST_F(EnergyPlusFixture, SolarShadingTest_GetShadowingInputTest2)
     });
 
     ASSERT_TRUE(process_idf(idf_objects));
-    
+
     state->dataSolarShading->anyScheduledShadingSurface = false;
 
     // Test 2 of 6: Polygon Clipping and SutherlandHodgman

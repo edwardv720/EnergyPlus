@@ -216,7 +216,7 @@ namespace SteamCoils {
 
         // SUBROUTINE PARAMETER DEFINITIONS:
         static constexpr std::string_view RoutineName("GetSteamCoilInput: "); // include trailing blank space
-        static constexpr std::string_view routineName = "GetSteamCoilInput"; 
+        static constexpr std::string_view routineName = "GetSteamCoilInput";
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         int CoilNum; // The SteamCoil that you are currently loading input into
@@ -280,7 +280,7 @@ namespace SteamCoils {
 
             if (lAlphaBlanks(2)) {
                 state.dataSteamCoils->SteamCoil(CoilNum).availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((state.dataSteamCoils->SteamCoil(CoilNum).availSched = Sched::GetSchedule(state, AlphArray(2))) == nullptr) { 
+            } else if ((state.dataSteamCoils->SteamCoil(CoilNum).availSched = Sched::GetSchedule(state, AlphArray(2))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(2), AlphArray(2));
                 ErrorsFound = true;
             }
@@ -1079,8 +1079,7 @@ namespace SteamCoils {
 
         case CoilControlType::ZoneLoadControl:
             if ((CapacitanceAir > 0.0) && ((state.dataSteamCoils->SteamCoil(CoilNum).InletSteamMassFlowRate) > 0.0) &&
-                (state.dataSteamCoils->SteamCoil(CoilNum).availSched->getCurrentVal() > 0.0 ||
-                 state.dataSteamCoils->MySizeFlag(CoilNum)) &&
+                (state.dataSteamCoils->SteamCoil(CoilNum).availSched->getCurrentVal() > 0.0 || state.dataSteamCoils->MySizeFlag(CoilNum)) &&
                 (QCoilReq > 0.0)) {
 
                 // Steam heat exchangers would not have effectivness, since all of the steam is
@@ -1188,8 +1187,7 @@ namespace SteamCoils {
         case CoilControlType::TemperatureSetPoint:
             // Control coil output to meet a Setpoint Temperature.
             if ((CapacitanceAir > 0.0) && ((state.dataSteamCoils->SteamCoil(CoilNum).InletSteamMassFlowRate) > 0.0) &&
-                (state.dataSteamCoils->SteamCoil(CoilNum).availSched->getCurrentVal() > 0.0 ||
-                 state.dataSteamCoils->MySizeFlag(CoilNum)) &&
+                (state.dataSteamCoils->SteamCoil(CoilNum).availSched->getCurrentVal() > 0.0 || state.dataSteamCoils->MySizeFlag(CoilNum)) &&
                 (std::abs(TempSetPoint - TempAirIn) > TempControlTol)) {
 
                 // Steam heat exchangers would not have effectivness, since all of the steam is

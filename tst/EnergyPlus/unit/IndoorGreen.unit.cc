@@ -166,7 +166,7 @@ TEST_F(EnergyPlusFixture, IndoorGreen_CheckGetInputDataFunction)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     Material::GetMaterialData(*state, ErrorsFound);
     EXPECT_FALSE(ErrorsFound);
 

@@ -186,12 +186,11 @@ namespace PlantHeatExchangerFluidToFluid {
 
         // Default Constructor
         HeatExchangerStruct()
-            : HeatExchangeModelType(FluidHXType::Invalid), UA(0.0), UAWasAutoSized(false), controlMode(ControlType::Invalid),
-              SetPointNodeNum(0), TempControlTol(0.0), ControlSignalTemp(CtrlTempType::Invalid), MinOperationTemp(-99999.0),
-              MaxOperationTemp(99999.0), ComponentType(DataPlant::PlantEquipmentType::Invalid), SizingFactor(1.0), HeatTransferRate(0.0),
-              HeatTransferEnergy(0.0), Effectiveness(0.0), OperationStatus(0.0), DmdSideModulatSolvNoConvergeErrorCount(0),
-              DmdSideModulatSolvNoConvergeErrorIndex(0), DmdSideModulatSolvFailErrorCount(0), DmdSideModulatSolvFailErrorIndex(0),
-              MyOneTimeFlag(true), MyFlag(true), MyEnvrnFlag(true)
+            : HeatExchangeModelType(FluidHXType::Invalid), UA(0.0), UAWasAutoSized(false), controlMode(ControlType::Invalid), SetPointNodeNum(0),
+              TempControlTol(0.0), ControlSignalTemp(CtrlTempType::Invalid), MinOperationTemp(-99999.0), MaxOperationTemp(99999.0),
+              ComponentType(DataPlant::PlantEquipmentType::Invalid), SizingFactor(1.0), HeatTransferRate(0.0), HeatTransferEnergy(0.0),
+              Effectiveness(0.0), OperationStatus(0.0), DmdSideModulatSolvNoConvergeErrorCount(0), DmdSideModulatSolvNoConvergeErrorIndex(0),
+              DmdSideModulatSolvFailErrorCount(0), DmdSideModulatSolvFailErrorIndex(0), MyOneTimeFlag(true), MyFlag(true), MyEnvrnFlag(true)
         {
         }
 

@@ -445,7 +445,7 @@ namespace OutputProcessor {
         int maxValueDate = 0;               // Date stamp of maximum
         int minValueDate = 0;               // Date stamp of minimum
         int ReportID = 0;                   // Report variable ID number
-        Sched::Schedule *sched = nullptr; // If scheduled, this is schedule
+        Sched::Schedule *sched = nullptr;   // If scheduled, this is schedule
         int ZoneMult = 1;                   // If metered, Zone Multiplier is applied
         int ZoneListMult = 1;               // If metered, Zone List Multiplier is applied
 
@@ -518,7 +518,7 @@ namespace OutputProcessor {
         std::string key = "";               // Could be blank or "*"
         std::string name = "";              // Name of Variable
         ReportFreq freq = ReportFreq::Hour; // Reporting Frequency
-        Sched::Schedule *sched = nullptr; // Schedule
+        Sched::Schedule *sched = nullptr;   // Schedule
         bool Used = false;                  // True when this combination (key, varname, frequency) has been set
 
         bool is_simple_string = true; // Whether the Key potentially includes a Regular Expression pattern

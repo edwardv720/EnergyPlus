@@ -170,9 +170,9 @@ TEST_F(EnergyPlusFixture, ParallelPIUTest1)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesInTimeStep = 60;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
-    
+
     state->dataEnvrn->Month = 1;
     state->dataEnvrn->DayOfMonth = 21;
     state->dataGlobal->HourOfDay = 1;
@@ -193,13 +193,12 @@ TEST_F(EnergyPlusFixture, ParallelPIUTest1)
     Fans::GetFanInput(*state);
     state->dataFans->GetFanInputFlag = false;
     PoweredInductionUnits::GetPIUs(*state);
-    std::string error_string =
-       delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSOFF",
-                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
-                         "   **   ~~~   ** Schedule will not be validated.",
-                         "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSON",
-                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
-                         "   **   ~~~   ** Schedule will not be validated."});
+    std::string error_string = delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSOFF",
+                                                 "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                                                 "   **   ~~~   ** Schedule will not be validated.",
+                                                 "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSON",
+                                                 "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                                                 "   **   ~~~   ** Schedule will not be validated."});
     EXPECT_TRUE(compare_err_stream(error_string));
     state->dataHeatBalFanSys->TempControlType.allocate(1);
     state->dataHeatBalFanSys->TempControlType(1) = HVAC::SetptType::DualHeatCool;
@@ -402,9 +401,9 @@ TEST_F(EnergyPlusFixture, SeriesPIUTest1)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesInTimeStep = 60;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
-    
+
     state->dataEnvrn->Month = 1;
     state->dataEnvrn->DayOfMonth = 21;
     state->dataGlobal->HourOfDay = 1;
@@ -426,13 +425,12 @@ TEST_F(EnergyPlusFixture, SeriesPIUTest1)
     state->dataFans->GetFanInputFlag = false;
     PoweredInductionUnits::GetPIUs(*state);
 
-    std::string error_string =
-       delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSOFF",
-                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
-                         "   **   ~~~   ** Schedule will not be validated.",
-                         "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSON",
-                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
-                         "   **   ~~~   ** Schedule will not be validated."});
+    std::string error_string = delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSOFF",
+                                                 "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                                                 "   **   ~~~   ** Schedule will not be validated.",
+                                                 "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSON",
+                                                 "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                                                 "   **   ~~~   ** Schedule will not be validated."});
     EXPECT_TRUE(compare_err_stream(error_string));
     state->dataHeatBalFanSys->TempControlType.allocate(1);
     state->dataHeatBalFanSys->TempControlType(1) = HVAC::SetptType::DualHeatCool;
@@ -684,9 +682,9 @@ TEST_F(EnergyPlusFixture, SeriesPIUZoneOAVolumeFlowRateTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesInTimeStep = 60;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
-    
+
     state->dataEnvrn->Month = 1;
     state->dataEnvrn->DayOfMonth = 21;
     state->dataGlobal->HourOfDay = 1;
@@ -2085,9 +2083,9 @@ TEST_F(EnergyPlusFixture, VSParallelPIUStagedHeat)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesInTimeStep = 60;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
-    
+
     state->dataEnvrn->Month = 1;
     state->dataEnvrn->DayOfMonth = 21;
     state->dataGlobal->HourOfDay = 1;
@@ -2107,13 +2105,12 @@ TEST_F(EnergyPlusFixture, VSParallelPIUStagedHeat)
     Fans::GetFanInput(*state);
     state->dataFans->GetFanInputFlag = false;
     PoweredInductionUnits::GetPIUs(*state);
-    std::string error_string =
-       delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSOFF",
-                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
-                         "   **   ~~~   ** Schedule will not be validated.",
-                         "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSON",
-                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
-                         "   **   ~~~   ** Schedule will not be validated."});
+    std::string error_string = delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSOFF",
+                                                 "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                                                 "   **   ~~~   ** Schedule will not be validated.",
+                                                 "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSON",
+                                                 "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                                                 "   **   ~~~   ** Schedule will not be validated."});
     EXPECT_TRUE(compare_err_stream(error_string));
     state->dataHeatBalFanSys->TempControlType.allocate(1);
     state->dataHeatBalFanSys->TempControlType(1) = HVAC::SetptType::DualHeatCool;
@@ -2289,9 +2286,9 @@ TEST_F(EnergyPlusFixture, VSParallelPIUModulatedHeat)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesInTimeStep = 60;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
-    
+
     state->dataEnvrn->Month = 1;
     state->dataEnvrn->DayOfMonth = 21;
     state->dataGlobal->HourOfDay = 1;
@@ -2311,13 +2308,12 @@ TEST_F(EnergyPlusFixture, VSParallelPIUModulatedHeat)
     Fans::GetFanInput(*state);
     state->dataFans->GetFanInputFlag = false;
     PoweredInductionUnits::GetPIUs(*state);
-    std::string error_string =
-       delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSOFF",
-                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
-                         "   **   ~~~   ** Schedule will not be validated.",
-                         "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSON",
-                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
-                         "   **   ~~~   ** Schedule will not be validated."});
+    std::string error_string = delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSOFF",
+                                                 "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                                                 "   **   ~~~   ** Schedule will not be validated.",
+                                                 "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSON",
+                                                 "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                                                 "   **   ~~~   ** Schedule will not be validated."});
     EXPECT_TRUE(compare_err_stream(error_string));
     state->dataHeatBalFanSys->TempControlType.allocate(1);
     state->dataHeatBalFanSys->TempControlType(1) = HVAC::SetptType::DualHeatCool;
@@ -2533,7 +2529,7 @@ TEST_F(EnergyPlusFixture, VSSeriesPIUStagedHeat)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesInTimeStep = 60;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
 
     state->dataEnvrn->Month = 1;
@@ -2555,13 +2551,12 @@ TEST_F(EnergyPlusFixture, VSSeriesPIUStagedHeat)
     state->dataFans->GetFanInputFlag = false;
     Fans::GetFanInput(*state);
     PoweredInductionUnits::GetPIUs(*state);
-    std::string error_string =
-       delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSOFF",
-                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
-                         "   **   ~~~   ** Schedule will not be validated.",
-                         "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSON",
-                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
-                         "   **   ~~~   ** Schedule will not be validated."});
+    std::string error_string = delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSOFF",
+                                                 "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                                                 "   **   ~~~   ** Schedule will not be validated.",
+                                                 "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSON",
+                                                 "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                                                 "   **   ~~~   ** Schedule will not be validated."});
     EXPECT_TRUE(compare_err_stream(error_string));
     state->dataHeatBalFanSys->TempControlType.allocate(1);
     state->dataHeatBalFanSys->TempControlType(1) = HVAC::SetptType::DualHeatCool;
@@ -2741,9 +2736,9 @@ TEST_F(EnergyPlusFixture, VSSeriesPIUModulatedHeat)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesInTimeStep = 60;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
-    
+
     state->dataEnvrn->Month = 1;
     state->dataEnvrn->DayOfMonth = 21;
     state->dataGlobal->HourOfDay = 1;
@@ -2763,13 +2758,12 @@ TEST_F(EnergyPlusFixture, VSSeriesPIUModulatedHeat)
     Fans::GetFanInput(*state);
     state->dataFans->GetFanInputFlag = false;
     PoweredInductionUnits::GetPIUs(*state);
-    std::string error_string =
-       delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSOFF",
-                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
-                         "   **   ~~~   ** Schedule will not be validated.",
-                         "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSON",
-                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
-                         "   **   ~~~   ** Schedule will not be validated."});
+    std::string error_string = delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSOFF",
+                                                 "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                                                 "   **   ~~~   ** Schedule will not be validated.",
+                                                 "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSON",
+                                                 "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                                                 "   **   ~~~   ** Schedule will not be validated."});
     EXPECT_TRUE(compare_err_stream(error_string));
     state->dataHeatBalFanSys->TempControlType.allocate(1);
     state->dataHeatBalFanSys->TempControlType(1) = HVAC::SetptType::DualHeatCool;
@@ -2983,9 +2977,9 @@ TEST_F(EnergyPlusFixture, VSSeriesPIUCool)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesInTimeStep = 60;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
-    
+
     state->dataEnvrn->Month = 1;
     state->dataEnvrn->DayOfMonth = 21;
     state->dataGlobal->HourOfDay = 1;
@@ -3005,13 +2999,12 @@ TEST_F(EnergyPlusFixture, VSSeriesPIUCool)
     Fans::GetFanInput(*state);
     state->dataFans->GetFanInputFlag = false;
     PoweredInductionUnits::GetPIUs(*state);
-    std::string error_string =
-       delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSOFF",
-                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
-                         "   **   ~~~   ** Schedule will not be validated.",
-                         "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSON",
-                         "   **   ~~~   ** Schedule Type Limits Name is empty.",
-                         "   **   ~~~   ** Schedule will not be validated."});
+    std::string error_string = delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSOFF",
+                                                 "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                                                 "   **   ~~~   ** Schedule will not be validated.",
+                                                 "   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYSON",
+                                                 "   **   ~~~   ** Schedule Type Limits Name is empty.",
+                                                 "   **   ~~~   ** Schedule will not be validated."});
     EXPECT_TRUE(compare_err_stream(error_string));
     state->dataHeatBalFanSys->TempControlType.allocate(1);
     state->dataHeatBalFanSys->TempControlType(1) = HVAC::SetptType::DualHeatCool;

@@ -101,7 +101,7 @@ protected:
         state->init_state(*state);
 
         state->dataGlobal->TimeStepZone = 0; // Why do we need to override this?  Why is it not okay to just set this?
-        
+
         state->dataGlobal->DayOfSim = 1;
         state->dataGlobal->HourOfDay = 1;
 
@@ -649,7 +649,7 @@ TEST_F(EnergyPlusFixture, UnitaryBypassVAV_GetInputZoneEquipment)
     ASSERT_TRUE(process_idf(idf_objects)); // read idf objects
 
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
     bool firstHVACIteration = true;
     // Read objects
@@ -1654,7 +1654,7 @@ TEST_F(EnergyPlusFixture, UnitaryBypassVAV_ParentElectricityRateTest)
     ASSERT_TRUE(process_idf(idf_objects)); // read idf objects
 
     state->init_state(*state);
-    
+
     int CBVAVNum = 1;
     bool HXUnitOn = false;
     bool ErrorsFound = false;

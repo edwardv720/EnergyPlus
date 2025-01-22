@@ -292,7 +292,7 @@ TEST_F(EnergyPlusFixture, BaseSizer_GetCoilDesFlowT_NoPeak)
 TEST_F(EnergyPlusFixture, BaseSizer_RequestSizingSystem)
 {
     state->init_state(*state);
-        
+
     std::string CompName;       // component name
     std::string CompType;       // component type
     std::string SizingString;   // input field sizing description
@@ -438,8 +438,8 @@ TEST_F(EnergyPlusFixture, BaseSizer_RequestSizingSystemWithFans)
     });
 
     ASSERT_TRUE(process_idf(idf_objects));
-    state->init_state(*state); 
-    
+    state->init_state(*state);
+
     Fans::GetFanInput(*state);
     state->dataSize->CurZoneEqNum = 0;
     state->dataSize->CurSysNum = 0;

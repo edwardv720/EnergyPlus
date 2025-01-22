@@ -673,7 +673,7 @@ namespace IceThermalStorage {
         // arrays associated with the type PlantLoopProps.
 
         static constexpr std::string_view routineName = "GetIceStorageInput";
-            
+
         bool ErrorsFound;
 
         ErrorsFound = false; // Always need to reset this since there are multiple types of ice storage systems
@@ -811,7 +811,7 @@ namespace IceThermalStorage {
                                                                      state.dataIPShortCut->cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
-            
+
             Util::IsNameEmpty(state, state.dataIPShortCut->cAlphaArgs(1), state.dataIPShortCut->cCurrentModuleObject, ErrorsFound);
 
             ++state.dataIceThermalStorage->TotalNumIceStorage;
@@ -822,7 +822,8 @@ namespace IceThermalStorage {
             // Get and verify availability schedule
             if (state.dataIPShortCut->lAlphaFieldBlanks(2)) {
                 state.dataIceThermalStorage->DetailedIceStorage(iceNum).availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((state.dataIceThermalStorage->DetailedIceStorage(iceNum).availSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(2))) == nullptr) { 
+            } else if ((state.dataIceThermalStorage->DetailedIceStorage(iceNum).availSched =
+                            Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(2))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(2), state.dataIPShortCut->cAlphaArgs(2));
                 ErrorsFound = true;
             }

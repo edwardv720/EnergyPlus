@@ -199,7 +199,7 @@ namespace WindTurbine {
         // and stores it in the wind turbine data structure.
 
         static constexpr std::string_view routineName = "GetWindTurbineInput";
-        
+
         // SUBROUTINE PARAMETER DEFINITIONS:
         static std::string const CurrentModuleObject("Generator:WindTurbine");
         Real64 constexpr SysEffDefault(0.835); // Default value of overall system efficiency
@@ -251,7 +251,7 @@ namespace WindTurbine {
                                                                      cNumericFields);
 
             ErrorObjectHeader eoh{routineName, CurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
-            
+
             Util::IsNameEmpty(state, state.dataIPShortCut->cAlphaArgs(1), CurrentModuleObject, ErrorsFound);
 
             auto &windTurbine = state.dataWindTurbine->WindTurbineSys(WindTurbineNum);
@@ -947,8 +947,7 @@ namespace WindTurbine {
         LocalWindSpeed /= windTurbine.WSFactor;
 
         // Check wind conditions for system operation
-        if (windTurbine.availSched->getCurrentVal() > 0 && LocalWindSpeed > windTurbine.CutInSpeed &&
-            LocalWindSpeed < windTurbine.CutOutSpeed) {
+        if (windTurbine.availSched->getCurrentVal() > 0 && LocalWindSpeed > windTurbine.CutInSpeed && LocalWindSpeed < windTurbine.CutOutSpeed) {
 
             // System is on
             Period = 2.0 * Constant::Pi;

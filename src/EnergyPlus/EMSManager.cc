@@ -452,8 +452,7 @@ namespace EMSManager {
                 } else { // schedule so use schedule service
 
                     state.dataRuntimeLang->ErlVariable(ErlVariableNum).Value = RuntimeLanguageProcessor::SetErlValueNumber(
-                        state.dataRuntimeLang->Sensor(SensorNum).sched->getCurrentVal(),
-                        state.dataRuntimeLang->ErlVariable(ErlVariableNum).Value);
+                        state.dataRuntimeLang->Sensor(SensorNum).sched->getCurrentVal(), state.dataRuntimeLang->ErlVariable(ErlVariableNum).Value);
                 }
             }
         }
@@ -747,9 +746,8 @@ namespace EMSManager {
                 thisEMSactuator.UniqueIDName = cAlphaArgs(2);
                 thisEMSactuator.ControlTypeName = cAlphaArgs(4);
 
-                auto found = state.dataRuntimeLang->EMSActuatorAvailableMap.find(std::make_tuple(thisEMSactuator.ComponentTypeName,
-                                                                                                 thisEMSactuator.UniqueIDName,
-                                                                                                 thisEMSactuator.ControlTypeName));
+                auto found = state.dataRuntimeLang->EMSActuatorAvailableMap.find(
+                    std::make_tuple(thisEMSactuator.ComponentTypeName, thisEMSactuator.UniqueIDName, thisEMSactuator.ControlTypeName));
                 if (found != state.dataRuntimeLang->EMSActuatorAvailableMap.end()) {
 
                     // SetupNodeSetPointAsActuators has NOT been called yet at this point
@@ -986,7 +984,8 @@ namespace EMSManager {
                     state.dataRuntimeLang->Sensor(SensorNum).CheckedOkay = true;
                     // If variable is Schedule Value, then get the schedule id to register it as being used
                     if (Util::SameString(state.dataRuntimeLang->Sensor(SensorNum).OutputVarName, "Schedule Value")) {
-                        state.dataRuntimeLang->Sensor(SensorNum).sched = Sched::GetSchedule(state, state.dataRuntimeLang->Sensor(SensorNum).UniqueKeyName);
+                        state.dataRuntimeLang->Sensor(SensorNum).sched =
+                            Sched::GetSchedule(state, state.dataRuntimeLang->Sensor(SensorNum).UniqueKeyName);
                         if (state.dataRuntimeLang->Sensor(SensorNum).sched == nullptr) {
                             state.dataRuntimeLang->Sensor(SensorNum).CheckedOkay = false;
                             if (reportErrors) {
@@ -1009,7 +1008,7 @@ namespace EMSManager {
         } // SensorNum
 
         auto &s_lang = state.dataRuntimeLang;
-        
+
         // added for FMU
         for (int ActuatorNum = 1; ActuatorNum <= state.dataRuntimeLang->numActuatorsUsed + state.dataRuntimeLang->NumExternalInterfaceActuatorsUsed +
                                                      state.dataRuntimeLang->NumExternalInterfaceFunctionalMockupUnitImportActuatorsUsed +
@@ -1032,13 +1031,17 @@ namespace EMSManager {
 
             auto &actuatorUsed = state.dataRuntimeLang->EMSActuatorUsed(ActuatorNum);
             if (actuatorUsed.CheckedOkay) continue;
-            
-            auto found = s_lang->EMSActuatorAvailableMap.find(std::make_tuple(actuatorUsed.ComponentTypeName, actuatorUsed.UniqueIDName, actuatorUsed.ControlTypeName));
+
+            auto found = s_lang->EMSActuatorAvailableMap.find(
+                std::make_tuple(actuatorUsed.ComponentTypeName, actuatorUsed.UniqueIDName, actuatorUsed.ControlTypeName));
             if (found == s_lang->EMSActuatorAvailableMap.end()) {
                 if (reportErrors) {
                     ShowSevereError(state, format("Actuator {} = {} not found.", cCurrentModuleObject, actuatorUsed.Name));
-                    ShowContinueError(state, format("Combination of ObjectType = {}, ObjectName = {}, and ControlType = {} not available.",
-                                                    actuatorUsed.ComponentTypeName, actuatorUsed.UniqueIDName, actuatorUsed.ControlTypeName));
+                    ShowContinueError(state,
+                                      format("Combination of ObjectType = {}, ObjectName = {}, and ControlType = {} not available.",
+                                             actuatorUsed.ComponentTypeName,
+                                             actuatorUsed.UniqueIDName,
+                                             actuatorUsed.ControlTypeName));
                     if (state.dataRuntimeLang->OutputEDDFile) {
                         ShowContinueError(state, "Review .edd file for valid component types.");
                     } else {
@@ -1053,8 +1056,11 @@ namespace EMSManager {
                 int nHandle = s_lang->EMSActuatorAvailable(found->second).handleCount;
                 if (nHandle > 0) {
                     EnergyPlus::ShowWarningError(state, format("Seems like you already tried to get a Handle on this Actuator {}times.", nHandle));
-                    EnergyPlus::ShowContinueError(state, format("Occurred for componentType='{}', controlType='{}', uniqueKey='{}'.",
-                                                                actuatorUsed.ComponentTypeName, actuatorUsed.ControlTypeName, actuatorUsed.UniqueIDName));
+                    EnergyPlus::ShowContinueError(state,
+                                                  format("Occurred for componentType='{}', controlType='{}', uniqueKey='{}'.",
+                                                         actuatorUsed.ComponentTypeName,
+                                                         actuatorUsed.ControlTypeName,
+                                                         actuatorUsed.UniqueIDName));
                     EnergyPlus::ShowContinueError(state, "You should take note that there is a risk of overwritting.");
                 }
                 ++s_lang->EMSActuatorAvailable(found->second).handleCount;
@@ -1980,13 +1986,12 @@ void SetupEMSActuator(EnergyPlusData &state,
     //  check for duplicates.
 
     auto &s_lang = state.dataRuntimeLang;
-        
+
     auto tup = std::make_tuple(std::move(Util::makeUPPER(objType)), std::move(Util::makeUPPER(objName)), std::move(Util::makeUPPER(controlTypeName)));
 
     // DataRuntimeLanguage::EMSActuatorKey const key(UpperCaseObjectType, UpperCaseObjectName, UpperCaseActuatorName);
-    if (s_lang->EMSActuatorAvailableMap.find(tup) != s_lang->EMSActuatorAvailableMap.end())
-        return;
-    
+    if (s_lang->EMSActuatorAvailableMap.find(tup) != s_lang->EMSActuatorAvailableMap.end()) return;
+
     if (s_lang->numEMSActuatorsAvailable == 0) {
         s_lang->EMSActuatorAvailable.allocate(s_lang->varsAvailableAllocInc);
         s_lang->numEMSActuatorsAvailable = 1;
@@ -2031,7 +2036,7 @@ void SetupEMSActuator(EnergyPlusData &state,
     //  check for duplicates.
 
     auto &s_lang = state.dataRuntimeLang;
-        
+
     std::string const objType = Util::makeUPPER(cComponentTypeName);
     std::string const objName = Util::makeUPPER(cUniqueIDName);
     std::string const actuatorName = Util::makeUPPER(cControlTypeName);
@@ -2084,7 +2089,7 @@ void SetupEMSActuator(EnergyPlusData &state,
     //  check for duplicates.
 
     auto &s_lang = state.dataRuntimeLang;
-        
+
     std::string const objType = Util::makeUPPER(cComponentTypeName);
     std::string const objName = Util::makeUPPER(cUniqueIDName);
     std::string const actuatorName = Util::makeUPPER(cControlTypeName);

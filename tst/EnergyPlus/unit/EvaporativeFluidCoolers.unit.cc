@@ -174,7 +174,7 @@ TEST_F(EnergyPlusFixture, ExerciseSingleSpeedEvapFluidCooler)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     EvapFluidCoolerSpecs *ptr =
         EvapFluidCoolerSpecs::factory(*state, DataPlant::PlantEquipmentType::EvapFluidCooler_SingleSpd, "BIG EVAPORATIVEFLUIDCOOLER");
 
@@ -262,7 +262,7 @@ TEST_F(EnergyPlusFixture, ExerciseTwoSpeedEvapFluidCooler)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     EvapFluidCoolerSpecs *ptr = EvapFluidCoolerSpecs::factory(*state, DataPlant::PlantEquipmentType::EvapFluidCooler_TwoSpd, "CENTRAL TOWER");
 
     PlantLocation pl{1, EnergyPlus::DataPlant::LoopSideLocation::Demand, 1, 1};

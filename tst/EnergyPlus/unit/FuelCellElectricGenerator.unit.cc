@@ -794,7 +794,7 @@ TEST_F(EnergyPlusFixture, FuelCellTest)
     ASSERT_TRUE(process_idf(idf_objects));
     EXPECT_FALSE(has_err_output());
     state->init_state(*state);
-    
+
     SimulationManager::ManageSimulation(*state);
     EXPECT_TRUE(has_err_output(true));
 
@@ -1739,7 +1739,7 @@ TEST_F(EnergyPlusFixture, DISABLED_FuelCellTest_Zero_Cp_Fix)
     EXPECT_FALSE(process_err);
 
     state->init_state(*state);
-    
+
     SimulationManager::ManageSimulation(*state);
     bool simulation_err(false);
     simulation_err = has_err_output(false);

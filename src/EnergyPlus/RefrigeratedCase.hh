@@ -327,18 +327,18 @@ namespace RefrigeratedCase {
         Real64 ASHeaterFractionToCase = 0.0; // Fraction of anti-sweat heater energy that results in a direct
         // heat load to the case. The remainder is a heating load
         // to the zone where the refrigerated case is located.
-        Real64 DesignSensCaseCredit = 0.0;  // Design sensible case credit applied to zone load
-        Real64 EvapTempDesign = 0.0;        // Design evaporator temperature
-        Real64 RefrigInventory = 0.0;       // Design refrigerant inventory [kg/m]
-        Real64 DesignRefrigInventory = 0.0; // Design refrigerant inventory [kg total for the case]
-        Real64 DesignRatedCap = 0.0;        // Design total case capacity=RatedTotCap*Length [W]
-        Real64 DesignLatentCap = 0.0;       // Design latent case capacity=DesignRAtedCap*LatentHeatRatio*RTF [W]
-        Real64 DesignDefrostCap = 0.0;      // Design defrost case capacity=DefrostPower*Length [W]
-        Real64 DesignLighting = 0.0;        // Design case lighting=LightingPower*Length [W]
-        Real64 DesignFanPower = 0.0;        // Design power of case fan=Operatingpower*Length [W]
-        Real64 StoredEnergy = 0.0;          // Cumulative Stored Energy not met by evaporator [J]
-        Real64 StoredEnergySaved = 0.0;     // Cumulative Stored Energy not met by evaporator [J]
-        Sched::Schedule *caseCreditFracSched = nullptr;     // case credit reduction schedule
+        Real64 DesignSensCaseCredit = 0.0;              // Design sensible case credit applied to zone load
+        Real64 EvapTempDesign = 0.0;                    // Design evaporator temperature
+        Real64 RefrigInventory = 0.0;                   // Design refrigerant inventory [kg/m]
+        Real64 DesignRefrigInventory = 0.0;             // Design refrigerant inventory [kg total for the case]
+        Real64 DesignRatedCap = 0.0;                    // Design total case capacity=RatedTotCap*Length [W]
+        Real64 DesignLatentCap = 0.0;                   // Design latent case capacity=DesignRAtedCap*LatentHeatRatio*RTF [W]
+        Real64 DesignDefrostCap = 0.0;                  // Design defrost case capacity=DefrostPower*Length [W]
+        Real64 DesignLighting = 0.0;                    // Design case lighting=LightingPower*Length [W]
+        Real64 DesignFanPower = 0.0;                    // Design power of case fan=Operatingpower*Length [W]
+        Real64 StoredEnergy = 0.0;                      // Cumulative Stored Energy not met by evaporator [J]
+        Real64 StoredEnergySaved = 0.0;                 // Cumulative Stored Energy not met by evaporator [J]
+        Sched::Schedule *caseCreditFracSched = nullptr; // case credit reduction schedule
         // Report Variables
         Real64 TotalCoolingLoad = 0.0;         // Refrigerated case total cooling rate (W)
         Real64 TotalCoolingEnergy = 0.0;       // Refrigerated case total cooling energy (J)
@@ -1430,12 +1430,12 @@ namespace RefrigeratedCase {
         int ChillerSetID = 0; // ID number for this set of chillers (all serving one zone,
         //                       but can be chilled by multi systems)
         Sched::Schedule *availSched = nullptr; // Schedule to take whole set off-line if needed // availability?
-        int NodeNumInlet = 0;    // Node ID Number of inlet for chiller set as a whole, not identified for specific coils
-        int NodeNumOutlet = 0;   // Node ID Number of outlet for chiller set as a whole, not identified for specific coils
-        int NumCoils = 0;        // Number of individual chillers in set
-        int ZoneNum = 0;         // ID number of zone where chiller set is located
-        int ZoneNodeNum = 0;     // ID number of zone node giving mixed conditions of zone where chiller set is located
-        Real64 QZnReqSens = 0.0; // Sensible heat needed by the zone to reach setpoint [W]
+        int NodeNumInlet = 0;                  // Node ID Number of inlet for chiller set as a whole, not identified for specific coils
+        int NodeNumOutlet = 0;                 // Node ID Number of outlet for chiller set as a whole, not identified for specific coils
+        int NumCoils = 0;                      // Number of individual chillers in set
+        int ZoneNum = 0;                       // ID number of zone where chiller set is located
+        int ZoneNodeNum = 0;                   // ID number of zone node giving mixed conditions of zone where chiller set is located
+        Real64 QZnReqSens = 0.0;               // Sensible heat needed by the zone to reach setpoint [W]
 
         void CalculateAirChillerSets(EnergyPlusData &state);
     };

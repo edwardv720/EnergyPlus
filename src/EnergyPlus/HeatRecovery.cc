@@ -249,7 +249,7 @@ namespace HeatRecovery {
         int IOStatus;                                                      // Used in GetObjectItem
         bool ErrorsFound(false);                                           // Set to true if errors in input, fatal at end of routine
         constexpr std::string_view RoutineName = "GetHeatRecoveryInput: "; // include trailing blank space
-        constexpr std::string_view routineName = "GetHeatRecoveryInput"; 
+        constexpr std::string_view routineName = "GetHeatRecoveryInput";
         auto &cCurrentModuleObject = state.dataIPShortCut->cCurrentModuleObject;
 
         int NumAirToAirPlateExchs = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "HeatExchanger:AirToAir:FlatPlate");
@@ -411,7 +411,7 @@ namespace HeatRecovery {
             thisExchanger.type = HVAC::HXType::AirToAir_Generic;
             if (state.dataIPShortCut->lAlphaFieldBlanks(2)) {
                 thisExchanger.availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((thisExchanger.availSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(2))) == nullptr) { 
+            } else if ((thisExchanger.availSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(2))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(2), state.dataIPShortCut->cAlphaArgs(2));
                 ErrorsFound = true;
             }
@@ -537,7 +537,7 @@ namespace HeatRecovery {
                                                                      state.dataIPShortCut->cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
-            
+
             int const ExchNum = ExchIndex + NumAirToAirPlateExchs + NumAirToAirGenericExchs;
             auto &thisExchanger = state.dataHeatRecovery->ExchCond(ExchNum);
             thisExchanger.NumericFieldNames.allocate(NumNumbers);
@@ -554,7 +554,7 @@ namespace HeatRecovery {
             thisExchanger.type = HVAC::HXType::Desiccant_Balanced;
             if (state.dataIPShortCut->lAlphaFieldBlanks(2)) {
                 thisExchanger.availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((thisExchanger.availSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(2))) == nullptr) { 
+            } else if ((thisExchanger.availSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(2))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(2), state.dataIPShortCut->cAlphaArgs(2));
                 ErrorsFound = true;
             }

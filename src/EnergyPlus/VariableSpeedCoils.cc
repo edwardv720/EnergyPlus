@@ -841,7 +841,7 @@ namespace VariableSpeedCoils {
                                                                      cNumericFields);
 
             ErrorObjectHeader eoh{routineName, CurrentModuleObject, AlphArray(1)};
-            
+
             // ErrorsFound will be set to True if problem was found, left untouched otherwise
             GlobalNames::VerifyUniqueCoilName(state, CurrentModuleObject, AlphArray(1), ErrorsFound, CurrentModuleObject + " Name");
 
@@ -1082,9 +1082,10 @@ namespace VariableSpeedCoils {
 
             if (lAlphaBlanks(10)) {
                 // Should this be ScheduleAlwaysOff?
-            } else if ((state.dataVariableSpeedCoils->VarSpeedCoil(DXCoilNum).basinHeaterSched = Sched::GetSchedule(state, AlphArray(10))) == nullptr) {
-                ShowWarningItemNotFound(state, eoh, cAlphaFields(10), AlphArray(10),
-                                        "Basin heater will be available to operate throughout the simulation.");
+            } else if ((state.dataVariableSpeedCoils->VarSpeedCoil(DXCoilNum).basinHeaterSched = Sched::GetSchedule(state, AlphArray(10))) ==
+                       nullptr) {
+                ShowWarningItemNotFound(
+                    state, eoh, cAlphaFields(10), AlphArray(10), "Basin heater will be available to operate throughout the simulation.");
             }
 
             for (int I = 1; I <= state.dataVariableSpeedCoils->VarSpeedCoil(DXCoilNum).NumOfSpeeds; ++I) {

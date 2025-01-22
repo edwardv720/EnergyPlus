@@ -874,7 +874,7 @@ namespace Furnaces {
 
             if (lAlphaBlanks(5)) {
                 thisFurnace.fanOp = HVAC::FanOp::Cycling;
-            } else if ((thisFurnace.fanOpModeSched = Sched::GetSchedule(state, Alphas(5))) == nullptr) { 
+            } else if ((thisFurnace.fanOpModeSched = Sched::GetSchedule(state, Alphas(5))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(5), Alphas(5));
                 ErrorsFound = true;
             }
@@ -966,8 +966,16 @@ namespace Furnaces {
                 // Check fan's schedule for cycling fan operation if constant volume fan is used
                 if (thisFurnace.fanOpModeSched != nullptr && thisFurnace.fanType == HVAC::FanType::Constant) {
                     if (!thisFurnace.fanOpModeSched->checkMinMaxVals(state, Clusive::Ex, 0.0, Clusive::In, 1.0)) {
-                        Sched::ShowSevereBadMinMax(state, eoh, cAlphaFields(5), Alphas(5), Clusive::Ex, 0.0, Clusive::In, 1.0, 
-                                                   format("For {} = {}, Fan operating mode must be continuous (schedule values > 0)", cAlphaFields(7), Alphas(7)));
+                        Sched::ShowSevereBadMinMax(
+                            state,
+                            eoh,
+                            cAlphaFields(5),
+                            Alphas(5),
+                            Clusive::Ex,
+                            0.0,
+                            Clusive::In,
+                            1.0,
+                            format("For {} = {}, Fan operating mode must be continuous (schedule values > 0)", cAlphaFields(7), Alphas(7)));
                         ErrorsFound = true;
                     }
                 } else if (lAlphaBlanks(5) && thisFurnace.fanType != HVAC::FanType::OnOff) {
@@ -1396,7 +1404,7 @@ namespace Furnaces {
 
             if (lAlphaBlanks(5)) {
                 thisFurnace.fanOp = HVAC::FanOp::Cycling;
-            } else if ((thisFurnace.fanOpModeSched = Sched::GetSchedule(state, Alphas(5))) == nullptr) { 
+            } else if ((thisFurnace.fanOpModeSched = Sched::GetSchedule(state, Alphas(5))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(5), Alphas(5));
                 ErrorsFound = true;
             }
@@ -1487,8 +1495,16 @@ namespace Furnaces {
                 // Check fan's schedule for cycling fan operation if constant volume fan is used
                 if (thisFurnace.fanOpModeSched != nullptr && thisFurnace.fanType == HVAC::FanType::Constant) {
                     if (!thisFurnace.fanOpModeSched->checkMinMaxVals(state, Clusive::Ex, 0.0, Clusive::In, 1.0)) {
-                        Sched::ShowSevereBadMinMax(state, eoh, cAlphaFields(5), Alphas(5), Clusive::In, 0.0, Clusive::In, 1.0,
-                                                   format("For {} = {}, fan operating mode must be continuous (schedule values > 0)", cAlphaFields(7), Alphas(7)));
+                        Sched::ShowSevereBadMinMax(
+                            state,
+                            eoh,
+                            cAlphaFields(5),
+                            Alphas(5),
+                            Clusive::In,
+                            0.0,
+                            Clusive::In,
+                            1.0,
+                            format("For {} = {}, fan operating mode must be continuous (schedule values > 0)", cAlphaFields(7), Alphas(7)));
                         ErrorsFound = true;
                     }
                 } else if (lAlphaBlanks(5) && thisFurnace.fanType != HVAC::FanType::OnOff) {
@@ -2644,7 +2660,7 @@ namespace Furnaces {
 
             if (lAlphaBlanks(2)) {
                 thisFurnace.availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((thisFurnace.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) { 
+            } else if ((thisFurnace.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(2), Alphas(2));
                 ErrorsFound = true;
             }
@@ -3148,16 +3164,23 @@ namespace Furnaces {
                     ShowContinueError(state, format("Fan type must be Fan:OnOff when {} = Blank.", cAlphaFields(15)));
                     ErrorsFound = true;
                 }
-            } else if ((thisFurnace.fanOpModeSched = Sched::GetSchedule(state, Alphas(15))) == nullptr) { 
+            } else if ((thisFurnace.fanOpModeSched = Sched::GetSchedule(state, Alphas(15))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(15), Alphas(15));
                 ErrorsFound = true;
             }
-            
-            if (thisFurnace.fanType == HVAC::FanType::Constant && 
-                thisFurnace.fanOpModeSched != nullptr && 
+
+            if (thisFurnace.fanType == HVAC::FanType::Constant && thisFurnace.fanOpModeSched != nullptr &&
                 !thisFurnace.fanOpModeSched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
-                Sched::ShowSevereBadMinMax(state, eoh, cAlphaFields(15), Alphas(15), Clusive::In, 0.0, Clusive::In, 1.0,
-                                           format("For {} = {}, fan operating mode must be continuous (schedule values > 0)", cAlphaFields(7), Alphas(7)));
+                Sched::ShowSevereBadMinMax(
+                    state,
+                    eoh,
+                    cAlphaFields(15),
+                    Alphas(15),
+                    Clusive::In,
+                    0.0,
+                    Clusive::In,
+                    1.0,
+                    format("For {} = {}, fan operating mode must be continuous (schedule values > 0)", cAlphaFields(7), Alphas(7)));
                 ErrorsFound = true;
             }
 
@@ -3974,7 +3997,7 @@ namespace Furnaces {
                     ShowContinueError(state, format("Fan type must be Fan:OnOff when {} = Blank.", cAlphaFields(16)));
                     ErrorsFound = true;
                 }
-            } else if ((thisFurnace.fanOpModeSched = Sched::GetSchedule(state, Alphas(16))) == nullptr) { 
+            } else if ((thisFurnace.fanOpModeSched = Sched::GetSchedule(state, Alphas(16))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(16), Alphas(16));
                 ErrorsFound = true;
             }
@@ -5337,8 +5360,7 @@ namespace Furnaces {
         QToCoolSetPt = 0.0;
         QToHeatSetPt = 0.0;
         if (fanOp == HVAC::FanOp::Continuous && thisFurnace.availSched->getCurrentVal() > 0.0 &&
-            ((thisFurnace.fanAvailSched->getCurrentVal() > 0.0 || state.dataHVACGlobal->TurnFansOn) &&
-             !state.dataHVACGlobal->TurnFansOff)) {
+            ((thisFurnace.fanAvailSched->getCurrentVal() > 0.0 || state.dataHVACGlobal->TurnFansOn) && !state.dataHVACGlobal->TurnFansOff)) {
 
             if (thisFurnace.NumOfSpeedCooling > 0) {
                 CalcVarSpeedHeatPump(state,
@@ -6176,8 +6198,7 @@ namespace Furnaces {
             state.dataHVACGlobal->OnOffFanPartLoadFraction = 1.0;
         } else {
             // If Furnace runs then set HeatCoilLoad on Heating Coil and the Mass Flow
-            if ((thisFurnace.availSched->getCurrentVal() > 0.0) && (furnaceInNode.MassFlowRate > 0.0) &&
-                (state.dataFurnaces->HeatingLoad)) {
+            if ((thisFurnace.availSched->getCurrentVal() > 0.0) && (furnaceInNode.MassFlowRate > 0.0) && (state.dataFurnaces->HeatingLoad)) {
 
                 furnaceInNode.MassFlowRate = thisFurnace.MdotFurnace;
                 HeatCoilLoad = thisFurnace.DesignHeatingCapacity;
@@ -6340,8 +6361,7 @@ namespace Furnaces {
                 //      END IF
                 thisFurnace.MdotFurnace = furnaceInNode.MassFlowRate;
 
-            } else if ((thisFurnace.availSched->getCurrentVal() > 0.0) && (furnaceInNode.MassFlowRate > 0.0) &&
-                       (fanOp == HVAC::FanOp::Continuous)) {
+            } else if ((thisFurnace.availSched->getCurrentVal() > 0.0) && (furnaceInNode.MassFlowRate > 0.0) && (fanOp == HVAC::FanOp::Continuous)) {
                 HeatCoilLoad = 0.0;
             } else { // no heating and no flow
                 thisFurnace.MdotFurnace = 0.0;
@@ -7745,8 +7765,7 @@ namespace Furnaces {
             //*********HVAC Scheduled OFF*************
             // No heating or cooling or dehumidification
             //!!LKL discrepancy with < 0?
-            if (thisFurnace.availSched->getCurrentVal() == 0.0 ||
-                state.dataLoopNodes->Node(FurnaceInletNode).MassFlowRate == 0.0) {
+            if (thisFurnace.availSched->getCurrentVal() == 0.0 || state.dataLoopNodes->Node(FurnaceInletNode).MassFlowRate == 0.0) {
                 thisFurnace.MdotFurnace = 0.0;
                 CoolCoilLoad = 0.0;
                 HeatCoilLoad = 0.0;
@@ -7848,8 +7867,7 @@ namespace Furnaces {
         // AND air flow rate is greater than zero...
         // AND the air system has a cooling load and is not set back or in the deadband...
         // OR the system is controlled by a humidistat and there is a latent load
-        if ((thisFurnace.availSched->getCurrentVal() > 0.0 &&
-             state.dataLoopNodes->Node(FurnaceInletNode).MassFlowRate > 0.0) &&
+        if ((thisFurnace.availSched->getCurrentVal() > 0.0 && state.dataLoopNodes->Node(FurnaceInletNode).MassFlowRate > 0.0) &&
             ((state.dataFurnaces->CoolingLoad) || (thisFurnace.Humidistat && thisFurnace.CoolingCoilLatentDemand < 0.0))) {
 
             // Set the air flow rate to the design flow rate and set the fan operation fraction to 1 (continuous operation)
@@ -8050,8 +8068,8 @@ namespace Furnaces {
 
             //*********HEATING CALCULATIONS****************
             // If Furnace runs with a heating load then set HeatCoilLoad on Heating Coil and the Mass Flow
-        } else if ((thisFurnace.availSched->getCurrentVal() > 0.0) &&
-                   (state.dataLoopNodes->Node(FurnaceInletNode).MassFlowRate > 0.0) && state.dataFurnaces->HeatingLoad) {
+        } else if ((thisFurnace.availSched->getCurrentVal() > 0.0) && (state.dataLoopNodes->Node(FurnaceInletNode).MassFlowRate > 0.0) &&
+                   state.dataFurnaces->HeatingLoad) {
 
             // Set the air flow rate to the design flow rate and set the fan operation fraction to 1 (continuous operation)
             state.dataLoopNodes->Node(FurnaceInletNode).MassFlowRate = thisFurnace.DesignMassFlowRate;
@@ -8981,8 +8999,7 @@ namespace Furnaces {
 
         // IF the furnace is scheduled on or nightime cycle overrides fan schedule. Uses same logic as fan.
         if (state.dataFurnaces->Furnace(FurnaceNum).availSched->getCurrentVal() > 0.0 &&
-            ((state.dataFurnaces->Furnace(FurnaceNum).fanAvailSched->getCurrentVal() > 0.0 ||
-              state.dataHVACGlobal->TurnFansOn) &&
+            ((state.dataFurnaces->Furnace(FurnaceNum).fanAvailSched->getCurrentVal() > 0.0 || state.dataHVACGlobal->TurnFansOn) &&
              !state.dataHVACGlobal->TurnFansOff)) {
             state.dataLoopNodes->Node(InletNode).MassFlowRate = AverageUnitMassFlow;
             state.dataLoopNodes->Node(InletNode).MassFlowRateMaxAvail = AverageUnitMassFlow;

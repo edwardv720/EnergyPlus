@@ -129,26 +129,26 @@ namespace AirflowNetwork {
     struct OccupantVentilationControlProp
     {
 
-        std::string Name;                     // Provide a unique object name
-        Real64 MinOpeningTime;                // Minimum Opening Time
-        Real64 MinClosingTime;                // Minimum Closing Time
-        std::string ComfortLowTempCurveName;  // Thermal Comfort Low Temperature Curve Name
-        std::string ComfortHighTempCurveName; // Thermal Comfort High Temperature Curve Name
-        int ComfortLowTempCurveNum;           // Thermal Comfort Low Temperature Curve number
-        int ComfortHighTempCurveNum;          // Thermal Comfort high Temperature Curve number
-        Sched::Schedule *openingProbSched = nullptr;                // Opening probability schedule pointer
-        Sched::Schedule *closingProbSched = nullptr;                // Closing probability schedule pointer
-        Real64 ComfortBouPoint;               // Thermal Comfort Temperature Boundary Point
-        bool OccupancyCheck;                  // Occupancy check
-        std::string OpeningProbSchName;       // Opening probability schedule name
-        std::string ClosingProbSchName;       // Closing probability schedule name
-        Real64 MaxPPD;                        // Maximum PPD used to calculate comfort band (%)
-        bool MinTimeControlOnly;              // Chach minimum opening and closing time only
+        std::string Name;                            // Provide a unique object name
+        Real64 MinOpeningTime;                       // Minimum Opening Time
+        Real64 MinClosingTime;                       // Minimum Closing Time
+        std::string ComfortLowTempCurveName;         // Thermal Comfort Low Temperature Curve Name
+        std::string ComfortHighTempCurveName;        // Thermal Comfort High Temperature Curve Name
+        int ComfortLowTempCurveNum;                  // Thermal Comfort Low Temperature Curve number
+        int ComfortHighTempCurveNum;                 // Thermal Comfort high Temperature Curve number
+        Sched::Schedule *openingProbSched = nullptr; // Opening probability schedule pointer
+        Sched::Schedule *closingProbSched = nullptr; // Closing probability schedule pointer
+        Real64 ComfortBouPoint;                      // Thermal Comfort Temperature Boundary Point
+        bool OccupancyCheck;                         // Occupancy check
+        std::string OpeningProbSchName;              // Opening probability schedule name
+        std::string ClosingProbSchName;              // Closing probability schedule name
+        Real64 MaxPPD;                               // Maximum PPD used to calculate comfort band (%)
+        bool MinTimeControlOnly;                     // Chach minimum opening and closing time only
 
         // Default Constructor
         OccupantVentilationControlProp()
-            : MinOpeningTime(0.0), MinClosingTime(0.0), ComfortLowTempCurveNum(0), ComfortHighTempCurveNum(0), 
-              ComfortBouPoint(10.0), OccupancyCheck(false), MaxPPD(10.0), MinTimeControlOnly(false)
+            : MinOpeningTime(0.0), MinClosingTime(0.0), ComfortLowTempCurveNum(0), ComfortHighTempCurveNum(0), ComfortBouPoint(10.0),
+              OccupancyCheck(false), MaxPPD(10.0), MinTimeControlOnly(false)
         {
         }
 

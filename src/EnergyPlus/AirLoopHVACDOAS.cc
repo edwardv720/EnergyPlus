@@ -458,7 +458,7 @@ namespace AirLoopHVACDOAS {
                 AirLoopDOAS thisDOAS;
 
                 ErrorObjectHeader eoh{routineName, cCurrentModuleObject, thisObjectName};
-                
+
                 thisDOAS.Name = Util::makeUPPER(thisObjectName);
                 // get OA and avail num
                 thisDOAS.OASystemName = Util::makeUPPER(fields.at("airloophvac_outdoorairsystem_name").get<std::string>());

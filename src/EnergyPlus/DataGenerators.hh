@@ -204,7 +204,7 @@ namespace DataGenerators {
         DataGenerators::FuelMode FuelTypeMode = DataGenerators::FuelMode::Invalid;                       // type of fuel, gasous or liquid
         std::string NodeName;                                                                            // node name for temperature at input
         int NodeNum = 0;                                                                                 // node number for temperature at input
-        Sched::Schedule *sched = nullptr;                                                                                // fuel temperature at input
+        Sched::Schedule *sched = nullptr;                                                                // fuel temperature at input
         int CompPowerCurveID = 0;                                                                        // "pointer" to compressor power cubic curve
         Real64 CompPowerLossFactor = 0.0;
         int NumConstituents = 0; // number of constituents in fue supply

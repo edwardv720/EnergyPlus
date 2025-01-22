@@ -287,7 +287,7 @@ TEST_F(EnergyPlusFixture, OutdoorAirUnit_AutoSize)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataGlobal->CurrentTime = 0.25;
     state->dataGlobal->BeginEnvrnFlag = true;
     state->dataSize->CurZoneEqNum = 1;
@@ -333,7 +333,7 @@ TEST_F(EnergyPlusFixture, OutdoorAirUnit_AutoSize)
     ZoneInletNode = OutdoorAirUnit::GetOutdoorAirUnitZoneInletNode(*state, OAUnitNum);
 
     // schedule values will get reset to 0 if initialized before GetInput
-    Sched::GetSchedule(*state, "AVAILSCHED")->currentVal = 1.0; // enable the VRF condenser
+    Sched::GetSchedule(*state, "AVAILSCHED")->currentVal = 1.0;    // enable the VRF condenser
     Sched::GetSchedule(*state, "OAULOCTRLTEMP")->currentVal = 1.0; // enable the terminal unit
     Sched::GetSchedule(*state, "OAUHICTRLTEMP")->currentVal = 1.0; // turn on fan
     int EAFanInletNode = state->dataFans->fans(2)->inletNodeNum;
@@ -868,7 +868,7 @@ TEST_F(EnergyPlusFixture, OutdoorAirUnit_SteamHeatingCoilAutoSizeTest)
     state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
     state->init_state(*state);
-    
+
     state->dataEnvrn->StdRhoAir = 1.20;
     state->dataEnvrn->OutBaroPress = 101325.0;
     state->dataGlobal->TimeStep = 1;

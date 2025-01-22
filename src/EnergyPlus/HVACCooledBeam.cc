@@ -287,7 +287,7 @@ namespace HVACCooledBeam {
 
             if (lAlphaBlanks(2)) {
                 CoolBeam(CBNum).availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((CoolBeam(CBNum).availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) {  // convert schedule name to pointer
+            } else if ((CoolBeam(CBNum).availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) { // convert schedule name to pointer
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(2), Alphas(2));
                 ErrorsFound = true;
             }

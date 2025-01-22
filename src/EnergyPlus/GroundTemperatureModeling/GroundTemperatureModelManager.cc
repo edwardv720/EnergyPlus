@@ -77,7 +77,7 @@ BaseGroundTempsModel *GetGroundTempModelAndInit(EnergyPlusData &state, ModelType
     for (auto *gtm : state.dataGrndTempModelMgr->groundTempModels) {
         // Check if the type and name match
         if (modelType == gtm->modelType && name == gtm->Name) {
-           return gtm;
+            return gtm;
         }
     }
 
@@ -103,4 +103,4 @@ BaseGroundTempsModel *GetGroundTempModelAndInit(EnergyPlusData &state, ModelType
     }
 }
 
-} // namespace EnergyPlus::GroundTemperatureManager
+} // namespace EnergyPlus::GroundTemp

@@ -248,7 +248,7 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
     Real64 constexpr MixingTempLimit = 100.0;                                   // degrees Celsius
     Real64 constexpr VentilWSLimit = 40.0;                                      // m/s
     static constexpr std::string_view RoutineName("GetSimpleAirModelInputs: "); // include trailing blank space
-    static constexpr std::string_view routineName = "GetSimpleAirModelInputs"; 
+    static constexpr std::string_view routineName = "GetSimpleAirModelInputs";
     // Refrigeration Door Mixing Protection types, factors used to moderate mixing flow.
     Real64 constexpr RefDoorNone = 0.0;
     Real64 constexpr RefDoorAirCurtain = 0.5;
@@ -705,7 +705,8 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                 thisInfiltration.ModelType = DataHeatBalance::InfiltrationModelType::DesignFlowRate;
 
                 if (lAlphaFieldBlanks(3)) {
-                    thisInfiltration.sched = Sched::GetScheduleAlwaysOn(state); // This is not an availability schedule per se, but does default to Constant-1.0
+                    thisInfiltration.sched =
+                        Sched::GetScheduleAlwaysOn(state); // This is not an availability schedule per se, but does default to Constant-1.0
                 } else if ((thisInfiltration.sched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) {
                     if (Item1 == 1) { // avoid repeated error messages from the same input object
                         ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(3), cAlphaArgs(3));
@@ -928,7 +929,7 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                                                                      cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, cCurrentModuleObject, cAlphaArgs(1)};
-            
+
             // Create one Infiltration instance for every space associated with this input object
             auto &thisInfiltrationInput = infiltrationLeakageAreaObjects(infilInputNum);
             for (int Item1 = 1; Item1 <= thisInfiltrationInput.numOfSpaces; ++Item1) {
@@ -1009,7 +1010,7 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                                                                      cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, cCurrentModuleObject, cAlphaArgs(1)};
-            
+
             // Create one Infiltration instance for every space associated with this input object
             auto &thisInfiltrationInput = infiltrationFlowCoefficientObjects(infilInputNum);
             for (int Item1 = 1; Item1 <= thisInfiltrationInput.numOfSpaces; ++Item1) {
@@ -1538,7 +1539,7 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                 } else {
                     thisVentilation.MinIndoorTemperature = -VentilTempLimit;
                 }
-                
+
                 //    Ventilation(Loop)%MinIndoorTemperature = rNumericArgs(11)
                 if ((thisVentilation.MinIndoorTemperature < -VentilTempLimit) || (thisVentilation.MinIndoorTemperature > VentilTempLimit)) {
                     if (Item1 == 1) {
@@ -1554,28 +1555,34 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                 }
 
                 if (!lAlphaFieldBlanks(6)) {
-                   thisVentilation.minIndoorTempSched = Sched::GetSchedule(state, cAlphaArgs(6));
+                    thisVentilation.minIndoorTempSched = Sched::GetSchedule(state, cAlphaArgs(6));
                 }
 
                 if (Item1 == 1) { // Item check prevents this error from printing multiple times
                     if (lAlphaFieldBlanks(6)) {
-                        if (lNumericFieldBlanks(11)) { 
-                            // ShowWarningEmptyField(state, eoh, cNumericFieldNames(11), format("The default value will be used ({:.1R})", -VentilTempLimit));
+                        if (lNumericFieldBlanks(11)) {
+                            // ShowWarningEmptyField(state, eoh, cNumericFieldNames(11), format("The default value will be used ({:.1R})",
+                            // -VentilTempLimit));
                         }
                     } else if (thisVentilation.minIndoorTempSched == nullptr) {
-                        ShowWarningItemNotFound(state, eoh, cAlphaFieldNames(6), cAlphaArgs(6),
+                        ShowWarningItemNotFound(state,
+                                                eoh,
+                                                cAlphaFieldNames(6),
+                                                cAlphaArgs(6),
                                                 format("The default value will be used ({:.1R})", thisVentilation.MinIndoorTemperature));
-                    } else if (!thisVentilation.minIndoorTempSched->checkMinMaxVals(state, Clusive::In, -VentilTempLimit,
-                                                                                      Clusive::In, VentilTempLimit)) {
-                        Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(6), cAlphaArgs(6),
-                                                     Clusive::In, -VentilTempLimit, Clusive::In, VentilTempLimit);
+                    } else if (!thisVentilation.minIndoorTempSched->checkMinMaxVals(
+                                   state, Clusive::In, -VentilTempLimit, Clusive::In, VentilTempLimit)) {
+                        Sched::ShowSevereBadMinMax(
+                            state, eoh, cAlphaFieldNames(6), cAlphaArgs(6), Clusive::In, -VentilTempLimit, Clusive::In, VentilTempLimit);
                         ErrorsFound = true;
                     } else if (!lNumericFieldBlanks(11)) {
-                        ShowWarningCustom(state, eoh, format("Both {} and {} provided, {} will be used.",
-                                                             cAlphaFieldNames(6), cAlphaFieldNames(11), cAlphaFieldNames(6)));
+                        ShowWarningCustom(
+                            state,
+                            eoh,
+                            format("Both {} and {} provided, {} will be used.", cAlphaFieldNames(6), cAlphaFieldNames(11), cAlphaFieldNames(6)));
                     }
                 }
-                
+
                 thisVentilation.MaxIndoorTemperature = !lNumericFieldBlanks(12) ? rNumericArgs(12) : VentilTempLimit;
                 if ((thisVentilation.MaxIndoorTemperature < -VentilTempLimit) || (thisVentilation.MaxIndoorTemperature > VentilTempLimit)) {
                     if (Item1 == 1) {
@@ -1591,23 +1598,29 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                 if (!lAlphaFieldBlanks(7)) {
                     thisVentilation.maxIndoorTempSched = Sched::GetSchedule(state, cAlphaArgs(7));
                 }
-                
+
                 if (Item1 == 1) { // Item check prevents this error from printing multiple times
                     if (lAlphaFieldBlanks(7)) {
-                        if (lNumericFieldBlanks(12)) { 
-                            // ShowWarningEmptyField(state, eoh, cNumericFieldNames(12), format("The default value will be used ({:.1R})", VentilTempLimit));
+                        if (lNumericFieldBlanks(12)) {
+                            // ShowWarningEmptyField(state, eoh, cNumericFieldNames(12), format("The default value will be used ({:.1R})",
+                            // VentilTempLimit));
                         }
                     } else if (thisVentilation.maxIndoorTempSched == nullptr) {
-                        ShowWarningItemNotFound(state, eoh, cAlphaFieldNames(7), cAlphaArgs(7),
+                        ShowWarningItemNotFound(state,
+                                                eoh,
+                                                cAlphaFieldNames(7),
+                                                cAlphaArgs(7),
                                                 format("The default value will be used ({:.1R})", thisVentilation.MaxIndoorTemperature));
-                    } else if (!thisVentilation.maxIndoorTempSched->checkMinMaxVals(state, Clusive::In, -VentilTempLimit,
-                                                                                      Clusive::In, VentilTempLimit)) {
-                        Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(7), cAlphaArgs(7),
-                                                     Clusive::In, -VentilTempLimit, Clusive::In, VentilTempLimit);
+                    } else if (!thisVentilation.maxIndoorTempSched->checkMinMaxVals(
+                                   state, Clusive::In, -VentilTempLimit, Clusive::In, VentilTempLimit)) {
+                        Sched::ShowSevereBadMinMax(
+                            state, eoh, cAlphaFieldNames(7), cAlphaArgs(7), Clusive::In, -VentilTempLimit, Clusive::In, VentilTempLimit);
                         ErrorsFound = true;
                     } else if (!lNumericFieldBlanks(12)) {
-                        ShowWarningCustom(state, eoh, format("Both {} and {} provided, {} will be used.",
-                                                             cAlphaFieldNames(7), cAlphaFieldNames(12), cAlphaFieldNames(7)));
+                        ShowWarningCustom(
+                            state,
+                            eoh,
+                            format("Both {} and {} provided, {} will be used.", cAlphaFieldNames(7), cAlphaFieldNames(12), cAlphaFieldNames(7)));
                     }
                 }
 
@@ -1620,18 +1633,24 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
 
                 if (Item1 == 1) { // Item check prevents this error from printing multiple times
                     if (lAlphaFieldBlanks(8)) {
-                        if (lNumericFieldBlanks(13)) { 
-                            // ShowWarningEmptyField(state, eoh, cNumericFieldNames(13), format("The default value will be used ({:.1R})", VentilTempLimit));
+                        if (lNumericFieldBlanks(13)) {
+                            // ShowWarningEmptyField(state, eoh, cNumericFieldNames(13), format("The default value will be used ({:.1R})",
+                            // VentilTempLimit));
                         }
                     } else if (thisVentilation.deltaTempSched == nullptr) {
-                        ShowWarningItemNotFound(state, eoh, cAlphaFieldNames(8), cAlphaArgs(8),
+                        ShowWarningItemNotFound(state,
+                                                eoh,
+                                                cAlphaFieldNames(8),
+                                                cAlphaArgs(8),
                                                 format("The default value will be used ({:.1R})", thisVentilation.DelTemperature));
                     } else if (!thisVentilation.deltaTempSched->checkMinVal(state, Clusive::In, -VentilTempLimit)) {
                         Sched::ShowSevereBadMin(state, eoh, cAlphaFieldNames(8), cAlphaArgs(8), Clusive::In, -100);
                         ErrorsFound = true;
                     } else if (!lNumericFieldBlanks(13)) {
-                        ShowWarningCustom(state, eoh, format("Both {} and {} provided, {} will be used.",
-                                                             cAlphaFieldNames(8), cAlphaFieldNames(13), cAlphaFieldNames(8)));
+                        ShowWarningCustom(
+                            state,
+                            eoh,
+                            format("Both {} and {} provided, {} will be used.", cAlphaFieldNames(8), cAlphaFieldNames(13), cAlphaFieldNames(8)));
                     }
                 }
 
@@ -1651,27 +1670,32 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                 if (!lAlphaFieldBlanks(9)) {
                     thisVentilation.minOutdoorTempSched = Sched::GetSchedule(state, cAlphaArgs(9));
                 }
-                
+
                 if (Item1 == 1) { // Item check prevents this error from printing multiple times
                     if (lAlphaFieldBlanks(9)) {
-                        if (lNumericFieldBlanks(14)) { 
-                            // ShowWarningEmptyField(state, eoh, cNumericFieldNames(14), format("The default value will be used ({:.1R})", VentilTempLimit));
+                        if (lNumericFieldBlanks(14)) {
+                            // ShowWarningEmptyField(state, eoh, cNumericFieldNames(14), format("The default value will be used ({:.1R})",
+                            // VentilTempLimit));
                         }
                     } else if (thisVentilation.minOutdoorTempSched == nullptr) {
-                        ShowWarningItemNotFound(state, eoh, cAlphaFieldNames(9), cAlphaArgs(9),
+                        ShowWarningItemNotFound(state,
+                                                eoh,
+                                                cAlphaFieldNames(9),
+                                                cAlphaArgs(9),
                                                 format("The default value will be used ({:.1R})", thisVentilation.MinOutdoorTemperature));
-                    } else if (!thisVentilation.minOutdoorTempSched->checkMinMaxVals(state, Clusive::In, -VentilTempLimit,
-                                                                                     Clusive::In, VentilTempLimit)) {
-                        Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(9), cAlphaArgs(9), Clusive::In, -VentilTempLimit,
-                                                     Clusive::In, VentilTempLimit);
+                    } else if (!thisVentilation.minOutdoorTempSched->checkMinMaxVals(
+                                   state, Clusive::In, -VentilTempLimit, Clusive::In, VentilTempLimit)) {
+                        Sched::ShowSevereBadMinMax(
+                            state, eoh, cAlphaFieldNames(9), cAlphaArgs(9), Clusive::In, -VentilTempLimit, Clusive::In, VentilTempLimit);
                         ErrorsFound = true;
                     } else if (!lNumericFieldBlanks(14)) {
-                        ShowWarningCustom(state, eoh, format("Both {} and {} provided, {} will be used.",
-                                                             cAlphaFieldNames(9), cNumericFieldNames(14), cAlphaFieldNames(9)));
+                        ShowWarningCustom(
+                            state,
+                            eoh,
+                            format("Both {} and {} provided, {} will be used.", cAlphaFieldNames(9), cNumericFieldNames(14), cAlphaFieldNames(9)));
                     }
                 }
 
-                
                 thisVentilation.MaxOutdoorTemperature = !lNumericFieldBlanks(15) ? rNumericArgs(15) : VentilTempLimit;
                 if (Item1 == 1) {
                     if ((thisVentilation.MaxOutdoorTemperature < -VentilTempLimit) || (thisVentilation.MaxOutdoorTemperature > VentilTempLimit)) {
@@ -1691,23 +1715,29 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
 
                 if (Item1 == 1) { // Item check prevents this error from printing multiple times
                     if (lAlphaFieldBlanks(10)) {
-                        if (lNumericFieldBlanks(15)) { 
-                            // ShowWarningEmptyField(state, eoh, cNumericFieldNames(15), format("The default value will be used ({:.1R})", VentilTempLimit));
+                        if (lNumericFieldBlanks(15)) {
+                            // ShowWarningEmptyField(state, eoh, cNumericFieldNames(15), format("The default value will be used ({:.1R})",
+                            // VentilTempLimit));
                         }
                     } else if (thisVentilation.maxOutdoorTempSched == nullptr) {
-                        ShowWarningItemNotFound(state, eoh, cAlphaFieldNames(10), cAlphaArgs(10),
+                        ShowWarningItemNotFound(state,
+                                                eoh,
+                                                cAlphaFieldNames(10),
+                                                cAlphaArgs(10),
                                                 format("The default value will be used ({:.1R})", thisVentilation.MaxOutdoorTemperature));
-                    } else if (!thisVentilation.maxOutdoorTempSched->checkMinMaxVals(state, Clusive::In, -VentilTempLimit,
-                                                                                    Clusive::In, VentilTempLimit)) {
-                        Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(10), cAlphaArgs(10), Clusive::In, -VentilTempLimit,
-                                                     Clusive::In, VentilTempLimit);
+                    } else if (!thisVentilation.maxOutdoorTempSched->checkMinMaxVals(
+                                   state, Clusive::In, -VentilTempLimit, Clusive::In, VentilTempLimit)) {
+                        Sched::ShowSevereBadMinMax(
+                            state, eoh, cAlphaFieldNames(10), cAlphaArgs(10), Clusive::In, -VentilTempLimit, Clusive::In, VentilTempLimit);
                         ErrorsFound = true;
                     } else if (!lNumericFieldBlanks(15)) {
-                        ShowWarningCustom(state, eoh, format("Both {} and {} provided, {} will be used.",
-                                                             cAlphaFieldNames(10), cNumericFieldNames(15), cAlphaFieldNames(15)));
+                        ShowWarningCustom(
+                            state,
+                            eoh,
+                            format("Both {} and {} provided, {} will be used.", cAlphaFieldNames(10), cNumericFieldNames(15), cAlphaFieldNames(15)));
                     }
                 }
-                
+
                 thisVentilation.MaxWindSpeed = !lNumericFieldBlanks(16) ? rNumericArgs(16) : VentilWSLimit;
                 if (Item1 == 1) {
                     if ((thisVentilation.MaxWindSpeed < -VentilWSLimit) || (thisVentilation.MaxWindSpeed > VentilWSLimit)) {
@@ -1892,7 +1922,8 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                 }
 
                 if (lAlphaFieldBlanks(3)) {
-                    thisVentilation.openAreaFracSched = Sched::GetScheduleAlwaysOn(state); // not an availability schedule, but defaults to constant-1.0
+                    thisVentilation.openAreaFracSched =
+                        Sched::GetScheduleAlwaysOn(state); // not an availability schedule, but defaults to constant-1.0
                 } else if ((thisVentilation.openAreaFracSched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(3), cAlphaArgs(3));
                     ErrorsFound = true;
@@ -1945,25 +1976,30 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                     ErrorsFound = true;
                 }
 
-                if (!lAlphaFieldBlanks(4)) { 
+                if (!lAlphaFieldBlanks(4)) {
                     thisVentilation.minIndoorTempSched = Sched::GetSchedule(state, cAlphaArgs(4));
                 }
-                
+
                 if (lAlphaFieldBlanks(4)) {
-                    if (lNumericFieldBlanks(6)) { 
-                        // ShowWarningEmptyField(state, eoh, cAlphaFieldNames(12), format("The default value will be used ({:.1R})", VentilTempLimit));
+                    if (lNumericFieldBlanks(6)) {
+                        // ShowWarningEmptyField(state, eoh, cAlphaFieldNames(12), format("The default value will be used ({:.1R})",
+                        // VentilTempLimit));
                     }
                 } else if (thisVentilation.minIndoorTempSched == nullptr) {
-                    ShowWarningItemNotFound(state, eoh, cAlphaFieldNames(4), cAlphaArgs(4),
+                    ShowWarningItemNotFound(state,
+                                            eoh,
+                                            cAlphaFieldNames(4),
+                                            cAlphaArgs(4),
                                             format("The default value will be used ({:.1R})", thisVentilation.MinIndoorTemperature));
-                } else if (!thisVentilation.minIndoorTempSched->checkMinMaxVals(state, Clusive::In, -VentilTempLimit,
-                                                                                Clusive::In, VentilTempLimit)) {
-                    Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(4), cAlphaArgs(4),
-                                                 Clusive::In, -VentilTempLimit, Clusive::In, VentilTempLimit);
+                } else if (!thisVentilation.minIndoorTempSched->checkMinMaxVals(state, Clusive::In, -VentilTempLimit, Clusive::In, VentilTempLimit)) {
+                    Sched::ShowSevereBadMinMax(
+                        state, eoh, cAlphaFieldNames(4), cAlphaArgs(4), Clusive::In, -VentilTempLimit, Clusive::In, VentilTempLimit);
                     ErrorsFound = true;
                 } else if (!lNumericFieldBlanks(6)) {
-                    ShowWarningCustom(state, eoh, format("Both {} and {} provided, {} will be used.",
-                                                         cAlphaFieldNames(4), cNumericFieldNames(6), cAlphaFieldNames(4)));
+                    ShowWarningCustom(
+                        state,
+                        eoh,
+                        format("Both {} and {} provided, {} will be used.", cAlphaFieldNames(4), cNumericFieldNames(6), cAlphaFieldNames(4)));
                 }
 
                 // Max indoor temperature
@@ -1980,24 +2016,28 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                 if (!lAlphaFieldBlanks(5)) {
                     thisVentilation.maxIndoorTempSched = Sched::GetSchedule(state, cAlphaArgs(5));
                 }
-                
+
                 if (lAlphaFieldBlanks(5)) {
-                    if (lNumericFieldBlanks(7)) { 
-                        // ShowWarningEmptyField(state, eoh, cNumericFieldNames(7), format("The default value will be used ({:.1R})", VentilTempLimit));
+                    if (lNumericFieldBlanks(7)) {
+                        // ShowWarningEmptyField(state, eoh, cNumericFieldNames(7), format("The default value will be used ({:.1R})",
+                        // VentilTempLimit));
                     }
                 } else if (thisVentilation.maxIndoorTempSched == nullptr) {
-                    ShowWarningItemNotFound(state, eoh, cAlphaFieldNames(5), cAlphaArgs(5),
+                    ShowWarningItemNotFound(state,
+                                            eoh,
+                                            cAlphaFieldNames(5),
+                                            cAlphaArgs(5),
                                             format("The default value will be used ({:.1R})", thisVentilation.MaxIndoorTemperature));
-                } else if (!thisVentilation.maxIndoorTempSched->checkMinMaxVals(state, Clusive::In, -VentilTempLimit,
-                                                                                Clusive::In, VentilTempLimit)) {
-                    Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(5), cAlphaArgs(5),
-                                                 Clusive::In, -VentilTempLimit, Clusive::In, VentilTempLimit);
+                } else if (!thisVentilation.maxIndoorTempSched->checkMinMaxVals(state, Clusive::In, -VentilTempLimit, Clusive::In, VentilTempLimit)) {
+                    Sched::ShowSevereBadMinMax(
+                        state, eoh, cAlphaFieldNames(5), cAlphaArgs(5), Clusive::In, -VentilTempLimit, Clusive::In, VentilTempLimit);
                     ErrorsFound = true;
                 } else if (!lNumericFieldBlanks(7)) {
-                    ShowWarningCustom(state, eoh, format("Both {} and {} provided, {} will be used.",
-                                                         cAlphaFieldNames(5), cNumericFieldNames(7), cAlphaFieldNames(5)));
+                    ShowWarningCustom(
+                        state,
+                        eoh,
+                        format("Both {} and {} provided, {} will be used.", cAlphaFieldNames(5), cNumericFieldNames(7), cAlphaFieldNames(5)));
                 }
-
 
                 if (!lNumericFieldBlanks(8)) {
                     thisVentilation.DelTemperature = rNumericArgs(8);
@@ -2008,20 +2048,26 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                 if (!lAlphaFieldBlanks(6)) {
                     thisVentilation.deltaTempSched = Sched::GetSchedule(state, cAlphaArgs(6));
                 }
-                       
+
                 if (lAlphaFieldBlanks(6)) {
-                    if (lNumericFieldBlanks(8)) { 
-                        // ShowWarningEmptyField(state, eoh, cNumericFieldNames(8), format("The default value will be used ({:.1R})", VentilTempLimit));
+                    if (lNumericFieldBlanks(8)) {
+                        // ShowWarningEmptyField(state, eoh, cNumericFieldNames(8), format("The default value will be used ({:.1R})",
+                        // VentilTempLimit));
                     }
                 } else if (thisVentilation.deltaTempSched == nullptr) {
-                    ShowWarningItemNotFound(state, eoh, cAlphaFieldNames(6), cAlphaArgs(6),
+                    ShowWarningItemNotFound(state,
+                                            eoh,
+                                            cAlphaFieldNames(6),
+                                            cAlphaArgs(6),
                                             format("The default value will be used ({:.1R})", thisVentilation.DelTemperature));
                 } else if (!thisVentilation.deltaTempSched->checkMinVal(state, Clusive::In, -VentilTempLimit)) {
                     Sched::ShowSevereBadMin(state, eoh, cAlphaFieldNames(6), cAlphaArgs(6), Clusive::In, -VentilTempLimit);
                     ErrorsFound = true;
                 } else if (!lNumericFieldBlanks(8)) {
-                    ShowWarningCustom(state, eoh, format("Both {} and {} provided, {} will be used.",
-                                                         cAlphaFieldNames(6), cNumericFieldNames(8), cAlphaFieldNames(6)));
+                    ShowWarningCustom(
+                        state,
+                        eoh,
+                        format("Both {} and {} provided, {} will be used.", cAlphaFieldNames(6), cNumericFieldNames(8), cAlphaFieldNames(6)));
                 }
 
                 // Min outdoor temp
@@ -2036,25 +2082,31 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                     ErrorsFound = true;
                 }
 
-                if (!lAlphaFieldBlanks(7)) { 
+                if (!lAlphaFieldBlanks(7)) {
                     thisVentilation.minOutdoorTempSched = Sched::GetSchedule(state, cAlphaArgs(7));
                 }
-                
+
                 if (lAlphaFieldBlanks(7)) {
-                    if (lNumericFieldBlanks(9)) { 
-                        // ShowWarningEmptyField(state, eoh, cNumericFieldNames(9), format("The default value will be used ({:.1R})", VentilTempLimit));
+                    if (lNumericFieldBlanks(9)) {
+                        // ShowWarningEmptyField(state, eoh, cNumericFieldNames(9), format("The default value will be used ({:.1R})",
+                        // VentilTempLimit));
                     }
                 } else if (thisVentilation.minOutdoorTempSched == nullptr) {
-                    ShowWarningItemNotFound(state, eoh, cAlphaFieldNames(7), cAlphaArgs(7),
+                    ShowWarningItemNotFound(state,
+                                            eoh,
+                                            cAlphaFieldNames(7),
+                                            cAlphaArgs(7),
                                             format("The default value will be used ({:.1R})", thisVentilation.MinOutdoorTemperature));
-                } else if (!thisVentilation.minOutdoorTempSched->checkMinMaxVals(state, Clusive::In, -VentilTempLimit,
-                                                                                 Clusive::In, VentilTempLimit)) {
-                    Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(7), cAlphaArgs(7), Clusive::In, -VentilTempLimit,
-                                                 Clusive::In, VentilTempLimit);
+                } else if (!thisVentilation.minOutdoorTempSched->checkMinMaxVals(
+                               state, Clusive::In, -VentilTempLimit, Clusive::In, VentilTempLimit)) {
+                    Sched::ShowSevereBadMinMax(
+                        state, eoh, cAlphaFieldNames(7), cAlphaArgs(7), Clusive::In, -VentilTempLimit, Clusive::In, VentilTempLimit);
                     ErrorsFound = true;
                 } else if (!lNumericFieldBlanks(9)) {
-                    ShowWarningCustom(state, eoh, format("Both {} and {} provided, {} will be used.",
-                                                         cAlphaFieldNames(7), cNumericFieldNames(9), cAlphaFieldNames(7)));
+                    ShowWarningCustom(
+                        state,
+                        eoh,
+                        format("Both {} and {} provided, {} will be used.", cAlphaFieldNames(7), cNumericFieldNames(9), cAlphaFieldNames(7)));
                 }
 
                 // Max outdoor temp
@@ -2072,22 +2124,28 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                 if (!lAlphaFieldBlanks(8)) {
                     thisVentilation.maxOutdoorTempSched = Sched::GetSchedule(state, cAlphaArgs(8));
                 }
-                
+
                 if (lAlphaFieldBlanks(8)) {
-                    if (lNumericFieldBlanks(10)) { 
-                        // ShowWarningEmptyField(state, eoh, cNumericFieldNames(10), format("The default value will be used ({:.1R})", VentilTempLimit));
+                    if (lNumericFieldBlanks(10)) {
+                        // ShowWarningEmptyField(state, eoh, cNumericFieldNames(10), format("The default value will be used ({:.1R})",
+                        // VentilTempLimit));
                     }
                 } else if (thisVentilation.maxOutdoorTempSched == nullptr) {
-                    ShowWarningItemNotFound(state, eoh, cAlphaFieldNames(8), cAlphaArgs(8),
+                    ShowWarningItemNotFound(state,
+                                            eoh,
+                                            cAlphaFieldNames(8),
+                                            cAlphaArgs(8),
                                             format("The default value will be used ({:.1R})", thisVentilation.MaxOutdoorTemperature));
-                } else if (!thisVentilation.maxOutdoorTempSched->checkMinMaxVals(state, Clusive::In, -VentilTempLimit,
-                                                                                 Clusive::In, VentilTempLimit)) {
-                    Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(8), cAlphaArgs(8), Clusive::In, -VentilTempLimit,
-                                                 Clusive::In, VentilTempLimit);
+                } else if (!thisVentilation.maxOutdoorTempSched->checkMinMaxVals(
+                               state, Clusive::In, -VentilTempLimit, Clusive::In, VentilTempLimit)) {
+                    Sched::ShowSevereBadMinMax(
+                        state, eoh, cAlphaFieldNames(8), cAlphaArgs(8), Clusive::In, -VentilTempLimit, Clusive::In, VentilTempLimit);
                     ErrorsFound = true;
                 } else if (!lNumericFieldBlanks(10)) {
-                    ShowWarningCustom(state, eoh, format("Both {} and {} provided, {} will be used.",
-                                                         cAlphaFieldNames(8), cNumericFieldNames(10), cAlphaFieldNames(8)));
+                    ShowWarningCustom(
+                        state,
+                        eoh,
+                        format("Both {} and {} provided, {} will be used.", cAlphaFieldNames(8), cNumericFieldNames(10), cAlphaFieldNames(8)));
                 }
 
                 // Max wind speed
@@ -2280,13 +2338,13 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
 
                 if (lAlphaFieldBlanks(3)) {
                     thisMixing.sched = Sched::GetScheduleAlwaysOn(state); // Not an availability schedule, but defaults to constant-1.0
-                } else if ((thisMixing.sched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) { 
+                } else if ((thisMixing.sched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(3), cAlphaArgs(3));
                     ErrorsFound = true;
                 }
 
                 // Mixing equipment design level calculation method
-                AirflowSpec flow = static_cast<AirflowSpec>(getEnumValue(airflowSpecNamesUC, cAlphaArgs(4)));                     
+                AirflowSpec flow = static_cast<AirflowSpec>(getEnumValue(airflowSpecNamesUC, cAlphaArgs(4)));
                 switch (flow) {
                 case AirflowSpec::FlowPerZone:
                     thisMixing.DesignLevel = rNumericArgs(1);
@@ -2440,9 +2498,13 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
 
                 if (NumAlpha > 5) {
                     if (lAlphaFieldBlanks(6)) {
-                        if (lNumericFieldBlanks(5)) { 
-                            ShowWarningCustom(state, eoh, format("{} and {} are empty, a default temperature of {:.1R}C will be used.",
-                                                                 cAlphaFieldNames(6), cNumericFieldNames(5), -MixingTempLimit));
+                        if (lNumericFieldBlanks(5)) {
+                            ShowWarningCustom(state,
+                                              eoh,
+                                              format("{} and {} are empty, a default temperature of {:.1R}C will be used.",
+                                                     cAlphaFieldNames(6),
+                                                     cNumericFieldNames(5),
+                                                     -MixingTempLimit));
                         }
                     } else if ((thisMixing.deltaTempSched = Sched::GetSchedule(state, cAlphaArgs(6))) == nullptr) {
                         ShowWarningItemNotFound(state, eoh, cAlphaFieldNames(6), cAlphaArgs(6), "");
@@ -2453,21 +2515,22 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                         Sched::ShowSevereBadMin(state, eoh, cAlphaFieldNames(6), cAlphaArgs(6), Clusive::In, -MixingTempLimit);
                         ErrorsFound = true;
                     } else if (!lNumericFieldBlanks(5))
-                        ShowWarningCustom(state, eoh, format("{} and {} are provided, {} will be used.",
-                                                             cAlphaFieldNames(6), cNumericFieldNames(5), cAlphaFieldNames(6)));
+                        ShowWarningCustom(
+                            state,
+                            eoh,
+                            format("{} and {} are provided, {} will be used.", cAlphaFieldNames(6), cNumericFieldNames(5), cAlphaFieldNames(6)));
                 }
 
                 // Min indoor temp
                 if (NumAlpha > 6) {
                     if (lAlphaFieldBlanks(7)) {
                         // Is this an error or is there a default?
-                    } else if ((thisMixing.minIndoorTempSched = Sched::GetSchedule(state, cAlphaArgs(7))) == nullptr) { 
+                    } else if ((thisMixing.minIndoorTempSched = Sched::GetSchedule(state, cAlphaArgs(7))) == nullptr) {
                         ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(7), cAlphaArgs(7));
                         ErrorsFound = true;
-                    } else if (!thisMixing.minIndoorTempSched->checkMinMaxVals(state, Clusive::In, -MixingTempLimit,
-                                                                               Clusive::In, MixingTempLimit)) {
-                        Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(7), cAlphaArgs(7),
-                                              Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit);
+                    } else if (!thisMixing.minIndoorTempSched->checkMinMaxVals(state, Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit)) {
+                        Sched::ShowSevereBadMinMax(
+                            state, eoh, cAlphaFieldNames(7), cAlphaArgs(7), Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit);
                         ErrorsFound = true;
                     }
                 }
@@ -2475,13 +2538,12 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                 // Max indoor temp
                 if (NumAlpha > 7) {
                     if (lAlphaFieldBlanks(8)) {
-                    } else if ((thisMixing.maxIndoorTempSched = Sched::GetSchedule(state, cAlphaArgs(8))) == nullptr) { 
+                    } else if ((thisMixing.maxIndoorTempSched = Sched::GetSchedule(state, cAlphaArgs(8))) == nullptr) {
                         ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(8), cAlphaArgs(8));
                         ErrorsFound = true;
-                    } else if (!thisMixing.maxIndoorTempSched->checkMinMaxVals(state, Clusive::In, -MixingTempLimit,
-                                                                               Clusive::In, MixingTempLimit)) {
-                        Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(8), cAlphaArgs(8), 
-                                                     Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit);
+                    } else if (!thisMixing.maxIndoorTempSched->checkMinMaxVals(state, Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit)) {
+                        Sched::ShowSevereBadMinMax(
+                            state, eoh, cAlphaFieldNames(8), cAlphaArgs(8), Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit);
                         ErrorsFound = true;
                     }
                 }
@@ -2489,13 +2551,12 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                 // Min source temp
                 if (NumAlpha > 8) {
                     if (lAlphaFieldBlanks(9)) {
-                    } else if ((thisMixing.minSourceTempSched = Sched::GetSchedule(state, cAlphaArgs(9))) == nullptr) { 
+                    } else if ((thisMixing.minSourceTempSched = Sched::GetSchedule(state, cAlphaArgs(9))) == nullptr) {
                         ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(9), cAlphaArgs(9));
                         ErrorsFound = true;
-                    } else if (!thisMixing.minSourceTempSched->checkMinMaxVals(state, Clusive::In, -MixingTempLimit,
-                                                                               Clusive::In, MixingTempLimit)) {
-                        Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(9), cAlphaArgs(9),
-                                                     Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit);
+                    } else if (!thisMixing.minSourceTempSched->checkMinMaxVals(state, Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit)) {
+                        Sched::ShowSevereBadMinMax(
+                            state, eoh, cAlphaFieldNames(9), cAlphaArgs(9), Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit);
                         ErrorsFound = true;
                     }
                 }
@@ -2503,38 +2564,37 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                 // Max source temp
                 if (NumAlpha > 9) {
                     if (lAlphaFieldBlanks(10)) {
-                    } else if ((thisMixing.maxSourceTempSched = Sched::GetSchedule(state, cAlphaArgs(10))) == nullptr) { 
+                    } else if ((thisMixing.maxSourceTempSched = Sched::GetSchedule(state, cAlphaArgs(10))) == nullptr) {
                         ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(10), cAlphaArgs(10));
                         ErrorsFound = true;
                     } else if (!thisMixing.maxSourceTempSched->checkMinMaxVals(state, Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit)) {
-                        Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(10), cAlphaArgs(10),
-                                                     Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit);
+                        Sched::ShowSevereBadMinMax(
+                            state, eoh, cAlphaFieldNames(10), cAlphaArgs(10), Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit);
                         ErrorsFound = true;
                     }
                 }
 
                 if (NumAlpha > 10) {
                     if (lAlphaFieldBlanks(11)) {
-                    } else if ((thisMixing.minOutdoorTempSched = Sched::GetSchedule(state, cAlphaArgs(11))) == nullptr) { 
+                    } else if ((thisMixing.minOutdoorTempSched = Sched::GetSchedule(state, cAlphaArgs(11))) == nullptr) {
                         ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(11), cAlphaArgs(11));
                         ErrorsFound = true;
-                    } else if (!thisMixing.minOutdoorTempSched->checkMinMaxVals(state, Clusive::In, -MixingTempLimit,
-                                                                                Clusive::In, MixingTempLimit)) {
-                        Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(11), cAlphaArgs(11),
-                                                     Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit);
+                    } else if (!thisMixing.minOutdoorTempSched->checkMinMaxVals(state, Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit)) {
+                        Sched::ShowSevereBadMinMax(
+                            state, eoh, cAlphaFieldNames(11), cAlphaArgs(11), Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit);
                         ErrorsFound = true;
                     }
                 }
 
-                // 
+                //
                 if (NumAlpha > 11) {
                     if (lAlphaFieldBlanks(12)) {
                     } else if ((thisMixing.maxOutdoorTempSched = Sched::GetSchedule(state, cAlphaArgs(12))) == nullptr) {
                         ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(12), cAlphaArgs(12));
                         ErrorsFound = true;
                     } else if (!thisMixing.maxOutdoorTempSched->checkMinMaxVals(state, Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit)) {
-                        Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(12), cAlphaArgs(12),
-                                                     Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit);
+                        Sched::ShowSevereBadMinMax(
+                            state, eoh, cAlphaFieldNames(12), cAlphaArgs(12), Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit);
                         ErrorsFound = true;
                     }
                 }
@@ -2758,7 +2818,7 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                                                                      cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, cCurrentModuleObject, cAlphaArgs(1)};
-            
+
             // Create one Mixing instance for every space associated with this input object
             auto const &thisMixingInput = zoneCrossMixingInputObjects(mixingInputNum);
             for (int Item1 = 1; Item1 <= thisMixingInput.numOfSpaces; ++Item1) {
@@ -2772,7 +2832,7 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
 
                 if (lAlphaFieldBlanks(3)) {
                     thisMixing.sched = Sched::GetScheduleAlwaysOn(state); // not an availability schedule, but defaults to constant-1.0
-                } else if ((thisMixing.sched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) { 
+                } else if ((thisMixing.sched = Sched::GetSchedule(state, cAlphaArgs(3))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(3), cAlphaArgs(3));
                     ErrorsFound = true;
                 }
@@ -2939,18 +2999,27 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                 if (NumAlpha > 5) {
                     if (lAlphaFieldBlanks(6)) {
                         if (lNumericFieldBlanks(5)) {
-                            ShowWarningCustom(state, eoh, format("{} and {} are empty, a default temperature of {:.1R}C will be used.",
-                                                                 cAlphaFieldNames(6), cNumericFieldNames(5), thisMixing.DeltaTemperature));
+                            ShowWarningCustom(state,
+                                              eoh,
+                                              format("{} and {} are empty, a default temperature of {:.1R}C will be used.",
+                                                     cAlphaFieldNames(6),
+                                                     cNumericFieldNames(5),
+                                                     thisMixing.DeltaTemperature));
                         }
                     } else if ((thisMixing.deltaTempSched = Sched::GetSchedule(state, cAlphaArgs(6))) == nullptr) {
-                        ShowWarningItemNotFound(state, eoh, cAlphaFieldNames(6), cAlphaArgs(6),
+                        ShowWarningItemNotFound(state,
+                                                eoh,
+                                                cAlphaFieldNames(6),
+                                                cAlphaArgs(6),
                                                 format("Fixed delta temperature {:.1R}C will be used", thisMixing.DeltaTemperature));
                     } else if (!thisMixing.deltaTempSched->checkMinVal(state, Clusive::In, 0.0)) {
                         Sched::ShowSevereBadMin(state, eoh, cAlphaFieldNames(6), cAlphaArgs(6), Clusive::In, 0.0);
                         ErrorsFound = true;
                     } else if (!lNumericFieldBlanks(5)) {
-                            ShowWarningCustom(state, eoh, format("{} and {} provided. {} will be used.",
-                                                                 cAlphaFieldNames(6), cNumericFieldNames(5), cAlphaFieldNames(6)));
+                        ShowWarningCustom(
+                            state,
+                            eoh,
+                            format("{} and {} provided. {} will be used.", cAlphaFieldNames(6), cNumericFieldNames(5), cAlphaFieldNames(6)));
                     }
                 }
 
@@ -2958,12 +3027,11 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                 if (NumAlpha > 6) {
                     if (lAlphaFieldBlanks(7)) {
                     } else if ((thisMixing.minIndoorTempSched = Sched::GetSchedule(state, cAlphaArgs(7))) == nullptr) {
-                         ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(7), cAlphaArgs(7));
-                         ErrorsFound = true;
-                    } else if (!thisMixing.minIndoorTempSched->checkMinMaxVals(state, Clusive::In, -MixingTempLimit,
-                                                                                 Clusive::In, MixingTempLimit)) {
-                        Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(7), cAlphaArgs(7),
-                                                     Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit);
+                        ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(7), cAlphaArgs(7));
+                        ErrorsFound = true;
+                    } else if (!thisMixing.minIndoorTempSched->checkMinMaxVals(state, Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit)) {
+                        Sched::ShowSevereBadMinMax(
+                            state, eoh, cAlphaFieldNames(7), cAlphaArgs(7), Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit);
                         ErrorsFound = true;
                     }
                 }
@@ -2974,10 +3042,9 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                     } else if ((thisMixing.maxIndoorTempSched = Sched::GetSchedule(state, cAlphaArgs(8))) == nullptr) {
                         ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(8), cAlphaArgs(8));
                         ErrorsFound = true;
-                    } else if (!thisMixing.maxIndoorTempSched->checkMinMaxVals(state, Clusive::In, -MixingTempLimit,
-                                                                               Clusive::In, MixingTempLimit)) {
-                        Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(8), cAlphaArgs(8),
-                                                     Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit);
+                    } else if (!thisMixing.maxIndoorTempSched->checkMinMaxVals(state, Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit)) {
+                        Sched::ShowSevereBadMinMax(
+                            state, eoh, cAlphaFieldNames(8), cAlphaArgs(8), Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit);
                         ErrorsFound = true;
                     }
                 }
@@ -2988,10 +3055,9 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                     } else if ((thisMixing.minSourceTempSched = Sched::GetSchedule(state, cAlphaArgs(9))) == nullptr) {
                         ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(9), cAlphaArgs(9));
                         ErrorsFound = true;
-                    } else if (!thisMixing.minSourceTempSched->checkMinMaxVals(state, Clusive::In, -MixingTempLimit,
-                                                                               Clusive::In, MixingTempLimit)) {
-                        Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(9), cAlphaArgs(9),
-                                                     Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit);
+                    } else if (!thisMixing.minSourceTempSched->checkMinMaxVals(state, Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit)) {
+                        Sched::ShowSevereBadMinMax(
+                            state, eoh, cAlphaFieldNames(9), cAlphaArgs(9), Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit);
                         ErrorsFound = true;
                     }
                 }
@@ -2999,13 +3065,12 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                 // Max source temp
                 if (NumAlpha > 9) {
                     if (lAlphaFieldBlanks(10)) {
-                    } else if ((thisMixing.maxSourceTempSched = Sched::GetSchedule(state, cAlphaArgs(10))) == nullptr) { 
+                    } else if ((thisMixing.maxSourceTempSched = Sched::GetSchedule(state, cAlphaArgs(10))) == nullptr) {
                         ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(10), cAlphaArgs(10));
                         ErrorsFound = true;
-                    } else if (!thisMixing.maxSourceTempSched->checkMinMaxVals(state, Clusive::In, -MixingTempLimit,
-                                                                               Clusive::In, MixingTempLimit)) {
-                        Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(10), cAlphaArgs(10),
-                                                     Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit);
+                    } else if (!thisMixing.maxSourceTempSched->checkMinMaxVals(state, Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit)) {
+                        Sched::ShowSevereBadMinMax(
+                            state, eoh, cAlphaFieldNames(10), cAlphaArgs(10), Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit);
                         ErrorsFound = true;
                     }
                 }
@@ -3013,32 +3078,30 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                 // Min outdoor temp
                 if (NumAlpha > 10) {
                     if (lAlphaFieldBlanks(11)) {
-                    } else if ((thisMixing.minOutdoorTempSched = Sched::GetSchedule(state, cAlphaArgs(11))) == nullptr) { 
+                    } else if ((thisMixing.minOutdoorTempSched = Sched::GetSchedule(state, cAlphaArgs(11))) == nullptr) {
                         ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(11), cAlphaArgs(11));
                         ErrorsFound = true;
-                    } else if (!thisMixing.minOutdoorTempSched->checkMinMaxVals(state, Clusive::In, -MixingTempLimit,
-                                                                                Clusive::In, MixingTempLimit)) {
-                        Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(11), cAlphaArgs(11),
-                                                     Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit);
+                    } else if (!thisMixing.minOutdoorTempSched->checkMinMaxVals(state, Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit)) {
+                        Sched::ShowSevereBadMinMax(
+                            state, eoh, cAlphaFieldNames(11), cAlphaArgs(11), Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit);
                         ErrorsFound = true;
                     }
                 }
 
                 if (NumAlpha > 11) {
                     if (lAlphaFieldBlanks(12)) {
-                    } else if ((thisMixing.maxOutdoorTempSched = Sched::GetSchedule(state, cAlphaArgs(12))) == nullptr) { 
+                    } else if ((thisMixing.maxOutdoorTempSched = Sched::GetSchedule(state, cAlphaArgs(12))) == nullptr) {
                         ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(12), cAlphaArgs(12));
                         ErrorsFound = true;
-                    } else if (!thisMixing.maxOutdoorTempSched->checkMinMaxVals(state, Clusive::In, -MixingTempLimit,
-                                                                                Clusive::In, MixingTempLimit)) {
-                        Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(12), cAlphaArgs(12),
-                                                     Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit);
+                    } else if (!thisMixing.maxOutdoorTempSched->checkMinMaxVals(state, Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit)) {
+                        Sched::ShowSevereBadMinMax(
+                            state, eoh, cAlphaFieldNames(12), cAlphaArgs(12), Clusive::In, -MixingTempLimit, Clusive::In, MixingTempLimit);
                         ErrorsFound = true;
                     }
                 }
             }
         } // for (mixingInputNum)
-        
+
         // Create CrossMixing objects from air boundary info
         for (auto const &thisAirBoundaryMixing : state.dataHeatBal->airBoundaryMixing) {
             ++mixingNum;
@@ -3323,7 +3386,7 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
 
             auto &zoneA = state.dataHeatBal->RefDoorMixing(ZoneNumA);
             auto &zoneB = state.dataHeatBal->RefDoorMixing(ZoneNumB);
-            
+
             if (!allocated(zoneA.openScheds)) {
                 zoneA.DoorMixingObjectName.allocate(state.dataGlobal->NumOfZones);
                 zoneA.openScheds.allocate(state.dataGlobal->NumOfZones);
@@ -3381,15 +3444,10 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
             if (zoneA.RefDoorMixFlag && zoneB.RefDoorMixFlag) {
                 if (zoneA.NumRefDoorConnections > 1) {
                     for (int ConnectTest = 1; ConnectTest <= (ConnectionNumber - 1); ++ConnectTest) {
-                        if (zoneA.MateZonePtr(ConnectTest) !=
-                            zoneA.MateZonePtr(ConnectionNumber))
-                            continue;
-                        ShowSevereError(state,
-                                        format("{}{}=\"{}\", and {}",
-                                               RoutineName,
-                                               cCurrentModuleObject,
-                                               cAlphaArgs(1),
-                                               zoneA.DoorMixingObjectName(ConnectTest)));
+                        if (zoneA.MateZonePtr(ConnectTest) != zoneA.MateZonePtr(ConnectionNumber)) continue;
+                        ShowSevereError(
+                            state,
+                            format("{}{}=\"{}\", and {}", RoutineName, cCurrentModuleObject, cAlphaArgs(1), zoneA.DoorMixingObjectName(ConnectTest)));
                         ShowContinueError(state,
                                           format(" Share same pair of zones: \"{}\" and \"{}\". Only one RefrigerationDoorMixing object is allowed "
                                                  "for any unique pair of zones.",
@@ -3411,9 +3469,9 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                 ShowSevereItemNotFound(state, eoh, cAlphaFieldNames(AlphaNum), cAlphaArgs(AlphaNum));
                 ErrorsFound = true;
             } else if (!zoneA.openScheds(ConnectionNumber)->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
-                Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(AlphaNum), cAlphaArgs(AlphaNum),Clusive::In, 0.0, Clusive::In, 1.0);
+                Sched::ShowSevereBadMinMax(state, eoh, cAlphaFieldNames(AlphaNum), cAlphaArgs(AlphaNum), Clusive::In, 0.0, Clusive::In, 1.0);
                 ErrorsFound = true;
-            }         //(lAlphaFieldBlanks(AlphaNum)) THEN
+            } //(lAlphaFieldBlanks(AlphaNum)) THEN
 
             int NumbNum = 1;
             if (lAlphaFieldBlanks(NumbNum)) {
@@ -3426,8 +3484,7 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                                         cNumericFieldNames(NumbNum)));
             } else {
                 zoneA.DoorHeight(ConnectionNumber) = rNumericArgs(NumbNum);
-                if ((zoneA.DoorHeight(ConnectionNumber) < 0) ||
-                    (zoneA.DoorHeight(ConnectionNumber) > 50.0)) {
+                if ((zoneA.DoorHeight(ConnectionNumber) < 0) || (zoneA.DoorHeight(ConnectionNumber) > 50.0)) {
                     ShowSevereError(
                         state,
                         format("{}{} = {} must have a door height between 0 and 50 meters. ", RoutineName, cCurrentModuleObject, cAlphaArgs(1)));
@@ -3446,8 +3503,7 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                                         cNumericFieldNames(NumbNum)));
             } else {
                 zoneA.DoorArea(ConnectionNumber) = rNumericArgs(NumbNum);
-                if ((zoneA.DoorArea(ConnectionNumber) < 0) ||
-                    (zoneA.DoorArea(ConnectionNumber) > 400.0)) {
+                if ((zoneA.DoorArea(ConnectionNumber) < 0) || (zoneA.DoorArea(ConnectionNumber) > 400.0)) {
                     ShowSevereError(
                         state,
                         format(
@@ -3670,8 +3726,7 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                                  "Air Exchange Flow Rate",
                                  "[m3/s]",
                                  zoneA.EMSRefDoorMixingOn(ConnectionNumber),
-                                 state.dataHeatBal->RefDoorMixing(ZoneNumA).
-                                 EMSRefDoorFlowRate(ConnectionNumber));
+                                 state.dataHeatBal->RefDoorMixing(ZoneNumA).EMSRefDoorFlowRate(ConnectionNumber));
             }
         } // DO Loop=1,TotRefDoorMixing
     }     // TotRefDoorMixing > 0)

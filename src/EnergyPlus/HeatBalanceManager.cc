@@ -996,7 +996,7 @@ namespace HeatBalanceManager {
                                                                      state.dataIPShortCut->cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, state.dataHeatBalMgr->CurrentModuleObject, state.dataHeatBalMgr->CurrentModuleObject};
-            
+
             if (NumAlpha > 0) {
                 { // Why an extra nested scope here?
                     std::string const &SELECT_CASE_var = AlphaName(1);
@@ -1020,12 +1020,12 @@ namespace HeatBalanceManager {
                 if (state.dataIPShortCut->lAlphaFieldBlanks(2)) {
                     ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaFieldNames(2));
                     ErrorsFound = true;
-                } else if ((state.dataContaminantBalance->Contaminant.CO2OutdoorSched = Sched::GetSchedule(state, AlphaName(2))) == nullptr) { 
+                } else if ((state.dataContaminantBalance->Contaminant.CO2OutdoorSched = Sched::GetSchedule(state, AlphaName(2))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(2), AlphaName(2));
                     ErrorsFound = true;
                 }
             }
-            
+
             if (NumAlpha > 2) {
                 {
                     std::string const &SELECT_CASE_var = AlphaName(3);
@@ -1044,9 +1044,9 @@ namespace HeatBalanceManager {
                                                 state.dataIPShortCut->cAlphaFieldNames(3)));
                     }
                 }
-                
+
                 if (NumAlpha == 3 && state.dataContaminantBalance->Contaminant.GenericContamSimulation) {
-                        ShowSevereError(state,
+                    ShowSevereError(state,
                                     format("{}, {} is required and not given.",
                                            state.dataHeatBalMgr->CurrentModuleObject,
                                            state.dataIPShortCut->cAlphaFieldNames(4)));
@@ -2077,11 +2077,10 @@ namespace HeatBalanceManager {
     {
         static constexpr std::string_view RoutineName("GetIncidentSolarMultiplier: ");
         static constexpr std::string_view routineName = "GetIncidentSolarMultiplier";
-        
+
         auto &s_mat = state.dataMaterial;
         auto &cCurrentModuleObject = state.dataIPShortCut->cCurrentModuleObject;
         cCurrentModuleObject = "SurfaceProperty:IncidentSolarMultiplier";
-
 
         state.dataSurface->TotSurfIncSolMultiplier = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, cCurrentModuleObject);
 
@@ -2110,7 +2109,7 @@ namespace HeatBalanceManager {
                                                                      state.dataIPShortCut->cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
-            
+
             // Assign surface number
             int SurfNum = Util::FindItemInList(state.dataIPShortCut->cAlphaArgs(1), state.dataSurface->Surface);
             if (SurfNum == 0) {
@@ -2152,7 +2151,7 @@ namespace HeatBalanceManager {
                 ErrorsFound = true;
                 continue;
             }
-            
+
             Surf.hasIncSolMultiplier = true;
             auto &SurfIncSolMult = state.dataSurface->SurfIncSolMultiplier(SurfNum);
             SurfIncSolMult.Name = state.dataIPShortCut->cAlphaArgs(1);
@@ -2164,7 +2163,7 @@ namespace HeatBalanceManager {
                 ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(2), state.dataIPShortCut->cAlphaArgs(2));
             }
         } // for (Loop)
-    } // GetIncidentSolarMultiplier()
+    }     // GetIncidentSolarMultiplier()
 
     void GetZoneLocalEnvData(EnergyPlusData &state, bool &ErrorsFound) // Error flag indicator (true if errors found)
     {
@@ -2725,14 +2724,14 @@ namespace HeatBalanceManager {
             for (int ZoneNum = 1; ZoneNum <= state.dataGlobal->NumOfZones; ++ZoneNum) {
                 if (state.dataHeatBal->Zone(ZoneNum).LinkedOutAirNode > 0) {
                     if (state.dataLoopNodes->Node(state.dataHeatBal->Zone(ZoneNum).LinkedOutAirNode).outAirDryBulbSched != nullptr) {
-                        state.dataHeatBal->Zone(ZoneNum).OutDryBulbTemp = 
+                        state.dataHeatBal->Zone(ZoneNum).OutDryBulbTemp =
                             state.dataLoopNodes->Node(state.dataHeatBal->Zone(ZoneNum).LinkedOutAirNode).outAirDryBulbSched->getCurrentVal();
                     } else {
                         state.dataHeatBal->Zone(ZoneNum).OutDryBulbTemp =
                             state.dataLoopNodes->Node(state.dataHeatBal->Zone(ZoneNum).LinkedOutAirNode).OutAirDryBulb;
                     }
                     if (state.dataLoopNodes->Node(state.dataHeatBal->Zone(ZoneNum).LinkedOutAirNode).outAirWetBulbSched != nullptr) {
-                        state.dataHeatBal->Zone(ZoneNum).OutWetBulbTemp = 
+                        state.dataHeatBal->Zone(ZoneNum).OutWetBulbTemp =
                             state.dataLoopNodes->Node(state.dataHeatBal->Zone(ZoneNum).LinkedOutAirNode).outAirWetBulbSched->getCurrentVal();
                     } else {
                         state.dataHeatBal->Zone(ZoneNum).OutWetBulbTemp =
@@ -4764,7 +4763,7 @@ namespace HeatBalanceManager {
     )
     {
         static constexpr std::string_view routineName = "CreateAirBoundaryConstructions";
-        
+
         auto &cCurrentModuleObject = state.dataIPShortCut->cCurrentModuleObject;
         cCurrentModuleObject = "Construction:AirBoundary";
         int numAirBoundaryConstructs = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, cCurrentModuleObject);
@@ -4784,7 +4783,7 @@ namespace HeatBalanceManager {
                 std::string const &thisObjectName = instance.key();
 
                 ErrorObjectHeader eoh{routineName, cCurrentModuleObject, thisObjectName};
-                
+
                 state.dataInputProcessing->inputProcessor->markObjectAsUsed(cCurrentModuleObject, thisObjectName);
 
                 if (GlobalNames::VerifyUniqueInterObjectName(
@@ -4801,7 +4800,8 @@ namespace HeatBalanceManager {
 
                 // Air Exchange Method
                 std::string airMethod = "None";
-                if (auto found = fields.find("air_exchange_method"); found != fields.end()) { // find("x") followed by at("x") is the same lookup twice
+                if (auto found = fields.find("air_exchange_method");
+                    found != fields.end()) { // find("x") followed by at("x") is the same lookup twice
                     airMethod = found.value().get<std::string>();
                 }
                 if (Util::SameString(airMethod, "SimpleMixing")) {
@@ -4814,15 +4814,16 @@ namespace HeatBalanceManager {
                             errorsFound = true;
                         }
                     }
-                    
+
                     if (auto found = fields.find("simple_mixing_schedule_name"); found != fields.end()) {
                         std::string schedName = found.value().get<std::string>(); // .get<std::string>() creates and returns a new string, no &
-                        if ((thisConstruct.airBoundaryMixingSched = Sched::GetSchedule(state, Util::makeUPPER(schedName))) == nullptr) { 
+                        if ((thisConstruct.airBoundaryMixingSched = Sched::GetSchedule(state, Util::makeUPPER(schedName))) == nullptr) {
                             ShowSevereItemNotFound(state, eoh, "Simple Mixing Schedule Name", schedName);
                             errorsFound = true;
                         }
                     } else {
-                        thisConstruct.airBoundaryMixingSched = Sched::GetScheduleAlwaysOn(state); // Not an availability manager, but defaults to constant-1.0
+                        thisConstruct.airBoundaryMixingSched =
+                            Sched::GetScheduleAlwaysOn(state); // Not an availability manager, but defaults to constant-1.0
                     }
                 }
             }
@@ -4889,7 +4890,7 @@ namespace HeatBalanceManager {
                                                                          state.dataIPShortCut->cNumericFieldNames);
 
                 ErrorObjectHeader eoh{routineName, cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
-                
+
                 state.dataSurface->SurfIncSolSSG(Loop).Name = state.dataIPShortCut->cAlphaArgs(1);
 
                 // Assign surface number
@@ -5007,9 +5008,12 @@ namespace HeatBalanceManager {
                     state.dataSurface->FenLayAbsSSG(Loop).NumOfSched = NumOfScheduledLayers;
 
                     for (int i = 1; i <= NumOfScheduledLayers; ++i) {
-                        if ((state.dataSurface->FenLayAbsSSG(Loop).scheds(i) = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(i + 3))) == nullptr) {
-                            ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(NumOfScheduledLayers + 3),
-                                                       state.dataIPShortCut->cAlphaArgs(NumOfScheduledLayers + 3));
+                        if ((state.dataSurface->FenLayAbsSSG(Loop).scheds(i) = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(i + 3))) ==
+                            nullptr) {
+                            ShowSevereItemNotFound(state,
+                                                   eoh,
+                                                   state.dataIPShortCut->cAlphaFieldNames(NumOfScheduledLayers + 3),
+                                                   state.dataIPShortCut->cAlphaArgs(NumOfScheduledLayers + 3));
                             ErrorsFound = true;
                         }
                     }
@@ -5257,19 +5261,22 @@ namespace HeatBalanceManager {
                 windowThermalModel.VacuumPressureLimit = s_ipsc->rNumericArgs(2);
                 if (s_ipsc->rNumericArgs(2) <= 0.0) {
                     ErrorsFound = true;
-                    ShowSevereCustom(state, eoh, format("{} must be > 0, entered value = {:.2R}", s_ipsc->cNumericFieldNames(2), s_ipsc->rNumericArgs(2)));
+                    ShowSevereCustom(
+                        state, eoh, format("{} must be > 0, entered value = {:.2R}", s_ipsc->cNumericFieldNames(2), s_ipsc->rNumericArgs(2)));
                 }
 
                 windowThermalModel.InitialTemperature = s_ipsc->rNumericArgs(3);
                 if (s_ipsc->rNumericArgs(3) <= 0.0) {
                     ErrorsFound = true;
-                    ShowSevereCustom(state, eoh, format("{} must be > 0, entered value = {:.2R}", s_ipsc->cNumericFieldNames(3), s_ipsc->rNumericArgs(3)));
+                    ShowSevereCustom(
+                        state, eoh, format("{} must be > 0, entered value = {:.2R}", s_ipsc->cNumericFieldNames(3), s_ipsc->rNumericArgs(3)));
                 }
 
                 windowThermalModel.InitialPressure = s_ipsc->rNumericArgs(4);
                 if (s_ipsc->rNumericArgs(4) <= 0.0) {
                     ErrorsFound = true;
-                    ShowSevereCustom(state, eoh, format("{} must be > 0, entered value = {:.2R}", s_ipsc->cNumericFieldNames(4), s_ipsc->rNumericArgs(4)));
+                    ShowSevereCustom(
+                        state, eoh, format("{} must be > 0, entered value = {:.2R}", s_ipsc->cNumericFieldNames(4), s_ipsc->rNumericArgs(4)));
                 }
             }
 
@@ -5505,13 +5512,12 @@ namespace HeatBalanceManager {
 
                 if (NumRows != NBasis) {
                     ErrorsFound = true;
-                    ShowSevereCustom(
-                        state,
-                        eoh,
-                        format("Visible back reflectance matrix \"{}\" is not the same size as it is defined by basis definition. Basis "
-                               "size is defined by Matrix:TwoDimension = \"{}\".",
-                               locAlphaArgs(9),
-                               locAlphaArgs(5)));
+                    ShowSevereCustom(state,
+                                     eoh,
+                                     format("Visible back reflectance matrix \"{}\" is not the same size as it is defined by basis definition. Basis "
+                                            "size is defined by Matrix:TwoDimension = \"{}\".",
+                                            locAlphaArgs(9),
+                                            locAlphaArgs(5)));
                 }
 
                 if (NumRows != NumCols) {
@@ -5552,36 +5558,34 @@ namespace HeatBalanceManager {
                         if (NumRows != 1) {
                             ErrorsFound = true;
                             ShowSevereCustom(state,
-                                                    eoh,
-                                                    format("Front absorbtance Matrix:TwoDimension = \"{}\" for layer {} must have only one row.",
-                                                           locAlphaArgs(AlphaIndex),
-                                                           currentOpticalLayer));
+                                             eoh,
+                                             format("Front absorbtance Matrix:TwoDimension = \"{}\" for layer {} must have only one row.",
+                                                    locAlphaArgs(AlphaIndex),
+                                                    currentOpticalLayer));
                         }
 
                         if (NumCols != NBasis) {
                             ErrorsFound = true;
-                            ShowSevereCustom(
-                                state,
-                                eoh,
-                                format("Front absorbtance Matrix:TwoDimension = \"{}\" for layer {} must have same number of columns "
-                                       "as it is defined by basis matrix."
-                                       "Matrix has {} number of columns, while basis definition specifies {} number of columns.",
-                                       locAlphaArgs(AlphaIndex),
-                                       currentOpticalLayer,
-                                       NumCols,
-                                       NBasis));
+                            ShowSevereCustom(state,
+                                             eoh,
+                                             format("Front absorbtance Matrix:TwoDimension = \"{}\" for layer {} must have same number of columns "
+                                                    "as it is defined by basis matrix."
+                                                    "Matrix has {} number of columns, while basis definition specifies {} number of columns.",
+                                                    locAlphaArgs(AlphaIndex),
+                                                    currentOpticalLayer,
+                                                    NumCols,
+                                                    NBasis));
                         }
 
                         thisConstruct.BSDFInput.Layer(currentOpticalLayer).AbsNcols = NumCols;
                         thisConstruct.BSDFInput.Layer(currentOpticalLayer).FrtAbs.allocate(NumCols, NumRows);
                         if (thisConstruct.BSDFInput.Layer(currentOpticalLayer).FrtAbsIndex == 0) {
                             ErrorsFound = true;
-                            ShowSevereCustom(
-                                state,
-                                eoh,
-                                format("Front absorbtance Matrix:TwoDimension = \"{}\" for layer {} is missing from the input file.",
-                                       locAlphaArgs(AlphaIndex),
-                                       currentOpticalLayer));
+                            ShowSevereCustom(state,
+                                             eoh,
+                                             format("Front absorbtance Matrix:TwoDimension = \"{}\" for layer {} is missing from the input file.",
+                                                    locAlphaArgs(AlphaIndex),
+                                                    currentOpticalLayer));
                         } else {
                             MatrixDataManager::Get2DMatrix(state,
                                                            thisConstruct.BSDFInput.Layer(currentOpticalLayer).FrtAbsIndex,
@@ -5608,27 +5612,25 @@ namespace HeatBalanceManager {
 
                         if (NumCols != NBasis) {
                             ErrorsFound = true;
-                            ShowSevereCustom(
-                                state,
-                                eoh,
-                                format("Back absorbtance Matrix:TwoDimension = \"{}\" for layer {} must have same number of columns as "
-                                       "it is defined by basis matrix."
-                                       "Matrix has {} number of columns, while basis definition specifies {} number of columns.",
-                                       locAlphaArgs(AlphaIndex),
-                                       currentOpticalLayer,
-                                       NumCols,
-                                       NBasis));
+                            ShowSevereCustom(state,
+                                             eoh,
+                                             format("Back absorbtance Matrix:TwoDimension = \"{}\" for layer {} must have same number of columns as "
+                                                    "it is defined by basis matrix."
+                                                    "Matrix has {} number of columns, while basis definition specifies {} number of columns.",
+                                                    locAlphaArgs(AlphaIndex),
+                                                    currentOpticalLayer,
+                                                    NumCols,
+                                                    NBasis));
                         }
 
                         thisConstruct.BSDFInput.Layer(currentOpticalLayer).BkAbs.allocate(NumCols, NumRows);
                         if (thisConstruct.BSDFInput.Layer(currentOpticalLayer).BkAbsIndex == 0) {
                             ErrorsFound = true;
-                            ShowSevereCustom(
-                                state,
-                                eoh,
-                                format("Back absorbtance Matrix:TwoDimension = \"{}\" for layer {} is missing from the input file.",
-                                       locAlphaArgs(AlphaIndex),
-                                       currentOpticalLayer));
+                            ShowSevereCustom(state,
+                                             eoh,
+                                             format("Back absorbtance Matrix:TwoDimension = \"{}\" for layer {} is missing from the input file.",
+                                                    locAlphaArgs(AlphaIndex),
+                                                    currentOpticalLayer));
                         } else {
                             MatrixDataManager::Get2DMatrix(state,
                                                            thisConstruct.BSDFInput.Layer(currentOpticalLayer).BkAbsIndex,
@@ -5774,13 +5776,12 @@ namespace HeatBalanceManager {
 
                 if (NumRows != NBasis) {
                     ErrorsFound = true;
-                    ShowSevereCustom(
-                        state,
-                        eoh,
-                        format("Visible back reflectance matrix \"{}\" is not the same size as it is defined by basis definition. Basis "
-                               "size is defined by Matrix:TwoDimension = \"{}\".",
-                               locAlphaArgs(9),
-                               locAlphaArgs(5)));
+                    ShowSevereCustom(state,
+                                     eoh,
+                                     format("Visible back reflectance matrix \"{}\" is not the same size as it is defined by basis definition. Basis "
+                                            "size is defined by Matrix:TwoDimension = \"{}\".",
+                                            locAlphaArgs(9),
+                                            locAlphaArgs(5)));
                 }
 
                 if (NumRows != NumCols) {
@@ -5838,16 +5839,15 @@ namespace HeatBalanceManager {
 
                         if (NumCols != NBasis) {
                             ErrorsFound = true;
-                            ShowSevereCustom(
-                                state,
-                                eoh,
-                                format("Front absorbtance Matrix:TwoDimension = \"{}\" for layer {} must have same number of columns "
-                                       "as it is defined by basis matrix."
-                                       "Matrix has {} number of columns, while basis definition specifies {} number of columns.",
-                                       locAlphaArgs(AlphaIndex),
-                                       currentOpticalLayer,
-                                       NumCols,
-                                       NBasis));
+                            ShowSevereCustom(state,
+                                             eoh,
+                                             format("Front absorbtance Matrix:TwoDimension = \"{}\" for layer {} must have same number of columns "
+                                                    "as it is defined by basis matrix."
+                                                    "Matrix has {} number of columns, while basis definition specifies {} number of columns.",
+                                                    locAlphaArgs(AlphaIndex),
+                                                    currentOpticalLayer,
+                                                    NumCols,
+                                                    NBasis));
                         }
 
                         thisConstruct.BSDFInput.Layer(currentOpticalLayer).AbsNcols = NumCols;
@@ -5855,12 +5855,11 @@ namespace HeatBalanceManager {
 
                         if (thisConstruct.BSDFInput.Layer(currentOpticalLayer).FrtAbsIndex == 0) {
                             ErrorsFound = true;
-                            ShowSevereCustom(
-                                state,
-                                eoh,
-                                format("Front absorbtance Matrix:TwoDimension = \"{}\" for layer {} is missing from the input file.",
-                                       locAlphaArgs(AlphaIndex),
-                                       currentOpticalLayer));
+                            ShowSevereCustom(state,
+                                             eoh,
+                                             format("Front absorbtance Matrix:TwoDimension = \"{}\" for layer {} is missing from the input file.",
+                                                    locAlphaArgs(AlphaIndex),
+                                                    currentOpticalLayer));
                         } else {
                             MatrixDataManager::Get2DMatrix(state,
                                                            thisConstruct.BSDFInput.Layer(currentOpticalLayer).FrtAbsIndex,
@@ -5887,28 +5886,26 @@ namespace HeatBalanceManager {
 
                         if (NumCols != NBasis) {
                             ErrorsFound = true;
-                            ShowSevereCustom(
-                                state,
-                                eoh,
-                                format("Back absorbtance Matrix:TwoDimension = \"{}\" for layer {} must have same number of columns as "
-                                       "it is defined by basis matrix."
-                                       "Matrix has {} number of columns, while basis definition specifies {} number of columns.",
-                                       locAlphaArgs(AlphaIndex),
-                                       currentOpticalLayer,
-                                       NumCols,
-                                       NBasis));
+                            ShowSevereCustom(state,
+                                             eoh,
+                                             format("Back absorbtance Matrix:TwoDimension = \"{}\" for layer {} must have same number of columns as "
+                                                    "it is defined by basis matrix."
+                                                    "Matrix has {} number of columns, while basis definition specifies {} number of columns.",
+                                                    locAlphaArgs(AlphaIndex),
+                                                    currentOpticalLayer,
+                                                    NumCols,
+                                                    NBasis));
                         }
 
                         thisConstruct.BSDFInput.Layer(currentOpticalLayer).BkAbs.allocate(NumCols, NumRows);
 
                         if (thisConstruct.BSDFInput.Layer(currentOpticalLayer).BkAbsIndex == 0) {
                             ErrorsFound = true;
-                            ShowSevereCustom(
-                                state,
-                                eoh,
-                                format("Back absorbtance Matrix:TwoDimension = \"{}\" for layer {} is missing from the input file.",
-                                       locAlphaArgs(AlphaIndex),
-                                       currentOpticalLayer));
+                            ShowSevereCustom(state,
+                                             eoh,
+                                             format("Back absorbtance Matrix:TwoDimension = \"{}\" for layer {} is missing from the input file.",
+                                                    locAlphaArgs(AlphaIndex),
+                                                    currentOpticalLayer));
                         } else {
                             MatrixDataManager::Get2DMatrix(state,
                                                            thisConstruct.BSDFInput.Layer(currentOpticalLayer).BkAbsIndex,

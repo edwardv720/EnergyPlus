@@ -132,10 +132,10 @@ TEST_F(EnergyPlusFixture, SkyTempTest)
     state->dataGlobal->MinutesInTimeStep = 60 / state->dataGlobal->TimeStepsInHour;
 
     state->init_state(*state);
-    
+
     auto *tSkySched = Sched::GetSchedule(*state, "TSKYSCHEDULE");
     // Febuary 27
-    
+
     EXPECT_NEAR(2.27, tSkySched->getDayVals(*state, 58, 3)[0 * state->dataGlobal->TimeStepsInHour + 0], .001);
 
     // Febuary 28
@@ -314,7 +314,7 @@ TEST_F(EnergyPlusFixture, UnderwaterBoundaryConditionFullyPopulated)
                           "SurfaceProperty:OtherSideConditionsModel, UnderwaterSurfaceName, ConvectiveUnderwater;"});
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     // need to populate the OSCM array by calling the get input for it
     bool errorsFound = false;
     SurfaceGeometry::GetOSCMData(*state, errorsFound);
@@ -339,7 +339,7 @@ TEST_F(EnergyPlusFixture, UnderwaterBoundaryConditionMissingVelocityOK)
                                                       "SurfaceProperty:OtherSideConditionsModel, UnderwaterSurfaceName, ConvectiveUnderwater;"});
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     // need to populate the OSCM array by calling the get input for it
     bool errorsFound = false;
     SurfaceGeometry::GetOSCMData(*state, errorsFound);
@@ -1319,7 +1319,7 @@ TEST_F(EnergyPlusFixture, Fix_first_hour_weather_data_interpolation_OutputTest)
     ErrorsFound = false;
 
     state->init_state(*state);
-    
+
     state->dataWeather->WeatherFileExists = true;
     state->files.inputWeatherFilePath.filePath = configured_source_directory() / "weather/USA_IL_Chicago-OHare.Intl.AP.725300_TMY3.epw";
 
@@ -1587,7 +1587,7 @@ TEST_F(EnergyPlusFixture, WeatherManager_SetRainFlag)
 
     state->dataGlobal->DayOfSim = 2; // avoid array bounds problem in RecKeepHeatBalance
     state->dataWeather->Envrn = 1;
-    state->dataGlobal->TimeStepsInHour = 4; // must initialize this to get schedules initialized
+    state->dataGlobal->TimeStepsInHour = 4;    // must initialize this to get schedules initialized
     state->dataGlobal->MinutesInTimeStep = 15; // must initialize this to get schedules initialized
     state->dataGlobal->TimeStepZone = 0.25;
     state->dataGlobal->TimeStepZoneSec = state->dataGlobal->TimeStepZone * Constant::rSecsInHour;
@@ -1596,9 +1596,9 @@ TEST_F(EnergyPlusFixture, WeatherManager_SetRainFlag)
 
     SimulationManager::ManageSimulation(*state);
     WaterManager::GetWaterManagerInput(*state);
-    
+
     state->dataWeather->Envrn = 1;
-    
+
     state->dataEnvrn->Month = 5;
     state->dataEnvrn->DayOfMonth = 31;
     state->dataGlobal->HourOfDay = 24;

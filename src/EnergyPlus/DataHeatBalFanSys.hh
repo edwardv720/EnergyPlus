@@ -107,7 +107,7 @@ namespace DataHeatBalFanSys {
         Real64 setptHiAver = 0.0;
         Real64 setptLoAver = 0.0;
     };
-        
+
 } // namespace DataHeatBalFanSys
 
 struct HeatBalFanSysData : BaseGlobalStruct

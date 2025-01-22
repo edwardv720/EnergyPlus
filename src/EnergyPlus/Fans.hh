@@ -293,10 +293,10 @@ namespace Fans {
         Real64 vfdEff = 0.0;                         // VFD efficiency (electrical)
         Real64 vfdInputPower = 0.0;                  // VFD input power for fan being Simulated [W]
         // zone exhaust fan
-        Sched::Schedule *flowFracSched = nullptr;                                      // schedule index flow rate modifier schedule
+        Sched::Schedule *flowFracSched = nullptr;                      // schedule index flow rate modifier schedule
         AvailManagerMode availManagerMode = AvailManagerMode::Invalid; // mode for how exhaust fan should react to availability managers
-        Sched::Schedule *minTempLimitSched = nullptr;                                  // schedule index minimum temperature limit
-        Sched::Schedule *balancedFractSched = nullptr;                                 // schedule index portion recirculated
+        Sched::Schedule *minTempLimitSched = nullptr;                  // schedule index minimum temperature limit
+        Sched::Schedule *balancedFractSched = nullptr;                 // schedule index portion recirculated
         Real64 unbalancedOutletMassFlowRate = 0.0;
         Real64 balancedOutletMassFlowRate = 0.0;
         Real64 designPointFEI = 0.0; // Fan Energy Index for the fan at the design operating point

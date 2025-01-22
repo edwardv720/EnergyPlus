@@ -185,7 +185,7 @@ namespace SetPointManager {
     {
         // Members
         Sched::Schedule *sched = nullptr;
-            
+
         Real64 lowSetPt1 = 0.0;            // 1st setpoint at outside low
         Real64 low1 = 0.0;                 // 1st Outside low
         Real64 highSetPt1 = 0.0;           // 1st setpoint at outside high
@@ -344,14 +344,14 @@ namespace SetPointManager {
     struct SPMCondenserEnteringTemp : SPMBase // derived type for SetpointManager:CondenserEnteringReset data
     {
         // Members
-        Sched::Schedule *condenserEnteringTempSched = nullptr;     // default condenser entering water temperature schedule Index
-        Real64 towerDesignInletAirWetBulbTemp = 0; // cooling tower design inlet air wetbulb temperature
-        int minTowerDesignWetBulbCurveNum = 0;     // minimum design wetbulb temperature curve name
-        int minOAWetBulbCurveNum = 0;              // minimum outside air wetbulb temperature curve name
-        int optCondenserEnteringTempCurveNum = 0;  // optimized condenser entering water temperature curve name
-        Real64 minLift = 0.0;                      // minimum lift
-        Real64 maxCondenserEnteringTemp = 0.0;     // maximum condenser entering water temp
-        PlantLocation plantPloc;                   // plant side chiller index
+        Sched::Schedule *condenserEnteringTempSched = nullptr; // default condenser entering water temperature schedule Index
+        Real64 towerDesignInletAirWetBulbTemp = 0;             // cooling tower design inlet air wetbulb temperature
+        int minTowerDesignWetBulbCurveNum = 0;                 // minimum design wetbulb temperature curve name
+        int minOAWetBulbCurveNum = 0;                          // minimum outside air wetbulb temperature curve name
+        int optCondenserEnteringTempCurveNum = 0;              // optimized condenser entering water temperature curve name
+        Real64 minLift = 0.0;                                  // minimum lift
+        Real64 maxCondenserEnteringTemp = 0.0;                 // maximum condenser entering water temp
+        PlantLocation plantPloc;                               // plant side chiller index
         PlantLocation demandPloc;
         DataPlant::PlantEquipmentType chillerType; // chiller type number
 
@@ -421,13 +421,13 @@ namespace SetPointManager {
     struct SPMReturnWaterTemp : SPMBase // derived type for SetpointManager:SupplyResetForReturnTemperature:ChilledWater data
     {
         // Members
-        int returnNodeNum = 0;                 // node ID for the plant supply-side return node
-        int supplyNodeNum = 0;                 // node ID for the plant supply-side supply node
-        Sched::Schedule *returnTempSched = nullptr;            // scheduled return temperature
-        Real64 returnTempConstantTarget = 0.0; // the constant value used as the return temperature target; used if schedule index is zero
-        Real64 currentSupplySetPt = 0.0;       // the current supply setpoint temperature
-        int plantLoopNum = 0;                  // the index for the plant loop for this manager, zero if not initialized
-        int plantSetPtNodeNum = 0;             // the index for the node where the plant setpoint is set, need to look up after Plant is established
+        int returnNodeNum = 0;                      // node ID for the plant supply-side return node
+        int supplyNodeNum = 0;                      // node ID for the plant supply-side supply node
+        Sched::Schedule *returnTempSched = nullptr; // scheduled return temperature
+        Real64 returnTempConstantTarget = 0.0;      // the constant value used as the return temperature target; used if schedule index is zero
+        Real64 currentSupplySetPt = 0.0;            // the current supply setpoint temperature
+        int plantLoopNum = 0;                       // the index for the plant loop for this manager, zero if not initialized
+        int plantSetPtNodeNum = 0; // the index for the node where the plant setpoint is set, need to look up after Plant is established
         ReturnTempType returnTempType = ReturnTempType::Invalid;
 
         // Calculation method
@@ -438,7 +438,7 @@ namespace SetPointManager {
     struct SPMTESScheduled : SPMBase // Derived type for Scheduled TES Setpoint Manager data
     {
         // Members
-        Sched::Schedule *sched = nullptr; // Default is AlwaysOff
+        Sched::Schedule *sched = nullptr;       // Default is AlwaysOff
         Sched::Schedule *chargeSched = nullptr; // Default is AlwaysOff
         int ctrlNodeNum = 0;
         Real64 nonChargeCHWTemp = 0.0;

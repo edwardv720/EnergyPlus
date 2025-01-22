@@ -916,7 +916,7 @@ Real64 OARequirementsData::calcOAFlowRate(EnergyPlusData &state,
         ZoneOAArea = floorArea * thisZone.Multiplier * thisZone.ListMultiplier * this->OAFlowPerArea;
         ZoneOAMin = ZoneOAArea;
         ZoneOAMax = (ZoneOAArea + ZoneOAPeople);
-        if (thisZone.zoneContamControllerSched != nullptr ) {
+        if (thisZone.zoneContamControllerSched != nullptr) {
             // Check the availability schedule value for ZoneControl:ContaminantController
             ZoneContamControllerSched = thisZone.zoneContamControllerSched->getCurrentVal();
             if (ZoneContamControllerSched > 0.0) {

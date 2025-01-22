@@ -463,7 +463,7 @@ TEST_F(EnergyPlusFixture, GetAirPathData_ControllerLockout1)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     SimAirServingZones::GetAirPathData(*state);
 
     // 2 controllers on this AHU for 2 water coils on the branch
@@ -624,7 +624,7 @@ TEST_F(EnergyPlusFixture, GetAirPathData_ControllerLockout2)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     SimAirServingZones::GetAirPathData(*state);
 
     // 2 controllers on this AHU for 2 water coils in the OA system
@@ -777,7 +777,7 @@ TEST_F(EnergyPlusFixture, InitAirLoops_1AirLoop2ADU)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
     HeatBalanceManager::GetZoneData(*state, ErrorsFound);
     ASSERT_FALSE(ErrorsFound);
@@ -1011,7 +1011,7 @@ TEST_F(EnergyPlusFixture, InitAirLoops_2AirLoop2ADU)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
     HeatBalanceManager::GetZoneData(*state, ErrorsFound);
     ASSERT_FALSE(ErrorsFound);
@@ -1146,7 +1146,7 @@ TEST_F(EnergyPlusFixture, SizeAirLoopBranches_0Airflow)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
     HeatBalanceManager::GetZoneData(*state, ErrorsFound);
     ASSERT_FALSE(ErrorsFound);
@@ -1414,7 +1414,7 @@ TEST_F(EnergyPlusFixture, InitAirLoops_2AirLoop3ADUa)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
     HeatBalanceManager::GetZoneData(*state, ErrorsFound);
     ASSERT_FALSE(ErrorsFound);
@@ -1681,7 +1681,7 @@ TEST_F(EnergyPlusFixture, InitAirLoops_2AirLoop3ADUb)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
     HeatBalanceManager::GetZoneData(*state, ErrorsFound);
     ASSERT_FALSE(ErrorsFound);
@@ -1880,7 +1880,7 @@ TEST_F(EnergyPlusFixture, InitAirLoops_1AirLoop2Zones3ADU)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
     HeatBalanceManager::GetZoneData(*state, ErrorsFound);
     ASSERT_FALSE(ErrorsFound);
@@ -2427,7 +2427,7 @@ TEST_F(EnergyPlusFixture, DISABLED_AirLoop_ReturnFan_MinFlow)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     SimulationManager::ManageSimulation(*state); // run the design days
 
     int returnFanNode =

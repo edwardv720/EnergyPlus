@@ -307,7 +307,7 @@ namespace VentilatedSlab {
             ventSlab.Name = state.dataIPShortCut->cAlphaArgs(1);
             if (lAlphaBlanks(2)) {
                 ventSlab.availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((ventSlab.availSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(2))) == nullptr) { 
+            } else if ((ventSlab.availSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(2))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(2), state.dataIPShortCut->cAlphaArgs(2));
                 ErrorsFound = true;
             }
@@ -469,12 +469,11 @@ namespace VentilatedSlab {
                     ShowSevereItemNotFound(state, eoh, cAlphaFields(7), state.dataIPShortCut->cAlphaArgs(7));
                     ErrorsFound = true;
                 } else if (!ventSlab.maxOASched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
-                    Sched::ShowSevereBadMinMax(state, eoh, cAlphaFields(7), state.dataIPShortCut->cAlphaArgs(7),
-                                                 Clusive::In, 0.0, Clusive::In, 1.0);
+                    Sched::ShowSevereBadMinMax(state, eoh, cAlphaFields(7), state.dataIPShortCut->cAlphaArgs(7), Clusive::In, 0.0, Clusive::In, 1.0);
                     ErrorsFound = true;
                 }
             } break;
-                    
+
             case OutsideAirControlType::FixedOAControl: {
                 if (lAlphaBlanks(7)) {
                     ShowSevereEmptyField(state, eoh, state.dataIPShortCut->cAlphaFieldNames(7));
@@ -487,7 +486,7 @@ namespace VentilatedSlab {
                     ErrorsFound = true;
                 }
             } break;
-                    
+
             case OutsideAirControlType::FixedTemperature: {
                 if (lAlphaBlanks(7)) {
                     ShowSevereEmptyField(state, eoh, cAlphaFields(7));
@@ -575,7 +574,7 @@ namespace VentilatedSlab {
 
             // Low Air Temp :
             if (lAlphaBlanks(11)) {
-            } else if ((ventSlab.hotAirLoTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(11))) == nullptr) { 
+            } else if ((ventSlab.hotAirLoTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(11))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(11), state.dataIPShortCut->cAlphaArgs(11));
                 ErrorsFound = true;
             }
@@ -587,7 +586,7 @@ namespace VentilatedSlab {
             }
 
             if (lAlphaBlanks(13)) {
-            } else if ((ventSlab.hotCtrlLoTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(13))) == nullptr) { 
+            } else if ((ventSlab.hotCtrlLoTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(13))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(13), state.dataIPShortCut->cAlphaArgs(13));
                 ErrorsFound = true;
             }
@@ -602,14 +601,14 @@ namespace VentilatedSlab {
 
             // Cooling Low Temp Sch.
             if (lAlphaBlanks(15)) {
-            } else if ((ventSlab.coldAirLoTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(15))) == nullptr) { 
+            } else if ((ventSlab.coldAirLoTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(15))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(15), state.dataIPShortCut->cAlphaArgs(15));
                 ErrorsFound = true;
             }
 
             // Cooling Control High Sch.
             if (lAlphaBlanks(16)) {
-            } else if ((ventSlab.coldCtrlHiTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(16))) == nullptr) { 
+            } else if ((ventSlab.coldCtrlHiTempSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(16))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(16), state.dataIPShortCut->cAlphaArgs(16));
                 ErrorsFound = true;
             }
@@ -2733,8 +2732,8 @@ namespace VentilatedSlab {
                 state.dataVentilatedSlab->HCoilOn = true;
 
                 if (state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate > 0.0) {
-                    MinOAFrac = ventSlab.minOASched->getCurrentVal() *
-                                (ventSlab.MinOutAirMassFlow / state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate);
+                    MinOAFrac =
+                        ventSlab.minOASched->getCurrentVal() * (ventSlab.MinOutAirMassFlow / state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate);
                 } else {
                     MinOAFrac = 0.0;
                 }
@@ -2984,8 +2983,8 @@ namespace VentilatedSlab {
                 state.dataVentilatedSlab->HCoilOn = false;
 
                 if (state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate > 0.0) {
-                    MinOAFrac = ventSlab.minOASched->getCurrentVal() *
-                                (ventSlab.MinOutAirMassFlow / state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate);
+                    MinOAFrac =
+                        ventSlab.minOASched->getCurrentVal() * (ventSlab.MinOutAirMassFlow / state.dataLoopNodes->Node(OutsideAirNode).MassFlowRate);
                 } else {
                     MinOAFrac = 0.0;
                 }

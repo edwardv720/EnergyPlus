@@ -220,7 +220,7 @@ void GetPumpInput(EnergyPlusData &state)
     Real64 constexpr StartTemp(100.0); // Standard Temperature across code to calculated Steam density
     static constexpr std::string_view RoutineName("GetPumpInput: ");
     static constexpr std::string_view routineName = "GetPumpInput";
-    
+
     static constexpr std::array<std::string_view, static_cast<int>(PumpControlType::Num)> pumpCtrlTypeNamesUC{"CONTINUOUS", "INTERMITTENT"};
     static constexpr std::array<std::string_view, static_cast<int>(ControlTypeVFD::Num)> controlTypeVFDNamesUC{"MANUALCONTROL",
                                                                                                                "PRESSURESETPOINTCONTROL"};
@@ -400,26 +400,26 @@ void GetPumpInput(EnergyPlusData &state)
                 static_cast<ControlTypeVFD>(getEnumValue(controlTypeVFDNamesUC, Util::makeUPPER(state.dataIPShortCut->cAlphaArgs(7))));
 
             switch (thisPump.VFD.VFDControlType) {
-                    
+
             case ControlTypeVFD::VFDManual: {
                 if ((thisPump.VFD.manualRPMSched = Sched::GetSchedule(state, thisInput->cAlphaArgs(8))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, thisInput->cAlphaFieldNames(8), thisInput->cAlphaArgs(8));
                     ErrorsFound = true;
-                } else if (!thisPump.VFD.manualRPMSched->checkMinVal(state, Clusive::Ex, 0.0)) { 
+                } else if (!thisPump.VFD.manualRPMSched->checkMinVal(state, Clusive::Ex, 0.0)) {
                     Sched::ShowSevereBadMin(state, eoh, thisInput->cAlphaFieldNames(8), thisInput->cAlphaArgs(8), Clusive::Ex, 0.0);
                     ErrorsFound = true;
                 }
             } break;
-                    
+
             case ControlTypeVFD::VFDAutomatic: {
                 if (thisInput->lAlphaFieldBlanks(9)) {
-                    ShowSevereEmptyField(state, eoh, thisInput->cAlphaFieldNames(9));                        
+                    ShowSevereEmptyField(state, eoh, thisInput->cAlphaFieldNames(9));
                     ErrorsFound = true;
                 } else if ((thisPump.VFD.lowerPsetSched = Sched::GetSchedule(state, thisInput->cAlphaArgs(9))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, thisInput->cAlphaFieldNames(9), thisInput->cAlphaArgs(9));
                     ErrorsFound = true;
                 }
-                
+
                 if (thisInput->lAlphaFieldBlanks(10)) {
                     ShowSevereEmptyField(state, eoh, thisInput->cAlphaFieldNames(10));
                     ErrorsFound = true;
@@ -438,7 +438,7 @@ void GetPumpInput(EnergyPlusData &state)
                     Sched::ShowSevereBadMin(state, eoh, thisInput->cAlphaFieldNames(11), thisInput->cAlphaArgs(11), Clusive::Ex, 0.0);
                     ErrorsFound = true;
                 }
-                        
+
                 if (thisInput->lAlphaFieldBlanks(12)) {
                     ShowSevereEmptyField(state, eoh, thisInput->cAlphaFieldNames(12));
                     ErrorsFound = true;
@@ -450,7 +450,7 @@ void GetPumpInput(EnergyPlusData &state)
                     ErrorsFound = true;
                 }
             } break;
-                    
+
             default: {
                 ShowSevereError(state,
                                 format("{}{}=\"{}\", VFD Control type entered is invalid.  Use one of the key choice entries.",
@@ -695,7 +695,7 @@ void GetPumpInput(EnergyPlusData &state)
                                                                  thisInput->cNumericFieldNames);
 
         ErrorObjectHeader eoh{routineName, cCurrentModuleObject, thisInput->cAlphaArgs(1)};
-        
+
         GlobalNames::VerifyUniqueInterObjectName(
             state, state.dataPumps->PumpUniqueNames, thisInput->cAlphaArgs(1), cCurrentModuleObject, thisInput->cAlphaFieldNames(1), ErrorsFound);
         thisPump.Name = thisInput->cAlphaArgs(1);
@@ -729,7 +729,7 @@ void GetPumpInput(EnergyPlusData &state)
         if (thisInput->cAlphaArgs(4).empty()) {
             thisPump.flowRateSched = nullptr;
         } else if ((thisPump.flowRateSched = Sched::GetSchedule(state, thisInput->cAlphaArgs(4))) == nullptr) {
-            ShowWarningItemNotFound(state, eoh, thisInput->cAlphaFieldNames(4), thisInput->cAlphaArgs(4)); 
+            ShowWarningItemNotFound(state, eoh, thisInput->cAlphaFieldNames(4), thisInput->cAlphaArgs(4));
         }
 
         thisPump.NomSteamVolFlowRate = thisInput->rNumericArgs(1);
@@ -1028,7 +1028,7 @@ void GetPumpInput(EnergyPlusData &state)
         // Input the optional schedule for the pump
         if (thisInput->lAlphaFieldBlanks(6)) {
             thisPump.flowRateSched = nullptr;
-        } else if ((thisPump.flowRateSched = Sched::GetSchedule(state, thisInput->cAlphaArgs(6))) == nullptr) { 
+        } else if ((thisPump.flowRateSched = Sched::GetSchedule(state, thisInput->cAlphaArgs(6))) == nullptr) {
             ShowWarningItemNotFound(state, eoh, thisInput->cAlphaFieldNames(6), thisInput->cAlphaArgs(6), "");
         }
 

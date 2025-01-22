@@ -88,7 +88,7 @@ namespace HeatingCoils {
         std::string HeatingCoilModel; // Type of HeatingCoil ie. Simple, Detailed, etc.
         int HCoilType_Num = 0;
         Constant::eFuel FuelType = Constant::eFuel::Invalid; // Type of fuel used, reference resource type integers
-        Sched::Schedule *availSched = nullptr;                                    // availability schedule
+        Sched::Schedule *availSched = nullptr;               // availability schedule
         int InsuffTemperatureWarn = 0;                       // Used for recurring error message
         Real64 InletAirMassFlowRate = 0.0;                   // MassFlow through the HeatingCoil being Simulated [kg/Sec]
         Real64 OutletAirMassFlowRate = 0.0;
@@ -221,9 +221,9 @@ namespace HeatingCoils {
     );
 
     Sched::Schedule *GetCoilAvailSched(EnergyPlusData &state,
-                          std::string const &CoilType, // must match coil types in this module
-                          std::string const &CoilName, // must match coil names for the coil type
-                          bool &ErrorsFound            // set to true if problem
+                                       std::string const &CoilType, // must match coil types in this module
+                                       std::string const &CoilName, // must match coil names for the coil type
+                                       bool &ErrorsFound            // set to true if problem
     );
 
     int GetCoilInletNode(EnergyPlusData &state,

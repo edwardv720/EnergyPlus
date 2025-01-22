@@ -240,7 +240,7 @@ TEST_F(EnergyPlusFixture, SupervisoryControl_PlantComponent_SetActuatedBranchFlo
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     // sets number of EMS objects
     EMSManager::CheckIfAnyEMS(*state);
 
@@ -405,7 +405,7 @@ TEST_F(EnergyPlusFixture, SupervisoryControl_PlantComponent_SetComponentFlowRate
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     // sets number of EMS objects
     EMSManager::CheckIfAnyEMS(*state);
 
@@ -712,7 +712,7 @@ TEST_F(EnergyPlusFixture, Test_EMSLogic)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     OutAirNodeManager::SetOutAirNodes(*state);
 
     EMSManager::CheckIfAnyEMS(*state);
@@ -781,7 +781,7 @@ TEST_F(EnergyPlusFixture, Debug_EMSLogic)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     OutAirNodeManager::SetOutAirNodes(*state);
 
     EMSManager::CheckIfAnyEMS(*state);
@@ -820,7 +820,7 @@ TEST_F(EnergyPlusFixture, TestAnyRanArgument)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     OutAirNodeManager::SetOutAirNodes(*state);
     NodeInputManager::SetupNodeVarsForReporting(*state);
     EMSManager::CheckIfAnyEMS(*state);
@@ -860,7 +860,7 @@ TEST_F(EnergyPlusFixture, TestUnInitializedEMSVariable1)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     EMSManager::CheckIfAnyEMS(*state);
     state->dataEMSMgr->FinishProcessingUserInput = true;
     bool anyRan;
@@ -917,7 +917,7 @@ TEST_F(EnergyPlusFixture, TestUnInitializedEMSVariable2)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     OutAirNodeManager::SetOutAirNodes(*state);
 
     EMSManager::CheckIfAnyEMS(*state);
@@ -957,7 +957,7 @@ TEST_F(EnergyPlusFixture, EMSManager_CheckIfAnyEMS_OutEMS)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     CheckIfAnyEMS(*state);
     EXPECT_TRUE(state->dataGlobal->AnyEnergyManagementSystemInModel);
 }
@@ -1100,7 +1100,7 @@ TEST_F(EnergyPlusFixture, EMSManager_TestFuntionCall)
 
     state->dataGlobal->TimeStepZone = 0.25;
     state->init_state(*state);
-    
+
     EMSManager::CheckIfAnyEMS(*state); // get EMS input
     state->dataEMSMgr->FinishProcessingUserInput = true;
     bool ErrorsFound(false);
@@ -1567,7 +1567,7 @@ TEST_F(EnergyPlusFixture, EMSManager_TestFuntionCall)
 TEST_F(EnergyPlusFixture, EMSManager_TestOANodeAsActuators)
 {
     state->init_state(*state);
-        
+
     //    EMSActuatorAvailable.allocate(100);
     state->dataLoopNodes->NumOfNodes = 3;
     state->dataRuntimeLang->numActuatorsUsed = 3;
@@ -1608,7 +1608,7 @@ TEST_F(EnergyPlusFixture, EMSManager_TestOANodeAsActuators)
 TEST_F(EnergyPlusFixture, EMSManager_TestWindowShadingControlExteriorScreenOption)
 {
     state->init_state(*state);
-    
+
     // #7586
     state->dataSurface->Surface.allocate(2);
     state->dataSurface->SurfaceWindow.allocate(2);
@@ -1769,7 +1769,7 @@ TEST_F(EnergyPlusFixture, EMS_WeatherDataActuators)
     state->dataWeather->LocationGathered = false;
 
     state->init_state(*state);
-    
+
     EMSManager::CheckIfAnyEMS(*state);
     bool available = false;
     bool errorsFound = false;
@@ -2224,7 +2224,7 @@ TEST_F(EnergyPlusFixture, EMS_ViewFactorToGround)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataEnvrn->Year = 2000;
     state->dataEnvrn->EndYear = 2000;
 
@@ -2322,8 +2322,8 @@ TEST_F(EnergyPlusFixture, EMSManager_TrendValue_to_Actuator)
     EXPECT_TRUE(state->dataGlobal->AnyEnergyManagementSystemInModel);
 
     state->dataGlobal->TimeStepZone = 0.25;
-    
-    state->dataGlobal->TimeStepsInHour = 4; // must initialize this to get schedules initialized
+
+    state->dataGlobal->TimeStepsInHour = 4;    // must initialize this to get schedules initialized
     state->dataGlobal->MinutesInTimeStep = 15; // must initialize this to get schedules initialized
     state->dataGlobal->TimeStepZone = 0.25;
     state->dataHVACGlobal->TimeStepSys = 0.25;
@@ -2353,7 +2353,6 @@ TEST_F(EnergyPlusFixture, EMSManager_TrendValue_to_Actuator)
     state->dataEnvrn->DSTIndicator = 0; // DST IS OFF
     Sched::UpdateScheduleVals(*state);
 
-    
     EXPECT_EQ(18.0, schedDirect->currentVal);
     EXPECT_FALSE(schedDirect->EMSActuatedOn);
     EXPECT_EQ(0.0, schedDirect->EMSVal);

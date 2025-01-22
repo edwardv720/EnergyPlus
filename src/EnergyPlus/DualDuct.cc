@@ -201,7 +201,7 @@ namespace DualDuct {
 
         // SUBROUTINE PARAMETER DEFINITIONS:
         static constexpr std::string_view RoutineName("GetDualDuctInput: "); // include trailing bla
-        static constexpr std::string_view routineName = "GetDualDuctInput"; 
+        static constexpr std::string_view routineName = "GetDualDuctInput";
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         int NumAlphas;
@@ -246,7 +246,7 @@ namespace DualDuct {
                                                                          cNumericFields);
 
                 ErrorObjectHeader eoh{routineName, CurrentModuleObject, AlphArray(1)};
-                
+
                 // Anything below this line in this control block should use DDNum
                 int DDNum = DamperIndex;
                 auto &thisDD = state.dataDualDuct->dd_airterminal(DDNum);
@@ -383,7 +383,7 @@ namespace DualDuct {
                                                                          cNumericFields);
 
                 ErrorObjectHeader eoh{routineName, CurrentModuleObject, AlphArray(1)};
-                
+
                 // Anything below this line in this control block should use DDNum
                 int DDNum = DamperIndex + NumDualDuctConstVolDampers;
                 auto &thisDD = state.dataDualDuct->dd_airterminal(DDNum);
@@ -393,7 +393,7 @@ namespace DualDuct {
                 thisDD.DamperType = DualDuctDamper::VariableVolume;
                 if (lAlphaBlanks(2)) {
                     thisDD.availSched = Sched::GetScheduleAlwaysOn(state);
-                } else if ((thisDD.availSched = Sched::GetSchedule(state, AlphArray(2))) == nullptr) { 
+                } else if ((thisDD.availSched = Sched::GetSchedule(state, AlphArray(2))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, cAlphaFields(2), AlphArray(2));
                     ErrorsFound = true;
                 }
@@ -485,7 +485,7 @@ namespace DualDuct {
 
                 if (lAlphaBlanks(7)) {
                     thisDD.ZoneTurndownMinAirFrac = 1.0;
-                } else if ((thisDD.zoneTurndownMinAirFracSched = Sched::GetSchedule(state, AlphArray(7))) == nullptr) { 
+                } else if ((thisDD.zoneTurndownMinAirFracSched = Sched::GetSchedule(state, AlphArray(7))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, cAlphaFields(7), AlphArray(7));
                     ErrorsFound = true;
                 }
@@ -1466,10 +1466,10 @@ namespace DualDuct {
                       (CpAirSysOA * this->dd_airterminalOAInlet.AirTemp - CpAirZn * state.dataLoopNodes->Node(ZoneNodeNum).Temp);
 
             auto const &zoneTstatSetpt = state.dataHeatBalFanSys->zoneTstatSetpts(ZoneNum);
-            QOALoadToHeatSP = this->dd_airterminalOAInlet.AirMassFlowRate * (CpAirSysOA * this->dd_airterminalOAInlet.AirTemp -
-                                                                             CpAirZn * zoneTstatSetpt.setptLo);
-            QOALoadToCoolSP = this->dd_airterminalOAInlet.AirMassFlowRate * (CpAirSysOA * this->dd_airterminalOAInlet.AirTemp -
-                                                                             CpAirZn * zoneTstatSetpt.setptHi);
+            QOALoadToHeatSP =
+                this->dd_airterminalOAInlet.AirMassFlowRate * (CpAirSysOA * this->dd_airterminalOAInlet.AirTemp - CpAirZn * zoneTstatSetpt.setptLo);
+            QOALoadToCoolSP =
+                this->dd_airterminalOAInlet.AirMassFlowRate * (CpAirSysOA * this->dd_airterminalOAInlet.AirTemp - CpAirZn * zoneTstatSetpt.setptHi);
 
         } else {
             QOALoad = 0.0;
@@ -2044,8 +2044,7 @@ namespace DualDuct {
         OutputReportPredefined::PreDefTableEntry(state, orp->pdchAirTermPrimFlow, adu.Name, this->MaxAirVolFlowRate);
         OutputReportPredefined::PreDefTableEntry(state, orp->pdchAirTermSecdFlow, adu.Name, "n/a");
         if (this->zoneTurndownMinAirFracSched != nullptr) {
-            OutputReportPredefined::PreDefTableEntry(
-                state, orp->pdchAirTermMinFlowSch, adu.Name, this->zoneTurndownMinAirFracSched->Name);
+            OutputReportPredefined::PreDefTableEntry(state, orp->pdchAirTermMinFlowSch, adu.Name, this->zoneTurndownMinAirFracSched->Name);
         } else {
             OutputReportPredefined::PreDefTableEntry(state, orp->pdchAirTermMinFlowSch, adu.Name, "n/a");
         }

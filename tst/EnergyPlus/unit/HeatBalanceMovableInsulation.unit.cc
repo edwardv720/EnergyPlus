@@ -147,7 +147,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceMovableInsulation_EvalOutsideMovableInsulat
 TEST_F(EnergyPlusFixture, HeatBalanceMovableInsulation_EvalInsideMovableInsulation)
 {
     state->init_state(*state);
-    
+
     int SurfNum = 1;
     state->dataSurface->Surface.allocate(SurfNum);
 
@@ -326,7 +326,7 @@ TEST_F(EnergyPlusFixture, SurfaceControlMovableInsulation_InvalidWindowSimpleGla
     SurfaceGeometry::GetMovableInsulationData(*state, ErrorsFound);
     // check movable insulation material
     EXPECT_EQ(state->dataSurfaceGeometry->SurfaceTmp(1).BaseSurfName, "ZN001:WALL001");     // base surface name
-    EXPECT_EQ(state->dataSurface->extMovInsuls(1).matNum, 4);                           // index to movable insulation material
+    EXPECT_EQ(state->dataSurface->extMovInsuls(1).matNum, 4);                               // index to movable insulation material
     EXPECT_EQ(state->dataMaterial->materials(4)->Name, "SIMPLEGLAZINGSYSTEM");              // name of movable insulation material
     EXPECT_ENUM_EQ(state->dataMaterial->materials(4)->group, Material::Group::GlassSimple); // invalid material group type
     EXPECT_TRUE(ErrorsFound);                                                               // error found due to invalid material

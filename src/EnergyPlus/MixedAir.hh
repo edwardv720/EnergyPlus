@@ -169,13 +169,13 @@ namespace MixedAir {
         EconoOp Econo = EconoOp::NoEconomizer; // 0 = NoEconomizer, 1 = FixedDryBulb, 2 = FixedEnthalpy, 3=DifferentialDryBulb,
         // 4=DifferentialEnthalpy, 5=FixedDewPointAndDryBulb, 6 = ElectronicEnthalpy,
         // 7 =DifferentialDryBulbAndEnthalpy
-        bool EconBypass = false; // ModulateFlow =FALSE , MinimumFlowWithBypass =TRUE
-        int MixNode = 0;         // Controlled node (mixed air node)
-        int OANode = 0;          // Actuated node (outside air node)
-        int InletNode = 0;       // Inlet Air Node for into Mixer  (BTG Nov 2004)
-        int RelNode = 0;         // Relief Air Node Number
-        int RetNode = 0;         // Return Air Node Number
-        Sched::Schedule *minOASched = nullptr;     // minimum outside air schedule
+        bool EconBypass = false;               // ModulateFlow =FALSE , MinimumFlowWithBypass =TRUE
+        int MixNode = 0;                       // Controlled node (mixed air node)
+        int OANode = 0;                        // Actuated node (outside air node)
+        int InletNode = 0;                     // Inlet Air Node for into Mixer  (BTG Nov 2004)
+        int RelNode = 0;                       // Relief Air Node Number
+        int RetNode = 0;                       // Return Air Node Number
+        Sched::Schedule *minOASched = nullptr; // minimum outside air schedule
         Real64 RelMassFlow = 0.0;
         Real64 OAMassFlow = 0.0;
         Real64 ExhMassFlow = 0.0;
@@ -207,9 +207,9 @@ namespace MixedAir {
         Real64 HighRHOAFlowRatio = 1.0;          // Modify ratio with respect to maximum outdoor air flow rate (high RH)
         bool ModifyDuringHighOAMoisture = false; // flag to Modify outdoor air flow, TRUE when modify any time, FALSE when modify only when indoor air
                                                  // humrat is less than outdoor HR
-        Sched::Schedule *economizerOASched = nullptr;            // schedule to modify outdoor air flow
-        Sched::Schedule *minOAflowSched = nullptr;                 // Index to the Minimum Fraction of Outdoor Air Schedule
-        Sched::Schedule *maxOAflowSched = nullptr;                 // Index to the Maximum Fraction of Outdoor Air Schedule
+        Sched::Schedule *economizerOASched = nullptr; // schedule to modify outdoor air flow
+        Sched::Schedule *minOAflowSched = nullptr;    // Index to the Minimum Fraction of Outdoor Air Schedule
+        Sched::Schedule *maxOAflowSched = nullptr;    // Index to the Maximum Fraction of Outdoor Air Schedule
         //   Economizer Status, which is currently following the EconomizerOperationFlag, might be something like "Economizer status
         //   indicates when the conditions are favorable for the economizer to operate (i.e., none of the control limits have been exceeded).
         //   While this status signal indicates favorable conditions for economizer operation, it does not guarantee that the air-side
@@ -261,22 +261,22 @@ namespace MixedAir {
 
     struct VentilationMechanicalZoneProps
     {
-        std::string name;                        // name of mech vent zone
-        int zoneNum = 0;                         // Actual zones number
-        Real64 ZoneOAAreaRate = 0.0;             // Mechanical ventilation rate (m3/s/m2) for each zone
-        Real64 ZoneOAPeopleRate = 0.0;           // Mechanical ventilation rate (m3/s/person) for each zone
-        Real64 ZoneOAFlowRate = 0.0;             // OA Flow Rate (m3/s/zone) for each zone
-        Real64 ZoneOAACHRate = 0.0;              // OA ACH (m3/s/volume) for each zone
-        int ZoneDesignSpecOAObjIndex = 0;        // index of the design specification outdoor air object for each zone
-        std::string ZoneDesignSpecOAObjName;     // name of the design specification outdoor air object for each zone
-        Real64 ZoneADEffCooling = 1.0;           // Zone air distribution effectiveness in cooling mode for each zone
-        Real64 ZoneADEffHeating = 1.0;           // Zone air distribution effectiveness in heating mode for each zone
-        Sched::Schedule *zoneADEffSched = nullptr;                 // air distribution effectiveness schedule for each zone
-        int ZoneDesignSpecADObjIndex = 0;        // index of the design specification zone air distribution object for each zone
-        std::string ZoneDesignSpecADObjName;     // name of the design specification zone air distribution object for each zone
-        Real64 ZoneSecondaryRecirculation = 0.0; // zone air secondary recirculation ratio for each zone
+        std::string name;                          // name of mech vent zone
+        int zoneNum = 0;                           // Actual zones number
+        Real64 ZoneOAAreaRate = 0.0;               // Mechanical ventilation rate (m3/s/m2) for each zone
+        Real64 ZoneOAPeopleRate = 0.0;             // Mechanical ventilation rate (m3/s/person) for each zone
+        Real64 ZoneOAFlowRate = 0.0;               // OA Flow Rate (m3/s/zone) for each zone
+        Real64 ZoneOAACHRate = 0.0;                // OA ACH (m3/s/volume) for each zone
+        int ZoneDesignSpecOAObjIndex = 0;          // index of the design specification outdoor air object for each zone
+        std::string ZoneDesignSpecOAObjName;       // name of the design specification outdoor air object for each zone
+        Real64 ZoneADEffCooling = 1.0;             // Zone air distribution effectiveness in cooling mode for each zone
+        Real64 ZoneADEffHeating = 1.0;             // Zone air distribution effectiveness in heating mode for each zone
+        Sched::Schedule *zoneADEffSched = nullptr; // air distribution effectiveness schedule for each zone
+        int ZoneDesignSpecADObjIndex = 0;          // index of the design specification zone air distribution object for each zone
+        std::string ZoneDesignSpecADObjName;       // name of the design specification zone air distribution object for each zone
+        Real64 ZoneSecondaryRecirculation = 0.0;   // zone air secondary recirculation ratio for each zone
         DataSizing::OAFlowCalcMethod ZoneOAFlowMethod = DataSizing::OAFlowCalcMethod::PerPerson; // OA flow method for each zone
-        Sched::Schedule *zoneOASched = nullptr;              // Outdoor air schedule for each zone (from DesignSpecification:OutdoorAir or default)
+        Sched::Schedule *zoneOASched = nullptr;           // Outdoor air schedule for each zone (from DesignSpecification:OutdoorAir or default)
         Sched::Schedule *oaPropCtlMinRateSched = nullptr; // Outdoor design OA flow rate schedule from DesignSpecification:OutdoorAir
         EPVector<int> peopleIndexes; // List of People objects in this zone (for SystemOAMethod == DataSizing::SysOAMethod::ProportionalControlDesOcc)
     };
@@ -284,14 +284,14 @@ namespace MixedAir {
     struct VentilationMechanicalProps // Derived type for Ventilation:Mechanical data
     {
         // Members
-        std::string Name;             // Name of Ventilation:Mechanical object
+        std::string Name;                      // Name of Ventilation:Mechanical object
         Sched::Schedule *availSched = nullptr; // Mechanical ventilation schedule
-        bool DCVFlag = false;         // if true, implement OA based on demand controlled ventilation
-        int NumofVentMechZones = 0;   // Number of zones with mechanical ventilation
-        Real64 TotAreaOAFlow = 0.0;   // Total outdoor air flow rate for all zones per area (m3/s/m2)
-        Real64 TotPeopleOAFlow = 0.0; // Total outdoor air flow rate for all PEOPLE objects in zones (m3/s)
-        Real64 TotZoneOAFlow = 0.0;   // Total outdoor air flow rate for all zones (m3/s)
-        Real64 TotZoneOAACH = 0.0;    // Total outdoor air flow rate for all zones Air Changes per hour (m3/s/m3)
+        bool DCVFlag = false;                  // if true, implement OA based on demand controlled ventilation
+        int NumofVentMechZones = 0;            // Number of zones with mechanical ventilation
+        Real64 TotAreaOAFlow = 0.0;            // Total outdoor air flow rate for all zones per area (m3/s/m2)
+        Real64 TotPeopleOAFlow = 0.0;          // Total outdoor air flow rate for all PEOPLE objects in zones (m3/s)
+        Real64 TotZoneOAFlow = 0.0;            // Total outdoor air flow rate for all zones (m3/s)
+        Real64 TotZoneOAACH = 0.0;             // Total outdoor air flow rate for all zones Air Changes per hour (m3/s/m3)
         DataSizing::SysOAMethod SystemOAMethod = DataSizing::SysOAMethod::Invalid; // System Outdoor Air Method - SOAM_ZoneSum, SOAM_VRP, SOAM_VRPL
         Real64 ZoneMaxOAFraction = 1.0;                                            // Zone maximum outdoor air fraction
         int CO2MaxMinLimitErrorCount = 0; // Counter when max CO2 concentration < min CO2 concentration for SOAM_ProportionalControlSchOcc

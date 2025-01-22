@@ -1515,11 +1515,10 @@ TEST_F(EnergyPlusFixture, WWHP_AutosizeTest1)
     ASSERT_TRUE(process_idf(idf_objects));
     SimulationManager::PostIPProcessing(*state);
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
 
     state->dataGlobal->BeginSimFlag = true;
-
 
     OutputReportPredefined::SetPredefinedTables(*state);
     HeatBalanceManager::SetPreConstructionInputParameters(*state); // establish array bounds for constructions early

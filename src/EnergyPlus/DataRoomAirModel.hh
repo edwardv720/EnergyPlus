@@ -193,13 +193,13 @@ namespace RoomAir {
     struct DispVentData
     {
         // Members
-        std::string ZoneName = "";       // Name of zone
-        int ZonePtr = 0;                 // Pointer to the zone number for this statement
-        Sched::Schedule *gainsSched = nullptr;          // Schedule for internal gain fraction to occupied zone
-        Real64 NumPlumesPerOcc = 0.0;    // Effective number of plumes per occupant
-        Real64 ThermostatHeight = 0.0;   // Height of thermostat/ temperature control sensor
-        Real64 ComfortHeight = 0.0;      // Height at which air temperature is measured for comfort purposes
-        Real64 TempTrigger = 0.0;        // Minimum temperature difference between TOC TMX for stratification
+        std::string ZoneName = "";             // Name of zone
+        int ZonePtr = 0;                       // Pointer to the zone number for this statement
+        Sched::Schedule *gainsSched = nullptr; // Schedule for internal gain fraction to occupied zone
+        Real64 NumPlumesPerOcc = 0.0;          // Effective number of plumes per occupant
+        Real64 ThermostatHeight = 0.0;         // Height of thermostat/ temperature control sensor
+        Real64 ComfortHeight = 0.0;            // Height at which air temperature is measured for comfort purposes
+        Real64 TempTrigger = 0.0;              // Minimum temperature difference between TOC TMX for stratification
     };
 
     struct CrossVentData
@@ -207,7 +207,7 @@ namespace RoomAir {
         // Members
         std::string ZoneName = "";              // Name of zone
         int ZonePtr = 0;                        // Pointer to the zone number for this statement
-        Sched::Schedule *gainsSched = nullptr;                  // Schedule for internal gain fraction to occupied zone
+        Sched::Schedule *gainsSched = nullptr;  // Schedule for internal gain fraction to occupied zone
         Comfort VforComfort = Comfort::Invalid; // Use Recirculation or Jet velocity and temperatures
         // for comfort models
     };
@@ -339,12 +339,12 @@ namespace RoomAir {
     {
         // Members
         // user variables
-        bool IsUsed = false;                // .TRUE. if user-defined patterns used in zone
-        std::string Name = "";              // Name
-        std::string ZoneName = "";          // Zone name in building
-        int ZoneID = 0;                     // Index of Zone in Heat Balance
-        Sched::Schedule *availSched = nullptr;               // availability schedule
-        Sched::Schedule *patternSched = nullptr;             // pattern selecting schedule
+        bool IsUsed = false;                     // .TRUE. if user-defined patterns used in zone
+        std::string Name = "";                   // Name
+        std::string ZoneName = "";               // Zone name in building
+        int ZoneID = 0;                          // Index of Zone in Heat Balance
+        Sched::Schedule *availSched = nullptr;   // availability schedule
+        Sched::Schedule *patternSched = nullptr; // pattern selecting schedule
         // calculated and from elsewhere
         Real64 ZoneHeight = 0.0;      // in meters, from Zone%CeilingHeight
         int ZoneNodeID = 0;           // index in Node array for this zone
@@ -473,22 +473,22 @@ namespace RoomAir {
     {
         // Members
         // user variables
-        bool IsUsed = false;            // true. if RoomAirflowNetwork model used in zone
-        std::string Name = "";          // Name
-        std::string ZoneName = "";      // Zone name in building
-        int ZoneID = 0;                 // Index of Zone in Heat Balance
-        int ActualZoneID = 0;           // Index of controlled zones in ZoneCOnfigure
-        Sched::Schedule *availSched = nullptr;           // index of availability schedule
-        int ControlAirNodeID = 0;       // index of roomair node that is HVAC control sensor location
-        int NumOfAirNodes = 0;          // Number of air nodes
-        Array1D<AFNAirNodeNested> Node; // Node struct
-        int ZoneNodeID = 0;             // index in system Node array for this zone
-        Real64 TairMean = 0.0;          // comes from MAT
-        Real64 Tstat = 0.0;             // temperature for thermostat
-        Real64 Tleaving = 0.0;          // temperature for return air node
-        Real64 Texhaust = 0.0;          // temperature for exhaust air node
-        int totNumSurfs = 0;            // total surfs for this zone
-        int firstSurfID = 0;            // Index of first surface
+        bool IsUsed = false;                   // true. if RoomAirflowNetwork model used in zone
+        std::string Name = "";                 // Name
+        std::string ZoneName = "";             // Zone name in building
+        int ZoneID = 0;                        // Index of Zone in Heat Balance
+        int ActualZoneID = 0;                  // Index of controlled zones in ZoneCOnfigure
+        Sched::Schedule *availSched = nullptr; // index of availability schedule
+        int ControlAirNodeID = 0;              // index of roomair node that is HVAC control sensor location
+        int NumOfAirNodes = 0;                 // Number of air nodes
+        Array1D<AFNAirNodeNested> Node;        // Node struct
+        int ZoneNodeID = 0;                    // index in system Node array for this zone
+        Real64 TairMean = 0.0;                 // comes from MAT
+        Real64 Tstat = 0.0;                    // temperature for thermostat
+        Real64 Tleaving = 0.0;                 // temperature for return air node
+        Real64 Texhaust = 0.0;                 // temperature for exhaust air node
+        int totNumSurfs = 0;                   // total surfs for this zone
+        int firstSurfID = 0;                   // Index of first surface
     };
 
     struct BegEnd

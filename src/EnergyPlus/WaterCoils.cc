@@ -321,7 +321,7 @@ void GetWaterCoilInput(EnergyPlusData &state)
                                                                  cNumericFields);
 
         ErrorObjectHeader eoh{routineName, CurrentModuleObject, AlphArray(1)};
-        
+
         state.dataWaterCoils->WaterCoilNumericFields(CoilNum).FieldNames.allocate(MaxNums);
         state.dataWaterCoils->WaterCoilNumericFields(CoilNum).FieldNames = "";
         state.dataWaterCoils->WaterCoilNumericFields(CoilNum).FieldNames = cNumericFields;
@@ -330,7 +330,7 @@ void GetWaterCoilInput(EnergyPlusData &state)
         // ErrorsFound will be set to True if problem was found, left untouched otherwise
         GlobalNames::VerifyUniqueCoilName(state, CurrentModuleObject, AlphArray(1), ErrorsFound, CurrentModuleObject + " Name");
         auto &waterCoil = state.dataWaterCoils->WaterCoil(CoilNum);
-        
+
         waterCoil.Name = AlphArray(1);
         if (lAlphaBlanks(2)) {
             waterCoil.availSched = Sched::GetScheduleAlwaysOn(state);
@@ -487,7 +487,7 @@ void GetWaterCoilInput(EnergyPlusData &state)
                                                                  cNumericFields);
 
         ErrorObjectHeader eoh{routineName, CurrentModuleObject, AlphArray(1)};
-        
+
         state.dataWaterCoils->WaterCoilNumericFields(CoilNum).FieldNames.allocate(MaxNums);
         state.dataWaterCoils->WaterCoilNumericFields(CoilNum).FieldNames = "";
         state.dataWaterCoils->WaterCoilNumericFields(CoilNum).FieldNames = cNumericFields;
@@ -501,7 +501,7 @@ void GetWaterCoilInput(EnergyPlusData &state)
 
         if (lAlphaBlanks(2)) {
             waterCoil.availSched = Sched::GetScheduleAlwaysOn(state);
-        } else if ((waterCoil.availSched = Sched::GetSchedule(state, AlphArray(2))) == nullptr) { 
+        } else if ((waterCoil.availSched = Sched::GetSchedule(state, AlphArray(2))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, cAlphaFields(2), AlphArray(2));
             ErrorsFound = true;
         }
@@ -6093,7 +6093,7 @@ Sched::Schedule *GetWaterCoilAvailSched(EnergyPlusData &state,
         Util::SameString(CoilType, "Coil:Cooling:Water:DetailedGeometry")) {
         WhichCoil = Util::FindItem(CoilName, state.dataWaterCoils->WaterCoil);
         if (WhichCoil != 0) {
-                return state.dataWaterCoils->WaterCoil(WhichCoil).availSched;
+            return state.dataWaterCoils->WaterCoil(WhichCoil).availSched;
         }
     } else {
         WhichCoil = 0;

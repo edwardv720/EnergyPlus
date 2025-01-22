@@ -140,7 +140,8 @@ TEST_F(EnergyPlusFixture, SetVSHPAirFlowTest_VSFurnaceFlowTest)
     state->dataFurnaces->Furnace(FurnaceNum).NumOfSpeedHeating = 0;
     state->dataFurnaces->Furnace(FurnaceNum).NumOfSpeedCooling = 0;
     //	Furnace( FurnaceNum ).SchedPtr = 0; // denotes incorrect schedule name in Furnace input ( returns 0.0 )
-    state->dataFurnaces->Furnace(FurnaceNum).availSched = Sched::GetScheduleAlwaysOn(*state); // denotes missing schedule name in Furnace input ( returns 1.0 )
+    state->dataFurnaces->Furnace(FurnaceNum).availSched =
+        Sched::GetScheduleAlwaysOn(*state); // denotes missing schedule name in Furnace input ( returns 1.0 )
     state->dataFurnaces->HeatingLoad = true;
     state->dataFurnaces->CoolingLoad = false;
     SetVSHPAirFlow(*state, FurnaceNum, PartLoadRatio, OnOffAirFlowRatio);
@@ -1185,7 +1186,7 @@ TEST_F(EnergyPlusFixture, UnitaryHeatPumpAirToAir_MaxSuppAirTempTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     int CompIndex(0);
     int AirLoopNum(1);
     bool FirstHVACIteration(false);

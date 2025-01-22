@@ -105,8 +105,8 @@ namespace PlantComponentTemperatureSources {
         WaterSourceSpecs()
             : InletNodeNum(0), OutletNodeNum(0), DesVolFlowRate(0.0), DesVolFlowRateWasAutoSized(false), MassFlowRateMax(0.0),
               EMSOverrideOnMassFlowRateMax(false), EMSOverrideValueMassFlowRateMax(0.0), MassFlowRate(0.0), tempSpecType(TempSpecType::Invalid),
-              BoundaryTemp(0.0), OutletTemp(0.0), InletTemp(0.0), HeatRate(0.0), HeatEnergy(0.0), plantLoc{}, SizFac(0.0),
-              CheckEquipName(true), MyFlag(true), MyEnvironFlag(true), IsThisSized(false)
+              BoundaryTemp(0.0), OutletTemp(0.0), InletTemp(0.0), HeatRate(0.0), HeatEnergy(0.0), plantLoc{}, SizFac(0.0), CheckEquipName(true),
+              MyFlag(true), MyEnvironFlag(true), IsThisSized(false)
         {
         }
 

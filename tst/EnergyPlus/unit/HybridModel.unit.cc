@@ -474,7 +474,7 @@ TEST_F(EnergyPlusFixture, HybridModel_CorrectZoneContaminantsTest)
     // ZoneContaminantPredictorCorrector variable initialization
     state->dataHeatBal->Zone.allocate(1);
     state->dataHybridModel->hybridModelZones.allocate(1);
-    
+
     state->dataHybridModel->FlagHybridModel = true;
     state->dataRoomAir->AirModel.allocate(1);
     state->dataRoomAir->ZTOC.allocate(1);
@@ -509,7 +509,7 @@ TEST_F(EnergyPlusFixture, HybridModel_CorrectZoneContaminantsTest)
     state->dataZoneTempPredictorCorrector->spaceHeatBalance.allocate(1);
     auto &thisZoneHB = state->dataZoneTempPredictorCorrector->zoneHeatBalance(1);
     auto &hmZone = state->dataHybridModel->hybridModelZones(1);
-    
+
     thisZoneHB.MixingMassFlowZone = 0.0;
     thisZoneHB.ZT = 0.0;
     state->dataContaminantBalance->AZ.allocate(1);

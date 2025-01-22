@@ -783,7 +783,7 @@ namespace OutputProcessor {
                                           format(R"(Meter:Custom="{}", differing units in {}="{}".)",
                                                  ipsc->cAlphaArgs(1),
                                                  ipsc->cAlphaFieldNames(fldIndex + 1),
-                                                        meterOrVarNameUC));
+                                                 meterOrVarNameUC));
                         ShowContinueError(state,
                                           format("...will not be shown with the Meter results; units for meter={}, units for this variable={}.",
                                                  Constant::unitNames[(int)units],
@@ -962,7 +962,7 @@ namespace OutputProcessor {
                                                   eoh,
                                                   format("Output variable \"{}\" referenced multiple times (directly or via meter)",
                                                          op->outVars[keyOutVarNum]->keyColonNameUC));
-                                
+
                             } else {
                                 meter->srcVarNums.push_back(keyOutVarNum);
                                 op->outVars[keyOutVarNum]->meterNums.push_back(meterNum);
@@ -1297,7 +1297,7 @@ namespace OutputProcessor {
                                                   eoh,
                                                   format("Output variable \"{}\" referenced multiple times (directly or via meter)",
                                                          op->outVars[keyOutVarNum]->keyColonNameUC));
-                                
+
                             } else {
                                 meter->srcVarNums.push_back(keyOutVarNum);
                                 op->outVars[keyOutVarNum]->meterNums.push_back(meterNum);
@@ -4271,7 +4271,7 @@ void GetVariableKeyCountandType(EnergyPlusData &state,
     // number of associated keys is counted.
 
     using namespace OutputProcessor;
-    
+
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
     auto const &op = state.dataOutputProcessor;
 

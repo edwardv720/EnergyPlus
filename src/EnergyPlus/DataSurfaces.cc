@@ -515,7 +515,7 @@ Real64 SurfaceData::get_average_height(EnergyPlusData &state) const
 void SurfaceData::make_hash_key(EnergyPlusData &state, const int SurfNum)
 {
     auto &s_surf = state.dataSurface;
-        
+
     calcHashKey = SurfaceCalcHashKey();
     calcHashKey.Construction = Construction;
     calcHashKey.Azimuth = round(Azimuth * 10.0) / 10.0;
@@ -556,8 +556,9 @@ void SurfaceData::make_hash_key(EnergyPlusData &state, const int SurfNum)
     calcHashKey.MaterialMovInsulInt = s_surf->intMovInsuls(SurfNum).matNum;
     calcHashKey.movInsulExtSchedNum = (s_surf->extMovInsuls(SurfNum).sched == nullptr) ? -1 : s_surf->extMovInsuls(SurfNum).sched->Num;
     calcHashKey.movInsulIntSchedNum = (s_surf->intMovInsuls(SurfNum).sched == nullptr) ? -1 : s_surf->intMovInsuls(SurfNum).sched->Num;
-    
-    calcHashKey.externalShadingSchedNum = (s_surf->Surface(SurfNum).surfExternalShadingSched != nullptr) ? s_surf->Surface(SurfNum).surfExternalShadingSched->Num : -1;
+
+    calcHashKey.externalShadingSchedNum =
+        (s_surf->Surface(SurfNum).surfExternalShadingSched != nullptr) ? s_surf->Surface(SurfNum).surfExternalShadingSched->Num : -1;
     calcHashKey.SurroundingSurfacesNum = s_surf->Surface(SurfNum).SurfSurroundingSurfacesNum;
     calcHashKey.LinkedOutAirNode = s_surf->Surface(SurfNum).SurfLinkedOutAirNode;
     calcHashKey.outsideHeatSourceTermSchedNum = (outsideHeatSourceTermSched != nullptr) ? outsideHeatSourceTermSched->Num : -1;

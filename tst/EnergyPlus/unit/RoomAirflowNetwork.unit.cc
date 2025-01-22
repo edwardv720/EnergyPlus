@@ -557,7 +557,7 @@ TEST_F(EnergyPlusFixture, RoomAirInternalGains_InternalHeatGains_Check)
     state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
     state->init_state(*state);
-    
+
     ErrorsFound = false;
 
     HeatBalanceManager::GetZoneData(*state, ErrorsFound);

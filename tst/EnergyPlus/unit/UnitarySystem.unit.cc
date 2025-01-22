@@ -367,7 +367,7 @@ TEST_F(AirloopUnitarySysTest, MultipleWaterCoolingCoilSizing)
     state->dataWaterCoils->WaterCoil(CoilNum).AirOutletNodeNum = 4;
 
     state->dataWaterCoils->WaterCoil(CoilNum).availSched = Sched::GetScheduleAlwaysOff(*state);
-    
+
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).NodeNumIn =
         state->dataWaterCoils->WaterCoil(CoilNum).WaterInletNodeNum;
 
@@ -2897,7 +2897,7 @@ Curve:Quadratic,
     // Heating coil air inlet node = 3
     state->dataLoopNodes->Node(3).MassFlowRateMax = thisSys->m_DesignMassFlowRate; // max at fan outlet so fan won't limit flow
                                                                                    // Heating coil air outlet node = 2
-    state->dataGlobal->BeginEnvrnFlag = true; // act as if simulation is beginning
+    state->dataGlobal->BeginEnvrnFlag = true;                                      // act as if simulation is beginning
 
     // Backup Heating coil air outlet node = 2
     state->dataLoopNodes->Node(2).TempSetPoint = 33.0;
@@ -2934,9 +2934,9 @@ Curve:Quadratic,
     state->dataLoopNodes->Node(2).Temp = 24.0;
     state->dataLoopNodes->Node(3).Temp = 24.0;
     state->dataLoopNodes->Node(4).Temp = 24.0;
-    state->dataLoopNodes->Node(1).HumRat = 0.00922;         // 17C wb
-    state->dataLoopNodes->Node(1).Enthalpy = 47597.03;      // www.sugartech.com/psychro/index.php
-    state->dataGlobal->BeginEnvrnFlag = true;               // act as if simulation is beginning
+    state->dataLoopNodes->Node(1).HumRat = 0.00922;    // 17C wb
+    state->dataLoopNodes->Node(1).Enthalpy = 47597.03; // www.sugartech.com/psychro/index.php
+    state->dataGlobal->BeginEnvrnFlag = true;          // act as if simulation is beginning
     // Backup Heating coil air outlet node = 2
     state->dataLoopNodes->Node(2).TempSetPoint = 33.0;
     thisSys->m_EMSOverrideSuppCoilSpeedNumOn = true;
@@ -8336,7 +8336,7 @@ OutdoorAir:NodeList,
 
     ASSERT_TRUE(process_idf(idf_objects)); // read idf objects
 
-    state->dataGlobal->TimeStepsInHour = 1; // must initialize this to get schedules initialized
+    state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
     state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
 
@@ -9658,7 +9658,7 @@ Curve:QuadLinear,
     state->dataHeatBalFanSys->TempControlType.allocate(1);
     state->dataHeatBalFanSys->TempControlTypeRpt.allocate(1);
     state->dataHeatBalFanSys->TempControlType(1) = HVAC::SetptType::DualHeatCool;
-Sched::GetSchedule(*state, "FANANDCOILAVAILSCHED")->currentVal = 1.0;
+    Sched::GetSchedule(*state, "FANANDCOILAVAILSCHED")->currentVal = 1.0;
     state->dataGlobal->BeginEnvrnFlag = true;
     state->dataEnvrn->StdRhoAir = Psychrometrics::PsyRhoAirFnPbTdbW(*state, 101325.0, 20.0, 0.0); // initialize RhoAir
     state->dataLoopNodes->Node(InletNode).MassFlowRateMaxAvail = thisSys->m_DesignFanVolFlowRate * state->dataEnvrn->StdRhoAir;
@@ -10001,7 +10001,7 @@ Schedule:Compact,
     state->dataHeatBalFanSys->TempControlTypeRpt.allocate(1);
     state->dataHeatBalFanSys->TempControlType(1) = HVAC::SetptType::DualHeatCool;
     // fill the schedule values
-    Sched::GetSchedule(*state, "FANANDCOILAVAILSCHED")->currentVal = 1.0; // availability
+    Sched::GetSchedule(*state, "FANANDCOILAVAILSCHED")->currentVal = 1.0;  // availability
     Sched::GetSchedule(*state, "CONTINUOUSFANSCHEDULE")->currentVal = 1.0; // constant fan
     state->dataGlobal->BeginEnvrnFlag = true;
     state->dataEnvrn->StdRhoAir = Psychrometrics::PsyRhoAirFnPbTdbW(*state, 101325.0, 20.0, 0.0); // initialize RhoAir
@@ -13851,7 +13851,6 @@ TEST_F(ZoneUnitarySysTest, UnitarySystemModel_FractionOfAutoSizedCoolingValueTes
     ASSERT_TRUE(process_idf(idf_objects)); // read idf objects
     state->init_state(*state);
 
-
     // call the UnitarySystem factory
     bool ErrorsFound = false;
     bool zoneEquipment = true;
@@ -14196,13 +14195,13 @@ TEST_F(ZoneUnitarySysTest, UnitarySystemModel_getUnitarySystemInputDataTest)
     EXPECT_ENUM_EQ(UnitarySys::UnitarySysCtrlType::Load, thisSys->m_ControlType);                    // checks control type
     EXPECT_ENUM_EQ(UnitarySys::DehumCtrlType::None, thisSys->m_DehumidControlType_Num);              // checks Dehumidification Control type
     EXPECT_EQ(Util::FindItemInList("EAST ZONE", state->dataHeatBal->Zone), thisSys->ControlZoneNum); // checks zone ID
-    EXPECT_EQ(Sched::GetScheduleAlwaysOn(*state), thisSys->m_sysAvailSched);                       // checks availability schedule name
+    EXPECT_EQ(Sched::GetScheduleAlwaysOn(*state), thisSys->m_sysAvailSched);                         // checks availability schedule name
     EXPECT_EQ("NODE 29", state->dataLoopNodes->NodeID(thisSys->AirInNode));                          // checks air inlet node name
     EXPECT_EQ("NODE 30", state->dataLoopNodes->NodeID(thisSys->AirOutNode));                         // checks air outlet node name
     EXPECT_EQ((int)HVAC::FanType::OnOff, (int)thisSys->m_FanType);                                   // checks fan object type "FAN:ONOFF"
     EXPECT_EQ("SUPPLY FAN", thisSys->m_FanName);                                                     // checks fan object name
     EXPECT_EQ((int)HVAC::FanPlace::DrawThru, (int)thisSys->m_FanPlace);                              // checks fan placement, "DrawThrough"
-    EXPECT_EQ(nullptr, thisSys->m_fanOpModeSched);                          // checks Supply Air Fan Operating Mode Schedule Name
+    EXPECT_EQ(nullptr, thisSys->m_fanOpModeSched);                       // checks Supply Air Fan Operating Mode Schedule Name
     EXPECT_EQ("COIL:HEATING:WATER", thisSys->m_HeatingCoilTypeName);     // checks heating coil object type
     EXPECT_EQ("WATER HEATING COIL", thisSys->m_HeatingCoilName);         // checks heating coil object type
     EXPECT_EQ(1, thisSys->m_HeatingSizingRatio);                         // checks dx heating coil sizing ratio
@@ -14466,9 +14465,10 @@ Curve:Biquadratic,
     EXPECT_FALSE(ErrorsFound);                                                           // expect no errors
 
     // Issue 7777
-    std::string const error_string = delimited_string({
-        "   ** Warning ** UnitarySys::processInputSpec: AirLoopHVAC:UnitarySystem = UNITARY SYSTEM MODEL",
-        "   **   ~~~   ** Availability Schedule Name = FANANDCOILAVAILTEST, item not found, Set the default as Always On. Simulation continues. will be used."});
+    std::string const error_string =
+        delimited_string({"   ** Warning ** UnitarySys::processInputSpec: AirLoopHVAC:UnitarySystem = UNITARY SYSTEM MODEL",
+                          "   **   ~~~   ** Availability Schedule Name = FANANDCOILAVAILTEST, item not found, Set the default as Always On. "
+                          "Simulation continues. will be used."});
 
     EXPECT_TRUE(compare_err_stream(error_string, true));
 }
@@ -16107,7 +16107,7 @@ Dimensionless;	!- Output Unit Type
     EXPECT_FALSE(ErrorsFound);
 
     Sched::GetSchedule(*state, "HVACTEMPLATE-ALWAYS 1")->currentVal = 1.0; // Enable schedule without calling schedule manager
-    Sched::GetSchedule(*state, "LIGHTS-1")->currentVal = 1.0; // Enable schedule without calling schedule manager
+    Sched::GetSchedule(*state, "LIGHTS-1")->currentVal = 1.0;              // Enable schedule without calling schedule manager
     auto *equipSched = Sched::GetSchedule(*state, "EQUIP-1");
     equipSched->currentVal = 4.0; // Enable schedule without calling schedule manager
 
@@ -17196,7 +17196,7 @@ TEST_F(ZoneUnitarySysTest, UnitarySystemModel_MultiSpeedDXCoilsNoLoadFlowRateSiz
 
     ASSERT_TRUE(process_idf(idf_objects)); // read idf objects
     state->init_state(*state);
-    
+
     std::string compName = "UNITARY SYSTEM MODEL";
     bool zoneEquipment = true;
     bool FirstHVACIteration = true;
@@ -18292,9 +18292,9 @@ Curve:Biquadratic,
     state->dataGlobal->MinutesInTimeStep = 60;
     state->dataZoneEquip->ZoneEquipInputsFilled = true;                                  // indicate zone data is available
     thisSys->getUnitarySystemInputData(*state, compName, zoneEquipment, 0, ErrorsFound); // get UnitarySystem input from object above
-    std::string const error_string =
-        delimited_string({"   ** Severe  ** UnitarySys::processInputSpec: AirLoopHVAC:UnitarySystem = UNITARY SYSTEM MODEL",
-                          "   **   ~~~   ** Supply Air Fan Operating Mode Schedule Name = CONSTANT-0.0, schedule contains values that are <= 0 and/or > 1"});
+    std::string const error_string = delimited_string(
+        {"   ** Severe  ** UnitarySys::processInputSpec: AirLoopHVAC:UnitarySystem = UNITARY SYSTEM MODEL",
+         "   **   ~~~   ** Supply Air Fan Operating Mode Schedule Name = CONSTANT-0.0, schedule contains values that are <= 0 and/or > 1"});
     EXPECT_TRUE(compare_err_stream(error_string, true));
 }
 
@@ -19011,7 +19011,7 @@ TEST_F(EnergyPlusFixture, WaterCoil_getCoilWaterSystemInputDataTest)
 
     EXPECT_TRUE(process_idf(idf_objects, false));
     state->init_state(*state);
-    
+
     bool zoneEquipment = false;
     state->dataZoneEquip->ZoneEquipInputsFilled = true;
 
@@ -20751,7 +20751,7 @@ Coil:Heating:Gas:MultiStage,
     state->dataLoopNodes->Node(4).MassFlowRateMax =
         thisSys->m_DesignMassFlowRate; // max at fan outlet so fan won't limit flow // Cooling coil air outlet node = 2
     state->dataLoopNodes->Node(2).TempSetPoint = 17.0;
-    state->dataGlobal->BeginEnvrnFlag = true;               // act as if simulation is beginning
+    state->dataGlobal->BeginEnvrnFlag = true; // act as if simulation is beginning
     thisSys->simulate(*state,
                       thisSys->Name,
                       FirstHVACIteration,
@@ -20774,8 +20774,8 @@ Coil:Heating:Gas:MultiStage,
     state->dataZoneEnergyDemand->ZoneSysEnergyDemand(ControlZoneNum).RemainingOutputRequired = 1000.0;
     state->dataZoneEnergyDemand->ZoneSysEnergyDemand(1).StageNum = 1;
     state->dataLoopNodes->Node(4).MassFlowRateMax =
-        thisSys->m_DesignMassFlowRate;                      // max at fan outlet so fan won't limit flow // Cooling coil air outlet node = 2
-    state->dataGlobal->BeginEnvrnFlag = true;               // act as if simulation is beginning
+        thisSys->m_DesignMassFlowRate;        // max at fan outlet so fan won't limit flow // Cooling coil air outlet node = 2
+    state->dataGlobal->BeginEnvrnFlag = true; // act as if simulation is beginning
 
     thisSys->simulate(*state,
                       thisSys->Name,

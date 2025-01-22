@@ -1169,7 +1169,7 @@ TEST_F(EnergyPlusFixture, BranchNodeConnections_ReturnPlenumNodeCheckFailure)
     state->dataGlobal->DDOnlySimulation = true;
 
     state->init_state(*state);
-    
+
     OutputReportPredefined::SetPredefinedTables(*state);
     SetPreConstructionInputParameters(*state); // establish array bounds for constructions early
     createFacilityElectricPowerServiceObject(*state);
@@ -2191,7 +2191,7 @@ TEST_F(EnergyPlusFixture, BranchNodeConnections_ReturnPlenumNodeCheck)
     state->dataGlobal->DDOnlySimulation = true;
 
     state->init_state(*state);
-                    
+
     OutputReportPredefined::SetPredefinedTables(*state);
     SetPreConstructionInputParameters(*state); // establish array bounds for constructions early
     createFacilityElectricPowerServiceObject(*state);

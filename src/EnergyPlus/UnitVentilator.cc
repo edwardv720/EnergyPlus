@@ -278,7 +278,7 @@ namespace UnitVentilator {
             unitVent.Name = Alphas(1);
             if (lAlphaBlanks(2)) {
                 unitVent.availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((unitVent.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) { 
+            } else if ((unitVent.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(2), Alphas(2));
                 ErrorsFound = true;
             }
@@ -291,7 +291,7 @@ namespace UnitVentilator {
             if (lAlphaBlanks(4)) {
                 ShowSevereEmptyField(state, eoh, cAlphaFields(4));
                 ErrorsFound = true;
-            } else if ((unitVent.minOASched = Sched::GetSchedule(state, Alphas(4))) == nullptr) { 
+            } else if ((unitVent.minOASched = Sched::GetSchedule(state, Alphas(4))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(4), Alphas(4));
                 ErrorsFound = true;
             }
@@ -307,7 +307,7 @@ namespace UnitVentilator {
                 if (lAlphaBlanks(5)) {
                     ShowSevereEmptyField(state, eoh, cAlphaFields(5));
                     ErrorsFound = true;
-                } else if ((unitVent.maxOASched = Sched::GetSchedule(state, Alphas(5))) == nullptr) { 
+                } else if ((unitVent.maxOASched = Sched::GetSchedule(state, Alphas(5))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, cAlphaFields(5), Alphas(5));
                     ErrorsFound = true;
                 } else if (!unitVent.maxOASched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
@@ -320,7 +320,7 @@ namespace UnitVentilator {
                 if (lAlphaBlanks(5)) {
                     ShowSevereEmptyField(state, eoh, cAlphaFields(5));
                     ErrorsFound = true;
-                } else if ((unitVent.tempSched = Sched::GetSchedule(state, Alphas(5))) == nullptr) { 
+                } else if ((unitVent.tempSched = Sched::GetSchedule(state, Alphas(5))) == nullptr) {
                     ShowSevereItemNotFound(state, eoh, cAlphaFields(5), Alphas(5));
                     ErrorsFound = true;
                 }
@@ -544,8 +544,9 @@ namespace UnitVentilator {
             unitVent.CoilOption = (CoilsUsed)getEnumValue(CoilsUsedNamesUC, Alphas(13));
 
             if (lAlphaBlanks(14)) {
-                unitVent.fanOp = (unitVent.fanType == HVAC::FanType::OnOff || unitVent.fanType == HVAC::FanType::SystemModel) ?
-                    HVAC::FanOp::Cycling : HVAC::FanOp::Continuous;
+                unitVent.fanOp = (unitVent.fanType == HVAC::FanType::OnOff || unitVent.fanType == HVAC::FanType::SystemModel)
+                                     ? HVAC::FanOp::Cycling
+                                     : HVAC::FanOp::Continuous;
             } else if ((unitVent.fanOpModeSched = Sched::GetSchedule(state, Alphas(14))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(14), Alphas(14));
                 ErrorsFound = true;
@@ -1147,8 +1148,7 @@ namespace UnitVentilator {
         }
 
         if (unitVent.availSched->getCurrentVal() > 0) {
-            if ((unitVent.fanAvailSched->getCurrentVal() > 0 || state.dataHVACGlobal->TurnFansOn) &&
-                !state.dataHVACGlobal->TurnFansOff) {
+            if ((unitVent.fanAvailSched->getCurrentVal() > 0 || state.dataHVACGlobal->TurnFansOn) && !state.dataHVACGlobal->TurnFansOff) {
                 if ((std::abs(state.dataZoneEnergyDemand->ZoneSysEnergyDemand(ZoneNum).RemainingOutputRequired) < HVAC::SmallLoad) ||
                     (state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum))) {
                     SetMassFlowRateToZero = true;
@@ -2327,8 +2327,7 @@ namespace UnitVentilator {
 
         if ((std::abs(state.dataUnitVentilators->QZnReq) < HVAC::SmallLoad) || (state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum)) ||
             (unitVent.availSched->getCurrentVal() <= 0) ||
-            ((unitVent.fanAvailSched->getCurrentVal() <= 0 && !state.dataHVACGlobal->TurnFansOn) ||
-             state.dataHVACGlobal->TurnFansOff)) {
+            ((unitVent.fanAvailSched->getCurrentVal() <= 0 && !state.dataHVACGlobal->TurnFansOn) || state.dataHVACGlobal->TurnFansOff)) {
 
             // Unit is off or has no load upon it; set the flow rates to zero and then
             // simulate the components with the no flow conditions
@@ -2410,7 +2409,7 @@ namespace UnitVentilator {
                                 state.dataUnitVentilators->OAMassFlowRate = MaxOAFrac * outsideAirNode.MassFlowRate;
                             }
                         } break;
-                                
+
                         case OAControl::FixedTemperature: {
                             // In heating mode, the outside air for "fixed temperature" attempts
                             // to control the outside air fraction so that a desired temperature
@@ -2653,16 +2652,10 @@ namespace UnitVentilator {
                             state.dataUnitVentilators->OAMassFlowRate = MinOAFrac * outsideAirNode.MassFlowRate;
                         } break;
                         case OAControl::VariablePercent: {
-                            state.dataUnitVentilators->OAMassFlowRate =
-                                SetOAMassFlowRateForCoolingVariablePercent(state,
-                                                                           UnitVentNum,
-                                                                           MinOAFrac,
-                                                                           outsideAirNode.MassFlowRate,
-                                                                           unitVent.maxOASched->getCurrentVal(),
-                                                                           Tinlet,
-                                                                           Toutdoor);
+                            state.dataUnitVentilators->OAMassFlowRate = SetOAMassFlowRateForCoolingVariablePercent(
+                                state, UnitVentNum, MinOAFrac, outsideAirNode.MassFlowRate, unitVent.maxOASched->getCurrentVal(), Tinlet, Toutdoor);
                         } break;
-                                
+
                         case OAControl::FixedTemperature: {
                             // This is basically the same algorithm as for the heating case...
                             Tdesired = unitVent.tempSched->getCurrentVal();
@@ -2734,16 +2727,10 @@ namespace UnitVentilator {
                         } break;
 
                         case OAControl::VariablePercent: {
-                            state.dataUnitVentilators->OAMassFlowRate =
-                                SetOAMassFlowRateForCoolingVariablePercent(state,
-                                                                           UnitVentNum,
-                                                                           MinOAFrac,
-                                                                           outsideAirNode.MassFlowRate,
-                                                                           unitVent.maxOASched->getCurrentVal(),
-                                                                           Tinlet,
-                                                                           Toutdoor);
+                            state.dataUnitVentilators->OAMassFlowRate = SetOAMassFlowRateForCoolingVariablePercent(
+                                state, UnitVentNum, MinOAFrac, outsideAirNode.MassFlowRate, unitVent.maxOASched->getCurrentVal(), Tinlet, Toutdoor);
                         } break;
-                                
+
                         case OAControl::FixedTemperature: {
                             // This is basically the same algorithm as for the heating case...
                             Tdesired = unitVent.tempSched->getCurrentVal();

@@ -103,10 +103,10 @@ namespace HVACDXHeatPumpSystem {
 
         // Default Constructor
         DXHeatPumpSystemStruct()
-            : HeatPumpCoilType_Num(0), HeatPumpCoilIndex(0), DXHeatPumpCoilInletNodeNum(0), DXHeatPumpCoilOutletNodeNum(0),
-              DXSystemControlNodeNum(0), DesiredOutletTemp(0.0), PartLoadFrac(0.0), SpeedRatio(0.0), CycRatio(0.0), DXCoilSensPLRIter(0),
-              DXCoilSensPLRIterIndex(0), DXCoilSensPLRFail(0), DXCoilSensPLRFailIndex(0), OAUnitSetTemp(0.0), SpeedNum(0), FaultyCoilSATFlag(false),
-              FaultyCoilSATIndex(0), FaultyCoilSATOffset(0.0)
+            : HeatPumpCoilType_Num(0), HeatPumpCoilIndex(0), DXHeatPumpCoilInletNodeNum(0), DXHeatPumpCoilOutletNodeNum(0), DXSystemControlNodeNum(0),
+              DesiredOutletTemp(0.0), PartLoadFrac(0.0), SpeedRatio(0.0), CycRatio(0.0), DXCoilSensPLRIter(0), DXCoilSensPLRIterIndex(0),
+              DXCoilSensPLRFail(0), DXCoilSensPLRFailIndex(0), OAUnitSetTemp(0.0), SpeedNum(0), FaultyCoilSATFlag(false), FaultyCoilSATIndex(0),
+              FaultyCoilSATOffset(0.0)
         {
         }
     };

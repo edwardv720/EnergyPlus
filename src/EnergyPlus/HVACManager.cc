@@ -153,7 +153,7 @@ void ManageHVAC(EnergyPlusData &state)
     Real64 ZoneTempChange(0.0); // change in zone air temperature from timestep t-1 to t
 
     auto &s_hbfs = state.dataHeatBalFanSys;
-    
+
     // SYSTEM INITIALIZATION
     if (state.dataHVACMgr->TriggerGetAFN) {
         state.dataHVACMgr->TriggerGetAFN = false;
@@ -177,7 +177,7 @@ void ManageHVAC(EnergyPlusData &state)
     for (auto &zoneTstatSetpt : s_hbfs->zoneTstatSetpts) {
         zoneTstatSetpt.setptHiAver = zoneTstatSetpt.setptLoAver = 0.0;
     }
-    
+
     state.dataHVACMgr->PrintedWarmup = false;
     if (state.dataContaminantBalance->Contaminant.CO2Simulation) {
         state.dataContaminantBalance->OutdoorCO2 = state.dataContaminantBalance->Contaminant.CO2OutdoorSched->getCurrentVal();

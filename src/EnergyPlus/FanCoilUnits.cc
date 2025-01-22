@@ -275,7 +275,7 @@ namespace FanCoilUnits {
 
             if (lAlphaBlanks(2)) {
                 fanCoil.availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((fanCoil.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) { 
+            } else if ((fanCoil.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(2), Alphas(2));
                 ErrorsFound = true;
             }
@@ -293,7 +293,7 @@ namespace FanCoilUnits {
                 fanCoil.fanOp = HVAC::FanOp::Continuous;
             }
 
-            if (!lAlphaBlanks(4) && ((fanCoil.oaSched = Sched::GetSchedule(state, Alphas(4))) == nullptr)) { 
+            if (!lAlphaBlanks(4) && ((fanCoil.oaSched = Sched::GetSchedule(state, Alphas(4))) == nullptr)) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(4), Alphas(4));
                 ErrorsFound = true;
             }
@@ -513,8 +513,12 @@ namespace FanCoilUnits {
                 auto *fan = state.dataFans->fans(fanCoil.FanIndex);
 
                 if (fanCoil.fanType != fan->type) {
-                    ShowSevereCustom(state, eoh, format("{} was specified as having type {}, but has type {}",
-                                                        fanCoil.FanName, HVAC::fanTypeNamesUC[(int)fanCoil.fanType], HVAC::fanTypeNamesUC[(int)fan->type]));
+                    ShowSevereCustom(state,
+                                     eoh,
+                                     format("{} was specified as having type {}, but has type {}",
+                                            fanCoil.FanName,
+                                            HVAC::fanTypeNamesUC[(int)fanCoil.fanType],
+                                            HVAC::fanTypeNamesUC[(int)fan->type]));
                     ErrorsFound = true;
                 }
 
@@ -3425,15 +3429,12 @@ namespace FanCoilUnits {
         if (QCoilHeatSP > 0.0 && QCoilCoolSP > 0.0 && state.dataHeatBalFanSys->TempControlType(ZoneNum) != HVAC::SetptType::SingleCool) {
             QZnReq = QCoilHeatSP;
             HeatingLoad = true;
-        } else if (QCoilHeatSP > 0.0 && QCoilCoolSP > 0.0 &&
-                   state.dataHeatBalFanSys->TempControlType(ZoneNum) == HVAC::SetptType::SingleCool) {
+        } else if (QCoilHeatSP > 0.0 && QCoilCoolSP > 0.0 && state.dataHeatBalFanSys->TempControlType(ZoneNum) == HVAC::SetptType::SingleCool) {
             QZnReq = 0.0;
-        } else if (QCoilHeatSP < 0.0 && QCoilCoolSP < 0.0 &&
-                   state.dataHeatBalFanSys->TempControlType(ZoneNum) != HVAC::SetptType::SingleHeat) {
+        } else if (QCoilHeatSP < 0.0 && QCoilCoolSP < 0.0 && state.dataHeatBalFanSys->TempControlType(ZoneNum) != HVAC::SetptType::SingleHeat) {
             QZnReq = QCoilCoolSP;
             CoolingLoad = true;
-        } else if (QCoilHeatSP < 0.0 && QCoilCoolSP < 0.0 &&
-                   state.dataHeatBalFanSys->TempControlType(ZoneNum) == HVAC::SetptType::SingleHeat) {
+        } else if (QCoilHeatSP < 0.0 && QCoilCoolSP < 0.0 && state.dataHeatBalFanSys->TempControlType(ZoneNum) == HVAC::SetptType::SingleHeat) {
             QZnReq = 0.0;
         } else if (QCoilHeatSP <= 0.0 && QCoilCoolSP >= 0.0) {
             QZnReq = 0.0;

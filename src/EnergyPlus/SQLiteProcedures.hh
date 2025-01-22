@@ -773,10 +773,10 @@ private:
                             int const nominalGasEquipmentNumber,
                             DataHeatBalance::ZoneEquipData const &nominalGasEquipmentData)
             : SQLiteData(errorStream, db), number(nominalGasEquipmentNumber), name(nominalGasEquipmentData.Name),
-              zonePtr(nominalGasEquipmentData.ZonePtr), sched(nominalGasEquipmentData.sched),
-              designLevel(nominalGasEquipmentData.DesignLevel), fractionLatent(nominalGasEquipmentData.FractionLatent),
-              fractionRadiant(nominalGasEquipmentData.FractionRadiant), fractionLost(nominalGasEquipmentData.FractionLost),
-              fractionConvected(nominalGasEquipmentData.FractionConvected), endUseSubcategory(nominalGasEquipmentData.EndUseSubcategory)
+              zonePtr(nominalGasEquipmentData.ZonePtr), sched(nominalGasEquipmentData.sched), designLevel(nominalGasEquipmentData.DesignLevel),
+              fractionLatent(nominalGasEquipmentData.FractionLatent), fractionRadiant(nominalGasEquipmentData.FractionRadiant),
+              fractionLost(nominalGasEquipmentData.FractionLost), fractionConvected(nominalGasEquipmentData.FractionConvected),
+              endUseSubcategory(nominalGasEquipmentData.EndUseSubcategory)
         {
         }
 
@@ -803,10 +803,10 @@ private:
                               int const nominalSteamEquipmentNumber,
                               DataHeatBalance::ZoneEquipData const &nominalSteamEquipmentData)
             : SQLiteData(errorStream, db), number(nominalSteamEquipmentNumber), name(nominalSteamEquipmentData.Name),
-              zonePtr(nominalSteamEquipmentData.ZonePtr), sched(nominalSteamEquipmentData.sched),
-              designLevel(nominalSteamEquipmentData.DesignLevel), fractionLatent(nominalSteamEquipmentData.FractionLatent),
-              fractionRadiant(nominalSteamEquipmentData.FractionRadiant), fractionLost(nominalSteamEquipmentData.FractionLost),
-              fractionConvected(nominalSteamEquipmentData.FractionConvected), endUseSubcategory(nominalSteamEquipmentData.EndUseSubcategory)
+              zonePtr(nominalSteamEquipmentData.ZonePtr), sched(nominalSteamEquipmentData.sched), designLevel(nominalSteamEquipmentData.DesignLevel),
+              fractionLatent(nominalSteamEquipmentData.FractionLatent), fractionRadiant(nominalSteamEquipmentData.FractionRadiant),
+              fractionLost(nominalSteamEquipmentData.FractionLost), fractionConvected(nominalSteamEquipmentData.FractionConvected),
+              endUseSubcategory(nominalSteamEquipmentData.EndUseSubcategory)
         {
         }
 
@@ -863,10 +863,10 @@ private:
                               int const nominalOtherEquipmentNumber,
                               DataHeatBalance::ZoneEquipData const &nominalOtherEquipmentData)
             : SQLiteData(errorStream, db), number(nominalOtherEquipmentNumber), name(nominalOtherEquipmentData.Name),
-              zonePtr(nominalOtherEquipmentData.ZonePtr), sched(nominalOtherEquipmentData.sched),
-              designLevel(nominalOtherEquipmentData.DesignLevel), fractionLatent(nominalOtherEquipmentData.FractionLatent),
-              fractionRadiant(nominalOtherEquipmentData.FractionRadiant), fractionLost(nominalOtherEquipmentData.FractionLost),
-              fractionConvected(nominalOtherEquipmentData.FractionConvected), endUseSubcategory(nominalOtherEquipmentData.EndUseSubcategory)
+              zonePtr(nominalOtherEquipmentData.ZonePtr), sched(nominalOtherEquipmentData.sched), designLevel(nominalOtherEquipmentData.DesignLevel),
+              fractionLatent(nominalOtherEquipmentData.FractionLatent), fractionRadiant(nominalOtherEquipmentData.FractionRadiant),
+              fractionLost(nominalOtherEquipmentData.FractionLost), fractionConvected(nominalOtherEquipmentData.FractionConvected),
+              endUseSubcategory(nominalOtherEquipmentData.EndUseSubcategory)
         {
         }
 

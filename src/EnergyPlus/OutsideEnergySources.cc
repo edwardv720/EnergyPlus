@@ -147,7 +147,7 @@ void GetOutsideEnergySourcesInput(EnergyPlusData &state)
     // are initialized. Output variables are set up.
 
     static constexpr std::string_view routineName = "GetOutsideEnergySourcesInput";
-    
+
     // GET NUMBER OF ALL EQUIPMENT TYPES
     int const NumDistrictUnitsHeatWater = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "DistrictHeating:Water");
     int const NumDistrictUnitsCool = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, "DistrictCooling");
@@ -207,7 +207,7 @@ void GetOutsideEnergySourcesInput(EnergyPlusData &state)
                                                                  state.dataIPShortCut->cAlphaFieldNames);
 
         ErrorObjectHeader eoh{routineName, state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
-        
+
         if (EnergySourceNum > 1) {
             GlobalNames::VerifyUniqueInterObjectName(state,
                                                      state.dataOutsideEnergySrcs->EnergySourceUniqueNames,
@@ -275,12 +275,19 @@ void GetOutsideEnergySourcesInput(EnergyPlusData &state)
         state.dataOutsideEnergySrcs->EnergySource(EnergySourceNum).EnergyType = EnergyType;
 
         if (state.dataIPShortCut->lAlphaFieldBlanks(4)) {
-            state.dataOutsideEnergySrcs->EnergySource(EnergySourceNum).capFractionSched = Sched::GetScheduleAlwaysOn(state); // Defaults to constant-1.0
-        } else if ((state.dataOutsideEnergySrcs->EnergySource(EnergySourceNum).capFractionSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(4))) == nullptr) { 
+            state.dataOutsideEnergySrcs->EnergySource(EnergySourceNum).capFractionSched =
+                Sched::GetScheduleAlwaysOn(state); // Defaults to constant-1.0
+        } else if ((state.dataOutsideEnergySrcs->EnergySource(EnergySourceNum).capFractionSched =
+                        Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(4))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(4), state.dataIPShortCut->cAlphaArgs(4));
             ErrorsFound = true;
         } else if (!state.dataOutsideEnergySrcs->EnergySource(EnergySourceNum).capFractionSched->checkMinVal(state, Clusive::In, 0.0)) {
-            Sched::ShowWarningBadMin(state, eoh, state.dataIPShortCut->cAlphaFieldNames(4), state.dataIPShortCut->cAlphaArgs(4), Clusive::In, 0.0,
+            Sched::ShowWarningBadMin(state,
+                                     eoh,
+                                     state.dataIPShortCut->cAlphaFieldNames(4),
+                                     state.dataIPShortCut->cAlphaArgs(4),
+                                     Clusive::In,
+                                     0.0,
                                      "Negative values will be treated as zero, and the simulation continues.");
         }
     }

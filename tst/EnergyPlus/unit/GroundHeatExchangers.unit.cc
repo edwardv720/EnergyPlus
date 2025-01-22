@@ -1283,7 +1283,7 @@ TEST_F(EnergyPlusFixture, GroundHeatExchangerTest_System_calcGFunction_UHF)
     // Setup
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetPlantLoopData(*state);
     GetPlantInput(*state);
     SetupInitialPlantCallingOrder(*state);
@@ -1735,7 +1735,7 @@ TEST_F(EnergyPlusFixture, GroundHeatExchangerTest_System_calcGFunction_UBHWT)
     // Setup
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetPlantLoopData(*state);
     GetPlantInput(*state);
     SetupInitialPlantCallingOrder(*state);
@@ -1842,7 +1842,7 @@ TEST_F(EnergyPlusFixture, GroundHeatExchangerTest_System_calc_pipe_conduction_re
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetGroundHeatExchangerInput(*state);
 
     auto &thisGLHE(state->dataGroundHeatExchanger->verticalGLHE[0]);
@@ -1905,7 +1905,7 @@ TEST_F(EnergyPlusFixture, GroundHeatExchangerTest_System_friction_factor)
     // Setup
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetGroundHeatExchangerInput(*state);
 
     auto &thisGLHE(state->dataGroundHeatExchanger->verticalGLHE[0]);
@@ -2222,7 +2222,7 @@ TEST_F(EnergyPlusFixture, GroundHeatExchangerTest_System_calc_pipe_convection_re
     // Setup
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetPlantLoopData(*state);
     GetPlantInput(*state);
     SetupInitialPlantCallingOrder(*state);
@@ -2527,7 +2527,7 @@ TEST_F(EnergyPlusFixture, GroundHeatExchangerTest_System_calc_pipe_resistance)
     // Setup
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetPlantLoopData(*state);
     GetPlantInput(*state);
     SetupInitialPlantCallingOrder(*state);
@@ -2824,7 +2824,7 @@ TEST_F(EnergyPlusFixture, GroundHeatExchangerTest_System_calcBHGroutResistance_1
     // Setup
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetPlantLoopData(*state);
     GetPlantInput(*state);
     SetupInitialPlantCallingOrder(*state);
@@ -3421,7 +3421,7 @@ TEST_F(EnergyPlusFixture, GroundHeatExchangerTest_System_calcBHGroutResistance_3
     // Setup
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetPlantLoopData(*state);
     GetPlantInput(*state);
     SetupInitialPlantCallingOrder(*state);
@@ -4316,7 +4316,7 @@ TEST_F(EnergyPlusFixture, GroundHeatExchangerTest_System_calcBHTotalInternalResi
     // Setup
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetPlantLoopData(*state);
     GetPlantInput(*state);
     SetupInitialPlantCallingOrder(*state);
@@ -4389,7 +4389,7 @@ TEST_F(EnergyPlusFixture, GroundHeatExchangerTest_GetVertProps)
     // Setup
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetGroundHeatExchangerInput(*state);
 
     // good object name
@@ -4469,7 +4469,7 @@ TEST_F(EnergyPlusFixture, GroundHeatExchangerTest_GetSingleBH)
     // Setup
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetGroundHeatExchangerInput(*state);
 
     // good object name
@@ -4543,7 +4543,7 @@ TEST_F(EnergyPlusFixture, GroundHeatExchangerTest_GetVertArray)
     // Setup
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetGroundHeatExchangerInput(*state);
 
     // good object name
@@ -4629,7 +4629,7 @@ TEST_F(EnergyPlusFixture, GroundHeatExchangerTest_GetResponseFactor)
     // Setup
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetGroundHeatExchangerInput(*state);
 
     // good object name

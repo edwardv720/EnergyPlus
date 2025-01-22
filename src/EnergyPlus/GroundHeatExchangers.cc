@@ -250,7 +250,7 @@ GLHESlinky::GLHESlinky(EnergyPlusData &state, std::string const &objName, nlohma
     GroundTemp::ModelType gtmType = static_cast<GroundTemp::ModelType>(
         getEnumValue(GroundTemp::modelTypeNamesUC, Util::makeUPPER(j["undisturbed_ground_temperature_model_type"].get<std::string>())));
     assert(gtmType != GroundTemp::ModelType::Invalid);
-    
+
     std::string const gtmName = Util::makeUPPER(j["undisturbed_ground_temperature_model_name"].get<std::string>());
     this->groundTempModel = GroundTemp::GetGroundTempModelAndInit(state, gtmType, gtmName);
 
@@ -420,9 +420,8 @@ GLHEVert::GLHEVert(EnergyPlusData &state, std::string const &objName, nlohmann::
     assert(modelType != GroundTemp::ModelType::Invalid);
 
     // Initialize ground temperature model and get pointer reference
-    this->groundTempModel = GroundTemp::GetGroundTempModelAndInit(state,
-                                                                  modelType,
-                                                                  Util::makeUPPER(j["undisturbed_ground_temperature_model_name"].get<std::string>()));
+    this->groundTempModel =
+        GroundTemp::GetGroundTempModelAndInit(state, modelType, Util::makeUPPER(j["undisturbed_ground_temperature_model_name"].get<std::string>()));
 
     // Check for Errors
     if (errorsFound) {
@@ -2301,8 +2300,8 @@ void GLHEBase::calcAggregateLoad(EnergyPlusData &state)
     }
 
     // CHECK IF A MONTH PASSES...
-    if (mod(((state.dataGroundHeatExchanger->locDayOfSim - 1) * Constant::iHoursInDay + (state.dataGroundHeatExchanger->locHourOfDay)), hrsPerMonth) ==
-            0 &&
+    if (mod(((state.dataGroundHeatExchanger->locDayOfSim - 1) * Constant::iHoursInDay + (state.dataGroundHeatExchanger->locHourOfDay)),
+            hrsPerMonth) == 0 &&
         this->prevHour != state.dataGroundHeatExchanger->locHourOfDay) {
         Real64 MonthNum = static_cast<int>(
             (state.dataGroundHeatExchanger->locDayOfSim * Constant::iHoursInDay + state.dataGroundHeatExchanger->locHourOfDay) / hrsPerMonth);

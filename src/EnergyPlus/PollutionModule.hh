@@ -338,12 +338,13 @@ namespace Pollution {
 
     void ReadEnergyMeters(EnergyPlusData &state);
 
-    void GetFuelFactorInfo(EnergyPlusData &state,
-                           Constant::eFuel fuel,         // input fuel name  (standard from Tabular reports)
-                           bool &fuelFactorUsed,         // return value true if user has entered this fuel
-                           Real64 &fuelSourceFactor,     // if used, the source factor
-                           bool &fuelFactorScheduleUsed, // if true, schedules for this fuel are used
-                           Sched::Schedule **ffSched     // if schedules for this fuel are used, return schedule pointer (need pointer to pointer to do this)
+    void
+    GetFuelFactorInfo(EnergyPlusData &state,
+                      Constant::eFuel fuel,         // input fuel name  (standard from Tabular reports)
+                      bool &fuelFactorUsed,         // return value true if user has entered this fuel
+                      Real64 &fuelSourceFactor,     // if used, the source factor
+                      bool &fuelFactorScheduleUsed, // if true, schedules for this fuel are used
+                      Sched::Schedule **ffSched // if schedules for this fuel are used, return schedule pointer (need pointer to pointer to do this)
     );
 
     void GetEnvironmentalImpactFactorInfo(EnergyPlusData &state,

@@ -302,7 +302,7 @@ TEST_F(EnergyPlusFixture, ExhAbsorption_GetInput_Test)
     compare_err_stream("");
 
     state->init_state(*state);
-    
+
     GetExhaustAbsorberInput(*state);
 
     compare_err_stream("");
@@ -638,7 +638,7 @@ TEST_F(EnergyPlusFixture, ExhAbsorption_calcHeater_Fix_Test)
     compare_err_stream("");
 
     state->init_state(*state);
-    
+
     GetExhaustAbsorberInput(*state);
 
     auto &thisChillerHeater = state->dataChillerExhaustAbsorption->ExhaustAbsorber(1);

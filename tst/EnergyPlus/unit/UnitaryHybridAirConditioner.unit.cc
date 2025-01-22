@@ -109,12 +109,12 @@ using namespace EnergyPlus::SizingManager;
 using EnergyPlus::Curve::CurveValue;
 using EnergyPlus::Curve::GetCurveName;
 using EnergyPlus::Curve::GetNormalPoint;
-using EnergyPlus::Psychrometrics::PsyHFnTdbRhPb;
-using EnergyPlus::Psychrometrics::PsyRhFnTdbWPb;
-using EnergyPlus::Psychrometrics::PsyWFnTdbRhPb;
 using EnergyPlus::HybridEvapCoolingModel::CMode;
 using EnergyPlus::HybridEvapCoolingModel::CSetting;
 using EnergyPlus::HybridEvapCoolingModel::Model;
+using EnergyPlus::Psychrometrics::PsyHFnTdbRhPb;
+using EnergyPlus::Psychrometrics::PsyRhFnTdbWPb;
+using EnergyPlus::Psychrometrics::PsyWFnTdbRhPb;
 using namespace EnergyPlus::HybridUnitaryAirConditioners;
 
 namespace EnergyPlus {
@@ -127,7 +127,7 @@ TEST_F(EnergyPlusFixture, Test_UnitaryHybridAirConditioner_Unittest)
     state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
     state->init_state(*state);
-    
+
     // setup environment
     bool ErrorsFound(false);
     GetZoneData(*state, ErrorsFound);
@@ -1253,7 +1253,7 @@ TEST_F(EnergyPlusFixture, Test_UnitaryHybridAirConditioner_ModelOperatingSetting
     });
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     Curve::GetCurveInput(*state);
     state->dataCurveManager->GetCurvesInputFlag = false;
     EXPECT_EQ(8, state->dataCurveManager->NumCurves);
@@ -1429,7 +1429,7 @@ TEST_F(EnergyPlusFixture, Test_UnitaryHybridAirConditioner_ValidateOptionalError
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
     GetInputZoneHybridUnitaryAirConditioners(*state, ErrorsFound);
     // Design Specification Outdoor Air Object Name 'SZ DSOA SPACE2-1' is not defined in this model, thus an error is thrown
@@ -1447,7 +1447,7 @@ TEST_F(EnergyPlusFixture, Test_UnitaryHybridAirConditioner_RuntimeFraction_Initi
     state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
     state->init_state(*state);
-    
+
     // setup environment
     bool ErrorsFound(false);
     GetZoneData(*state, ErrorsFound);
@@ -1456,7 +1456,7 @@ TEST_F(EnergyPlusFixture, Test_UnitaryHybridAirConditioner_RuntimeFraction_Initi
     state->dataGlobal->TimeStep = 1;
     state->dataHVACGlobal->TimeStepSys = 1;
     state->dataHVACGlobal->TimeStepSysSec = state->dataHVACGlobal->TimeStepSys * Constant::rSecsInHour;
-    
+
     state->dataEnvrn->Month = 1;
     state->dataEnvrn->DayOfMonth = 21;
     state->dataGlobal->HourOfDay = 1;

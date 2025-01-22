@@ -513,7 +513,7 @@ namespace PlantPipingSystemsManager {
                                                                      state.dataIPShortCut->cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, ObjName_ug_GeneralDomain, state.dataIPShortCut->cAlphaArgs(1)};
-            
+
             auto &thisDomain = state.dataPlantPipingSysMgr->domains[DomainNum - 1];
 
             // Get the name, validate
@@ -770,12 +770,13 @@ namespace PlantPipingSystemsManager {
             int const NumCircuitsInThisDomain = int(state.dataIPShortCut->rNumericArgs(20));
 
             // Need to store the ground temp stuff because it will get wiped out in the call to the circuit factory
-            GroundTemp::ModelType gtmType = static_cast<GroundTemp::ModelType>(getEnumValue(GroundTemp::modelTypeNamesUC, state.dataIPShortCut->cAlphaArgs(5)));
+            GroundTemp::ModelType gtmType =
+                static_cast<GroundTemp::ModelType>(getEnumValue(GroundTemp::modelTypeNamesUC, state.dataIPShortCut->cAlphaArgs(5)));
             if (gtmType == GroundTemp::ModelType::Invalid) {
                 ShowSevereInvalidKey(state, eoh, state.dataIPShortCut->cAlphaFieldNames(5), state.dataIPShortCut->cAlphaArgs(5));
                 ErrorsFound = true;
             }
-                            
+
             std::string const groundTempName = state.dataIPShortCut->cAlphaArgs(6);
 
             // Need to loop once to store the names ahead of time because calling the segment factory will override cAlphaArgs
@@ -1090,7 +1091,7 @@ namespace PlantPipingSystemsManager {
                 ShowSevereInvalidKey(state, eoh, s_ipsc->cAlphaFieldNames(2), s_ipsc->cAlphaArgs(2));
                 ErrorsFound = true;
             }
-            
+
             // Farfield model
             thisDomain.groundTempModel = GroundTemp::GetGroundTempModelAndInit(state, gtmType, s_ipsc->cAlphaArgs(3));
 
@@ -1808,7 +1809,7 @@ namespace PlantPipingSystemsManager {
         //       RE-ENGINEERED  na
 
         constexpr std::string_view routineName = "ReadHorizontalTrenchInputs";
-            
+
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         int NumAlphas;  // Number of Alphas for each GetObjectItem call
         int NumNumbers; // Number of Numbers for each GetObjectItem call
@@ -1895,13 +1896,12 @@ namespace PlantPipingSystemsManager {
             // then we can loop through and allow the factory to be called and carry on
             thisDomain.circuits.push_back(Circuit::factory(state, thisTrenchName, ErrorsFound));
 
-            
             GroundTemp::ModelType gtmType = static_cast<GroundTemp::ModelType>(getEnumValue(GroundTemp::modelTypeNamesUC, s_ipsc->cAlphaArgs(4)));
             if (gtmType == GroundTemp::ModelType::Invalid) {
                 ShowSevereInvalidKey(state, eoh, s_ipsc->cAlphaFieldNames(4), s_ipsc->cAlphaArgs(4));
                 ErrorsFound = true;
             }
-            
+
             // Farfield model parameters -- this is pushed down pretty low because it internally calls GetObjectItem
             // using DataIPShortCuts, so it will overwrite the cAlphaArgs and rNumericArgs values
             thisDomain.groundTempModel = GroundTemp::GetGroundTempModelAndInit(state, gtmType, s_ipsc->cAlphaArgs(5));

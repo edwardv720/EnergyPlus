@@ -137,7 +137,7 @@ namespace FourPipeBeam {
         }
 
         ErrorObjectHeader eoh{routineName, cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
-        
+
         errFlag = false;
         GlobalNames::VerifyUniqueADUName(state, cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1), errFlag, cCurrentModuleObject + " Name");
         if (errFlag) {
@@ -152,16 +152,16 @@ namespace FourPipeBeam {
             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(2), state.dataIPShortCut->cAlphaArgs(2));
             ErrorsFound = true;
         }
-        
+
         if (state.dataIPShortCut->lAlphaFieldBlanks(3)) {
             thisBeam->coolingAvailSched = Sched::GetScheduleAlwaysOn(state);
-        } else if ((thisBeam->coolingAvailSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(3))) == nullptr) { 
+        } else if ((thisBeam->coolingAvailSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(3))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(3), state.dataIPShortCut->cAlphaArgs(3));
             ErrorsFound = true;
         }
         if (state.dataIPShortCut->lAlphaFieldBlanks(4)) {
             thisBeam->heatingAvailSched = Sched::GetScheduleAlwaysOn(state);
-        } else if ((thisBeam->heatingAvailSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(4))) == nullptr) { 
+        } else if ((thisBeam->heatingAvailSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(4))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(4), state.dataIPShortCut->cAlphaArgs(4));
             ErrorsFound = true;
         }
@@ -648,7 +648,7 @@ namespace FourPipeBeam {
             this->airAvailable = (this->airAvailSched->getCurrentVal() > 0.0);
             this->coolingAvailable = (this->airAvailable && beamCoolingPresent && (this->coolingAvailSched->getCurrentVal() > 0.0));
             this->heatingAvailable = (this->airAvailable && beamHeatingPresent && (this->heatingAvailSched->getCurrentVal() > 0.0));
- 
+
             // check for upstream zero flow. If nonzero and air available, set primary flow to max
             if (this->airAvailable && state.dataLoopNodes->Node(this->airInNodeNum).MassFlowRate > 0.0) {
                 state.dataLoopNodes->Node(this->airInNodeNum).MassFlowRate = this->mDotDesignPrimAir;

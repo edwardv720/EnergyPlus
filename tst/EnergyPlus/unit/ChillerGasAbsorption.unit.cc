@@ -141,7 +141,7 @@ TEST_F(EnergyPlusFixture, GasAbsorption_GetInput_Test)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetGasAbsorberInput(*state);
 
     EXPECT_EQ(1u, state->dataChillerGasAbsorption->GasAbsorber.size());
@@ -320,7 +320,7 @@ TEST_F(EnergyPlusFixture, GasAbsorption_calculateHeater_Fix_Test)
     ASSERT_TRUE(process_idf(idf_objects));
     compare_err_stream("");
     state->init_state(*state);
-    
+
     GetGasAbsorberInput(*state);
 
     auto &thisChillerHeater = state->dataChillerGasAbsorption->GasAbsorber(1);

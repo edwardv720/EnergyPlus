@@ -609,9 +609,9 @@ namespace DataSizing {
         Array1D<Real64> LatentHeatFlowSeq;                 // daily sequence of zone latent heating supply mass flow rate (zone time step) [Kg/s]
         bool zoneLatentSizing = false;                     // trigger to do RH control during zone sizing
         Real64 zoneRHDehumidifySetPoint = 50.0;            // RH dehumidifying set point used during sizing, default to 50%
-        Sched::Schedule *zoneRHDehumidifySched = nullptr;                  // zone RH dehumidifying schedule used for zone sizing
+        Sched::Schedule *zoneRHDehumidifySched = nullptr;  // zone RH dehumidifying schedule used for zone sizing
         Real64 zoneRHHumidifySetPoint = 50.0;              // RH humidifying set point used during sizing, default to 50%
-        Sched::Schedule *zoneRHHumidifySched = nullptr; // zone RH humidifying schedule used for zone sizing
+        Sched::Schedule *zoneRHHumidifySched = nullptr;    // zone RH humidifying schedule used for zone sizing
         Real64 LatentCoolDesHumRat = 0.0;                  // zone design dehumidification supply air humidity ratio [kgw/kga]
         Real64 CoolDesHumRatDiff = 0.005;                  // zone design cooling supply air humidity ratio difference [deltakgw/kga]
         Real64 LatentHeatDesHumRat = 0.0;                  // zone design humidification supply air humidity ratio [kgw/kga]
@@ -1115,17 +1115,17 @@ namespace DataSizing {
         EPVector<std::string> dsoaSpaceNames; // Names of spaces if this is a (if this is a DSOA:SpaceList object)
         EPVector<int> dsoaSpaceIndexes;       // Indexes to Spaces (if this is a DSOA:SpaceList object)
         OAFlowCalcMethod OAFlowMethod =
-            OAFlowCalcMethod::PerPerson; // - Method for OA flow calculation (Flow/Person, Flow/Zone, Flow/Area, FlowACH, Sum, Maximum)
-        Real64 OAFlowPerPerson = 0.0;    // - OA requirement per person
-        Real64 OAFlowPerArea = 0.0;      // - OA requirement per zone area
-        Real64 OAFlowPerZone = 0.0;      // - OA requirement per zone
-        Real64 OAFlowACH = 0.0;          // - OA requirement per zone per hour
+            OAFlowCalcMethod::PerPerson;            // - Method for OA flow calculation (Flow/Person, Flow/Zone, Flow/Area, FlowACH, Sum, Maximum)
+        Real64 OAFlowPerPerson = 0.0;               // - OA requirement per person
+        Real64 OAFlowPerArea = 0.0;                 // - OA requirement per zone area
+        Real64 OAFlowPerZone = 0.0;                 // - OA requirement per zone
+        Real64 OAFlowACH = 0.0;                     // - OA requirement per zone per hour
         Sched::Schedule *oaFlowFracSched = nullptr; // - Fraction schedule applied to total OA requirement
         Sched::Schedule *oaPropCtlMinRateSched = nullptr; // - Fraction schedule applied to Proportional Control Minimum Outdoor Air Flow Rate
-        int CO2MaxMinLimitErrorCount = 0;      // Counter when max CO2 concentration < min CO2 concentration for SOAM_ProportionalControlSchOcc
-        int CO2MaxMinLimitErrorIndex = 0;      // Index for max CO2 concentration < min CO2 concentration recurring error message for
-                                               // SOAM_ProportionalControlSchOcc
-        int CO2GainErrorCount = 0;             // Counter when CO2 generation from people is zero for SOAM_ProportionalControlSchOcc
+        int CO2MaxMinLimitErrorCount = 0; // Counter when max CO2 concentration < min CO2 concentration for SOAM_ProportionalControlSchOcc
+        int CO2MaxMinLimitErrorIndex = 0; // Index for max CO2 concentration < min CO2 concentration recurring error message for
+                                          // SOAM_ProportionalControlSchOcc
+        int CO2GainErrorCount = 0;        // Counter when CO2 generation from people is zero for SOAM_ProportionalControlSchOcc
         int CO2GainErrorIndex = 0; // Index for recurring error message when CO2 generation from people is zero for SOAM_ProportionalControlSchOcc
         bool myEnvrnFlag = true;
 
@@ -1147,16 +1147,15 @@ namespace DataSizing {
     {
         // Members
         std::string Name;
-        std::string ZoneADEffSchName;      // - Zone air distribution effectiveness schedule name
-        Real64 ZoneADEffCooling;           // - Zone air distribution effectiveness in cooling mode
-        Real64 ZoneADEffHeating;           // - Zone air distribution effectiveness in heating mode
-        Real64 ZoneSecondaryRecirculation; // - Zone air secondary recirculation ratio
-        Sched::Schedule *zoneADEffSched = nullptr;               // - Zone air distribution effectiveness schedule index
-        Real64 ZoneVentilationEff;         // Zone ventilation effectiveness
+        std::string ZoneADEffSchName;              // - Zone air distribution effectiveness schedule name
+        Real64 ZoneADEffCooling;                   // - Zone air distribution effectiveness in cooling mode
+        Real64 ZoneADEffHeating;                   // - Zone air distribution effectiveness in heating mode
+        Real64 ZoneSecondaryRecirculation;         // - Zone air secondary recirculation ratio
+        Sched::Schedule *zoneADEffSched = nullptr; // - Zone air distribution effectiveness schedule index
+        Real64 ZoneVentilationEff;                 // Zone ventilation effectiveness
 
         // Default Constructor
-        ZoneAirDistributionData()
-            : ZoneADEffCooling(1.0), ZoneADEffHeating(1.0), ZoneSecondaryRecirculation(0.0), ZoneVentilationEff(0.0)
+        ZoneAirDistributionData() : ZoneADEffCooling(1.0), ZoneADEffHeating(1.0), ZoneSecondaryRecirculation(0.0), ZoneVentilationEff(0.0)
         {
         }
 

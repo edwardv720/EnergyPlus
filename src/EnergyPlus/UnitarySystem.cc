@@ -3715,8 +3715,11 @@ namespace UnitarySystems {
 
         if (input_data.availability_schedule_name.empty()) {
             this->m_sysAvailSched = Sched::GetScheduleAlwaysOn(state);
-        } else if ((this->m_sysAvailSched = Sched::GetSchedule(state, input_data.availability_schedule_name)) == nullptr) { 
-            ShowWarningItemNotFound(state, eoh, "Availability Schedule Name", input_data.availability_schedule_name,
+        } else if ((this->m_sysAvailSched = Sched::GetSchedule(state, input_data.availability_schedule_name)) == nullptr) {
+            ShowWarningItemNotFound(state,
+                                    eoh,
+                                    "Availability Schedule Name",
+                                    input_data.availability_schedule_name,
                                     "Set the default as Always On. Simulation continues.");
             this->m_sysAvailSched = Sched::GetScheduleAlwaysOn(state);
         }
@@ -4095,19 +4098,27 @@ namespace UnitarySystems {
             } else {
                 this->m_FanOpMode = HVAC::FanOp::Cycling;
                 if (this->m_FanType != HVAC::FanType::OnOff && this->m_FanType != HVAC::FanType::SystemModel && this->m_FanExists) {
-                    ShowSevereEmptyField(state, eoh, "Fan Operating Mode Schedule Name", 
+                    ShowSevereEmptyField(state,
+                                         eoh,
+                                         "Fan Operating Mode Schedule Name",
                                          "Fan type must be Fan:OnOff or Fan:SystemModel when Supply Air Fan Operating Mode Schedule Name is blank.");
                     errorsFound = true;
                 }
             }
-        } else if ((this->m_fanOpModeSched = Sched::GetSchedule(state, input_data.supply_air_fan_operating_mode_schedule_name)) == nullptr) { 
+        } else if ((this->m_fanOpModeSched = Sched::GetSchedule(state, input_data.supply_air_fan_operating_mode_schedule_name)) == nullptr) {
             ShowSevereItemNotFound(state, eoh, "Fan Operating Mode Schedule Name", input_data.supply_air_fan_operating_mode_schedule_name);
             // ShowContinueError(state, format("Illegal {} = {}", cAlphaFields(iFanSchedAlphaNum), Alphas(iFanSchedAlphaNum)));
             errorsFound = true;
         } else if ((this->m_ControlType == UnitarySysCtrlType::Setpoint || this->m_FanType == HVAC::FanType::Constant) &&
                    !this->m_fanOpModeSched->checkMinMaxVals(state, Clusive::Ex, 0.0, Clusive::In, 1.0)) {
-            Sched::ShowSevereBadMinMax(state, eoh,  "Supply Air Fan Operating Mode Schedule Name", input_data.supply_air_fan_operating_mode_schedule_name,
-                                         Clusive::Ex, 0.0, Clusive::In, 1.0);
+            Sched::ShowSevereBadMinMax(state,
+                                       eoh,
+                                       "Supply Air Fan Operating Mode Schedule Name",
+                                       input_data.supply_air_fan_operating_mode_schedule_name,
+                                       Clusive::Ex,
+                                       0.0,
+                                       Clusive::In,
+                                       1.0);
             errorsFound = true;
         }
 
@@ -10194,7 +10205,7 @@ namespace UnitarySystems {
                     ZoneLoad = state.dataUnitarySystems->QToCoolSetPt;
                 }
             } break;
-                    
+
             case HVAC::SetptType::SingleHeatCool: {
                 // zone temp above cooling and heating set point temps
                 if (state.dataUnitarySystems->QToHeatSetPt < 0.0 && state.dataUnitarySystems->QToCoolSetPt < 0.0) {
@@ -10214,7 +10225,7 @@ namespace UnitarySystems {
                     }
                 }
             } break;
-                    
+
             case HVAC::SetptType::DualHeatCool: {
                 // zone temp above cooling and heating set point temps
                 if (state.dataUnitarySystems->QToHeatSetPt < 0.0 && state.dataUnitarySystems->QToCoolSetPt < 0.0) {
@@ -10979,8 +10990,7 @@ namespace UnitarySystems {
         FanOn = (this->m_FanExists) ? (this->m_fanAvailSched->getCurrentVal() > 0) : true;
         // END - move this to Init during FirstHVACIteration
 
-        if (this->m_sysAvailSched->getCurrentVal() > 0.0 &&
-            ((FanOn || state.dataHVACGlobal->TurnFansOn) && !state.dataHVACGlobal->TurnFansOff)) {
+        if (this->m_sysAvailSched->getCurrentVal() > 0.0 && ((FanOn || state.dataHVACGlobal->TurnFansOn) && !state.dataHVACGlobal->TurnFansOff)) {
             if (this->m_ControlType == UnitarySysCtrlType::Setpoint) {
                 // set point based equipment should use VAV terminal units to set the flow.
                 // zone equipment needs to set flow since no other device regulates flow (ZoneHVAC /= AirLoopEquipment)
@@ -12118,8 +12128,7 @@ namespace UnitarySystems {
         }
 
         // IF UnitarySystem is scheduled on and there is flow
-        if ((this->m_sysAvailSched->getCurrentVal() > 0.0) &&
-            this->m_coolingCoilAvailSched->getCurrentVal() > 0.0 &&
+        if ((this->m_sysAvailSched->getCurrentVal() > 0.0) && this->m_coolingCoilAvailSched->getCurrentVal() > 0.0 &&
             (state.dataLoopNodes->Node(InletNode).MassFlowRate > HVAC::SmallAirVolFlow)) {
 
             bool SensibleLoad = false;
@@ -13934,8 +13943,7 @@ namespace UnitarySystems {
         }
 
         // IF DXHeatingSystem is scheduled on and there is flow
-        if (this->m_sysAvailSched->getCurrentVal() > 0.0 &&
-            this->m_heatingCoilAvailSched->getCurrentVal() > 0.0 &&
+        if (this->m_sysAvailSched->getCurrentVal() > 0.0 && this->m_heatingCoilAvailSched->getCurrentVal() > 0.0 &&
             state.dataLoopNodes->Node(InletNode).MassFlowRate > HVAC::SmallAirVolFlow) {
 
             bool SensibleLoad = false;

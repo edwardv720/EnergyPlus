@@ -215,7 +215,7 @@ void GetEvapInput(EnergyPlusData &state)
     // Uses the status flags to trigger events.
 
     static constexpr std::string_view routineName = "GetEvapInput";
-        
+
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
     int NumDirectEvapCool;                // The number of Direct CelDek EvapCooler in this simulation
     int NumDryInDirectEvapCool;           // The number of dry indirect evap coolers
@@ -365,9 +365,9 @@ void GetEvapInput(EnergyPlusData &state)
                                                                  state.dataIPShortCut->lAlphaFieldBlanks,
                                                                  state.dataIPShortCut->cAlphaFieldNames,
                                                                  state.dataIPShortCut->cNumericFieldNames);
-        
+
         ErrorObjectHeader eoh{routineName, cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
-        
+
         GlobalNames::VerifyUniqueInterObjectName(state,
                                                  UniqueEvapCondNames,
                                                  state.dataIPShortCut->cAlphaArgs(1),
@@ -497,7 +497,7 @@ void GetEvapInput(EnergyPlusData &state)
                                                                  state.dataIPShortCut->cNumericFieldNames);
 
         ErrorObjectHeader eoh{routineName, cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
-        
+
         GlobalNames::VerifyUniqueInterObjectName(state,
                                                  UniqueEvapCondNames,
                                                  state.dataIPShortCut->cAlphaArgs(1),
@@ -510,7 +510,7 @@ void GetEvapInput(EnergyPlusData &state)
         thisEvapCooler.Schedule = state.dataIPShortCut->cAlphaArgs(2);
         if (state.dataIPShortCut->lAlphaFieldBlanks(2)) {
             thisEvapCooler.availSched = Sched::GetScheduleAlwaysOn(state);
-        } else if ((thisEvapCooler.availSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(2))) == nullptr) { 
+        } else if ((thisEvapCooler.availSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(2))) == nullptr) {
             ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(2), state.dataIPShortCut->cAlphaArgs(2));
             ErrorsFound = true;
         }
@@ -2060,8 +2060,7 @@ void CalcResearchSpecialPartLoad(EnergyPlusData &state, int EvapCoolNum)
     Real64 PartLoadFrac = 0.0;
 
     // If Evap Cooler runs with a cooling load then set PartLoadFrac on Cooling System and the Mass Flow
-    if ((thisEvapCond.availSched->getCurrentVal() > 0.0) &&
-        (state.dataLoopNodes->Node(InletNode).MassFlowRate > MinAirMassFlow) &&
+    if ((thisEvapCond.availSched->getCurrentVal() > 0.0) && (state.dataLoopNodes->Node(InletNode).MassFlowRate > MinAirMassFlow) &&
         (state.dataLoopNodes->Node(InletNode).Temp > state.dataLoopNodes->Node(ControlNode).TempSetPoint) &&
         (std::abs(state.dataLoopNodes->Node(InletNode).Temp - DesOutTemp) > HVAC::TempControlTol)) {
 
@@ -3088,8 +3087,7 @@ void CalcDirectResearchSpecialEvapCooler(EnergyPlusData &state, int const EvapCo
 
     // If the Evaporative Cooler  is operating there should be some mass flow rate
     //  Also the evap cooler has to be scheduled to be available
-    if ((thisEvapCond.InletMassFlowRate > 0.0) && (thisEvapCond.availSched->getCurrentVal() > 0.0) &&
-        EvapCoolerOperatingLimitFlag) {
+    if ((thisEvapCond.InletMassFlowRate > 0.0) && (thisEvapCond.availSched->getCurrentVal() > 0.0) && EvapCoolerOperatingLimitFlag) {
 
         //***************************************************************************
         //   TEMP LEAVING DRY BULB IS CALCULATED FROM SATURATION EFFICIENCY AS THE
@@ -3781,14 +3779,12 @@ void InitZoneEvaporativeCoolerUnit(EnergyPlusData &state,
 
     if (zoneEvapUnit.fanAvailSched != nullptr) {
         // include fan is not available, then unit is not available
-        zoneEvapUnit.UnitIsAvailable = ((zoneEvapUnit.fanAvailSched->getCurrentVal() > 0.0) &&
-                                        (zoneEvapUnit.availSched->getCurrentVal() > 0.0));
+        zoneEvapUnit.UnitIsAvailable = ((zoneEvapUnit.fanAvailSched->getCurrentVal() > 0.0) && (zoneEvapUnit.availSched->getCurrentVal() > 0.0));
     } else {
         zoneEvapUnit.UnitIsAvailable = (zoneEvapUnit.availSched->getCurrentVal() > 0.0);
     }
 
-    zoneEvapUnit.EvapCooler_1_AvailStatus =
-        (state.dataEvapCoolers->EvapCond(zoneEvapUnit.EvapCooler_1_Index).availSched->getCurrentVal() > 0.0);
+    zoneEvapUnit.EvapCooler_1_AvailStatus = (state.dataEvapCoolers->EvapCond(zoneEvapUnit.EvapCooler_1_Index).availSched->getCurrentVal() > 0.0);
 
     if (zoneEvapUnit.EvapCooler_2_Index > 0) {
         zoneEvapUnit.EvapCooler_2_AvailStatus = (state.dataEvapCoolers->EvapCond(zoneEvapUnit.EvapCooler_2_Index).availSched->getCurrentVal() > 0.0);

@@ -221,12 +221,12 @@ void GetElecReformEIRChillerInput(EnergyPlusData &state)
     //  This routine will get the input required by the Reformulated Electric EIR Chiller model
 
     static constexpr std::string_view RoutineName("GetElecReformEIRChillerInput: "); // include trailing blank space
-    static constexpr std::string_view routineName = "GetElecReformEIRChillerInput"; 
+    static constexpr std::string_view routineName = "GetElecReformEIRChillerInput";
 
     bool ErrorsFound(false); // True when input errors found
 
     auto &s_ipsc = state.dataIPShortCut;
-    
+
     s_ipsc->cCurrentModuleObject = "Chiller:Electric:ReformulatedEIR";
     int NumElecReformEIRChillers = state.dataInputProcessing->inputProcessor->getNumObjectsFound(state, s_ipsc->cCurrentModuleObject);
 
@@ -257,13 +257,10 @@ void GetElecReformEIRChillerInput(EnergyPlusData &state)
                                                                  s_ipsc->cNumericFieldNames);
 
         ErrorObjectHeader eoh{routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)};
-        
+
         // ErrorsFound will be set to True if problem was found, left untouched otherwise
-        GlobalNames::VerifyUniqueChillerName(state,
-                                             s_ipsc->cCurrentModuleObject,
-                                             s_ipsc->cAlphaArgs(1),
-                                             ErrorsFound,
-                                             s_ipsc->cCurrentModuleObject + " Name");
+        GlobalNames::VerifyUniqueChillerName(
+            state, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1), ErrorsFound, s_ipsc->cCurrentModuleObject + " Name");
 
         auto &thisChiller = state.dataChillerReformulatedEIR->ElecReformEIRChiller(EIRChillerNum);
         thisChiller.Name = s_ipsc->cAlphaArgs(1);
@@ -271,8 +268,7 @@ void GetElecReformEIRChillerInput(EnergyPlusData &state)
         thisChiller.ChillerCapFTIndex = Curve::GetCurveIndex(state, s_ipsc->cAlphaArgs(2));
         thisChiller.CAPFTName = s_ipsc->cAlphaArgs(2);
         if (thisChiller.ChillerCapFTIndex == 0) {
-            ShowSevereError(state,
-                            format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+            ShowSevereError(state, format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
             ShowContinueError(state, format("Invalid {}={}", s_ipsc->cAlphaFieldNames(2), s_ipsc->cAlphaArgs(2)));
             ErrorsFound = true;
         }
@@ -280,8 +276,7 @@ void GetElecReformEIRChillerInput(EnergyPlusData &state)
         thisChiller.ChillerEIRFTIndex = Curve::GetCurveIndex(state, s_ipsc->cAlphaArgs(3));
         thisChiller.EIRFTName = s_ipsc->cAlphaArgs(3);
         if (thisChiller.ChillerEIRFTIndex == 0) {
-            ShowSevereError(state,
-                            format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+            ShowSevereError(state, format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
             ShowContinueError(state, format("Invalid {}={}", s_ipsc->cAlphaFieldNames(3), s_ipsc->cAlphaArgs(3)));
             ErrorsFound = true;
         }
@@ -297,8 +292,7 @@ void GetElecReformEIRChillerInput(EnergyPlusData &state)
         thisChiller.EIRFPLRName = s_ipsc->cAlphaArgs(5);
         thisChiller.ChillerEIRFPLRIndex = Curve::GetCurveIndex(state, s_ipsc->cAlphaArgs(5));
         if (thisChiller.ChillerEIRFPLRIndex == 0) {
-            ShowSevereError(state,
-                            format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+            ShowSevereError(state, format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
             ShowContinueError(state, format("Invalid {}={}", s_ipsc->cAlphaFieldNames(5), s_ipsc->cAlphaArgs(5)));
             ErrorsFound = true;
         }
@@ -310,8 +304,7 @@ void GetElecReformEIRChillerInput(EnergyPlusData &state)
         } else if (Util::SameString(PartLoadCurveType, "Lift") && state.dataCurveManager->PerfCurve(thisChiller.ChillerEIRFPLRIndex)->numDims == 3) {
             thisChiller.PartLoadCurveType = PLR::Lift;
         } else {
-            ShowSevereError(state,
-                            format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+            ShowSevereError(state, format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
             ShowContinueError(state,
                               format("Invalid {}={} for {}={}",
                                      s_ipsc->cAlphaFieldNames(5),
@@ -323,14 +316,12 @@ void GetElecReformEIRChillerInput(EnergyPlusData &state)
 
         // Chilled water inlet/outlet node names are necessary
         if (s_ipsc->lAlphaFieldBlanks(6)) {
-            ShowSevereError(state,
-                            format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+            ShowSevereError(state, format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
             ShowContinueError(state, format("{} is blank.", s_ipsc->cAlphaFieldNames(6)));
             ErrorsFound = true;
         }
         if (s_ipsc->lAlphaFieldBlanks(7)) {
-            ShowSevereError(state,
-                            format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+            ShowSevereError(state, format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
             ShowContinueError(state, format("{} is blank.", s_ipsc->cAlphaFieldNames(7)));
             ErrorsFound = true;
         }
@@ -353,25 +344,19 @@ void GetElecReformEIRChillerInput(EnergyPlusData &state)
                                                                             DataLoopNode::ConnectionType::Outlet,
                                                                             NodeInputManager::CompFluidStream::Primary,
                                                                             DataLoopNode::ObjectIsNotParent);
-        BranchNodeConnections::TestCompSet(state,
-                                           s_ipsc->cCurrentModuleObject,
-                                           s_ipsc->cAlphaArgs(1),
-                                           s_ipsc->cAlphaArgs(6),
-                                           s_ipsc->cAlphaArgs(7),
-                                           "Chilled Water Nodes");
+        BranchNodeConnections::TestCompSet(
+            state, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1), s_ipsc->cAlphaArgs(6), s_ipsc->cAlphaArgs(7), "Chilled Water Nodes");
 
         thisChiller.CondenserType = DataPlant::CondenserType::WaterCooled;
 
         // Condenser inlet/outlet node names are necessary
         if (s_ipsc->lAlphaFieldBlanks(8)) {
-            ShowSevereError(state,
-                            format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+            ShowSevereError(state, format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
             ShowContinueError(state, format("{} is blank.", s_ipsc->cAlphaFieldNames(8)));
             ErrorsFound = true;
         }
         if (s_ipsc->lAlphaFieldBlanks(9)) {
-            ShowSevereError(state,
-                            format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+            ShowSevereError(state, format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
             ShowContinueError(state, format("{} is blank.", s_ipsc->cAlphaFieldNames(9)));
             ErrorsFound = true;
         }
@@ -395,18 +380,13 @@ void GetElecReformEIRChillerInput(EnergyPlusData &state)
                                                                             NodeInputManager::CompFluidStream::Secondary,
                                                                             DataLoopNode::ObjectIsNotParent);
 
-        BranchNodeConnections::TestCompSet(state,
-                                           s_ipsc->cCurrentModuleObject,
-                                           s_ipsc->cAlphaArgs(1),
-                                           s_ipsc->cAlphaArgs(8),
-                                           s_ipsc->cAlphaArgs(9),
-                                           "Condenser Water Nodes");
+        BranchNodeConnections::TestCompSet(
+            state, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1), s_ipsc->cAlphaArgs(8), s_ipsc->cAlphaArgs(9), "Condenser Water Nodes");
 
         {
             thisChiller.FlowMode = static_cast<DataPlant::FlowMode>(getEnumValue(DataPlant::FlowModeNamesUC, s_ipsc->cAlphaArgs(10)));
             if (thisChiller.FlowMode == DataPlant::FlowMode::Invalid) {
-                ShowSevereError(state,
-                                format("{}{}=\"{}\",", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+                ShowSevereError(state, format("{}{}=\"{}\",", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
                 ShowContinueError(state, format("Invalid {}={}", s_ipsc->cAlphaFieldNames(10), s_ipsc->cAlphaArgs(10)));
                 ShowContinueError(state, "Available choices are ConstantFlow, NotModulated, or LeavingSetpointModulated");
                 ShowContinueError(state, "Flow mode NotModulated is assumed and the simulation continues.");
@@ -420,16 +400,14 @@ void GetElecReformEIRChillerInput(EnergyPlusData &state)
             thisChiller.RefCapWasAutoSized = true;
         }
         if (s_ipsc->rNumericArgs(1) == 0.0) {
-            ShowSevereError(state,
-                            format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+            ShowSevereError(state, format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
             ShowContinueError(state, format("Invalid {}={:.2R}", s_ipsc->cNumericFieldNames(1), s_ipsc->rNumericArgs(1)));
             ErrorsFound = true;
         }
 
         thisChiller.RefCOP = s_ipsc->rNumericArgs(2);
         if (s_ipsc->rNumericArgs(2) == 0.0) {
-            ShowSevereError(state,
-                            format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+            ShowSevereError(state, format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
             ShowContinueError(state, format("Invalid {}={:.2R}", s_ipsc->cNumericFieldNames(2), s_ipsc->rNumericArgs(2)));
             ErrorsFound = true;
         }
@@ -437,8 +415,7 @@ void GetElecReformEIRChillerInput(EnergyPlusData &state)
         thisChiller.TempRefEvapOut = s_ipsc->rNumericArgs(3);
         thisChiller.TempRefCondOut = s_ipsc->rNumericArgs(4);
         if (thisChiller.TempRefEvapOut >= thisChiller.TempRefCondOut) {
-            ShowSevereError(state,
-                            format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+            ShowSevereError(state, format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
             ShowContinueError(state,
                               format("{} [{:.2R}] >= {} [{:.2R}]",
                                      s_ipsc->cNumericFieldNames(3),
@@ -465,8 +442,7 @@ void GetElecReformEIRChillerInput(EnergyPlusData &state)
         if (thisChiller.SizFac <= 0.0) thisChiller.SizFac = 1.0;
 
         if (thisChiller.MinPartLoadRat > thisChiller.MaxPartLoadRat) {
-            ShowSevereError(state,
-                            format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+            ShowSevereError(state, format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
             ShowContinueError(state,
                               format("{} [{:.3R}] > {} [{:.3R}]",
                                      s_ipsc->cNumericFieldNames(7),
@@ -478,40 +454,28 @@ void GetElecReformEIRChillerInput(EnergyPlusData &state)
         }
 
         if (thisChiller.MinUnloadRat < thisChiller.MinPartLoadRat || thisChiller.MinUnloadRat > thisChiller.MaxPartLoadRat) {
-            ShowSevereError(state,
-                            format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+            ShowSevereError(state, format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
             ShowContinueError(state, format("{} = {:.3R}", s_ipsc->cNumericFieldNames(10), s_ipsc->rNumericArgs(10)));
             ShowContinueError(state,
-                              format("{} must be greater than or equal to the {}",
-                                     s_ipsc->cNumericFieldNames(10),
-                                     s_ipsc->cNumericFieldNames(7)));
+                              format("{} must be greater than or equal to the {}", s_ipsc->cNumericFieldNames(10), s_ipsc->cNumericFieldNames(7)));
             ShowContinueError(state,
-                              format("{} must be less than or equal to the {}",
-                                     s_ipsc->cNumericFieldNames(10),
-                                     s_ipsc->cNumericFieldNames(8)));
+                              format("{} must be less than or equal to the {}", s_ipsc->cNumericFieldNames(10), s_ipsc->cNumericFieldNames(8)));
             ErrorsFound = true;
         }
 
         if (thisChiller.OptPartLoadRat < thisChiller.MinPartLoadRat || thisChiller.OptPartLoadRat > thisChiller.MaxPartLoadRat) {
-            ShowSevereError(state,
-                            format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+            ShowSevereError(state, format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
             ShowContinueError(state, format("{} = {:.3R}", s_ipsc->cNumericFieldNames(9), s_ipsc->rNumericArgs(9)));
             ShowContinueError(state,
-                              format("{} must be greater than or equal to the {}",
-                                     s_ipsc->cNumericFieldNames(9),
-                                     s_ipsc->cNumericFieldNames(7)));
-            ShowContinueError(state,
-                              format("{} must be less than or equal to the {}",
-                                     s_ipsc->cNumericFieldNames(9),
-                                     s_ipsc->cNumericFieldNames(8)));
+                              format("{} must be greater than or equal to the {}", s_ipsc->cNumericFieldNames(9), s_ipsc->cNumericFieldNames(7)));
+            ShowContinueError(state, format("{} must be less than or equal to the {}", s_ipsc->cNumericFieldNames(9), s_ipsc->cNumericFieldNames(8)));
             ErrorsFound = true;
         }
 
         thisChiller.CompPowerToCondenserFrac = s_ipsc->rNumericArgs(11);
 
         if (thisChiller.CompPowerToCondenserFrac < 0.0 || thisChiller.CompPowerToCondenserFrac > 1.0) {
-            ShowSevereError(state,
-                            format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+            ShowSevereError(state, format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
             ShowContinueError(state, format("{} = {:.3R}", s_ipsc->cNumericFieldNames(11), s_ipsc->rNumericArgs(11)));
             ShowContinueError(state, format("{} must be greater than or equal to zero", s_ipsc->cNumericFieldNames(11)));
             ShowContinueError(state, format("{} must be less than or equal to one", s_ipsc->cNumericFieldNames(11)));
@@ -537,8 +501,7 @@ void GetElecReformEIRChillerInput(EnergyPlusData &state)
                                                                                   NodeInputManager::CompFluidStream::Tertiary,
                                                                                   DataLoopNode::ObjectIsNotParent);
             if (thisChiller.HeatRecInletNodeNum == 0) {
-                ShowSevereError(state,
-                                format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+                ShowSevereError(state, format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
                 ShowContinueError(state, format("Invalid {}={}", s_ipsc->cAlphaFieldNames(11), s_ipsc->cAlphaArgs(11)));
                 ErrorsFound = true;
             }
@@ -552,18 +515,13 @@ void GetElecReformEIRChillerInput(EnergyPlusData &state)
                                                                                    NodeInputManager::CompFluidStream::Tertiary,
                                                                                    DataLoopNode::ObjectIsNotParent);
             if (thisChiller.HeatRecOutletNodeNum == 0) {
-                ShowSevereError(state,
-                                format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+                ShowSevereError(state, format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
                 ShowContinueError(state, format("Invalid {}={}", s_ipsc->cAlphaFieldNames(12), s_ipsc->cAlphaArgs(12)));
                 ErrorsFound = true;
             }
 
-            BranchNodeConnections::TestCompSet(state,
-                                               s_ipsc->cCurrentModuleObject,
-                                               s_ipsc->cAlphaArgs(1),
-                                               s_ipsc->cAlphaArgs(11),
-                                               s_ipsc->cAlphaArgs(12),
-                                               "Heat Recovery Nodes");
+            BranchNodeConnections::TestCompSet(
+                state, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1), s_ipsc->cAlphaArgs(11), s_ipsc->cAlphaArgs(12), "Heat Recovery Nodes");
 
             if (thisChiller.DesignHeatRecVolFlowRate > 0.0) {
                 PlantUtilities::RegisterPlantCompDesignFlow(state, thisChiller.HeatRecInletNodeNum, thisChiller.DesignHeatRecVolFlowRate);
@@ -610,8 +568,7 @@ void GetElecReformEIRChillerInput(EnergyPlusData &state)
             thisChiller.HeatRecInletNodeNum = 0;
             thisChiller.HeatRecOutletNodeNum = 0;
             if ((!s_ipsc->lAlphaFieldBlanks(11)) || (!s_ipsc->lAlphaFieldBlanks(12))) {
-                ShowWarningError(state,
-                                 format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+                ShowWarningError(state, format("{}{}=\"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
                 ShowWarningError(state, "Since Reference Heat Reclaim Volume Flow Rate = 0.0, heat recovery is inactive.");
                 ShowContinueError(state, "However, node names were specified for heat recovery inlet or outlet nodes.");
             }
@@ -624,15 +581,14 @@ void GetElecReformEIRChillerInput(EnergyPlusData &state)
         }
 
         if (NumAlphas > 15) {
-            thisChiller.CondenserFlowControl = static_cast<DataPlant::CondenserFlowControl>(
-                getEnumValue(DataPlant::CondenserFlowControlNamesUC, s_ipsc->cAlphaArgs(16)));
+            thisChiller.CondenserFlowControl =
+                static_cast<DataPlant::CondenserFlowControl>(getEnumValue(DataPlant::CondenserFlowControlNamesUC, s_ipsc->cAlphaArgs(16)));
         } else {
             thisChiller.CondenserFlowControl = DataPlant::CondenserFlowControl::ConstantFlow;
         }
 
         if (thisChiller.CondenserFlowControl == DataPlant::CondenserFlowControl::Invalid) {
-            ShowSevereError(state,
-                            format("{}{}=\"{}\",", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+            ShowSevereError(state, format("{}{}=\"{}\",", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
             ShowContinueError(state, format("Invalid {}={}", s_ipsc->cAlphaFieldNames(16), s_ipsc->cAlphaArgs(16)));
             ShowContinueError(state, "Available choices are ConstantFlow, ModulatedChillerPLR, ModulatedLoopPLR, or ModulatedDeltaTemperature");
             thisChiller.CondenserFlowControl = DataPlant::CondenserFlowControl::ConstantFlow;
@@ -644,15 +600,14 @@ void GetElecReformEIRChillerInput(EnergyPlusData &state)
         }
         if ((thisChiller.ChillerCondLoopFlowFLoopPLRIndex == 0) &&
             (thisChiller.CondenserFlowControl == DataPlant::CondenserFlowControl::ModulatedLoopPLR)) {
-            ShowSevereError(state,
-                            format("{}{} \"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
+            ShowSevereError(state, format("{}{} \"{}\"", RoutineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
             ShowContinueError(state, format("Invalid {}={}", s_ipsc->cAlphaFieldNames(17), s_ipsc->cAlphaArgs(17)));
             ErrorsFound = true;
         }
 
         if (NumAlphas < 17 || s_ipsc->lAlphaFieldBlanks(18)) {
             thisChiller.condDTSched = nullptr; // ok for this to be nullptr
-        } else if (((thisChiller.condDTSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(18))) == nullptr) && 
+        } else if (((thisChiller.condDTSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(18))) == nullptr) &&
                    thisChiller.CondenserFlowControl == DataPlant::CondenserFlowControl::ModulatedDeltaTemperature) {
             ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(18), s_ipsc->cAlphaArgs(18));
             ErrorsFound = true;
@@ -2490,10 +2445,10 @@ void ReformulatedEIRChillerSpecs::calculate(EnergyPlusData &state, Real64 &MyLoa
         } break;
         case DataPlant::CondenserFlowControl::ModulatedDeltaTemperature: {
             Real64 CpCond = state.dataPlnt->PlantLoop(this->CWPlantLoc.loopNum).glycol->getSpecificHeat(state, this->CondInletTemp, RoutineName);
-            Real64 condDT =  (this->condDTSched != nullptr) ? this->condDTSched->getCurrentVal() : 0.0;
+            Real64 condDT = (this->condDTSched != nullptr) ? this->condDTSched->getCurrentVal() : 0.0;
             this->CondMassFlowRate = this->QCondenser / (CpCond * condDT);
         } break;
-                
+
         default: {
             this->CondMassFlowRate = this->CondMassFlowRateMax;
         } break;

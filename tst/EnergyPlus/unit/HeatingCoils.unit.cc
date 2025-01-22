@@ -77,7 +77,7 @@ TEST_F(EnergyPlusFixture, HeatingCoils_FuelTypeInput)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     ASSERT_NO_THROW(HeatingCoils::GetHeatingCoilInput(*state));
 
     EXPECT_ENUM_EQ(state->dataHeatingCoils->HeatingCoil(1).FuelType, Constant::eFuel::OtherFuel1);
@@ -151,7 +151,7 @@ TEST_F(EnergyPlusFixture, HeatingCoils_OutletAirPropertiesTest)
 {
     // 7391 Test outlet air properties for MultiStageGasHeatingCoil
     state->init_state(*state);
-    
+
     int CoilNum = 1;
     Real64 OffMassFlowrate = 0.2;
     Real64 OnMassFlowrate = 0.6;

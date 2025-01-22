@@ -110,18 +110,20 @@ TEST_F(EnergyPlusFixture, ScheduleManager_UpdateScheduleVals)
     auto *daySched1 = Sched::AddDaySchedule(*state, "Day-1");
     auto *daySched2 = Sched::AddDaySchedule(*state, "Day-2");
     auto *daySched3 = Sched::AddDaySchedule(*state, "Day-3");
-    
-    for (int i = 1; i <= 249; i++) sched1->weekScheds[i] = weekSched1;
-    sched1->weekScheds[250] = weekSched2;
-    for (int i = 251; i <= 366; i++) sched1->weekScheds[i] = weekSched3;
 
-    std::fill(weekSched1->dayScheds.begin()+1, weekSched1->dayScheds.end(), daySched1);
-    std::fill(weekSched2->dayScheds.begin()+1, weekSched2->dayScheds.end(), daySched2);
-    std::fill(weekSched3->dayScheds.begin()+1, weekSched3->dayScheds.end(), daySched3);
-    
-    std::fill(daySched1->tsVals.begin(), daySched1->tsVals.end(), 1.0); 
-    std::fill(daySched2->tsVals.begin(), daySched2->tsVals.end(), 2.0); 
-    std::fill(daySched3->tsVals.begin(), daySched3->tsVals.end(), 3.0); 
+    for (int i = 1; i <= 249; i++)
+        sched1->weekScheds[i] = weekSched1;
+    sched1->weekScheds[250] = weekSched2;
+    for (int i = 251; i <= 366; i++)
+        sched1->weekScheds[i] = weekSched3;
+
+    std::fill(weekSched1->dayScheds.begin() + 1, weekSched1->dayScheds.end(), daySched1);
+    std::fill(weekSched2->dayScheds.begin() + 1, weekSched2->dayScheds.end(), daySched2);
+    std::fill(weekSched3->dayScheds.begin() + 1, weekSched3->dayScheds.end(), daySched3);
+
+    std::fill(daySched1->tsVals.begin(), daySched1->tsVals.end(), 1.0);
+    std::fill(daySched2->tsVals.begin(), daySched2->tsVals.end(), 2.0);
+    std::fill(daySched3->tsVals.begin(), daySched3->tsVals.end(), 3.0);
 
     state->dataEnvrn->HolidayIndex = 0;
     state->dataEnvrn->DayOfWeek = 1;
@@ -222,12 +224,12 @@ TEST_F(EnergyPlusFixture, ScheduleAnnualFullLoadHours_test)
     ASSERT_TRUE(process_idf(idf_objects));
 
     auto &s_glob = state->dataGlobal;
-    
+
     s_glob->TimeStepsInHour = 4;
     s_glob->MinutesInTimeStep = 15;
 
     state->init_state(*state);
-           
+
     auto *onSched = Sched::GetSchedule(*state, "ONSCHED");
     EXPECT_EQ(8760., onSched->getAnnualHoursFullLoad(*state, 1, false));
 
@@ -297,7 +299,7 @@ TEST_F(EnergyPlusFixture, ScheduleAverageHoursPerWeek_test)
     ASSERT_TRUE(process_idf(idf_objects));
 
     auto &s_glob = state->dataGlobal;
-    
+
     s_glob->TimeStepsInHour = 4;
     s_glob->MinutesInTimeStep = 15;
 
@@ -380,13 +382,13 @@ TEST_F(EnergyPlusFixture, ScheduleHoursGT1perc_test)
     ASSERT_TRUE(process_idf(idf_objects));
 
     auto &s_glob = state->dataGlobal;
-    
+
     s_glob->TimeStepsInHour = 4;
     s_glob->MinutesInTimeStep = 15;
     s_glob->TimeStepZone = 0.25;
 
     state->init_state(*state);
-    
+
     auto *onSched = Sched::GetSchedule(*state, "ONSCHED");
     EXPECT_EQ(8760., onSched->getAnnualHoursGreaterThan1Percent(*state, 1, false));
 
@@ -459,13 +461,13 @@ TEST_F(EnergyPlusFixture, ScheduleDayInterval_SimpLinearInterp)
     ASSERT_TRUE(process_idf(idf_objects));
 
     auto &s_glob = state->dataGlobal;
-    
+
     s_glob->TimeStepsInHour = 4;
     s_glob->MinutesInTimeStep = 15;
     s_glob->TimeStepZone = 0.25;
 
     state->init_state(*state);
-           
+
     state->dataEnvrn->Month = 1;
     state->dataEnvrn->DayOfMonth = 1;
     s_glob->HourOfDay = 1;
@@ -576,7 +578,7 @@ TEST_F(EnergyPlusFixture, ScheduleDayInterval_PartialHourLinearInterp)
     ASSERT_TRUE(process_idf(idf_objects));
 
     auto &s_glob = state->dataGlobal;
-    
+
     s_glob->TimeStepsInHour = 4;
     s_glob->MinutesInTimeStep = 15;
     s_glob->TimeStepZone = 0.25;
@@ -662,13 +664,13 @@ TEST_F(EnergyPlusFixture, ScheduleDayInterval_LinearInterpIntervalHittingInterva
     ASSERT_TRUE(process_idf(idf_objects));
 
     auto &s_glob = state->dataGlobal;
-    
+
     s_glob->TimeStepsInHour = 4;
     s_glob->MinutesInTimeStep = 15;
     s_glob->TimeStepZone = 0.25;
 
     state->init_state(*state);
-    
+
     state->dataEnvrn->Month = 1;
     state->dataEnvrn->DayOfMonth = 1;
     s_glob->HourOfDay = 1;
@@ -739,13 +741,13 @@ TEST_F(EnergyPlusFixture, ScheduleDayInterval_LinearInterpIntervalNotTimestep)
     ASSERT_TRUE(process_idf(idf_objects));
 
     auto &s_glob = state->dataGlobal;
-    
+
     s_glob->TimeStepsInHour = 4;
     s_glob->MinutesInTimeStep = 15;
     s_glob->TimeStepZone = 0.25;
 
     state->init_state(*state);
-    
+
     state->dataEnvrn->Month = 1;
     state->dataEnvrn->DayOfMonth = 1;
     s_glob->HourOfDay = 1;
@@ -876,8 +878,8 @@ TEST_F(EnergyPlusFixture, Schedule_GetCurrentScheduleValue_DST)
     ASSERT_TRUE(process_idf(idf_objects));
 
     auto &s_glob = state->dataGlobal;
-    
-    s_glob->TimeStepsInHour = 4; // must initialize this to get schedules initialized
+
+    s_glob->TimeStepsInHour = 4;    // must initialize this to get schedules initialized
     s_glob->MinutesInTimeStep = 15; // must initialize this to get schedules initialized
     s_glob->TimeStepZone = 0.25;
     s_glob->TimeStepZoneSec = s_glob->TimeStepZone * Constant::rSecsInHour;
@@ -897,7 +899,7 @@ TEST_F(EnergyPlusFixture, Schedule_GetCurrentScheduleValue_DST)
     Sched::UpdateScheduleVals(*state);
 
     auto *sched = Sched::GetSchedule(*state, "ELECTRICITY SEASON SCHEDULE");
-    
+
     EXPECT_EQ(1.0, sched->getHrTsVal(*state, s_glob->HourOfDay, s_glob->TimeStep));
     EXPECT_EQ(1.0, sched->currentVal);
 
@@ -926,10 +928,10 @@ TEST_F(EnergyPlusFixture, Schedule_GetCurrentScheduleValue_DST_SouthernHemispher
     });
 
     ASSERT_TRUE(process_idf(idf_objects));
- 
+
     auto &s_glob = state->dataGlobal;
-    
-    s_glob->TimeStepsInHour = 4; // must initialize this to get schedules initialized
+
+    s_glob->TimeStepsInHour = 4;    // must initialize this to get schedules initialized
     s_glob->MinutesInTimeStep = 15; // must initialize this to get schedules initialized
     s_glob->TimeStepZone = 0.25;
     s_glob->TimeStepZoneSec = s_glob->TimeStepZone * Constant::rSecsInHour;
@@ -937,7 +939,7 @@ TEST_F(EnergyPlusFixture, Schedule_GetCurrentScheduleValue_DST_SouthernHemispher
     state->init_state(*state);
 
     auto *sched = Sched::GetSchedule(*state, "ELECTRICITY SEASON SCHEDULE");
-    
+
     state->dataEnvrn->Month = 12;
     state->dataEnvrn->DayOfMonth = 31;
     s_glob->HourOfDay = 24;
@@ -1007,13 +1009,13 @@ TEST_F(EnergyPlusFixture, Schedule_GetCurrentScheduleValue_DST_RampUp_Leap)
     for (int day = 1; day <= 366; ++day) {
         // int DayOfWeek = ((day-1) % 7) + 1;
         auto *weekSched = sched1->weekScheds[day] = Sched::GetWeekSchedule(*state, format("WEEK_{}", day));
-            
+
         for (int d = 1; d <= 7; ++d) {
             auto *daySched = weekSched->dayScheds[d] = Sched::GetDaySchedule(*state, format("DAY_{}", day));
 
             for (int hr = 0; hr < Constant::iHoursInDay; hr++) {
                 for (int ts = 0; ts < s_glob->TimeStepsInHour; ++ts) {
-                     daySched->tsVals[hr * s_glob->TimeStepsInHour + ts] = (hr + 1) + (day - 1) * Constant::iHoursInDay;
+                    daySched->tsVals[hr * s_glob->TimeStepsInHour + ts] = (hr + 1) + (day - 1) * Constant::iHoursInDay;
                 }
             }
         }
@@ -1024,7 +1026,7 @@ TEST_F(EnergyPlusFixture, Schedule_GetCurrentScheduleValue_DST_RampUp_Leap)
     EXPECT_EQ(8784.0, Sched::GetDaySchedule(*state, format("DAY_{}", 366))->tsVals[23 * s_glob->TimeStepsInHour + 3]);
 
     s_glob->TimeStepsInHour = s_glob->TimeStepsInHour; // must initialize this to get schedules initialized
-    s_glob->MinutesInTimeStep = 15;                                      // must initialize this to get schedules initialized
+    s_glob->MinutesInTimeStep = 15;                    // must initialize this to get schedules initialized
     s_glob->TimeStepZone = 0.25;
     s_glob->TimeStepZoneSec = s_glob->TimeStepZone * Constant::rSecsInHour;
 
@@ -1173,8 +1175,10 @@ TEST_F(EnergyPlusFixture, Schedule_GetCurrentScheduleValue_DST_RampUp_NoLeap)
 
     auto *sched1 = Sched::AddScheduleDetailed(*state, "SCHED-1");
 
-    for (int i = 1; i <= 366; ++i) Sched::AddWeekSchedule(*state, format("WEEK_{}", i));
-    for (int i = 1; i <= 365; ++i) Sched::AddDaySchedule(*state, format("DAY_{}", i));
+    for (int i = 1; i <= 366; ++i)
+        Sched::AddWeekSchedule(*state, format("WEEK_{}", i));
+    for (int i = 1; i <= 365; ++i)
+        Sched::AddDaySchedule(*state, format("DAY_{}", i));
 
     Array1D_int EndDayOfMonth(12, {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31});
 
@@ -1194,7 +1198,7 @@ TEST_F(EnergyPlusFixture, Schedule_GetCurrentScheduleValue_DST_RampUp_NoLeap)
             for (int d = 1; d <= 7; ++d) {
                 weekSched->dayScheds[d] = daySched;
             }
-                        
+
             for (int hr = 0; hr < Constant::iHoursInDay; hr++) {
                 for (int ts = 0; ts < s_glob->TimeStepsInHour; ++ts) {
                     daySched->tsVals[hr * s_glob->TimeStepsInHour + ts] = (hr + 1) + (dayOfYear - 1) * Constant::iHoursInDay;
@@ -1223,7 +1227,7 @@ TEST_F(EnergyPlusFixture, Schedule_GetCurrentScheduleValue_DST_RampUp_NoLeap)
     EXPECT_EQ(8760.0, sched1->weekScheds[366]->dayScheds[1]->tsVals[23 * s_glob->TimeStepsInHour + 3]);
 
     s_glob->TimeStepsInHour = s_glob->TimeStepsInHour; // must initialize this to get schedules initialized
-    s_glob->MinutesInTimeStep = 15;                                      // must initialize this to get schedules initialized
+    s_glob->MinutesInTimeStep = 15;                    // must initialize this to get schedules initialized
     s_glob->TimeStepZone = 0.25;
     s_glob->TimeStepZoneSec = s_glob->TimeStepZone * Constant::rSecsInHour;
 
@@ -1252,7 +1256,7 @@ TEST_F(EnergyPlusFixture, Schedule_GetCurrentScheduleValue_DST_RampUp_NoLeap)
     state->dataEnvrn->DSTIndicator = 0; // DST IS OFF
     state->dataEnvrn->DayOfWeek = 0;
     state->dataEnvrn->DayOfWeekTomorrow = 1;
-    
+
     Real64 HourOfYear = 0.0;
     for (int month = 1; month <= 12; ++month) {
         state->dataEnvrn->Month = month;
@@ -1268,7 +1272,7 @@ TEST_F(EnergyPlusFixture, Schedule_GetCurrentScheduleValue_DST_RampUp_NoLeap)
             }
 
             state->dataEnvrn->DayOfYear_Schedule = General::OrdinalDay(state->dataEnvrn->Month, state->dataEnvrn->DayOfMonth, 1);
-            
+
             for (int hr = 1; hr <= Constant::iHoursInDay; ++hr) {
                 ++HourOfYear;
                 s_glob->HourOfDay = hr;
@@ -1282,13 +1286,13 @@ TEST_F(EnergyPlusFixture, Schedule_GetCurrentScheduleValue_DST_RampUp_NoLeap)
             }
         }
     }
-        
+
     EXPECT_EQ(8760.0, HourOfYear);
-    
+
     state->dataEnvrn->DSTIndicator = 1; // DST IS ON
     state->dataEnvrn->DayOfWeek = 0;
     state->dataEnvrn->DayOfWeekTomorrow = 1;
-    
+
     HourOfYear = 0.0;
     for (int month = 1; month <= 12; ++month) {
         state->dataEnvrn->Month = month;
@@ -1302,15 +1306,15 @@ TEST_F(EnergyPlusFixture, Schedule_GetCurrentScheduleValue_DST_RampUp_NoLeap)
             if (state->dataEnvrn->DayOfWeekTomorrow > 7) {
                 state->dataEnvrn->DayOfWeekTomorrow = 1;
             }
-            
+
             state->dataEnvrn->DayOfYear_Schedule = General::OrdinalDay(state->dataEnvrn->Month, state->dataEnvrn->DayOfMonth, 1);
-            
+
             for (int hr = 1; hr <= 24; ++hr) {
                 ++HourOfYear;
                 s_glob->HourOfDay = hr;
                 for (int ts = 1; ts <= 4; ++ts) {
                     s_glob->TimeStep = ts;
-                    
+
                     Sched::UpdateScheduleVals(*state);
                     int thisHourOfYear = HourOfYear + 1;
                     if (thisHourOfYear > 8760.0) {
@@ -1397,13 +1401,13 @@ TEST_F(EnergyPlusFixture, ScheduleFileDSTtoggleOptionTest)
     ASSERT_TRUE(process_idf(idf_objects));
 
     auto &s_glob = state->dataGlobal;
-    
+
     s_glob->TimeStepsInHour = 1;
     s_glob->MinutesInTimeStep = 60;
-    s_glob->TimeStep = 1;         // Checking to see if omitting this is OK here
+    s_glob->TimeStep = 1; // Checking to see if omitting this is OK here
 
     state->init_state(*state);
-    
+
     state->dataEnvrn->DayOfWeek = 1;         // Sunday
     state->dataEnvrn->DayOfWeekTomorrow = 2; // Monday
     state->dataEnvrn->DayOfYear_Schedule = 1;
@@ -1411,8 +1415,8 @@ TEST_F(EnergyPlusFixture, ScheduleFileDSTtoggleOptionTest)
 
     // Test 1 condition
     // "YES" Adjusts schedule for daylight savings
-    auto const *sch1 = dynamic_cast<Sched::ScheduleDetailed const *>(Sched::GetSchedule(*state, "TEST1")); 
-    EXPECT_TRUE(sch1->UseDaylightSaving);           // Checks that the member variable got set correctly.
+    auto const *sch1 = dynamic_cast<Sched::ScheduleDetailed const *>(Sched::GetSchedule(*state, "TEST1"));
+    EXPECT_TRUE(sch1->UseDaylightSaving); // Checks that the member variable got set correctly.
 
     state->dataEnvrn->DSTIndicator = 1; // Tells the simulation that we're currently observing daylight savings
     EXPECT_DOUBLE_EQ(sch1->getHrTsVal(*state, s_glob->HourOfDay, s_glob->TimeStep), 0.0);
@@ -1442,7 +1446,7 @@ TEST_F(EnergyPlusFixture, ScheduleFileDSTtoggleOptionTest)
     // Test 4 condition
     // Default: "YES", changes schedule for daylight savings
     auto const *sch4 = dynamic_cast<Sched::ScheduleDetailed const *>(Sched::GetSchedule(*state, "TEST4"));
-    EXPECT_TRUE(sch4->UseDaylightSaving);                                             // Checks that the member variable got set correctly.
+    EXPECT_TRUE(sch4->UseDaylightSaving); // Checks that the member variable got set correctly.
 
     state->dataEnvrn->DSTIndicator = 1; // Tells the simulation that we're currently observing daylight savings
     EXPECT_DOUBLE_EQ(sch4->getHrTsVal(*state, s_glob->HourOfDay, s_glob->TimeStep), 0.0);
@@ -1472,8 +1476,8 @@ TEST_F(EnergyPlusFixture, ScheduleFile_Blanks)
     ASSERT_TRUE(process_idf(idf_objects));
 
     auto &s_glob = state->dataGlobal;
-    
-    s_glob->TimeStepsInHour = 4; // must initialize this to get schedules initialized
+
+    s_glob->TimeStepsInHour = 4;    // must initialize this to get schedules initialized
     s_glob->MinutesInTimeStep = 15; // must initialize this to get schedules initialized
     s_glob->TimeStepZone = 0.25;
     s_glob->TimeStepZoneSec = s_glob->TimeStepZone * Constant::rSecsInHour;
@@ -1511,13 +1515,13 @@ TEST_F(EnergyPlusFixture, ShadowCalculation_CSV_extra_parenthesis)
 
     auto &s_glob = state->dataGlobal;
     auto &s_sched = state->dataSched;
-    
-    s_glob->TimeStepsInHour = 4; // must initialize this to get schedules initialized
+
+    s_glob->TimeStepsInHour = 4;    // must initialize this to get schedules initialized
     s_glob->MinutesInTimeStep = 15; // must initialize this to get schedules initialized
     s_glob->TimeStepZone = 0.25;
     s_glob->TimeStepZoneSec = s_glob->TimeStepZone * Constant::rSecsInHour;
     state->init_state(*state);
-    
+
     state->dataEnvrn->CurrentYearIsLeapYear = false;
 
     const std::string expected_error = delimited_string({
@@ -1565,7 +1569,7 @@ TEST_F(EnergyPlusFixture, ShadowCalculation_CSV_extra_parenthesis)
     EXPECT_EQ(Sched::GetDayScheduleNum(*state, "EAST SIDE TREE_SHADING_DY_366"), 364);
 
     auto const *sched = dynamic_cast<Sched::ScheduleDetailed const *>(Sched::GetSchedule(*state, "EAST SIDE TREE_SHADING"));
-    
+
     EXPECT_EQ(0, sched->weekScheds[1]->Num);
     EXPECT_EQ(58, sched->weekScheds[59]->Num);
     EXPECT_EQ(58, sched->weekScheds[60]->Num); // 29 Feb points to 28 Feb
@@ -1573,11 +1577,11 @@ TEST_F(EnergyPlusFixture, ShadowCalculation_CSV_extra_parenthesis)
 
     for (int iDay = 0; iDay < 365; ++iDay) {
         if (iDay <= 58) {
-            EXPECT_EQ(fmt::format("EAST SIDE TREE_shading_wk_{}", iDay+1), s_sched->weekSchedules[iDay]->Name);
-            EXPECT_EQ(fmt::format("EAST SIDE TREE_shading_dy_{}", iDay+1), s_sched->daySchedules[iDay]->Name);
+            EXPECT_EQ(fmt::format("EAST SIDE TREE_shading_wk_{}", iDay + 1), s_sched->weekSchedules[iDay]->Name);
+            EXPECT_EQ(fmt::format("EAST SIDE TREE_shading_dy_{}", iDay + 1), s_sched->daySchedules[iDay]->Name);
         } else {
-            EXPECT_EQ(fmt::format("EAST SIDE TREE_shading_wk_{}", iDay+2), s_sched->weekSchedules[iDay]->Name);
-            EXPECT_EQ(fmt::format("EAST SIDE TREE_shading_dy_{}", iDay+2), s_sched->daySchedules[iDay]->Name);
+            EXPECT_EQ(fmt::format("EAST SIDE TREE_shading_wk_{}", iDay + 2), s_sched->weekSchedules[iDay]->Name);
+            EXPECT_EQ(fmt::format("EAST SIDE TREE_shading_dy_{}", iDay + 2), s_sched->daySchedules[iDay]->Name);
         }
     }
 
@@ -1668,13 +1672,13 @@ TEST_F(EnergyPlusFixture, getScheduleMinMaxByDayType_test)
     ASSERT_TRUE(process_idf(idf_objects));
 
     auto &s_glob = state->dataGlobal;
-    
+
     s_glob->TimeStepsInHour = 4;
     s_glob->MinutesInTimeStep = 15;
     s_glob->TimeStepZone = 0.25;
 
     state->init_state(*state);
-    
+
     Real64 schMin;
     Real64 schMax;
 

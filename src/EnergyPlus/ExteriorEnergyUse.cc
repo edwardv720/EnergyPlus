@@ -150,7 +150,7 @@ namespace ExteriorEnergyUse {
             ErrorObjectHeader eoh{routineName, cCurrentModuleObject, s_ipsc->cAlphaArgs(1)};
 
             state.dataExteriorEnergyUse->ExteriorLights(Item).Name = s_ipsc->cAlphaArgs(1);
-            
+
             if (s_ipsc->lAlphaFieldBlanks(2)) {
                 ShowSevereEmptyField(state, eoh, s_ipsc->cAlphaFieldNames(2));
                 ErrorsFound = true;
@@ -158,11 +158,13 @@ namespace ExteriorEnergyUse {
                 ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(2), s_ipsc->cAlphaArgs(2));
                 ErrorsFound = true;
             } else if (int SchMin = state.dataExteriorEnergyUse->ExteriorLights(Item).sched->getMinVal(state); SchMin < 0.0) {
-                ShowSevereCustom(state, eoh, format("{} = {} minimum is [{:.1R}]. Values must be >= 0.0.",
-                                                    s_ipsc->cAlphaFieldNames(3), s_ipsc->cAlphaArgs(3), SchMin));
+                ShowSevereCustom(
+                    state,
+                    eoh,
+                    format("{} = {} minimum is [{:.1R}]. Values must be >= 0.0.", s_ipsc->cAlphaFieldNames(3), s_ipsc->cAlphaArgs(3), SchMin));
                 ErrorsFound = true;
             }
-            
+
             if (s_ipsc->lAlphaFieldBlanks(3)) {
                 state.dataExteriorEnergyUse->ExteriorLights(Item).ControlMode = ExteriorEnergyUse::LightControlType::ScheduleOnly;
             } else if (Util::SameString(state.dataIPShortCut->cAlphaArgs(3), "ScheduleNameOnly")) {
@@ -229,7 +231,7 @@ namespace ExteriorEnergyUse {
                                  state.dataExteriorEnergyUse->ExteriorLights(Item).Name,
                                  state.dataExteriorEnergyUse->ExteriorLights(Item).sched->Name);
             }
-            }
+        }
         PreDefTableEntry(state, state.dataOutRptPredefined->pdchExLtPower, "Exterior Lighting Total", state.dataExteriorEnergyUse->sumDesignLevel);
 
         // =================================  Get Exterior Fuel Equipment
@@ -272,8 +274,8 @@ namespace ExteriorEnergyUse {
                 ShowSevereEmptyField(state, eoh, s_ipsc->cAlphaFieldNames(2));
                 ErrorsFound = true;
 
-            } else if ((exteriorEquip.FuelType = static_cast<Constant::eFuel>(
-                            getEnumValue(Constant::eFuelNamesUC, s_ipsc->cAlphaArgs(2)))) == Constant::eFuel::Invalid) {
+            } else if ((exteriorEquip.FuelType = static_cast<Constant::eFuel>(getEnumValue(Constant::eFuelNamesUC, s_ipsc->cAlphaArgs(2)))) ==
+                       Constant::eFuel::Invalid) {
                 ShowSevereInvalidKey(state, eoh, s_ipsc->cAlphaFieldNames(2), s_ipsc->cAlphaArgs(2));
                 ErrorsFound = true;
 
@@ -320,19 +322,21 @@ namespace ExteriorEnergyUse {
             if (s_ipsc->lAlphaFieldBlanks(3)) {
                 ShowSevereEmptyField(state, eoh, s_ipsc->cAlphaFieldNames(3));
                 ErrorsFound = true;
-            } else if ((exteriorEquip.sched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(3))) == nullptr) { 
+            } else if ((exteriorEquip.sched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(3))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(3), s_ipsc->cAlphaArgs(3));
                 ErrorsFound = true;
             } else if (int SchMin = exteriorEquip.sched->getMinVal(state); SchMin < 0.0) {
-                ShowSevereCustom(state, eoh, format("{} = {} minimum is [{:.1R}]. Values must be >= 0.0.",
-                                                    s_ipsc->cAlphaFieldNames(3), s_ipsc->cAlphaArgs(3), SchMin));
+                ShowSevereCustom(
+                    state,
+                    eoh,
+                    format("{} = {} minimum is [{:.1R}]. Values must be >= 0.0.", s_ipsc->cAlphaFieldNames(3), s_ipsc->cAlphaArgs(3), SchMin));
                 ErrorsFound = true;
             }
             exteriorEquip.DesignLevel = s_ipsc->rNumericArgs(1);
         }
 
         // =================================  Get Exterior Water Equipment
-        
+
         cCurrentModuleObject = "Exterior:WaterEquipment";
         for (int Item = 1; Item <= NumWtrEq; ++Item) {
             state.dataInputProcessing->inputProcessor->getObjectItem(state,
@@ -349,7 +353,7 @@ namespace ExteriorEnergyUse {
                                                                      s_ipsc->cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, cCurrentModuleObject, s_ipsc->cAlphaArgs(1)};
-            
+
             GlobalNames::VerifyUniqueInterObjectName(state,
                                                      state.dataExteriorEnergyUse->UniqueExteriorEquipNames,
                                                      s_ipsc->cAlphaArgs(1),
@@ -366,12 +370,14 @@ namespace ExteriorEnergyUse {
             if (s_ipsc->lAlphaFieldBlanks(3)) {
                 ShowSevereEmptyField(state, eoh, s_ipsc->cAlphaFieldNames(3));
                 ErrorsFound = true;
-            } else if ((exteriorEquip.sched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(3))) == nullptr) { 
+            } else if ((exteriorEquip.sched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(3))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, s_ipsc->cAlphaFieldNames(3), s_ipsc->cAlphaArgs(3));
                 ErrorsFound = true;
             } else if (int SchMin = exteriorEquip.sched->getMinVal(state); SchMin < 0.0) {
-                ShowSevereCustom(state, eoh, format("{} = {} minimum is [{:.1R}]. Values must be >= 0.0.",
-                                                    s_ipsc->cAlphaFieldNames(3), s_ipsc->cAlphaArgs(3), SchMin));
+                ShowSevereCustom(
+                    state,
+                    eoh,
+                    format("{} = {} minimum is [{:.1R}]. Values must be >= 0.0.", s_ipsc->cAlphaFieldNames(3), s_ipsc->cAlphaArgs(3), SchMin));
                 ErrorsFound = true;
             }
 
@@ -434,9 +440,8 @@ namespace ExteriorEnergyUse {
         for (int Item = 1; Item <= state.dataExteriorEnergyUse->NumExteriorLights; ++Item) {
             switch (state.dataExteriorEnergyUse->ExteriorLights(Item).ControlMode) {
             case ExteriorEnergyUse::LightControlType::ScheduleOnly:
-                state.dataExteriorEnergyUse->ExteriorLights(Item).Power =
-                    state.dataExteriorEnergyUse->ExteriorLights(Item).DesignLevel *
-                        state.dataExteriorEnergyUse->ExteriorLights(Item).sched->getCurrentVal();
+                state.dataExteriorEnergyUse->ExteriorLights(Item).Power = state.dataExteriorEnergyUse->ExteriorLights(Item).DesignLevel *
+                                                                          state.dataExteriorEnergyUse->ExteriorLights(Item).sched->getCurrentVal();
                 state.dataExteriorEnergyUse->ExteriorLights(Item).CurrentUse =
                     state.dataExteriorEnergyUse->ExteriorLights(Item).Power * state.dataGlobal->TimeStepZoneSec;
                 break;
@@ -447,7 +452,7 @@ namespace ExteriorEnergyUse {
                 } else {
                     state.dataExteriorEnergyUse->ExteriorLights(Item).Power =
                         state.dataExteriorEnergyUse->ExteriorLights(Item).DesignLevel *
-                            state.dataExteriorEnergyUse->ExteriorLights(Item).sched->getCurrentVal();
+                        state.dataExteriorEnergyUse->ExteriorLights(Item).sched->getCurrentVal();
                     state.dataExteriorEnergyUse->ExteriorLights(Item).CurrentUse =
                         state.dataExteriorEnergyUse->ExteriorLights(Item).Power * state.dataGlobal->TimeStepZoneSec;
                 }
@@ -488,9 +493,8 @@ namespace ExteriorEnergyUse {
         }
 
         for (int Item = 1; Item <= state.dataExteriorEnergyUse->NumExteriorEqs; ++Item) {
-            state.dataExteriorEnergyUse->ExteriorEquipment(Item).Power =
-                state.dataExteriorEnergyUse->ExteriorEquipment(Item).DesignLevel *
-                state.dataExteriorEnergyUse->ExteriorEquipment(Item).sched->getCurrentVal();
+            state.dataExteriorEnergyUse->ExteriorEquipment(Item).Power = state.dataExteriorEnergyUse->ExteriorEquipment(Item).DesignLevel *
+                                                                         state.dataExteriorEnergyUse->ExteriorEquipment(Item).sched->getCurrentVal();
             state.dataExteriorEnergyUse->ExteriorEquipment(Item).CurrentUse =
                 state.dataExteriorEnergyUse->ExteriorEquipment(Item).Power * state.dataGlobal->TimeStepZoneSec;
         }

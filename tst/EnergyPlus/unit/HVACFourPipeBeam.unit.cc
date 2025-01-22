@@ -212,7 +212,7 @@ TEST_F(EnergyPlusFixture, Beam_FactoryAllAutosize)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataGlobal->NumOfZones = 1;
 
     state->dataHeatBal->Zone.allocate(state->dataGlobal->NumOfZones);

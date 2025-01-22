@@ -93,7 +93,7 @@ TEST_F(EnergyPlusFixture, BoilerSteam_GetInput)
     ASSERT_TRUE(process_idf(idf_objects, false));
 
     state->init_state(*state);
-    
+
     GetBoilerInput(*state);
     auto &thisBoiler = state->dataBoilerSteam->Boiler((int)state->dataBoilerSteam->Boiler.size());
     EXPECT_EQ(thisBoiler.Name, "STEAM BOILER PLANT BOILER");
@@ -135,7 +135,7 @@ TEST_F(EnergyPlusFixture, BoilerSteam_Simulate)
     ASSERT_TRUE(process_idf(idf_objects, false));
 
     state->init_state(*state);
-    
+
     BoilerSpecs *ptr = BoilerSteam::BoilerSpecs::factory(*state, "BOILER");
     EXPECT_EQ(ptr->Name, "BOILER");
 

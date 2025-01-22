@@ -234,7 +234,6 @@ namespace Fluid {
                                  std::string_view CalledFrom); // routine this function was called from (error messages)
 
         void setTempLimits(EnergyPlusData &state, bool &ErrorsFound);
-
     };
 
     enum class GlycolError
@@ -380,7 +379,7 @@ namespace Fluid {
                             std::string_view CalledFrom); // routine this function was called from (error messages)
 
         void setTempLimits(EnergyPlusData &state, bool &ErrorsFound);
-      
+
         void getDensityTemperatureLimits(EnergyPlusData &state, Real64 &MinTempLimit, Real64 &MaxTempLimit);
 
         void getSpecificHeatTemperatureLimits(EnergyPlusData &state, Real64 &MinTempLimit, Real64 &MaxTempLimit);
@@ -396,7 +395,7 @@ namespace Fluid {
     void GetFluidPropertiesData(EnergyPlusData &state);
 
     void InitConstantFluidPropertiesData(EnergyPlusData &state);
-        
+
     template <size_t NumOfTemps, size_t NumOfConcs>
     void InterpDefValuesForGlycolConc(
         EnergyPlusData &state,

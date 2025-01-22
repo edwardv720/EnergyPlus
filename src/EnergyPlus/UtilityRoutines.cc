@@ -1599,13 +1599,13 @@ void ShowSevereItemNotFoundAudit(EnergyPlusData &state, ErrorObjectHeader const 
     ShowContinueError(state, format("{} = {}, item not found.", fieldName, fieldVal), OptionalOutputFileRef{state.files.audit});
 }
 
-void ShowSevereDuplicateAssignment(EnergyPlusData &state, ErrorObjectHeader const &eoh, std::string_view fieldName, std::string_view fieldVal, std::string_view prevVal)
+void ShowSevereDuplicateAssignment(
+    EnergyPlusData &state, ErrorObjectHeader const &eoh, std::string_view fieldName, std::string_view fieldVal, std::string_view prevVal)
 {
     ShowSevereError(state, format("{}: {} = {}", eoh.routineName, eoh.objectType, eoh.objectName));
     ShowContinueError(state, format("{} = {}, field previously assigned to {}.", fieldName, fieldVal, prevVal));
 }
-        
-        
+
 void ShowSevereInvalidKey(
     EnergyPlusData &state, ErrorObjectHeader const &eoh, std::string_view fieldName, std::string_view fieldVal, std::string_view msg)
 {
@@ -1632,37 +1632,61 @@ void ShowSevereCustomAudit(EnergyPlusData &state, ErrorObjectHeader const &eoh, 
     ShowContinueError(state, format("{}", msg), OptionalOutputFileRef{state.files.audit});
 }
 
-        
-void ShowSevereCustomField(EnergyPlusData &state, ErrorObjectHeader const &eoh, std::string_view fieldName, std::string_view fieldValue, std::string_view msg)
+void ShowSevereCustomField(
+    EnergyPlusData &state, ErrorObjectHeader const &eoh, std::string_view fieldName, std::string_view fieldValue, std::string_view msg)
 {
     ShowSevereError(state, format("{}: {} = {}", eoh.routineName, eoh.objectType, eoh.objectName));
     ShowContinueError(state, format("{} = {}, {}", fieldName, fieldValue, msg));
 }
-        
-void ShowSevereBadMin(EnergyPlusData &state, ErrorObjectHeader const &eoh, std::string_view fieldName, Real64 fieldVal, Clusive cluMin, Real64 minVal, std::string_view msg)
+
+void ShowSevereBadMin(EnergyPlusData &state,
+                      ErrorObjectHeader const &eoh,
+                      std::string_view fieldName,
+                      Real64 fieldVal,
+                      Clusive cluMin,
+                      Real64 minVal,
+                      std::string_view msg)
 {
     ShowSevereError(state, format("{}: {} = {}", eoh.routineName, eoh.objectType, eoh.objectName));
     ShowContinueError(state, format("{} = {}, but must be {} {}", fieldName, fieldVal, cluMin == Clusive::In ? ">=" : ">", minVal));
     if (!msg.empty()) ShowContinueError(state, format("{}", msg));
 }
-        
-void ShowSevereBadMax(EnergyPlusData &state, ErrorObjectHeader const &eoh, std::string_view fieldName, Real64 fieldVal, Clusive cluMax, Real64 maxVal, std::string_view msg)
+
+void ShowSevereBadMax(EnergyPlusData &state,
+                      ErrorObjectHeader const &eoh,
+                      std::string_view fieldName,
+                      Real64 fieldVal,
+                      Clusive cluMax,
+                      Real64 maxVal,
+                      std::string_view msg)
 {
     ShowSevereError(state, format("{}: {} = {}", eoh.routineName, eoh.objectType, eoh.objectName));
     ShowContinueError(state, format("{} = {}, but must be {} {}", fieldName, fieldVal, cluMax == Clusive::In ? "<=" : "<", maxVal));
     if (!msg.empty()) ShowContinueError(state, format("{}", msg));
 }
-        
-void ShowSevereBadMinMax(EnergyPlusData &state, ErrorObjectHeader const &eoh, std::string_view fieldName, Real64 fieldVal, Clusive cluMin, Real64 minVal, Clusive cluMax, Real64 maxVal, std::string_view msg)
+
+void ShowSevereBadMinMax(EnergyPlusData &state,
+                         ErrorObjectHeader const &eoh,
+                         std::string_view fieldName,
+                         Real64 fieldVal,
+                         Clusive cluMin,
+                         Real64 minVal,
+                         Clusive cluMax,
+                         Real64 maxVal,
+                         std::string_view msg)
 {
     ShowSevereError(state, format("{}: {} = {}", eoh.routineName, eoh.objectType, eoh.objectName));
-    ShowContinueError(state, format("{} = {}, but must be {} {} and {} {}", fieldName, fieldVal,
-                                    cluMin == Clusive::In ? ">=" : ">", minVal,
-                                    cluMax == Clusive::In ? "<=" : "<", maxVal));
+    ShowContinueError(state,
+                      format("{} = {}, but must be {} {} and {} {}",
+                             fieldName,
+                             fieldVal,
+                             cluMin == Clusive::In ? ">=" : ">",
+                             minVal,
+                             cluMax == Clusive::In ? "<=" : "<",
+                             maxVal));
     if (!msg.empty()) ShowContinueError(state, format("{}", msg));
 }
-                              
-        
+
 void ShowWarningItemNotFound(EnergyPlusData &state, ErrorObjectHeader const &eoh, std::string_view fieldName, std::string_view fieldVal)
 {
     ShowWarningError(state, format("{}: {} = {}", eoh.routineName, eoh.objectType, eoh.objectName));
@@ -1675,12 +1699,13 @@ void ShowWarningCustom(EnergyPlusData &state, ErrorObjectHeader const &eoh, std:
     ShowContinueError(state, format("{}", msg));
 }
 
-void ShowWarningCustomField(EnergyPlusData &state, ErrorObjectHeader const &eoh, std::string_view fieldName, std::string_view fieldValue, std::string_view msg)
+void ShowWarningCustomField(
+    EnergyPlusData &state, ErrorObjectHeader const &eoh, std::string_view fieldName, std::string_view fieldValue, std::string_view msg)
 {
     ShowWarningError(state, format("{}: {} = {}", eoh.routineName, eoh.objectType, eoh.objectName));
     ShowContinueError(state, format("{} = {}, {}", fieldName, fieldValue, msg));
 }
-        
+
 void ShowWarningInvalidKey(EnergyPlusData &state,
                            ErrorObjectHeader const &eoh,
                            std::string_view fieldName,
@@ -1709,23 +1734,19 @@ void ShowWarningEmptyField(EnergyPlusData &state,
 {
     ShowWarningError(state, format("{}: {} = {}", eoh.routineName, eoh.objectType, eoh.objectName));
     ShowContinueError(state, format("{} is empty.", fieldName));
-    
+
     if (!depFieldName.empty()) ShowContinueError(state, format("Cannot be empty when {} = {}", depFieldName, depFieldVal));
     if (!defaultVal.empty()) ShowContinueError(state, format("{} will be used.", defaultVal));
 }
 
-void ShowWarningNonEmptyField(EnergyPlusData &state,
-                              ErrorObjectHeader const &eoh,
-                              std::string_view fieldName,
-                              std::string_view depFieldName,
-                              std::string_view depFieldValue)
+void ShowWarningNonEmptyField(
+    EnergyPlusData &state, ErrorObjectHeader const &eoh, std::string_view fieldName, std::string_view depFieldName, std::string_view depFieldValue)
 {
     ShowWarningError(state, format("{}: {} = {}", eoh.routineName, eoh.objectType, eoh.objectName));
     ShowContinueError(state, format("{} is not empty.", fieldName));
     if (!depFieldName.empty()) ShowContinueError(state, format("{} is ignored when {} = {}.", fieldName, depFieldName, depFieldValue));
 }
-        
-        
+
 void ShowWarningItemNotFound(
     EnergyPlusData &state, ErrorObjectHeader const &eoh, std::string_view fieldName, std::string_view fieldVal, std::string_view defaultVal)
 {
@@ -1737,31 +1758,53 @@ void ShowWarningItemNotFound(
     }
 }
 
-void ShowWarningBadMin(EnergyPlusData &state, ErrorObjectHeader const &eoh, std::string_view fieldName, Real64 fieldVal, Clusive cluMin, Real64 minVal, std::string_view msg)
+void ShowWarningBadMin(EnergyPlusData &state,
+                       ErrorObjectHeader const &eoh,
+                       std::string_view fieldName,
+                       Real64 fieldVal,
+                       Clusive cluMin,
+                       Real64 minVal,
+                       std::string_view msg)
 {
     ShowWarningError(state, format("{}: {} = {}", eoh.routineName, eoh.objectType, eoh.objectName));
-    ShowContinueError(state, format("{} = {}, but must be {} {}", fieldName, fieldVal,
-                                    cluMin == Clusive::In ? ">=" : ">", minVal));
+    ShowContinueError(state, format("{} = {}, but must be {} {}", fieldName, fieldVal, cluMin == Clusive::In ? ">=" : ">", minVal));
     if (!msg.empty()) ShowContinueError(state, format("{}", msg));
 }
-        
-void ShowWarningBadMax(EnergyPlusData &state, ErrorObjectHeader const &eoh, std::string_view fieldName, Real64 fieldVal, Clusive cluMax, Real64 maxVal, std::string_view msg)
+
+void ShowWarningBadMax(EnergyPlusData &state,
+                       ErrorObjectHeader const &eoh,
+                       std::string_view fieldName,
+                       Real64 fieldVal,
+                       Clusive cluMax,
+                       Real64 maxVal,
+                       std::string_view msg)
 {
     ShowWarningError(state, format("{}: {} = {}", eoh.routineName, eoh.objectType, eoh.objectName));
-    ShowContinueError(state, format("{} = {}, but must be {} {}", fieldName, fieldVal,
-                                    cluMax == Clusive::In ? "<=" : "<", maxVal));
-    ShowContinueError(state, format("{} = {}, but must be {} {}", fieldName, fieldVal,
-                                    cluMax == Clusive::In ? "<=" : "<", maxVal));
+    ShowContinueError(state, format("{} = {}, but must be {} {}", fieldName, fieldVal, cluMax == Clusive::In ? "<=" : "<", maxVal));
+    ShowContinueError(state, format("{} = {}, but must be {} {}", fieldName, fieldVal, cluMax == Clusive::In ? "<=" : "<", maxVal));
     if (!msg.empty()) ShowContinueError(state, format("{}", msg));
 }
-        
-void ShowWarningBadMinMax(EnergyPlusData &state, ErrorObjectHeader const &eoh, std::string_view fieldName, Real64 fieldVal, Clusive cluMin, Real64 minVal, Clusive cluMax, Real64 maxVal, std::string_view msg)
+
+void ShowWarningBadMinMax(EnergyPlusData &state,
+                          ErrorObjectHeader const &eoh,
+                          std::string_view fieldName,
+                          Real64 fieldVal,
+                          Clusive cluMin,
+                          Real64 minVal,
+                          Clusive cluMax,
+                          Real64 maxVal,
+                          std::string_view msg)
 {
     ShowWarningError(state, format("{}: {} = {}", eoh.routineName, eoh.objectType, eoh.objectName));
-    ShowContinueError(state, format("{} = {}, but must be {} {} and {} {}", fieldName, fieldVal,
-                                    cluMin == Clusive::In ? ">=" : ">", minVal,
-                                    cluMax == Clusive::In ? "<=" : "<", maxVal));
+    ShowContinueError(state,
+                      format("{} = {}, but must be {} {} and {} {}",
+                             fieldName,
+                             fieldVal,
+                             cluMin == Clusive::In ? ">=" : ">",
+                             minVal,
+                             cluMax == Clusive::In ? "<=" : "<",
+                             maxVal));
     if (!msg.empty()) ShowContinueError(state, format("{}", msg));
 }
-        
+
 } // namespace EnergyPlus

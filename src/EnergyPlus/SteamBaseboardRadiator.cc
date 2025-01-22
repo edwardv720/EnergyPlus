@@ -263,7 +263,7 @@ namespace SteamBaseboardRadiator {
         // HWBaseboardRadiator module
 
         static constexpr std::string_view routineName = "GetSteamBaseboardInput";
-            
+
         // Using/Aliasing
         using BranchNodeConnections::TestCompSet;
 
@@ -517,7 +517,7 @@ namespace SteamBaseboardRadiator {
                                                                      state.dataIPShortCut->cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam, state.dataIPShortCut->cAlphaArgs(1)};
-            
+
             Util::IsNameEmpty(state, state.dataIPShortCut->cAlphaArgs(1), state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam, ErrorsFound);
             state.dataSteamBaseboardRadiator->SteamBaseboardNumericFields(BaseboardNum).FieldNames.allocate(NumNumbers);
             state.dataSteamBaseboardRadiator->SteamBaseboardNumericFields(BaseboardNum).FieldNames = "";
@@ -546,7 +546,8 @@ namespace SteamBaseboardRadiator {
             // Get schedule
             if (state.dataIPShortCut->lAlphaFieldBlanks(3)) {
                 state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).availSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(3))) == nullptr) {
+            } else if ((state.dataSteamBaseboardRadiator->SteamBaseboard(BaseboardNum).availSched =
+                            Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(3))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(3), state.dataIPShortCut->cAlphaArgs(3));
                 ErrorsFound = true;
             }
@@ -922,9 +923,8 @@ namespace SteamBaseboardRadiator {
         if (!state.dataSteamBaseboardRadiator->ZoneEquipmentListChecked && state.dataZoneEquip->ZoneEquipInputsFilled) {
             state.dataSteamBaseboardRadiator->ZoneEquipmentListChecked = true;
             for (Loop = 1; Loop <= state.dataSteamBaseboardRadiator->NumSteamBaseboards; ++Loop) {
-                if (CheckZoneEquipmentList(state,
-                                           state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam,
-                                           state.dataSteamBaseboardRadiator->SteamBaseboard(Loop).Name))
+                if (CheckZoneEquipmentList(
+                        state, state.dataSteamBaseboardRadiator->cCMO_BBRadiator_Steam, state.dataSteamBaseboardRadiator->SteamBaseboard(Loop).Name))
                     continue;
                 ShowSevereError(state,
                                 format("InitBaseboard: Unit=[{},{}] is not on any ZoneHVAC:EquipmentList.  It will not be simulated.",

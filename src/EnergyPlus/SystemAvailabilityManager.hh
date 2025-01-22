@@ -147,7 +147,7 @@ namespace Avail {
         // Members
         std::string Name;                        // Name of the manager object
         ManagerType type = ManagerType::Invalid; // Integer equivalent of availability manager type
-        Sched::Schedule *availSched = nullptr;                        // Schedule pointer
+        Sched::Schedule *availSched = nullptr;   // Schedule pointer
         Status availStatus = Status::NoAction;   // reports status of availability manager
     };
 
@@ -166,7 +166,7 @@ namespace Avail {
     struct SysAvailManagerNightCycle : SysAvailManager // Derived type for Night Cycle Sys Avail Managers
     {
         // Members
-        Sched::Schedule *fanSched = nullptr;      // Fan schedule
+        Sched::Schedule *fanSched = nullptr; // Fan schedule
         //   Cycle On Control Zone, or Cycle On Any - Zone Fans Only
         Real64 TempTolRange;                                                          // range in degrees C of thermostat tolerance
         int CyclingTimeSteps;                                                         // period (in Loads time steps) system will cycle on.
@@ -188,8 +188,7 @@ namespace Avail {
 
         // Default Constructor
         SysAvailManagerNightCycle()
-            : TempTolRange(1.0), CyclingTimeSteps(1), NumOfCtrlZones(0), NumOfCoolingZones(0), NumOfHeatingZones(0),
-              NumOfHeatZnFanZones(0)
+            : TempTolRange(1.0), CyclingTimeSteps(1), NumOfCtrlZones(0), NumOfCoolingZones(0), NumOfHeatingZones(0), NumOfHeatZnFanZones(0)
         {
         }
     };
@@ -197,16 +196,16 @@ namespace Avail {
     struct SysAvailManagerOptimumStart : SysAvailManager // Derived type for Optimal Start Sys Avail Managers
     {
         // Members
-        bool isSimulated;                  // true after availability manager is simulated
+        bool isSimulated; // true after availability manager is simulated
 
-        Sched::Schedule *fanSched = nullptr;                   // Fan schedule
-        std::string CtrlZoneName;          // Name of the control zone
-        int ZoneNum;                       // zone number of control zone
-        std::string ZoneListName;          // Zone List name
-        int NumOfZones;                    // Number of zones in the list
-        Array1D_int ZonePtrs;              // Pointers to zones in the list
-        Real64 MaxOptStartTime;            // Maximum value of start time in hours
-        ControlAlgorithm controlAlgorithm; // Control algorithm: ConstantTemperatureGradient,
+        Sched::Schedule *fanSched = nullptr; // Fan schedule
+        std::string CtrlZoneName;            // Name of the control zone
+        int ZoneNum;                         // zone number of control zone
+        std::string ZoneListName;            // Zone List name
+        int NumOfZones;                      // Number of zones in the list
+        Array1D_int ZonePtrs;                // Pointers to zones in the list
+        Real64 MaxOptStartTime;              // Maximum value of start time in hours
+        ControlAlgorithm controlAlgorithm;   // Control algorithm: ConstantTemperatureGradient,
         // AdaptiveTemperatureGradient, AdaptiveASHRAE, ConstantStartTime
         Real64 ConstTGradCool;    // Constant temperature gradient in cooling mode, unit: degC per hour
         Real64 ConstTGradHeat;    // Constant temperature gradient in heating mode, unit: degC per hour
@@ -240,12 +239,11 @@ namespace Avail {
 
         // Default Constructor
         SysAvailManagerOptimumStart()
-            : isSimulated(false), ZoneNum(0), NumOfZones(0), MaxOptStartTime(6.0), controlAlgorithm(ControlAlgorithm::Invalid),
-              ConstTGradCool(1.0), ConstTGradHeat(1.0), InitTGradCool(1.0), InitTGradHeat(1.0), AdaptiveTGradCool(1.0), AdaptiveTGradHeat(1.0),
-              ConstStartTime(2.0), NumPreDays(1), NumHoursBeforeOccupancy(0.0), TempDiffHi(0.0), TempDiffLo(0.0), ATGWCZoneNumLo(0),
-              ATGWCZoneNumHi(0), CycleOnFlag(false), ATGUpdateFlag1(false), ATGUpdateFlag2(false), FirstTimeATGFlag(true), OverNightStartFlag(false),
-              OSReportVarFlag(false), AdaTempGradHeat(0.0), AdaTempGradCool(0.0), ATGUpdateTime1(0.0), ATGUpdateTime2(0.0), ATGUpdateTemp1(0.0),
-              ATGUpdateTemp2(0.0)
+            : isSimulated(false), ZoneNum(0), NumOfZones(0), MaxOptStartTime(6.0), controlAlgorithm(ControlAlgorithm::Invalid), ConstTGradCool(1.0),
+              ConstTGradHeat(1.0), InitTGradCool(1.0), InitTGradHeat(1.0), AdaptiveTGradCool(1.0), AdaptiveTGradHeat(1.0), ConstStartTime(2.0),
+              NumPreDays(1), NumHoursBeforeOccupancy(0.0), TempDiffHi(0.0), TempDiffLo(0.0), ATGWCZoneNumLo(0), ATGWCZoneNumHi(0), CycleOnFlag(false),
+              ATGUpdateFlag1(false), ATGUpdateFlag2(false), FirstTimeATGFlag(true), OverNightStartFlag(false), OSReportVarFlag(false),
+              AdaTempGradHeat(0.0), AdaTempGradCool(0.0), ATGUpdateTime1(0.0), ATGUpdateTime2(0.0), ATGUpdateTemp1(0.0), ATGUpdateTemp2(0.0)
         {
         }
 
@@ -296,13 +294,13 @@ namespace Avail {
     struct SysAvailManagerNightVent : SysAvailManager
     {
         // Members
-        Sched::Schedule *fanSched = nullptr;           // Fan schedule
-        Sched::Schedule *ventTempSched = nullptr;      // Ventilation temperature schedule
-        Real64 VentDelT;           // Ventilation delta T [deltaC]
-        Real64 VentTempLowLim;     // ventilation temperature low limit
-        std::string CtrlZoneName;  // Name of the control zone
-        int ZoneNum;               // zome number of control zone
-        Real64 VentFlowFrac;       // the night venting flow fraction
+        Sched::Schedule *fanSched = nullptr;      // Fan schedule
+        Sched::Schedule *ventTempSched = nullptr; // Ventilation temperature schedule
+        Real64 VentDelT;                          // Ventilation delta T [deltaC]
+        Real64 VentTempLowLim;                    // ventilation temperature low limit
+        std::string CtrlZoneName;                 // Name of the control zone
+        int ZoneNum;                              // zome number of control zone
+        Real64 VentFlowFrac;                      // the night venting flow fraction
 
         // Default Constructor
         SysAvailManagerNightVent() : VentDelT(0.0), VentTempLowLim(0.0), ZoneNum(0), VentFlowFrac(0.0)
@@ -342,7 +340,7 @@ namespace Avail {
         std::string ControlZoneName;                          // Controlled zone name
         int NodeNumOfControlledZone;                          // Controlled zone node number
         int ControlledZoneNum;                                // Controlled zone number
-        Sched::Schedule *controlModeSched = nullptr;                              // Ventilation control mode schedule 
+        Sched::Schedule *controlModeSched = nullptr;          // Ventilation control mode schedule
         VentCtrlType ctrlType = VentCtrlType::No;             // hybrid ventilation control mode
         VentCtrlStatus ctrlStatus = VentCtrlStatus::NoAction; // Ventilation control type: Noaction, Close, Open
         Real64 MinOutdoorTemp;                                // Minimum Outdoor Temperature [C]
@@ -353,7 +351,7 @@ namespace Avail {
         Real64 MaxOutdoorDewPoint;                            // Maximum Outdoor Dew Point Temperature [C]
         Real64 MaxWindSpeed;                                  // Maximum Wind speed [m/s]
         bool UseRainIndicator;                                // Use WeatherFile Rain Indicators
-        Sched::Schedule *minOASched = nullptr;             // Minimum Outdoor Ventilation Air Schedule
+        Sched::Schedule *minOASched = nullptr;                // Minimum Outdoor Ventilation Air Schedule
         int DewPointNoRHErrCount;                             // Dewpoint control mode error count without a humidistat
         int DewPointNoRHErrIndex;                             // Dewpoint control mode error index without a humidistat
         int DewPointErrCount;                                 // Dewpoint control mode error count without a valid humidistat
@@ -362,13 +360,13 @@ namespace Avail {
         // with a singleHeatingCooling setpoint
         int SingleHCErrIndex; // Temperature and enthalpy control mode error index
         // with a singleHeatingCooling setpoint
-        int OpeningFactorFWS;                 // Opening factor modifier as a function of wind speed
+        int OpeningFactorFWS; // Opening factor modifier as a function of wind speed
 
-        Sched::Schedule *afnControlTypeSched = nullptr;            // AirflowNetwork control type schedule pointer
-        Sched::Schedule *simpleControlTypeSched = nullptr;        // Simple airflow object control type schedule pointer
-        int VentilationPtr;                   // Ventilation object name pointer
-        std::string VentilationName;          // Ventilation object name
-        bool HybridVentMgrConnectedToAirLoop; // Flag to check whether hybrid ventilation
+        Sched::Schedule *afnControlTypeSched = nullptr;    // AirflowNetwork control type schedule pointer
+        Sched::Schedule *simpleControlTypeSched = nullptr; // Simple airflow object control type schedule pointer
+        int VentilationPtr;                                // Ventilation object name pointer
+        std::string VentilationName;                       // Ventilation object name
+        bool HybridVentMgrConnectedToAirLoop;              // Flag to check whether hybrid ventilation
         // manager is connected to air loop
         bool SimHybridVentSysAvailMgr; // Set to false when a zone has two hybrid ventilation
         // managers, one with air loop and one without
@@ -387,12 +385,11 @@ namespace Avail {
 
         // Default Constructor
         SysAvailManagerHybridVent()
-            : AirLoopNum(0), NodeNumOfControlledZone(0), ControlledZoneNum(0), MinOutdoorTemp(-100.0), MaxOutdoorTemp(100.0),
-              MinOutdoorEnth(0.1), MaxOutdoorEnth(300000.0), MinOutdoorDewPoint(-100.0), MaxOutdoorDewPoint(100.0), MaxWindSpeed(0.0),
-              UseRainIndicator(true), DewPointNoRHErrCount(0), DewPointNoRHErrIndex(0), DewPointErrCount(0), DewPointErrIndex(0),
-              SingleHCErrCount(0), SingleHCErrIndex(0), OpeningFactorFWS(0), 
-              VentilationPtr(0), HybridVentMgrConnectedToAirLoop(true), SimHybridVentSysAvailMgr(false), OperativeTemp(0.0), CO2(0.0),
-              MinOperTime(0.0), MinVentTime(0.0), TimeOperDuration(0.0), TimeVentDuration(0.0), minAdaTem(0.0), maxAdaTem(0.0)
+            : AirLoopNum(0), NodeNumOfControlledZone(0), ControlledZoneNum(0), MinOutdoorTemp(-100.0), MaxOutdoorTemp(100.0), MinOutdoorEnth(0.1),
+              MaxOutdoorEnth(300000.0), MinOutdoorDewPoint(-100.0), MaxOutdoorDewPoint(100.0), MaxWindSpeed(0.0), UseRainIndicator(true),
+              DewPointNoRHErrCount(0), DewPointNoRHErrIndex(0), DewPointErrCount(0), DewPointErrIndex(0), SingleHCErrCount(0), SingleHCErrIndex(0),
+              OpeningFactorFWS(0), VentilationPtr(0), HybridVentMgrConnectedToAirLoop(true), SimHybridVentSysAvailMgr(false), OperativeTemp(0.0),
+              CO2(0.0), MinOperTime(0.0), MinVentTime(0.0), TimeOperDuration(0.0), TimeVentDuration(0.0), minAdaTem(0.0), maxAdaTem(0.0)
         {
         }
     };

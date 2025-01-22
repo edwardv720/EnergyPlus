@@ -81,7 +81,7 @@ TEST_F(EnergyPlusFixture, DemandManagerGetInput)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataMixedAir->NumOAControllers = 1;
     state->dataMixedAir->OAController.allocate(state->dataMixedAir->NumOAControllers);
     state->dataMixedAir->OAController(1).Name = "OA CONTROLLER 1";
@@ -158,7 +158,7 @@ TEST_F(EnergyPlusFixture, DemandManagerAssignmentListGetInputTest)
     state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
     state->init_state(*state);
-    
+
     ExteriorEnergyUse::GetExteriorEnergyUseInput(*state);
     GetDemandManagerInput(*state);
 

@@ -225,7 +225,7 @@ void GetFluidHeatExchangerInput(EnergyPlusData &state)
                                                                      cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, cCurrentModuleObject, cAlphaArgs(1)};
-            
+
             Util::IsNameEmpty(state, cAlphaArgs(1), cCurrentModuleObject, ErrorsFound);
 
             state.dataPlantHXFluidToFluid->FluidHX(CompLoop).Name = cAlphaArgs(1);

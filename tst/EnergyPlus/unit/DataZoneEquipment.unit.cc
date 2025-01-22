@@ -385,7 +385,7 @@ TEST_F(EnergyPlusFixture, GetZoneEquipmentData_epJSON)
     state->dataIPShortCut->lNumericFieldBlanks.dimension(MaxNumeric, false);
 
     state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesInTimeStep = 60;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
 
     bool ErrorsFound = false;

@@ -301,7 +301,7 @@ TEST_F(EnergyPlusFixture, SizingManager_DOASControlStrategyDefaultSpecificationT
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool ErrorsFound(false);
     HeatBalanceManager::GetZoneData(*state, ErrorsFound);
     ASSERT_FALSE(ErrorsFound);
@@ -371,7 +371,7 @@ TEST_F(EnergyPlusFixture, SizingManager_DOASControlStrategyDefaultSpecificationT
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool ErrorsFound(false);
     HeatBalanceManager::GetZoneData(*state, ErrorsFound);
     ASSERT_FALSE(ErrorsFound);
@@ -556,7 +556,7 @@ TEST_F(EnergyPlusFixture, SizingManager_OverrideAvgWindowInSizing)
 
     EXPECT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     SimulationManager::GetProjectData(*state);
     EXPECT_TRUE(state->dataGlobal->OverrideTimestep);
     SizingManager::GetSizingParams(*state);

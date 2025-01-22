@@ -332,7 +332,7 @@ void GetPlantProfileInput(EnergyPlusData &state)
     // Gets the plant load profile input from the input file and sets up the objects.
 
     static constexpr std::string_view routineName = "GetPlantProfileInput";
-        
+
     // Using/Aliasing
     using namespace DataLoopNode;
 
@@ -364,7 +364,7 @@ void GetPlantProfileInput(EnergyPlusData &state)
                                                                      state.dataIPShortCut->cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
-            
+
             Util::IsNameEmpty(state, state.dataIPShortCut->cAlphaArgs(1), cCurrentModuleObject, ErrorsFound);
 
             state.dataPlantLoadProfile->PlantProfile(ProfileNum).Name = state.dataIPShortCut->cAlphaArgs(1);
@@ -421,16 +421,16 @@ void GetPlantProfileInput(EnergyPlusData &state)
                                                         ObjectIsNotParent);
             }
 
-
-            if ((state.dataPlantLoadProfile->PlantProfile(ProfileNum).loadSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(4))) == nullptr) {
+            if ((state.dataPlantLoadProfile->PlantProfile(ProfileNum).loadSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(4))) ==
+                nullptr) {
                 ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(4), state.dataIPShortCut->cAlphaArgs(4));
                 ErrorsFound = true;
             }
 
             state.dataPlantLoadProfile->PlantProfile(ProfileNum).PeakVolFlowRate = state.dataIPShortCut->rNumericArgs(1);
 
-
-            if ((state.dataPlantLoadProfile->PlantProfile(ProfileNum).flowRateFracSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(5))) == nullptr) { 
+            if ((state.dataPlantLoadProfile->PlantProfile(ProfileNum).flowRateFracSched =
+                     Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(5))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(5), state.dataIPShortCut->cAlphaArgs(5));
                 ErrorsFound = true;
             }

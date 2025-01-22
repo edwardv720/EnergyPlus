@@ -278,8 +278,8 @@ namespace LowTempRadiantSystem {
 
         // SUBROUTINE PARAMETER DEFINITIONS:
         constexpr std::string_view RoutineName("GetLowTempRadiantSystem: "); // include trailing blank space
-        constexpr std::string_view routineName = "GetLowTempRadiantSystem"; 
-        
+        constexpr std::string_view routineName = "GetLowTempRadiantSystem";
+
         constexpr std::string_view Off("Off");
         constexpr std::string_view SimpleOff("SimpleOff");
         constexpr std::string_view VariableOff("VariableOff");
@@ -427,7 +427,7 @@ namespace LowTempRadiantSystem {
                                                                      cNumericFields);
 
             ErrorObjectHeader eoh{routineName, CurrentModuleObject, Alphas(1)};
-            
+
             state.dataLowTempRadSys->HydronicRadiantSysDesign(Item).FieldNames.allocate(NumNumbers);
             state.dataLowTempRadSys->HydronicRadiantSysDesign(Item).FieldNames = "";
             state.dataLowTempRadSys->HydronicRadiantSysDesign(Item).FieldNames = cNumericFields;
@@ -503,9 +503,8 @@ namespace LowTempRadiantSystem {
 
             thisRadSysDesign.HotThrottlRange = Numbers(6);
 
-
             if (lAlphaBlanks(6)) {
-            } else if ((thisRadSysDesign.heatSetptSched = Sched::GetSchedule(state, Alphas(6))) == nullptr) { 
+            } else if ((thisRadSysDesign.heatSetptSched = Sched::GetSchedule(state, Alphas(6))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(6), Alphas(6));
                 ErrorsFound = true;
             }
@@ -603,7 +602,7 @@ namespace LowTempRadiantSystem {
                                                                      cNumericFields);
 
             ErrorObjectHeader eoh{routineName, CurrentModuleObject, Alphas(1)};
-            
+
             state.dataLowTempRadSys->HydronicRadiantSysNumericFields(Item).FieldNames.allocate(NumNumbers);
             state.dataLowTempRadSys->HydronicRadiantSysNumericFields(Item).FieldNames = "";
             state.dataLowTempRadSys->HydronicRadiantSysNumericFields(Item).FieldNames = cNumericFields;
@@ -816,7 +815,8 @@ namespace LowTempRadiantSystem {
 
             if ((thisRadSys.WaterVolFlowMaxCool == AutoSize) &&
                 (variableFlowDesignDataObject.DesignCoolingCapMethod == 0 || lAlphaBlanks(8) || lAlphaBlanks(9) ||
-                 (thisRadSys.ColdWaterInNode <= 0) || (thisRadSys.ColdWaterOutNode <= 0) || (variableFlowDesignDataObject.coolSetptSched == nullptr))) {
+                 (thisRadSys.ColdWaterInNode <= 0) || (thisRadSys.ColdWaterOutNode <= 0) ||
+                 (variableFlowDesignDataObject.coolSetptSched == nullptr))) {
                 ShowSevereError(state, "Hydronic radiant systems may not be autosized without specification of nodes or schedules");
                 ShowContinueError(state, format("Occurs in {} (cooling input) ={}", CurrentModuleObject, Alphas(1)));
                 ErrorsFound = true;
@@ -841,7 +841,7 @@ namespace LowTempRadiantSystem {
                                                                      cNumericFields);
 
             ErrorObjectHeader eoh{routineName, CurrentModuleObject, Alphas(1)};
-            
+
             state.dataLowTempRadSys->CflowRadiantSysDesign(Item).FieldNames.allocate(NumNumbers);
             state.dataLowTempRadSys->CflowRadiantSysDesign(Item).FieldNames = "";
             state.dataLowTempRadSys->CflowRadiantSysDesign(Item).FieldNames = cNumericFields;
@@ -878,7 +878,7 @@ namespace LowTempRadiantSystem {
             thisRadSysDesign.CondDewPtDeltaT = Numbers(7);
 
             if (lAlphaBlanks(5)) {
-            } else if ((thisRadSysDesign.changeoverDelaySched = Sched::GetSchedule(state, Alphas(5))) == nullptr) { 
+            } else if ((thisRadSysDesign.changeoverDelaySched = Sched::GetSchedule(state, Alphas(5))) == nullptr) {
                 ShowWarningItemNotFound(state, eoh, cAlphaFields(5), Alphas(5), "No changeover delay will be used for this radiant system.");
             }
             CFlowRadDesignNames(Item) = Alphas(1);
@@ -902,7 +902,7 @@ namespace LowTempRadiantSystem {
                                                                      cNumericFields);
 
             ErrorObjectHeader eoh{routineName, CurrentModuleObject, Alphas(1)};
-            
+
             GlobalNames::VerifyUniqueInterObjectName(
                 state, state.dataLowTempRadSys->LowTempRadUniqueNames, Alphas(1), CurrentModuleObject, cAlphaFields(1), ErrorsFound);
             ++BaseNum;
@@ -990,7 +990,7 @@ namespace LowTempRadiantSystem {
             thisCFloSys.WaterVolFlowMax = Numbers(2);
 
             if (lAlphaBlanks(6)) {
-            } else if ((thisCFloSys.volFlowSched = Sched::GetSchedule(state, Alphas(6))) == nullptr) { 
+            } else if ((thisCFloSys.volFlowSched = Sched::GetSchedule(state, Alphas(6))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(6), Alphas(6));
                 ErrorsFound = true;
             }
@@ -1036,13 +1036,13 @@ namespace LowTempRadiantSystem {
 
             // This may look like a weird thing to do, but it's equivalent to a nested if and also uses less nesting
             if (lAlphaBlanks(11)) {
-            } else if ((thisCFloSys.hotCtrlHiTempSched = Sched::GetSchedule(state, Alphas(11))) == nullptr) { 
+            } else if ((thisCFloSys.hotCtrlHiTempSched = Sched::GetSchedule(state, Alphas(11))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(11), Alphas(11));
                 ErrorsFound = true;
             }
 
             if (lAlphaBlanks(12)) {
-            } else if ((thisCFloSys.hotCtrlLoTempSched = Sched::GetSchedule(state, Alphas(12))) == nullptr) { 
+            } else if ((thisCFloSys.hotCtrlLoTempSched = Sched::GetSchedule(state, Alphas(12))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(12), Alphas(12));
                 ErrorsFound = true;
             }
@@ -1073,25 +1073,25 @@ namespace LowTempRadiantSystem {
             }
 
             if (lAlphaBlanks(15)) {
-            } else if ((thisCFloSys.coldWaterHiTempSched = Sched::GetSchedule(state, Alphas(15))) == nullptr) { 
+            } else if ((thisCFloSys.coldWaterHiTempSched = Sched::GetSchedule(state, Alphas(15))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(15), Alphas(15));
                 ErrorsFound = true;
             }
 
             if (lAlphaBlanks(16)) {
-            } else if ((thisCFloSys.coldWaterLoTempSched = Sched::GetSchedule(state, Alphas(16))) == nullptr) { 
+            } else if ((thisCFloSys.coldWaterLoTempSched = Sched::GetSchedule(state, Alphas(16))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(16), Alphas(16));
                 ErrorsFound = true;
             }
 
             if (lAlphaBlanks(17)) {
-            } else if ((thisCFloSys.coldCtrlHiTempSched = Sched::GetSchedule(state, Alphas(17))) == nullptr) { 
+            } else if ((thisCFloSys.coldCtrlHiTempSched = Sched::GetSchedule(state, Alphas(17))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(17), Alphas(17));
                 ErrorsFound = true;
             }
 
             if (lAlphaBlanks(18)) {
-            } else if ((thisCFloSys.coldCtrlLoTempSched = Sched::GetSchedule(state, Alphas(18))) == nullptr) { 
+            } else if ((thisCFloSys.coldCtrlLoTempSched = Sched::GetSchedule(state, Alphas(18))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(18), Alphas(18));
                 ErrorsFound = true;
             }
@@ -1128,7 +1128,7 @@ namespace LowTempRadiantSystem {
                                                                      cNumericFields);
 
             ErrorObjectHeader eoh{routineName, CurrentModuleObject, Alphas(1)};
-            
+
             state.dataLowTempRadSys->ElecRadSysNumericFields(Item).FieldNames.allocate(NumNumbers);
             state.dataLowTempRadSys->ElecRadSysNumericFields(Item).FieldNames = "";
             state.dataLowTempRadSys->ElecRadSysNumericFields(Item).FieldNames = cNumericFields;
@@ -1282,7 +1282,7 @@ namespace LowTempRadiantSystem {
             if (lAlphaBlanks(8)) {
                 ShowSevereEmptyField(state, eoh, cAlphaFields(8));
                 ErrorsFound = true;
-            } else if ((thisElecSys.setptSched = Sched::GetSchedule(state, Alphas(8))) == nullptr) { 
+            } else if ((thisElecSys.setptSched = Sched::GetSchedule(state, Alphas(8))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(8), Alphas(8));
                 ErrorsFound = true;
             }
@@ -4245,7 +4245,7 @@ namespace LowTempRadiantSystem {
             // Determine pump flow rate and pump heat addition
             this->PumpMassFlowRate = this->WaterMassFlowRate; // Set in InitLowTempRadiantSystem
             PumpPartLoadRat = (this->volFlowSched != nullptr) ? this->volFlowSched->getCurrentVal() : 1.0;
-            
+
             this->PumpPower = PumpPartLoadRat * this->NomPowerUse;
             ShaftPower = this->PumpPower * ConstantFlowDesignDataObject.MotorEffic;
             // This adds the pump heat based on User input for the pump (same as in Pump module)

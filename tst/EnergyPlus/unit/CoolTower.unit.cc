@@ -86,7 +86,7 @@ TEST_F(EnergyPlusFixture, ExerciseCoolTower)
     ASSERT_TRUE(process_idf(idf_objects, false));
 
     state->init_state(*state);
-    
+
     state->dataHeatBal->Zone.allocate(1);
     state->dataHeatBal->Zone(1).Name = "ZONE 1";
     state->dataZoneTempPredictorCorrector->zoneHeatBalance.allocate(1);

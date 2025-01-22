@@ -223,7 +223,7 @@ namespace BaseboardRadiator {
 
         // SUBROUTINE PARAMETER DEFINITIONS:
         static constexpr std::string_view RoutineName = "GetBaseboardInput: "; // include trailing blank space
-        static constexpr std::string_view routineName = "GetBaseboardInput"; 
+        static constexpr std::string_view routineName = "GetBaseboardInput";
         int constexpr iHeatCAPMAlphaNum = 5;                   // get input index to water baseboard Radiator system heating capacity sizing method
         int constexpr iHeatDesignCapacityNumericNum = 1;       // get input index to water baseboard Radiator system electric heating capacity
         int constexpr iHeatCapacityPerFloorAreaNumericNum = 2; // index to baseboard Radiator system electric heating capacity per floor area sizing
@@ -260,7 +260,7 @@ namespace BaseboardRadiator {
                                                                          s_ipsc->cNumericFieldNames);
 
                 ErrorObjectHeader eoh{routineName, s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)};
-                
+
                 auto &thisBaseboard = state.dataBaseboardRadiator->baseboards(ConvHWBaseboardNum);
                 thisBaseboard.FieldNames.allocate(NumNums);
                 thisBaseboard.FieldNames = s_ipsc->cNumericFieldNames;
@@ -299,12 +299,7 @@ namespace BaseboardRadiator {
                                                                   NodeInputManager::CompFluidStream::Primary,
                                                                   ObjectIsNotParent);
 
-                TestCompSet(state,
-                            cCMO_BBRadiator_Water,
-                            s_ipsc->cAlphaArgs(1),
-                            s_ipsc->cAlphaArgs(3),
-                            s_ipsc->cAlphaArgs(4),
-                            "Hot Water Nodes");
+                TestCompSet(state, cCMO_BBRadiator_Water, s_ipsc->cAlphaArgs(1), s_ipsc->cAlphaArgs(3), s_ipsc->cAlphaArgs(4), "Hot Water Nodes");
 
                 // Determine steam baseboard radiator system heating design capacity sizing method
                 if (Util::SameString(s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum), "HeatingDesignCapacity")) {
@@ -321,12 +316,9 @@ namespace BaseboardRadiator {
                         }
                     } else {
                         ShowSevereError(state, format("{} = {}", cCMO_BBRadiator_Water, thisBaseboard.EquipID));
-                        ShowContinueError(state,
-                                          format("Input for {} = {}",
-                                                 s_ipsc->cAlphaFieldNames(iHeatCAPMAlphaNum),
-                                                 s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum)));
                         ShowContinueError(
-                            state, format("Blank field not allowed for {}", s_ipsc->cNumericFieldNames(iHeatDesignCapacityNumericNum)));
+                            state, format("Input for {} = {}", s_ipsc->cAlphaFieldNames(iHeatCAPMAlphaNum), s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum)));
+                        ShowContinueError(state, format("Blank field not allowed for {}", s_ipsc->cNumericFieldNames(iHeatDesignCapacityNumericNum)));
                         ErrorsFound = true;
                     }
                 } else if (Util::SameString(s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum), "CapacityPerFloorArea")) {
@@ -335,10 +327,9 @@ namespace BaseboardRadiator {
                         thisBaseboard.ScaledHeatingCapacity = s_ipsc->rNumericArgs(iHeatCapacityPerFloorAreaNumericNum);
                         if (thisBaseboard.ScaledHeatingCapacity <= 0.0) {
                             ShowSevereError(state, format("{} = {}", cCMO_BBRadiator_Water, thisBaseboard.EquipID));
-                            ShowContinueError(state,
-                                              format("Input for {} = {}",
-                                                     s_ipsc->cAlphaFieldNames(iHeatCAPMAlphaNum),
-                                                     s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum)));
+                            ShowContinueError(
+                                state,
+                                format("Input for {} = {}", s_ipsc->cAlphaFieldNames(iHeatCAPMAlphaNum), s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum)));
                             ShowContinueError(state,
                                               format("Illegal {} = {:.7T}",
                                                      s_ipsc->cNumericFieldNames(iHeatCapacityPerFloorAreaNumericNum),
@@ -346,24 +337,19 @@ namespace BaseboardRadiator {
                             ErrorsFound = true;
                         } else if (thisBaseboard.ScaledHeatingCapacity == AutoSize) {
                             ShowSevereError(state, format("{} = {}", cCMO_BBRadiator_Water, thisBaseboard.EquipID));
-                            ShowContinueError(state,
-                                              format("Input for {} = {}",
-                                                     s_ipsc->cAlphaFieldNames(iHeatCAPMAlphaNum),
-                                                     s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum)));
                             ShowContinueError(
                                 state,
-                                format("Illegal {} = Autosize", s_ipsc->cNumericFieldNames(iHeatCapacityPerFloorAreaNumericNum)));
+                                format("Input for {} = {}", s_ipsc->cAlphaFieldNames(iHeatCAPMAlphaNum), s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum)));
+                            ShowContinueError(state,
+                                              format("Illegal {} = Autosize", s_ipsc->cNumericFieldNames(iHeatCapacityPerFloorAreaNumericNum)));
                             ErrorsFound = true;
                         }
                     } else {
                         ShowSevereError(state, format("{} = {}", cCMO_BBRadiator_Water, thisBaseboard.EquipID));
-                        ShowContinueError(state,
-                                          format("Input for {} = {}",
-                                                 s_ipsc->cAlphaFieldNames(iHeatCAPMAlphaNum),
-                                                 s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum)));
                         ShowContinueError(
-                            state,
-                            format("Blank field not allowed for {}", s_ipsc->cNumericFieldNames(iHeatCapacityPerFloorAreaNumericNum)));
+                            state, format("Input for {} = {}", s_ipsc->cAlphaFieldNames(iHeatCAPMAlphaNum), s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum)));
+                        ShowContinueError(state,
+                                          format("Blank field not allowed for {}", s_ipsc->cNumericFieldNames(iHeatCapacityPerFloorAreaNumericNum)));
                         ErrorsFound = true;
                     }
                 } else if (Util::SameString(s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum), "FractionOfAutosizedHeatingCapacity")) {
@@ -380,21 +366,16 @@ namespace BaseboardRadiator {
                         }
                     } else {
                         ShowSevereError(state, format("{} = {}", cCMO_BBRadiator_Water, thisBaseboard.EquipID));
-                        ShowContinueError(state,
-                                          format("Input for {} = {}",
-                                                 s_ipsc->cAlphaFieldNames(iHeatCAPMAlphaNum),
-                                                 s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum)));
-                        ShowContinueError(state,
-                                          format("Blank field not allowed for {}",
-                                                 s_ipsc->cNumericFieldNames(iHeatFracOfAutosizedCapacityNumericNum)));
+                        ShowContinueError(
+                            state, format("Input for {} = {}", s_ipsc->cAlphaFieldNames(iHeatCAPMAlphaNum), s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum)));
+                        ShowContinueError(
+                            state, format("Blank field not allowed for {}", s_ipsc->cNumericFieldNames(iHeatFracOfAutosizedCapacityNumericNum)));
                         ErrorsFound = true;
                     }
                 } else {
                     ShowSevereError(state, format("{} = {}", cCMO_BBRadiator_Water, thisBaseboard.EquipID));
                     ShowContinueError(state,
-                                      format("Illegal {} = {}",
-                                             s_ipsc->cAlphaFieldNames(iHeatCAPMAlphaNum),
-                                             s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum)));
+                                      format("Illegal {} = {}", s_ipsc->cAlphaFieldNames(iHeatCAPMAlphaNum), s_ipsc->cAlphaArgs(iHeatCAPMAlphaNum)));
                     ErrorsFound = true;
                 }
 
@@ -999,8 +980,7 @@ namespace BaseboardRadiator {
         CapacitanceAir = CpAir * AirMassFlowRate;
 
         if (QZnReq > SmallLoad && (!state.dataZoneEnergyDemand->CurDeadBandOrSetback(ZoneNum) || baseboard.MySizeFlag) &&
-            (baseboard.availSched->getCurrentVal() > 0 || baseboard.MySizeFlag) &&
-            (WaterMassFlowRate > 0.0)) {
+            (baseboard.availSched->getCurrentVal() > 0 || baseboard.MySizeFlag) && (WaterMassFlowRate > 0.0)) {
 
             CapacitanceWater = CpWater * WaterMassFlowRate;
             CapacitanceMax = max(CapacitanceAir, CapacitanceWater);

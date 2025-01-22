@@ -486,8 +486,8 @@ namespace GeneratorDynamicsManager {
                                                       (int(state.dataGlobal->CurrentTime) +
                                                        (SysTimeElapsed + (state.dataGlobal->CurrentTime - int(state.dataGlobal->CurrentTime)))) /
                                                           Constant::rHoursInDay;
-                        Real64 EndingFractionalDay =
-                            thisGen.FractionalDayofLastShutDown + thisGen.CoolDownDelay / Constant::rHoursInDay - (TimeStepSys / Constant::rHoursInDay);
+                        Real64 EndingFractionalDay = thisGen.FractionalDayofLastShutDown + thisGen.CoolDownDelay / Constant::rHoursInDay -
+                                                     (TimeStepSys / Constant::rHoursInDay);
                         if ((std::abs(CurrentFractionalDay - EndingFractionalDay) < 0.000001) ||
                             (CurrentFractionalDay < EndingFractionalDay)) { // CurrentFractionalDay == EndingFractionalDay
 

@@ -382,12 +382,11 @@ namespace WindowComplexManager {
         state.dataSurface->SurfaceWindow(iSurf).ComplexFen.State(iState).WinBmGndTrans.allocate(24, state.dataGlobal->TimeStepsInHour);
         state.dataSurface->SurfaceWindow(iSurf).ComplexFen.State(iState).WinBmFtAbs.allocate(24, state.dataGlobal->TimeStepsInHour, NLayers);
         state.dataSurface->SurfaceWindow(iSurf).ComplexFen.State(iState).WinBmGndAbs.allocate(24, state.dataGlobal->TimeStepsInHour, NLayers);
-        state.dataSurface->SurfaceWindow(iSurf).ComplexFen.State(iState).WinToSurfBmTrans.allocate(
-            24, state.dataGlobal->TimeStepsInHour, NBkSurf);
+        state.dataSurface->SurfaceWindow(iSurf).ComplexFen.State(iState).WinToSurfBmTrans.allocate(24, state.dataGlobal->TimeStepsInHour, NBkSurf);
         state.dataSurface->SurfaceWindow(iSurf).ComplexFen.State(iState).BkSurf.allocate(NBkSurf);
         for (KBkSurf = 1; KBkSurf <= NBkSurf; ++KBkSurf) {
-            state.dataSurface->SurfaceWindow(iSurf).ComplexFen.State(iState).BkSurf(KBkSurf).WinDHBkRefl.allocate(
-                24, state.dataGlobal->TimeStepsInHour);
+            state.dataSurface->SurfaceWindow(iSurf).ComplexFen.State(iState).BkSurf(KBkSurf).WinDHBkRefl.allocate(24,
+                                                                                                                  state.dataGlobal->TimeStepsInHour);
             state.dataSurface->SurfaceWindow(iSurf).ComplexFen.State(iState).BkSurf(KBkSurf).WinDirBkAbs.allocate(
                 24, state.dataGlobal->TimeStepsInHour, NLayers);
         }
@@ -1404,7 +1403,8 @@ namespace WindowComplexManager {
                                         break;
                                     }
                                 }
-                                if (!state.dataSurface->Surface(JSurf).HeatTransSurf && state.dataSurface->Surface(JSurf).shadowSurfSched == nullptr) {
+                                if (!state.dataSurface->Surface(JSurf).HeatTransSurf &&
+                                    state.dataSurface->Surface(JSurf).shadowSurfSched == nullptr) {
                                     //  The new hit is opaque, so we can drop all the hits further away
                                     TmpHSurfNo(J, NReflSurf) = JSurf;
                                     TmpHitPt(J, NReflSurf) = HitPt;

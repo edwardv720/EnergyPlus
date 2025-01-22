@@ -171,7 +171,7 @@ namespace EvaporativeFluidCoolers {
         // begin water system interactions
         EvapLoss EvapLossMode = EvapLoss::ByMoistTheory;   // sets how evaporative fluid cooler water evaporation is modeled
         Blowdown BlowdownMode = Blowdown::ByConcentration; // sets how evaporative fluid cooler water blowdown is modeled
-        Sched::Schedule *blowdownSched = nullptr;                           // schedule of blowdown in [m3/s]
+        Sched::Schedule *blowdownSched = nullptr;          // schedule of blowdown in [m3/s]
         int WaterTankID = 0;                               // index "pointer" to WaterStorage structure
         int WaterTankDemandARRID = 0;                      // index "pointer" to demand array inside WaterStorage structure
         Real64 UserEvapLossFactor = 0.0;                   // simple model [%/Delt C]

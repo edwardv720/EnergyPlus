@@ -397,7 +397,7 @@ TEST_F(EnergyPlusFixture, ManageElectricPowerTest_UpdateLoadCenterRecords_Case3)
 
     // get availability schedule to work
     state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesInTimeStep = 60;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
 
     state->dataEnvrn->Month = 1;
@@ -495,7 +495,7 @@ TEST_F(EnergyPlusFixture, ManageElectricPowerTest_UpdateLoadCenterRecords_Case4)
 
     ASSERT_TRUE(process_idf(idf_objects));
 
-    state->dataGlobal->TimeStepsInHour = 1; // must initialize this to get schedules initialized
+    state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
     state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
     createFacilityElectricPowerServiceObject(*state);
@@ -585,7 +585,7 @@ TEST_F(EnergyPlusFixture, ManageElectricPowerTest_UpdateLoadCenterRecords_Case5)
 
     // get availability schedule to work
     state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesInTimeStep = 60;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
 
     state->dataEnvrn->Month = 1;
@@ -732,7 +732,7 @@ TEST_F(EnergyPlusFixture, ManageElectricPowerTest_TransformerLossTest)
     state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
     state->init_state(*state);
-    
+
     state->dataGlobal->HourOfDay = 1;
     state->dataGlobal->TimeStep = 1;
     state->dataEnvrn->Month = 1;
@@ -974,10 +974,8 @@ TEST_F(EnergyPlusFixture, ElectricLoadCenter_WarnAvailabilitySchedule_PVWatts)
     state->dataElectPwrSvcMgr->facilityElectricServiceObj->elecLoadCenterObjs.emplace_back(new ElectPowerLoadCenter(*state, 1));
 
     // Should warn only for PVWatts1 because PVWatts2 doesn't have a schedule
-    std::string const error_string = delimited_string({
-        "   ** Warning ** GeneratorController constructor : GENERATOR:PVWATTS = PVWATTS1",
-        "   **   ~~~   ** Availability Schedule will be ignored (runs all the time)."
-    });
+    std::string const error_string = delimited_string({"   ** Warning ** GeneratorController constructor : GENERATOR:PVWATTS = PVWATTS1",
+                                                       "   **   ~~~   ** Availability Schedule will be ignored (runs all the time)."});
     EXPECT_TRUE(compare_err_stream(error_string, true));
 }
 
@@ -1146,10 +1144,10 @@ TEST_F(EnergyPlusFixture, Battery_checkUserEfficiencyInputTest)
     errorsFound = false;
     functionResult = checkUserEfficiencyInput(*state, userInputEfficiencyCharge, "CHARGING", "Tatooine", errorsFound);
     EXPECT_NEAR(functionResult, expectedResult, 0.00001);
-    std::string const error_string1 =
-        delimited_string({format("   ** Warning ** Version: missing in IDF, processing for EnergyPlus version=\"{}\"", DataStringGlobals::MatchVersion),
-                          "   ** Severe  ** ElectricStorage charge efficiency was too low.  This occurred for electric storage unit named Tatooine",
-                          "   **   ~~~   ** Please check your input value  for this electric storage unit and fix the charge efficiency."});
+    std::string const error_string1 = delimited_string(
+        {format("   ** Warning ** Version: missing in IDF, processing for EnergyPlus version=\"{}\"", DataStringGlobals::MatchVersion),
+         "   ** Severe  ** ElectricStorage charge efficiency was too low.  This occurred for electric storage unit named Tatooine",
+         "   **   ~~~   ** Please check your input value  for this electric storage unit and fix the charge efficiency."});
     EXPECT_TRUE(compare_err_stream(error_string1, true));
     EXPECT_TRUE(errorsFound);
 

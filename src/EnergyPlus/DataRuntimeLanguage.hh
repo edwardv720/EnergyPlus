@@ -248,9 +248,9 @@ namespace DataRuntimeLanguage {
         std::string OutputVarName; // name of output variable
         bool CheckedOkay;          // set to true once checked out okay
         OutputProcessor::VariableType VariableType;
-        int Index;       // ref index in output processor, points to variable
-        int VariableNum; // ref to global variable in runtime language
-        Sched::Schedule *sched = nullptr;    // ref index ptr to schedule service (filled if Schedule Value)
+        int Index;                        // ref index in output processor, points to variable
+        int VariableNum;                  // ref to global variable in runtime language
+        Sched::Schedule *sched = nullptr; // ref index ptr to schedule service (filled if Schedule Value)
         //  INTEGER                                 :: VarType       = 0
 
         // Default Constructor

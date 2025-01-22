@@ -78,23 +78,23 @@ namespace ExteriorEnergyUse {
     struct ExteriorLightUsage
     {
         // Members
-        std::string Name;             // Descriptive name -- will show on reporting
-        Sched::Schedule *sched = nullptr;                 // Can be scheduled
-        Real64 DesignLevel;           // Consumption in Watts
-        Real64 Power;                 // Power = DesignLevel * ScheduleValue
-        Real64 CurrentUse;            // Use for this time step
-        LightControlType ControlMode; // Control mode Schedule Only or Astronomical Clock plus schedule
-        bool ManageDemand;            // Flag to indicate whether to use demand limiting
-        Real64 DemandLimit;           // Demand limit set by demand manager [W]
-        bool PowerActuatorOn;         // EMS flag
-        Real64 PowerActuatorValue;    // EMS value
-        Real64 SumConsumption;        // sum of electric consumption [J] for reporting
-        Real64 SumTimeNotZeroCons;    // sum of time of positive electric consumption [hr]
+        std::string Name;                 // Descriptive name -- will show on reporting
+        Sched::Schedule *sched = nullptr; // Can be scheduled
+        Real64 DesignLevel;               // Consumption in Watts
+        Real64 Power;                     // Power = DesignLevel * ScheduleValue
+        Real64 CurrentUse;                // Use for this time step
+        LightControlType ControlMode;     // Control mode Schedule Only or Astronomical Clock plus schedule
+        bool ManageDemand;                // Flag to indicate whether to use demand limiting
+        Real64 DemandLimit;               // Demand limit set by demand manager [W]
+        bool PowerActuatorOn;             // EMS flag
+        Real64 PowerActuatorValue;        // EMS value
+        Real64 SumConsumption;            // sum of electric consumption [J] for reporting
+        Real64 SumTimeNotZeroCons;        // sum of time of positive electric consumption [hr]
 
         // Default Constructor
         ExteriorLightUsage()
-            : DesignLevel(0.0), Power(0.0), CurrentUse(0.0), ControlMode(LightControlType::ScheduleOnly), ManageDemand(false),
-              DemandLimit(0.0), PowerActuatorOn(false), PowerActuatorValue(0.0), SumConsumption(0.0), SumTimeNotZeroCons(0.0)
+            : DesignLevel(0.0), Power(0.0), CurrentUse(0.0), ControlMode(LightControlType::ScheduleOnly), ManageDemand(false), DemandLimit(0.0),
+              PowerActuatorOn(false), PowerActuatorValue(0.0), SumConsumption(0.0), SumTimeNotZeroCons(0.0)
         {
         }
     };
@@ -104,12 +104,12 @@ namespace ExteriorEnergyUse {
         // Members
         std::string Name; // Descriptive name -- will show on reporting
         Constant::eFuel FuelType;
-        Sched::Schedule *sched = nullptr;       // Can be scheduled
-        Real64 DesignLevel; // Design Consumption (Watts, except for Water Equipment)
-        Real64 Power;       // Power = DesignLevel * ScheduleValue
-        Real64 CurrentUse;  // Use for this time step
-        bool ManageDemand;  // Flag to indicate whether to use demand limiting
-        Real64 DemandLimit; // Demand limit set by demand manager [W]
+        Sched::Schedule *sched = nullptr; // Can be scheduled
+        Real64 DesignLevel;               // Design Consumption (Watts, except for Water Equipment)
+        Real64 Power;                     // Power = DesignLevel * ScheduleValue
+        Real64 CurrentUse;                // Use for this time step
+        bool ManageDemand;                // Flag to indicate whether to use demand limiting
+        Real64 DemandLimit;               // Demand limit set by demand manager [W]
 
         // Default Constructor
         ExteriorEquipmentUsage()

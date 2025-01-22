@@ -317,9 +317,9 @@ TEST_F(EnergyPlusFixture, BaseboardConvWater_SizingTest)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesInTimeStep = 60;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
 
-    state->init_state(*state); 
+    state->init_state(*state);
 
     bool errorsFound(false);
     HeatBalanceManager::GetProjectControlData(*state, errorsFound); // read project control data

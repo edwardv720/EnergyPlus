@@ -1785,7 +1785,7 @@ TEST_F(EnergyPlusFixture, ChillerAbsorption_Calc)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     SimulationManager::ManageSimulation(*state); // run the design day
 
     // set conditions for test
@@ -1882,7 +1882,7 @@ TEST_F(EnergyPlusFixture, ChillerAbsorption_Autosize)
     EXPECT_TRUE(process_idf(idf_objects, false));
 
     state->init_state(*state);
-    
+
     state->dataPlnt->PlantLoop.allocate(state->dataPlnt->TotNumLoops);
     state->dataSize->NumPltSizInput = state->dataPlnt->TotNumLoops;
     state->dataSize->PlantSizData.allocate(state->dataPlnt->TotNumLoops);

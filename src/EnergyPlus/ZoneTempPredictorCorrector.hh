@@ -73,7 +73,7 @@ namespace ZoneTempPredictorCorrector {
 
     struct ZoneSetptScheds
     {
-        std::string Name;          // Name of the zone
+        std::string Name; // Name of the zone
         Sched::Schedule *heatSched = nullptr;
         Sched::Schedule *coolSched = nullptr;
     };

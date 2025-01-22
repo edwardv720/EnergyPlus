@@ -78,35 +78,35 @@ namespace HVACCooledBeam {
     {
         // Members
         // input data
-        std::string Name;            // name of unit
-        std::string UnitType;        // type of unit = AirTerminal:SingleDuct:ConstantVolume:CooledBeam
-        int UnitType_Num;            // index to type of unit = 1 (there's only 1 type so far)
-        std::string CBTypeString;    // type of cooled beam: active | passive
-        CooledBeamType CBType;       // index to type of cooled beam
-        Sched::Schedule *availSched = nullptr;                // availability schedule
-        Real64 MaxAirVolFlow;        // m3/s (autosizable)
-        Real64 MaxAirMassFlow;       // kg/s
-        Real64 MaxCoolWaterVolFlow;  // m3/s
-        Real64 MaxCoolWaterMassFlow; // kg/s
-        int AirInNode;               // unit air inlet node number
-        int AirOutNode;              // unit air outlet node number
-        int CWInNode;                // chilled water inlet node
-        int CWOutNode;               // chilled water outlet node
-        int ADUNum;                  // index of corresponding air distribution unit
-        Real64 NumBeams;             // number of beams in the zone
-        Real64 BeamLength;           // length of individual beam [m]
-        Real64 DesInletWaterTemp;    // design inlet water temperature [C]
-        Real64 DesOutletWaterTemp;   // design outlet water Temperature [c]
-        Real64 CoilArea;             // coil surface area per coil length [m2/m]
-        Real64 a;                    // model parameter a
-        Real64 n1;                   // model parameter n0
-        Real64 n2;                   // model parameter n1
-        Real64 n3;                   // model parameter n2
-        Real64 a0;                   // model parameter a0
-        Real64 K1;                   // model parameter K1
-        Real64 n;                    // model parameter n
-        Real64 Kin;                  // Coefficient of Induction Kin
-        Real64 InDiam;               // Leaving Pipe Inside Diameter
+        std::string Name;                      // name of unit
+        std::string UnitType;                  // type of unit = AirTerminal:SingleDuct:ConstantVolume:CooledBeam
+        int UnitType_Num;                      // index to type of unit = 1 (there's only 1 type so far)
+        std::string CBTypeString;              // type of cooled beam: active | passive
+        CooledBeamType CBType;                 // index to type of cooled beam
+        Sched::Schedule *availSched = nullptr; // availability schedule
+        Real64 MaxAirVolFlow;                  // m3/s (autosizable)
+        Real64 MaxAirMassFlow;                 // kg/s
+        Real64 MaxCoolWaterVolFlow;            // m3/s
+        Real64 MaxCoolWaterMassFlow;           // kg/s
+        int AirInNode;                         // unit air inlet node number
+        int AirOutNode;                        // unit air outlet node number
+        int CWInNode;                          // chilled water inlet node
+        int CWOutNode;                         // chilled water outlet node
+        int ADUNum;                            // index of corresponding air distribution unit
+        Real64 NumBeams;                       // number of beams in the zone
+        Real64 BeamLength;                     // length of individual beam [m]
+        Real64 DesInletWaterTemp;              // design inlet water temperature [C]
+        Real64 DesOutletWaterTemp;             // design outlet water Temperature [c]
+        Real64 CoilArea;                       // coil surface area per coil length [m2/m]
+        Real64 a;                              // model parameter a
+        Real64 n1;                             // model parameter n0
+        Real64 n2;                             // model parameter n1
+        Real64 n3;                             // model parameter n2
+        Real64 a0;                             // model parameter a0
+        Real64 K1;                             // model parameter K1
+        Real64 n;                              // model parameter n
+        Real64 Kin;                            // Coefficient of Induction Kin
+        Real64 InDiam;                         // Leaving Pipe Inside Diameter
         // time step variables
         Real64 TWIn;                // current inlet water temperature [C]
         Real64 TWOut;               // current outlet water temperature [C]

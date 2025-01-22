@@ -313,7 +313,7 @@ void GetPollutionFactorInput(EnergyPlusData &state)
         for (int iPollutant = 0; iPollutant < (int)Pollutant::Num; ++iPollutant) {
             pollCoeff.pollutantCoeffs[iPollutant] = ipsc->rNumericArgs(iPollutant + 2);
             if (ipsc->lAlphaFieldBlanks(iPollutant + 3)) {
-            } else if ((pollCoeff.pollutantScheds[iPollutant] = Sched::GetSchedule(state, ipsc->cAlphaArgs(iPollutant + 3))) == nullptr) { 
+            } else if ((pollCoeff.pollutantScheds[iPollutant] = Sched::GetSchedule(state, ipsc->cAlphaArgs(iPollutant + 3))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, ipsc->cAlphaFieldNames(iPollutant + 3), ipsc->cAlphaArgs(iPollutant + 3));
                 ErrorsFound = true;
             } else if (!pollCoeff.pollutantScheds[iPollutant]->checkMinVal(state, Clusive::In, 0.0)) {

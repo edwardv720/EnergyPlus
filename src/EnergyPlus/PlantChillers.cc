@@ -169,7 +169,7 @@ namespace PlantChillers {
         // required by the Electric Chiller model.
 
         static constexpr std::string_view RoutineName("GetElectricChillerInput: "); // include trailing blank space
-        static constexpr std::string_view routineName = "GetElectricChillerInput"; 
+        static constexpr std::string_view routineName = "GetElectricChillerInput";
 
         int NumAlphas; // Number of elements in the alpha array
         int NumNums;   // Number of elements in the numeric array
@@ -207,7 +207,7 @@ namespace PlantChillers {
                                                                      state.dataIPShortCut->cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
-            
+
             Util::IsNameEmpty(state, state.dataIPShortCut->cAlphaArgs(1), state.dataIPShortCut->cCurrentModuleObject, ErrorsFound);
 
             // ErrorsFound will be set to True if problem was found, left untouched otherwise
@@ -585,11 +585,14 @@ namespace PlantChillers {
             }
 
             if (state.dataIPShortCut->lAlphaFieldBlanks(10)) {
-            } else if ((thisChiller.basinHeaterSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(10))) == nullptr) { 
-                ShowWarningItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(10), state.dataIPShortCut->cAlphaArgs(10),
+            } else if ((thisChiller.basinHeaterSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(10))) == nullptr) {
+                ShowWarningItemNotFound(state,
+                                        eoh,
+                                        state.dataIPShortCut->cAlphaFieldNames(10),
+                                        state.dataIPShortCut->cAlphaArgs(10),
                                         "Basin heater operation will not be modeled and the simulation continues");
             }
-            
+
             if (NumAlphas > 12) {
                 thisChiller.EndUseSubcategory = state.dataIPShortCut->cAlphaArgs(13);
             } else {
@@ -2217,7 +2220,7 @@ namespace PlantChillers {
                                                                      state.dataIPShortCut->cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
-            
+
             Util::IsNameEmpty(state, state.dataIPShortCut->cAlphaArgs(1), state.dataIPShortCut->cCurrentModuleObject, ErrorsFound);
 
             // ErrorsFound will be set to True if problem was found, left untouched otherwise
@@ -2612,7 +2615,10 @@ namespace PlantChillers {
 
             if (state.dataIPShortCut->lAlphaFieldBlanks(16)) {
             } else if ((thisChiller.basinHeaterSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(16))) == nullptr) {
-                ShowWarningItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(16), state.dataIPShortCut->cAlphaArgs(16),
+                ShowWarningItemNotFound(state,
+                                        eoh,
+                                        state.dataIPShortCut->cAlphaFieldNames(16),
+                                        state.dataIPShortCut->cAlphaArgs(16),
                                         "Basin heater operation will not be modeled and the simulation continues");
             }
 
@@ -4203,7 +4209,7 @@ namespace PlantChillers {
         // EnergyPlus input processor
 
         static constexpr std::string_view RoutineName("GetGTChillerInput: "); // include trailing blank space
-        static constexpr std::string_view routineName = "GetGTChillerInput"; 
+        static constexpr std::string_view routineName = "GetGTChillerInput";
 
         int NumAlphas; // Number of elements in the alpha array
         int NumNums;   // Number of elements in the numeric array
@@ -4239,7 +4245,7 @@ namespace PlantChillers {
                                                                      state.dataIPShortCut->cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, state.dataIPShortCut->cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
-            
+
             Util::IsNameEmpty(state, state.dataIPShortCut->cAlphaArgs(1), state.dataIPShortCut->cCurrentModuleObject, ErrorsFound);
 
             // ErrorsFound will be set to True if problem was found, left untouched otherwise
@@ -4597,8 +4603,11 @@ namespace PlantChillers {
             }
 
             if (state.dataIPShortCut->lAlphaFieldBlanks(11)) {
-            } else if ((thisChiller.basinHeaterSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(11))) == nullptr) { 
-                ShowWarningItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(11), state.dataIPShortCut->cAlphaArgs(11), 
+            } else if ((thisChiller.basinHeaterSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(11))) == nullptr) {
+                ShowWarningItemNotFound(state,
+                                        eoh,
+                                        state.dataIPShortCut->cAlphaFieldNames(11),
+                                        state.dataIPShortCut->cAlphaArgs(11),
                                         "Basin heater operation will not be modeled and the simulation continues");
             }
 
@@ -6140,7 +6149,7 @@ namespace PlantChillers {
 
         // SUBROUTINE PARAMETER DEFINITIONS:
         static constexpr std::string_view RoutineName("GetConstCOPChillerInput: "); // include trailing blank space
-        static constexpr std::string_view routineName = "GetConstCOPChillerInput"; // include trailing blank space
+        static constexpr std::string_view routineName = "GetConstCOPChillerInput";  // include trailing blank space
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         int NumAlphas; // Number of elements in the alpha array
@@ -6423,8 +6432,11 @@ namespace PlantChillers {
             }
 
             if (state.dataIPShortCut->lAlphaFieldBlanks(8)) {
-            } else if ((thisChiller.basinHeaterSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(8))) == nullptr) { 
-                ShowWarningItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(8),  state.dataIPShortCut->cAlphaArgs(8), 
+            } else if ((thisChiller.basinHeaterSched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(8))) == nullptr) {
+                ShowWarningItemNotFound(state,
+                                        eoh,
+                                        state.dataIPShortCut->cAlphaFieldNames(8),
+                                        state.dataIPShortCut->cAlphaArgs(8),
                                         "Basin heater operation will not be modeled and the simulation continues");
             }
 

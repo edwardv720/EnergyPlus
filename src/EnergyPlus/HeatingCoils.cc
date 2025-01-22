@@ -254,7 +254,7 @@ namespace HeatingCoils {
 
         // SUBROUTINE PARAMETER DEFINITIONS:
         static constexpr std::string_view RoutineName = "GetHeatingCoilInput: "; // include trailing blank space
-        static constexpr std::string_view routineName = "GetHeatingCoilInput"; 
+        static constexpr std::string_view routineName = "GetHeatingCoilInput";
 
         // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
         std::string CurrentModuleObject; // for ease in getting objects
@@ -350,7 +350,7 @@ namespace HeatingCoils {
             heatingCoil.Name = Alphas(1);
             if (lAlphaBlanks(2)) {
                 heatingCoil.availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((heatingCoil.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) { 
+            } else if ((heatingCoil.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(2), Alphas(2));
                 state.dataHeatingCoils->InputErrorsFound = true;
             }
@@ -469,7 +469,7 @@ namespace HeatingCoils {
             heatingCoil.Name = Alphas(1);
             if (lAlphaBlanks(2)) {
                 heatingCoil.availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((heatingCoil.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) { 
+            } else if ((heatingCoil.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(2), Alphas(2));
                 state.dataHeatingCoils->InputErrorsFound = true;
             }
@@ -596,8 +596,8 @@ namespace HeatingCoils {
             heatingCoil.Name = Alphas(1);
             if (lAlphaBlanks(2)) {
                 heatingCoil.availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((heatingCoil.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) { 
-                ShowSevereItemNotFound(state, eoh, cAlphaFields(2),Alphas(2));
+            } else if ((heatingCoil.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) {
+                ShowSevereItemNotFound(state, eoh, cAlphaFields(2), Alphas(2));
                 state.dataHeatingCoils->InputErrorsFound = true;
             }
 
@@ -785,7 +785,7 @@ namespace HeatingCoils {
 
             if (lAlphaBlanks(2)) {
                 heatingCoil.availSched = Sched::GetScheduleAlwaysOn(state);
-            } else if ((heatingCoil.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) { 
+            } else if ((heatingCoil.availSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(2), Alphas(2));
                 state.dataHeatingCoils->InputErrorsFound = true;
             }
@@ -1835,8 +1835,7 @@ namespace HeatingCoils {
         //  Also the coil has to be scheduled to be available.
 
         // Control output to meet load QCoilReq (QCoilReq is passed in if load controlled, otherwise QCoilReq=-999)
-        if ((AirMassFlow > 0.0 && heatingCoil.NominalCapacity > 0.0) &&
-            (heatingCoil.availSched->getCurrentVal() > 0.0) && (QCoilReq > 0.0)) {
+        if ((AirMassFlow > 0.0 && heatingCoil.NominalCapacity > 0.0) && (heatingCoil.availSched->getCurrentVal() > 0.0) && (QCoilReq > 0.0)) {
 
             // check to see if the Required heating capacity is greater than the user specified capacity.
             if (QCoilReq > heatingCoil.NominalCapacity) {
@@ -1852,9 +1851,8 @@ namespace HeatingCoils {
             heatingCoil.ElecUseLoad = HeatingCoilLoad / Effic;
 
             // Control coil output to meet a setpoint temperature.
-        } else if ((AirMassFlow > 0.0 && heatingCoil.NominalCapacity > 0.0) &&
-                   (heatingCoil.availSched->getCurrentVal() > 0.0) && (QCoilReq == DataLoopNode::SensedLoadFlagValue) &&
-                   (std::abs(TempSetPoint - TempAirIn) > HVAC::TempControlTol)) {
+        } else if ((AirMassFlow > 0.0 && heatingCoil.NominalCapacity > 0.0) && (heatingCoil.availSched->getCurrentVal() > 0.0) &&
+                   (QCoilReq == DataLoopNode::SensedLoadFlagValue) && (std::abs(TempSetPoint - TempAirIn) > HVAC::TempControlTol)) {
 
             QCoilCap = CapacitanceAir * (TempSetPoint - TempAirIn);
             // check to see if setpoint above enetering temperature. If not, set
@@ -1984,8 +1982,7 @@ namespace HeatingCoils {
 
         Real64 OutdoorPressure = state.dataEnvrn->OutBaroPress;
 
-        if ((AirMassFlow > 0.0) && (heatingCoil.availSched->getCurrentVal() > 0.0) &&
-            ((CycRatio > 0.0) || (SpeedRatio > 0.0))) {
+        if ((AirMassFlow > 0.0) && (heatingCoil.availSched->getCurrentVal() > 0.0) && ((CycRatio > 0.0) || (SpeedRatio > 0.0))) {
 
             if (StageNum > 1) {
 
@@ -2155,8 +2152,7 @@ namespace HeatingCoils {
         //  Also the coil has to be scheduled to be available.
 
         // Control output to meet load QCoilReq (QCoilReq is passed in if load controlled, otherwise QCoilReq=-999)
-        if ((AirMassFlow > 0.0 && heatingCoil.NominalCapacity > 0.0) &&
-            (heatingCoil.availSched->getCurrentVal() > 0.0) && (QCoilReq > 0.0)) {
+        if ((AirMassFlow > 0.0 && heatingCoil.NominalCapacity > 0.0) && (heatingCoil.availSched->getCurrentVal() > 0.0) && (QCoilReq > 0.0)) {
 
             // check to see if the Required heating capacity is greater than the user specified capacity.
             if (QCoilReq > heatingCoil.NominalCapacity) {
@@ -2176,9 +2172,8 @@ namespace HeatingCoils {
             heatingCoil.ParasiticFuelRate = heatingCoil.ParasiticFuelCapacity * (1.0 - PartLoadRat);
 
             // Control coil output to meet a setpoint temperature.
-        } else if ((AirMassFlow > 0.0 && heatingCoil.NominalCapacity > 0.0) &&
-                   (heatingCoil.availSched->getCurrentVal() > 0.0) && (QCoilReq == DataLoopNode::SensedLoadFlagValue) &&
-                   (std::abs(TempSetPoint - TempAirIn) > HVAC::TempControlTol)) {
+        } else if ((AirMassFlow > 0.0 && heatingCoil.NominalCapacity > 0.0) && (heatingCoil.availSched->getCurrentVal() > 0.0) &&
+                   (QCoilReq == DataLoopNode::SensedLoadFlagValue) && (std::abs(TempSetPoint - TempAirIn) > HVAC::TempControlTol)) {
 
             QCoilCap = CapacitanceAir * (TempSetPoint - TempAirIn);
             // check to see if setpoint above entering temperature. If not, set
@@ -2365,8 +2360,7 @@ namespace HeatingCoils {
         Real64 InletAirHumRat = heatingCoil.InletAirHumRat;
         Real64 OutdoorPressure = state.dataEnvrn->OutBaroPress;
 
-        if ((AirMassFlow > 0.0) && (heatingCoil.availSched->getCurrentVal() > 0.0) &&
-            ((CycRatio > 0.0) || (SpeedRatio > 0.0))) {
+        if ((AirMassFlow > 0.0) && (heatingCoil.availSched->getCurrentVal() > 0.0) && ((CycRatio > 0.0) || (SpeedRatio > 0.0))) {
 
             if (StageNum > 1) {
 
@@ -2681,9 +2675,8 @@ namespace HeatingCoils {
             }
 
             // Control coil output to meet a setpoint temperature.
-        } else if ((AirMassFlow > 0.0 && heatingCoil.NominalCapacity > 0.0) &&
-                   (heatingCoil.availSched->getCurrentVal() > 0.0) && (QCoilReq == DataLoopNode::SensedLoadFlagValue) &&
-                   (std::abs(TempSetPoint - TempAirIn) > HVAC::TempControlTol)) {
+        } else if ((AirMassFlow > 0.0 && heatingCoil.NominalCapacity > 0.0) && (heatingCoil.availSched->getCurrentVal() > 0.0) &&
+                   (QCoilReq == DataLoopNode::SensedLoadFlagValue) && (std::abs(TempSetPoint - TempAirIn) > HVAC::TempControlTol)) {
 
             QCoilCap = CapacitanceAir * (TempSetPoint - TempAirIn);
             // check to see if setpoint is above entering air temperature. If not, set output to zero.

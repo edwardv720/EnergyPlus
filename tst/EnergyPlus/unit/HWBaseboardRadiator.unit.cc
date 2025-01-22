@@ -293,7 +293,7 @@ TEST_F(EnergyPlusFixture, HWBaseboardRadiator_HWBaseboardWaterInputTest)
     });
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     errorFound = false;
     HeatBalanceManager::GetZoneData(*state, errorFound);
     EXPECT_FALSE(errorFound);

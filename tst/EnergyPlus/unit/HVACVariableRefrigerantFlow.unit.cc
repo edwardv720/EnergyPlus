@@ -356,7 +356,7 @@ protected:
 
         auto *sched1 = Sched::AddScheduleConstant(*state, "sch1");
         auto *sched2 = Sched::AddScheduleConstant(*state, "sch2");
-        
+
         VRFCond.VRFSystemTypeNum = 1;
         VRFCond.VRFAlgorithmType = AlgorithmType::SysCurve;
         VRFCond.availSched = sched1;
@@ -537,8 +537,8 @@ TEST_F(AirLoopFixture, VRF_SysModel_inAirloop)
 
     state->dataHVACVarRefFlow->VRF(curSysNum).availSched->currentVal = 1.0; // enable the VRF condenser
     thisTU.availSched->currentVal = 1.0;                                    // enable the terminal unit
-    thisTU.fanAvailSched->currentVal = 1.0;                            // turn on fan
-    thisTU.fanOpModeSched->currentVal = 1.0;                           // set constant fan operating mode
+    thisTU.fanAvailSched->currentVal = 1.0;                                 // turn on fan
+    thisTU.fanOpModeSched->currentVal = 1.0;                                // set constant fan operating mode
 
     state->dataZoneEnergyDemand->ZoneSysEnergyDemand(curZoneNum).RemainingOutputRequired = 0.0; // set load = 0
     state->dataZoneEnergyDemand->ZoneSysEnergyDemand(curZoneNum).RemainingOutputReqToCoolSP = 0.0;
@@ -2344,7 +2344,7 @@ TEST_F(EnergyPlusFixture, VRF_FluidTCtrl_VRFOU_Compressor)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataGlobal->BeginEnvrnFlag = true;
     state->dataSize->CurZoneEqNum = 1;
     state->dataEnvrn->OutBaroPress = 101325;            // sea level
@@ -2693,7 +2693,7 @@ TEST_F(EnergyPlusFixture, VRF_FluidTCtrl_VRFOU_Coil)
     //   PURPOSE OF THIS TEST:
     //   Test a group of methods related with the outdoor unit coil calculations in the VRF_FluidTCtrl model.
     state->init_state(*state);
-        
+
     using namespace HVACVariableRefrigerantFlow;
 
     // Allocate
@@ -2917,7 +2917,7 @@ TEST_F(EnergyPlusFixture, VRF_FluidTCtrl_GetCoilInput)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     // Run the method
     GetDXCoils(*state);
 
@@ -3004,7 +3004,7 @@ TEST_F(EnergyPlusFixture, VRF_FluidTCtrl_CalcVRFIUAirFlow)
     //   Test the method CalcVRFIUAirFlow, which analyzes the VRF Indoor Unit operations given zonal loads.
     //   Calculated parameters includie: (1) Fan Speed Ratio, (2) SH/SC Degrees, and (3) Coil Inlet/Outlet conditions
     state->init_state(*state);
-        
+
     using namespace DXCoils;
     using namespace DataZoneEnergyDemands;
     using namespace EnergyPlus::Psychrometrics;
@@ -3852,7 +3852,7 @@ TEST_F(EnergyPlusFixture, VRFTest_SysCurve)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataGlobal->BeginEnvrnFlag = true;
     state->dataSize->CurZoneEqNum = 1;
     state->dataEnvrn->OutBaroPress = 101325;            // sea level
@@ -3878,9 +3878,9 @@ TEST_F(EnergyPlusFixture, VRFTest_SysCurve)
     GetZoneEquipmentData(*state);                                  // read equipment list and connections
     ZoneInletAirNode = GetVRFTUZoneInletAirNode(*state, VRFTUNum); // trigger GetVRFInput by calling a mining function
 
-    state->dataHVACVarRefFlow->VRF(VRFCond).availSched->currentVal = 1.0;            // enable the VRF condenser
-    state->dataHVACVarRefFlow->VRFTU(VRFTUNum).availSched->currentVal = 1.0;         // enable the terminal unit
-    state->dataHVACVarRefFlow->VRFTU(VRFTUNum).fanAvailSched->currentVal = 1.0; // turn on fan
+    state->dataHVACVarRefFlow->VRF(VRFCond).availSched->currentVal = 1.0;        // enable the VRF condenser
+    state->dataHVACVarRefFlow->VRFTU(VRFTUNum).availSched->currentVal = 1.0;     // enable the terminal unit
+    state->dataHVACVarRefFlow->VRFTU(VRFTUNum).fanAvailSched->currentVal = 1.0;  // turn on fan
     state->dataHVACVarRefFlow->VRFTU(VRFTUNum).fanOpModeSched->currentVal = 0.0; // set cycling fan operating mode
 
     // Test coil sizing
@@ -4979,7 +4979,7 @@ TEST_F(EnergyPlusFixture, VRFTest_SysCurve_GetInputFailers)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataGlobal->BeginEnvrnFlag = true;
     state->dataSize->CurZoneEqNum = 1;
     state->dataEnvrn->OutBaroPress = 101325;            // sea level
@@ -5831,7 +5831,7 @@ TEST_F(EnergyPlusFixture, VRFTest_SysCurve_WaterCooled)
     state->dataGlobal->TimeStepsInHour = 4;
     state->dataGlobal->MinutesInTimeStep = 60 / state->dataGlobal->TimeStepsInHour;
     state->init_state(*state);
-    
+
     state->dataGlobal->BeginEnvrnFlag = true;
     state->dataSize->CurZoneEqNum = 1;
     state->dataEnvrn->OutBaroPress = 101325;            // sea level
@@ -5867,9 +5867,9 @@ TEST_F(EnergyPlusFixture, VRFTest_SysCurve_WaterCooled)
     ZoneInletAirNode = GetVRFTUZoneInletAirNode(*state, VRFTUNum); // trigger GetVRFInput by calling a mining function
     state->dataAirLoop->AirLoopInputsFilled = true;
 
-    state->dataHVACVarRefFlow->VRF(VRFCond).availSched->currentVal = 1.0;            // enable the VRF condenser
-    state->dataHVACVarRefFlow->VRFTU(VRFTUNum).availSched->currentVal = 1.0;         // enable the terminal unit
-    state->dataHVACVarRefFlow->VRFTU(VRFTUNum).fanAvailSched->currentVal = 1.0; // turn on fan
+    state->dataHVACVarRefFlow->VRF(VRFCond).availSched->currentVal = 1.0;        // enable the VRF condenser
+    state->dataHVACVarRefFlow->VRFTU(VRFTUNum).availSched->currentVal = 1.0;     // enable the terminal unit
+    state->dataHVACVarRefFlow->VRFTU(VRFTUNum).fanAvailSched->currentVal = 1.0;  // turn on fan
     state->dataHVACVarRefFlow->VRFTU(VRFTUNum).fanOpModeSched->currentVal = 0.0; // set cycling fan operating mode
 
     // Test coil sizing
@@ -6731,7 +6731,7 @@ TEST_F(EnergyPlusFixture, VRFTest_TU_NoLoad_OAMassFlowRateTest)
     state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->MinutesInTimeStep = 60;
     state->init_state(*state);
-    
+
     state->dataGlobal->BeginEnvrnFlag = true;
     state->dataSize->CurZoneEqNum = 1;
     state->dataEnvrn->OutBaroPress = 101325;            // sea level
@@ -6756,9 +6756,9 @@ TEST_F(EnergyPlusFixture, VRFTest_TU_NoLoad_OAMassFlowRateTest)
     QZnReq = state->dataZoneEnergyDemand->ZoneSysEnergyDemand(CurZoneNum).RemainingOutputRequired; // No load
     state->dataZoneTempPredictorCorrector->zoneHeatBalance.allocate(1);
     // Initialize terminal unit
-    state->dataHVACVarRefFlow->VRFTU(VRFTUNum).availSched->currentVal = 1.0;         // turn on TU
-    state->dataHVACVarRefFlow->VRFTU(VRFTUNum).fanAvailSched->currentVal = 1.0; // turn on fan
-    state->dataHVACVarRefFlow->VRFTU(VRFTUNum).fanOpModeSched->currentVal = 1.0;                                                                                        // set continuous fan operating mode
+    state->dataHVACVarRefFlow->VRFTU(VRFTUNum).availSched->currentVal = 1.0;                        // turn on TU
+    state->dataHVACVarRefFlow->VRFTU(VRFTUNum).fanAvailSched->currentVal = 1.0;                     // turn on fan
+    state->dataHVACVarRefFlow->VRFTU(VRFTUNum).fanOpModeSched->currentVal = 1.0;                    // set continuous fan operating mode
     InitVRF(*state, VRFTUNum, ZoneNum, FirstHVACIteration, OnOffAirFlowRatio, QZnReq);              // Initialize all VRFTU related parameters
     ASSERT_EQ((int)state->dataHVACVarRefFlow->VRFTU(VRFTUNum).fanOp, (int)HVAC::FanOp::Continuous); // continuous fan cycling coil operating mode
     // Set average OA flow rate when there in no load for cont. fan cyc. coil operating mode
@@ -8237,7 +8237,7 @@ TEST_F(EnergyPlusFixture, VRFTU_CalcVRFSupplementalHeatingCoilElectric)
     // PURPOSE OF THE TEST:
     // checks VRF terminal units supplemental electric heating coil calculation
     state->init_state(*state);
-        
+
     VRFTerminalUnitEquipment thisVRFTU;
 
     int VRFTUNum(1);
@@ -11498,7 +11498,7 @@ TEST_F(EnergyPlusFixture, VRFTU_SysCurve_ReportOutputVerificationTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataGlobal->BeginEnvrnFlag = true;
     state->dataSize->CurZoneEqNum = 1;
     state->dataEnvrn->OutBaroPress = 101325;            // sea level
@@ -13251,7 +13251,7 @@ TEST_F(EnergyPlusFixture, VRF_FluidTCtrl_ReportOutputVerificationTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataGlobal->BeginEnvrnFlag = true;
     state->dataSize->CurZoneEqNum = 1;
     state->dataEnvrn->OutBaroPress = 101325;            // sea level
@@ -14024,7 +14024,7 @@ TEST_F(EnergyPlusFixture, VRF_BlowthroughFanPlacement_InputTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool ErrorsFound(false);
     GetCurveInput(*state);
     GetZoneData(*state, ErrorsFound);
@@ -14610,7 +14610,7 @@ TEST_F(EnergyPlusFixture, VRF_MinPLR_and_EIRfPLRCruveMinPLRInputsTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     Real64 minEIRfLowPLRXInput(0.0);
     Real64 maxEIRfLowPLRXInput(0.0);
     bool ErrorsFound(false);
@@ -15940,7 +15940,7 @@ TEST_F(EnergyPlusFixture, VRFTU_FanOnOff_Power)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataGlobal->BeginEnvrnFlag = true;
     state->dataSize->CurZoneEqNum = 1;
     state->dataEnvrn->OutBaroPress = 101325;            // sea level
@@ -18234,7 +18234,7 @@ TEST_F(EnergyPlusFixture, VRF_FluidTCtrl_SupplementalHtgCoilTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataGlobal->BeginEnvrnFlag = true;
 
     state->dataEnvrn->OutBaroPress = 101325;
@@ -20369,7 +20369,7 @@ TEST_F(EnergyPlusFixture, VRF_FluidTCtrl_offSupplementalHtgCoilTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataGlobal->BeginEnvrnFlag = true;
 
     state->dataEnvrn->OutBaroPress = 101325;
@@ -22890,7 +22890,7 @@ TEST_F(EnergyPlusFixture, VRF_MixedTypes)
     const std::string idf_objects = vrfFluidCtrl + vrfFluidCtrl_HR + commonCurvesAndFansForFluidCtrlAndHR + vrfSys + r410a_objects;
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataGlobal->BeginEnvrnFlag = true;
     state->dataSize->CurZoneEqNum = 1;
     state->dataEnvrn->OutBaroPress = 101325;            // sea level
@@ -22898,7 +22898,7 @@ TEST_F(EnergyPlusFixture, VRF_MixedTypes)
     state->dataEnvrn->StdRhoAir = PsyRhoAirFnPbTdbW(*state, state->dataEnvrn->OutBaroPress, 20.0, 0.0);
 
     // Read in IDF
-    Curve::GetCurveInput(*state);                    // read curves
+    Curve::GetCurveInput(*state); // read curves
 
     // set up ZoneEquipConfig data
     state->dataGlobal->NumOfZones = 1;

@@ -107,9 +107,9 @@ namespace PlantCentralGSHP {
         std::string WrapperComponentName;         // Component name
         int WrapperPerformanceObjectIndex;        // Component index in the input array
         int WrapperIdenticalObjectNum;            // Number of identical objects
-        Sched::Schedule *chSched = nullptr;                           // schedule
+        Sched::Schedule *chSched = nullptr;       // schedule
 
-        WrapperComponentSpecs() : WrapperPerformanceObjectIndex(0), WrapperIdenticalObjectNum(0) 
+        WrapperComponentSpecs() : WrapperPerformanceObjectIndex(0), WrapperIdenticalObjectNum(0)
         {
         }
     };
@@ -329,27 +329,27 @@ namespace PlantCentralGSHP {
 
     struct WrapperSpecs : PlantComponent
     {
-        std::string Name;           // User identifier
-        bool VariableFlowCH;        // True if all chiller heaters are variable flow control
-        Sched::Schedule *ancillaryPowerSched = nullptr;               // Schedule value for ancillary power control
+        std::string Name;                               // User identifier
+        bool VariableFlowCH;                            // True if all chiller heaters are variable flow control
+        Sched::Schedule *ancillaryPowerSched = nullptr; // Schedule value for ancillary power control
         Sched::Schedule *chSched = nullptr;             // Schedule value for individual chiller heater control
-        CondenserType ControlMode;  // SmartMixing or FullyMixing
-        int CHWInletNodeNum;        // Node number on the inlet side of the plant (Chilled Water side)
-        int CHWOutletNodeNum;       // Node number on the outlet side of the plant (Chilled Water side)
-        int HWInletNodeNum;         // Node number on the inlet side of the plant (Hot Water side)
-        int HWOutletNodeNum;        // Node number on the outlet side of the plant (Hot Water side)
-        int GLHEInletNodeNum;       // Node number on the inlet side of the plant (GLHE Water side)
-        int GLHEOutletNodeNum;      // Node number on the outlet side of the plant (GLHE Water side)
-        int NumOfComp;              // Number of Components under the wrapper
-        Real64 CHWMassFlowRate;     // Chilled water mass flow rate
-        Real64 HWMassFlowRate;      // Hot water mass flow rate
-        Real64 GLHEMassFlowRate;    // Condenser water mass flow rate
-        Real64 CHWMassFlowRateMax;  // Maximum chilled water mass flow rate
-        Real64 HWMassFlowRateMax;   // Maximum hot water mass flow rate
-        Real64 GLHEMassFlowRateMax; // Maximum condenser water mass flow rate
-        Real64 WrapperCoolingLoad;  // Cooling demand for the central heat pump system
-        Real64 WrapperHeatingLoad;  // Heating demand for the central heat pump system
-        Real64 AncillaryPower;      // Wrapper Ancillary Power
+        CondenserType ControlMode;                      // SmartMixing or FullyMixing
+        int CHWInletNodeNum;                            // Node number on the inlet side of the plant (Chilled Water side)
+        int CHWOutletNodeNum;                           // Node number on the outlet side of the plant (Chilled Water side)
+        int HWInletNodeNum;                             // Node number on the inlet side of the plant (Hot Water side)
+        int HWOutletNodeNum;                            // Node number on the outlet side of the plant (Hot Water side)
+        int GLHEInletNodeNum;                           // Node number on the inlet side of the plant (GLHE Water side)
+        int GLHEOutletNodeNum;                          // Node number on the outlet side of the plant (GLHE Water side)
+        int NumOfComp;                                  // Number of Components under the wrapper
+        Real64 CHWMassFlowRate;                         // Chilled water mass flow rate
+        Real64 HWMassFlowRate;                          // Hot water mass flow rate
+        Real64 GLHEMassFlowRate;                        // Condenser water mass flow rate
+        Real64 CHWMassFlowRateMax;                      // Maximum chilled water mass flow rate
+        Real64 HWMassFlowRateMax;                       // Maximum hot water mass flow rate
+        Real64 GLHEMassFlowRateMax;                     // Maximum condenser water mass flow rate
+        Real64 WrapperCoolingLoad;                      // Cooling demand for the central heat pump system
+        Real64 WrapperHeatingLoad;                      // Heating demand for the central heat pump system
+        Real64 AncillaryPower;                          // Wrapper Ancillary Power
         Array1D<WrapperComponentSpecs> WrapperComp;
         Array1D<ChillerHeaterSpecs> ChillerHeater; // Dimension to number of machines
         bool CoolSetPointErrDone;                  // true if setpoint warning issued
@@ -376,14 +376,13 @@ namespace PlantCentralGSHP {
         bool mySizesReported;
 
         WrapperSpecs()
-            : VariableFlowCH(false), ControlMode(CondenserType::Invalid), CHWInletNodeNum(0), CHWOutletNodeNum(0),
-              HWInletNodeNum(0), HWOutletNodeNum(0), GLHEInletNodeNum(0), GLHEOutletNodeNum(0), NumOfComp(0), CHWMassFlowRate(0.0),
-              HWMassFlowRate(0.0), GLHEMassFlowRate(0.0), CHWMassFlowRateMax(0.0), HWMassFlowRateMax(0.0), GLHEMassFlowRateMax(0.0),
-              WrapperCoolingLoad(0.0), WrapperHeatingLoad(0.0), AncillaryPower(0.0), CoolSetPointErrDone(false), HeatSetPointErrDone(false),
-              CoolSetPointSetToLoop(false), HeatSetPointSetToLoop(false), ChillerHeaterNums(0), CWPlantLoc{}, HWPlantLoc{}, GLHEPlantLoc{},
-              CHWMassFlowIndex(0), HWMassFlowIndex(0), GLHEMassFlowIndex(0), SizingFactor(1.0), CHWVolFlowRate(0.0), HWVolFlowRate(0.0),
-              GLHEVolFlowRate(0.0), MyWrapperFlag(true), MyWrapperEnvrnFlag(true), SimulClgDominant(false), SimulHtgDominant(false),
-              setupOutputVarsFlag(true), mySizesReported(false)
+            : VariableFlowCH(false), ControlMode(CondenserType::Invalid), CHWInletNodeNum(0), CHWOutletNodeNum(0), HWInletNodeNum(0),
+              HWOutletNodeNum(0), GLHEInletNodeNum(0), GLHEOutletNodeNum(0), NumOfComp(0), CHWMassFlowRate(0.0), HWMassFlowRate(0.0),
+              GLHEMassFlowRate(0.0), CHWMassFlowRateMax(0.0), HWMassFlowRateMax(0.0), GLHEMassFlowRateMax(0.0), WrapperCoolingLoad(0.0),
+              WrapperHeatingLoad(0.0), AncillaryPower(0.0), CoolSetPointErrDone(false), HeatSetPointErrDone(false), CoolSetPointSetToLoop(false),
+              HeatSetPointSetToLoop(false), ChillerHeaterNums(0), CWPlantLoc{}, HWPlantLoc{}, GLHEPlantLoc{}, CHWMassFlowIndex(0), HWMassFlowIndex(0),
+              GLHEMassFlowIndex(0), SizingFactor(1.0), CHWVolFlowRate(0.0), HWVolFlowRate(0.0), GLHEVolFlowRate(0.0), MyWrapperFlag(true),
+              MyWrapperEnvrnFlag(true), SimulClgDominant(false), SimulHtgDominant(false), setupOutputVarsFlag(true), mySizesReported(false)
         {
         }
 

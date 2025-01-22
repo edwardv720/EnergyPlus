@@ -73,7 +73,7 @@ TEST_F(EnergyPlusFixture, TestPlantComponentTemperatureSource)
     ASSERT_TRUE(process_idf(idf_objects));
 
     state->init_state(*state);
-    
+
     // Setup the plant itself manually
     state->dataPlnt->TotNumLoops = 1;
     state->dataPlnt->PlantLoop.allocate(1);

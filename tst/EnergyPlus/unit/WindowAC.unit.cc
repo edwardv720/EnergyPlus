@@ -436,7 +436,7 @@ TEST_F(EnergyPlusFixture, WindowAC_VStest1)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->dataGlobal->TimeStepsInHour = 6;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesInTimeStep = 10;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 10; // must initialize this to get schedules initialized
     state->init_state(*state);
 
     bool errorsFound(false);

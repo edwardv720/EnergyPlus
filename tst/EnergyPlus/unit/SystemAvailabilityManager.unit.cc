@@ -194,9 +194,9 @@ TEST_F(EnergyPlusFixture, SysAvailManager_OptimumStart)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->dataGlobal->TimeStepsInHour = 6;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesInTimeStep = 10;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 10; // must initialize this to get schedules initialized
     state->init_state(*state);
-    
+
     state->dataHeatBal->NumOfZoneLists = 1;
     state->dataHeatBal->ZoneList.allocate(state->dataHeatBal->NumOfZoneLists);
     state->dataHeatBal->ZoneList(1).Name = "LIST_ZONES";
@@ -363,8 +363,8 @@ TEST_F(EnergyPlusFixture, SysAvailManager_OptimumStart)
     ZoneTempPredictorCorrector::CalcZoneAirTempSetPoints(*state);
 
     EXPECT_EQ((int)Avail::Status::NoAction, (int)state->dataAvail->OptimumStartData(1).availStatus); // avail manager should be set to no action
-    EXPECT_EQ(15.0, state->dataHeatBalFanSys->zoneTstatSetpts(1).setptLo);                          // 15.0C is the unoccupied heating setpoint
-    EXPECT_EQ(29.4, state->dataHeatBalFanSys->zoneTstatSetpts(1).setptHi);                          // 29.4C is the unoccupied cooling setpoint
+    EXPECT_EQ(15.0, state->dataHeatBalFanSys->zoneTstatSetpts(1).setptLo);                           // 15.0C is the unoccupied heating setpoint
+    EXPECT_EQ(29.4, state->dataHeatBalFanSys->zoneTstatSetpts(1).setptHi);                           // 29.4C is the unoccupied cooling setpoint
 }
 
 TEST_F(EnergyPlusFixture, SysAvailManager_NightCycle_ZoneOutOfTolerance)
@@ -591,9 +591,9 @@ TEST_F(EnergyPlusFixture, SysAvailManager_NightCycleGetInput)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->dataGlobal->TimeStepsInHour = 1;    // must initialize this to get schedules initialized
-    state->dataGlobal->MinutesInTimeStep = 60;    // must initialize this to get schedules initialized
+    state->dataGlobal->MinutesInTimeStep = 60; // must initialize this to get schedules initialized
     state->init_state(*state);
-    
+
     // get system availability schedule
     Avail::GetSysAvailManagerInputs(*state);
     // check the three cycling run time control types

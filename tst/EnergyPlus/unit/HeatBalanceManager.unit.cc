@@ -127,7 +127,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceManager_ZoneAirBalance_OutdoorAir)
     });
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
     auto numZones = state->dataInputProcessing->inputProcessor->getNumObjectsFound(*state, "Zone");
     state->dataHeatBalFanSys->ZoneReOrder.allocate(numZones);
@@ -465,7 +465,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceManager_ZoneAirMassFlowConservationData2)
     bool ErrorsFound(false); // If errors detected in input
 
     HeatBalanceManager::GetProjectControlData(*state, ErrorsFound);
-    
+
     EXPECT_TRUE(state->dataHeatBal->ZoneAirMassFlow.EnforceZoneMassBalance);
     EXPECT_ENUM_EQ(state->dataHeatBal->ZoneAirMassFlow.ZoneFlowAdjustment, DataHeatBalance::AdjustmentType::NoAdjustReturnAndMixing);
     EXPECT_ENUM_EQ(state->dataHeatBal->ZoneAirMassFlow.InfiltrationTreatment, DataHeatBalance::InfiltrationFlow::Adjust);
@@ -1800,7 +1800,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceManager_GetAirBoundaryConstructData)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool ErrorsFound(false);
 
     // get constructions
@@ -1848,7 +1848,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceManager_GetAirBoundaryConstructData2)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool ErrorsFound(false);
 
     // skip call to get material data since this doesn't use IRT
@@ -1864,7 +1864,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceManager_GetAirBoundaryConstructData2)
         delimited_string({"   ** Warning ** ProcessScheduleInput: Schedule:Constant = ALWAYS2",
                           "   **   ~~~   ** Schedule Type Limits Name is empty.",
                           "   **   ~~~   ** Schedule will not be validated.",
-                          "   ** Severe  ** CreateAirBoundaryConstructions: Construction:AirBoundary = Air Boundary with Bad Mixing Schedule", 
+                          "   ** Severe  ** CreateAirBoundaryConstructions: Construction:AirBoundary = Air Boundary with Bad Mixing Schedule",
                           "   **   ~~~   ** Simple Mixing Schedule Name = xyz, item not found.",
                           "   ** Severe  ** Errors found in creating the constructions defined with Construction:AirBoundary.",
                           "   ** Warning ** This building has no thermal mass which can cause an unstable solution.",
@@ -2460,8 +2460,8 @@ TEST_F(EnergyPlusFixture, ReadIncidentSolarMultiplierInput_invalidSched)
     state->dataSurface->Surface(2).Construction = 2;
     GetIncidentSolarMultiplier(*state, ErrorsFound);
     std::string error_string =
-            delimited_string({"   ** Severe  ** GetIncidentSolarMultiplier: SurfaceProperty:IncidentSolarMultiplier = ZN001:WALL001:WIN001",
-                              "   **   ~~~   ** Incident Solar Multiplier Schedule Name = WRONGSCHEDULE, item not found."});
+        delimited_string({"   ** Severe  ** GetIncidentSolarMultiplier: SurfaceProperty:IncidentSolarMultiplier = ZN001:WALL001:WIN001",
+                          "   **   ~~~   ** Incident Solar Multiplier Schedule Name = WRONGSCHEDULE, item not found."});
     EXPECT_TRUE(compare_err_stream(error_string, true));
 }
 
@@ -2576,7 +2576,7 @@ TEST_F(EnergyPlusFixture, ReadIncidentSolarMultiplierInput)
 
     ASSERT_TRUE(process_idf(idf_objects));
 
-    state->dataGlobal->TimeStepsInHour = 4; // must initialize this to get schedules initialized
+    state->dataGlobal->TimeStepsInHour = 4;    // must initialize this to get schedules initialized
     state->dataGlobal->MinutesInTimeStep = 15; // must initialize this to get schedules initialized
     state->dataGlobal->TimeStepZone = 0.25;
     state->dataGlobal->TimeStepZoneSec = state->dataGlobal->TimeStepZone * Constant::rSecsInHour;

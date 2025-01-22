@@ -330,9 +330,8 @@ void GetPipesHeatTransfer(EnergyPlusData &state)
         case PipeIndoorBoundaryType::Schedule:
             state.dataPipeHT->PipeHT(Item).EnvironmentPtr = EnvrnPtr::ScheduleEnv;
 
-
             state.dataPipeHT->PipeHT(Item).envrSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(7));
-            state.dataPipeHT->PipeHT(Item).envrVelSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(8)); 
+            state.dataPipeHT->PipeHT(Item).envrVelSched = Sched::GetSchedule(state, s_ipsc->cAlphaArgs(8));
             if (state.dataPipeHT->PipeHT(Item).envrSched == nullptr) {
                 ShowSevereError(state, format("Invalid {}={}", s_ipsc->cAlphaFieldNames(7), s_ipsc->cAlphaArgs(7)));
                 ShowContinueError(state, format("Entered in {}={}", s_ipsc->cCurrentModuleObject, s_ipsc->cAlphaArgs(1)));
@@ -635,8 +634,7 @@ void GetPipesHeatTransfer(EnergyPlusData &state)
             state.dataPipeHT->PipeHT(Item).DomainDepth = state.dataPipeHT->PipeHT(Item).PipeDepth * 2.0;
             state.dataPipeHT->PipeHT(Item).SoilDiffusivity = state.dataPipeHT->PipeHT(Item).SoilConductivity /
                                                              (state.dataPipeHT->PipeHT(Item).SoilDensity * state.dataPipeHT->PipeHT(Item).SoilCp);
-            state.dataPipeHT->PipeHT(Item).SoilDiffusivityPerDay =
-                state.dataPipeHT->PipeHT(Item).SoilDiffusivity * Constant::rSecsInDay;
+            state.dataPipeHT->PipeHT(Item).SoilDiffusivityPerDay = state.dataPipeHT->PipeHT(Item).SoilDiffusivity * Constant::rSecsInDay;
 
             // Mesh the cartesian domain
             state.dataPipeHT->PipeHT(Item).NumDepthNodes = NumberOfDepthNodes;
@@ -662,7 +660,7 @@ void GetPipesHeatTransfer(EnergyPlusData &state)
             ShowSevereInvalidKey(state, eoh, s_ipsc->cAlphaFieldNames(7), s_ipsc->cAlphaArgs(7));
             ErrorsFound = true;
         }
-        
+
         state.dataPipeHT->PipeHT(Item).groundTempModel = GroundTemp::GetGroundTempModelAndInit(state, gtmType, s_ipsc->cAlphaArgs(8));
 
         // Select number of pipe sections.  Hanby's optimal number of 20 section is selected.

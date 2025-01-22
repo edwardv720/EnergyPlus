@@ -86,8 +86,8 @@ namespace ThermalChimney {
 
         // Default Constructor
         ThermalChimneyData()
-            : RealZonePtr(0), AbsorberWallWidth(0.0), AirOutletCrossArea(0.0), DischargeCoeff(0.0), TotZoneToDistrib(0),
-              EMSOverrideOn(false), EMSAirFlowRateValue(0)
+            : RealZonePtr(0), AbsorberWallWidth(0.0), AirOutletCrossArea(0.0), DischargeCoeff(0.0), TotZoneToDistrib(0), EMSOverrideOn(false),
+              EMSAirFlowRateValue(0)
         {
         }
     };

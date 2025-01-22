@@ -78,7 +78,7 @@ namespace DataZoneControls {
         Sched::Schedule *heatSetptSched = nullptr;
         Sched::Schedule *coolSetptSched = nullptr;
     };
-        
+
     struct ZoneTempControls
     {
         // Members
@@ -86,9 +86,9 @@ namespace DataZoneControls {
         std::string ZoneName; // Name of the zone
         int ActualZoneNum;
 
-        Sched::Schedule *setptTypeSched = nullptr;                 // Index for this schedule
+        Sched::Schedule *setptTypeSched = nullptr; // Index for this schedule
 
-        std::array<TempSetptType, (int)HVAC::SetptType::Num> setpts; 
+        std::array<TempSetptType, (int)HVAC::SetptType::Num> setpts;
 
         bool ManageDemand;                      // Flag to indicate whether to use demand limiting
         Real64 HeatingResetLimit;               // Lowest heating setpoint that can be set by demand manager [C]
@@ -100,7 +100,7 @@ namespace DataZoneControls {
         bool OperativeTempControl;              // flag to indicate whether control based on Operative Temp
         bool OpTempCntrlModeScheduled;          // flag to indicate if radiative fraction is scheduled,
         // else constant
-        Real64 FixedRadiativeFraction;    // weighting factor for mean radiant temp for Operative temperature
+        Real64 FixedRadiativeFraction;                           // weighting factor for mean radiant temp for Operative temperature
         Sched::Schedule *opTempRadiativeFractionSched = nullptr; // schedule for when fraction is scheduled
 
         bool AdaptiveComfortTempControl;   // flag to indicate whether control based on Operative Temp
@@ -110,14 +110,14 @@ namespace DataZoneControls {
         bool ZoneOvercoolControl;        // Flag to indicate whether control is based on overcool
         bool OvercoolCntrlModeScheduled; // Flag to indicate if zone overcool range is scheduled
         //   or constant
-        Real64 ZoneOvercoolConstRange;   // Overcool Range for Zone Air Setpoint Temperature [deltaC]
+        Real64 ZoneOvercoolConstRange;                     // Overcool Range for Zone Air Setpoint Temperature [deltaC]
         Sched::Schedule *zoneOvercoolRangeSched = nullptr; // Overcool Range Schedule
-        Real64 ZoneOvercoolControlRatio; // Zone relative humidity shift per dry-bulb temperature overcooling
+        Real64 ZoneOvercoolControlRatio;                   // Zone relative humidity shift per dry-bulb temperature overcooling
         //      below the original cooling setpoint, %RH/deltaC
-        Sched::Schedule *dehumidifyingSched = nullptr;     // dehumidifying schedule
-        Real64 DeltaTCutSet;             // Temperature difference between cutout and setpoint
-        Real64 ZoneThermostatSetPointHi; // Cooling setpoint
-        Real64 ZoneThermostatSetPointLo; // Heating setpoint
+        Sched::Schedule *dehumidifyingSched = nullptr; // dehumidifying schedule
+        Real64 DeltaTCutSet;                           // Temperature difference between cutout and setpoint
+        Real64 ZoneThermostatSetPointHi;               // Cooling setpoint
+        Real64 ZoneThermostatSetPointLo;               // Heating setpoint
         bool CoolModeLast;
         bool HeatModeLast;
         bool CoolModeLastSave;
@@ -127,15 +127,13 @@ namespace DataZoneControls {
 
         // Default Constructor
         ZoneTempControls()
-            : ActualZoneNum(0), 
-              ManageDemand(false),
-              HeatingResetLimit(0.0), CoolingResetLimit(0.0), EMSOverrideHeatingSetPointOn(false), EMSOverrideHeatingSetPointValue(0.0),
-              EMSOverrideCoolingSetPointOn(false), EMSOverrideCoolingSetPointValue(0.0), OperativeTempControl(false), OpTempCntrlModeScheduled(false),
-              FixedRadiativeFraction(0.0), AdaptiveComfortTempControl(false), AdaptiveComfortModelTypeIndex(0),
-              ZoneOvercoolRange(0.0), ZoneOvercoolControl(false), OvercoolCntrlModeScheduled(false), ZoneOvercoolConstRange(0.0),
-              ZoneOvercoolControlRatio(0.0), DeltaTCutSet(0),
-              ZoneThermostatSetPointHi(0.0), ZoneThermostatSetPointLo(0.0), CoolModeLast(false), HeatModeLast(false), CoolModeLastSave(false),
-              HeatModeLastSave(false), CoolOffFlag(false), HeatOffFlag(false)
+            : ActualZoneNum(0), ManageDemand(false), HeatingResetLimit(0.0), CoolingResetLimit(0.0), EMSOverrideHeatingSetPointOn(false),
+              EMSOverrideHeatingSetPointValue(0.0), EMSOverrideCoolingSetPointOn(false), EMSOverrideCoolingSetPointValue(0.0),
+              OperativeTempControl(false), OpTempCntrlModeScheduled(false), FixedRadiativeFraction(0.0), AdaptiveComfortTempControl(false),
+              AdaptiveComfortModelTypeIndex(0), ZoneOvercoolRange(0.0), ZoneOvercoolControl(false), OvercoolCntrlModeScheduled(false),
+              ZoneOvercoolConstRange(0.0), ZoneOvercoolControlRatio(0.0), DeltaTCutSet(0), ZoneThermostatSetPointHi(0.0),
+              ZoneThermostatSetPointLo(0.0), CoolModeLast(false), HeatModeLast(false), CoolModeLastSave(false), HeatModeLastSave(false),
+              CoolOffFlag(false), HeatOffFlag(false)
 
         {
         }
@@ -144,26 +142,25 @@ namespace DataZoneControls {
     struct ZoneHumidityControls
     {
         // Members
-        std::string ControlName;        // Name of this humidity controller
-        std::string ZoneName;           // Name of the zone
+        std::string ControlName; // Name of this humidity controller
+        std::string ZoneName;    // Name of the zone
         int ActualZoneNum;
-        Sched::Schedule *humidifyingSched = nullptr; // humidifying schedule
-        Sched::Schedule *dehumidifyingSched = nullptr;               // dehumidifying schedule
-        int ErrorIndex;                            // Error index when LowRH setpoint > HighRH setpoint
-        bool EMSOverrideHumidifySetPointOn;        // EMS is calling to override humidifying setpoint
-        Real64 EMSOverrideHumidifySetPointValue;   // value EMS is directing to use for humidifying setpoint
-        bool EMSOverrideDehumidifySetPointOn;      // EMS is calling to override dehumidifying setpoint
-        Real64 EMSOverrideDehumidifySetPointValue; // value EMS is directing to use for dehumidifying setpoint
+        Sched::Schedule *humidifyingSched = nullptr;   // humidifying schedule
+        Sched::Schedule *dehumidifyingSched = nullptr; // dehumidifying schedule
+        int ErrorIndex;                                // Error index when LowRH setpoint > HighRH setpoint
+        bool EMSOverrideHumidifySetPointOn;            // EMS is calling to override humidifying setpoint
+        Real64 EMSOverrideHumidifySetPointValue;       // value EMS is directing to use for humidifying setpoint
+        bool EMSOverrideDehumidifySetPointOn;          // EMS is calling to override dehumidifying setpoint
+        Real64 EMSOverrideDehumidifySetPointValue;     // value EMS is directing to use for dehumidifying setpoint
 
         // Default Constructor
         ZoneHumidityControls()
-            : ActualZoneNum(0), ErrorIndex(0), EMSOverrideHumidifySetPointOn(false),
-              EMSOverrideHumidifySetPointValue(0.0), EMSOverrideDehumidifySetPointOn(false), EMSOverrideDehumidifySetPointValue(0.0)
+            : ActualZoneNum(0), ErrorIndex(0), EMSOverrideHumidifySetPointOn(false), EMSOverrideHumidifySetPointValue(0.0),
+              EMSOverrideDehumidifySetPointOn(false), EMSOverrideDehumidifySetPointValue(0.0)
         {
         }
     };
 
-        
     struct ComfortSetptType
     {
         std::string Name;
@@ -171,17 +168,17 @@ namespace DataZoneControls {
         Sched::Schedule *heatSetptSched = nullptr;
         Sched::Schedule *coolSetptSched = nullptr;
     };
-        
+
     struct ZoneComfortControls
     {
         // Members
-        std::string Name;                              // Name of the thermostat
-        std::string ZoneName;                          // Name of the zone
-        int ActualZoneNum;                             // Index number of zone
-        Sched::Schedule *setptTypeSched = nullptr;   // Schedule determines which thermostat type is active
+        std::string Name;                          // Name of the thermostat
+        std::string ZoneName;                      // Name of the zone
+        int ActualZoneNum;                         // Index number of zone
+        Sched::Schedule *setptTypeSched = nullptr; // Schedule determines which thermostat type is active
 
-        std::array<ComfortSetptType, (int)HVAC::SetptType::Num> setpts;                    // Type of control
-            
+        std::array<ComfortSetptType, (int)HVAC::SetptType::Num> setpts; // Type of control
+
         bool ManageDemand;                             // Flag to indicate whether to use demand limiting
         Real64 HeatingResetLimit;                      // Lowest heating setpoint that can be set by demand manager [C]
         Real64 CoolingResetLimit;                      // Highest cooling setpoint that can be set by demand manager [C]
@@ -204,12 +201,10 @@ namespace DataZoneControls {
 
         // Default Constructor
         ZoneComfortControls()
-            : ActualZoneNum(0),
-              ManageDemand(false), HeatingResetLimit(0.0), CoolingResetLimit(0.0),
-              EMSOverrideHeatingSetPointOn(false), EMSOverrideHeatingSetPointValue(0.0), EMSOverrideCoolingSetPointOn(false),
-              EMSOverrideCoolingSetPointValue(0.0), TdbMaxSetPoint(50.0), TdbMinSetPoint(0.0), AverageMethodName("PEOPLE AVERGAE"),
-              AverageMethod(DataZoneControls::AverageMethod::NO), SpecificObjectNum(0), PeopleAverageErrIndex(0), TdbMaxErrIndex(0),
-              TdbMinErrIndex(0), TdbHCErrIndex(0), TdbDualMaxErrIndex(0), TdbDualMinErrIndex(0)
+            : ActualZoneNum(0), ManageDemand(false), HeatingResetLimit(0.0), CoolingResetLimit(0.0), EMSOverrideHeatingSetPointOn(false),
+              EMSOverrideHeatingSetPointValue(0.0), EMSOverrideCoolingSetPointOn(false), EMSOverrideCoolingSetPointValue(0.0), TdbMaxSetPoint(50.0),
+              TdbMinSetPoint(0.0), AverageMethodName("PEOPLE AVERGAE"), AverageMethod(DataZoneControls::AverageMethod::NO), SpecificObjectNum(0),
+              PeopleAverageErrIndex(0), TdbMaxErrIndex(0), TdbMinErrIndex(0), TdbHCErrIndex(0), TdbDualMaxErrIndex(0), TdbDualMinErrIndex(0)
         {
         }
     };
@@ -217,26 +212,26 @@ namespace DataZoneControls {
     struct ZoneStagedControls
     {
         // Members
-        std::string Name;                 // Name of the thermostat
-        std::string ZoneName;             // Name of the zone
-        int ActualZoneNum;                // Index number of zone
+        std::string Name;                              // Name of the thermostat
+        std::string ZoneName;                          // Name of the zone
+        int ActualZoneNum;                             // Index number of zone
         Sched::Schedule *heatSetptBaseSched = nullptr; // schedule which provides zone heating setpoint base
-        Sched::Schedule *coolSetptBaseSched = nullptr;// schedule which provides zone cooling setpoint base
-        int NumOfHeatStages;              // Number of heating stages
-        int NumOfCoolStages;              // Number of cooling stages
-        Real64 HeatThroRange;             // Heating throttling tempeature range
-        Real64 CoolThroRange;             // Cooling throttling tempeature range
-        Array1D<Real64> HeatTOffset;      // Heating temperature offset
-        Array1D<Real64> CoolTOffset;      // Cooling temperature offset
-        Real64 HeatSetPoint;              // Heating throttling tempeature range
-        Real64 CoolSetPoint;              // Cooling throttling tempeature range
-        int StageErrCount;                // Staged setpoint erro count
-        int StageErrIndex;                // Staged setpoint erro index
+        Sched::Schedule *coolSetptBaseSched = nullptr; // schedule which provides zone cooling setpoint base
+        int NumOfHeatStages;                           // Number of heating stages
+        int NumOfCoolStages;                           // Number of cooling stages
+        Real64 HeatThroRange;                          // Heating throttling tempeature range
+        Real64 CoolThroRange;                          // Cooling throttling tempeature range
+        Array1D<Real64> HeatTOffset;                   // Heating temperature offset
+        Array1D<Real64> CoolTOffset;                   // Cooling temperature offset
+        Real64 HeatSetPoint;                           // Heating throttling tempeature range
+        Real64 CoolSetPoint;                           // Cooling throttling tempeature range
+        int StageErrCount;                             // Staged setpoint erro count
+        int StageErrIndex;                             // Staged setpoint erro index
 
         // Default Constructor
         ZoneStagedControls()
-            : ActualZoneNum(0), NumOfHeatStages(0), NumOfCoolStages(0), HeatThroRange(0.0), CoolThroRange(0.0),
-              HeatSetPoint(0.0), CoolSetPoint(0.0), StageErrCount(0), StageErrIndex(0)
+            : ActualZoneNum(0), NumOfHeatStages(0), NumOfCoolStages(0), HeatThroRange(0.0), CoolThroRange(0.0), HeatSetPoint(0.0), CoolSetPoint(0.0),
+              StageErrCount(0), StageErrIndex(0)
         {
         }
     };

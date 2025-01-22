@@ -106,40 +106,40 @@ namespace HVACUnitaryBypassVAV {
 
     struct CBVAVData
     {
-        std::string Name;                      // Name of unit
-        std::string UnitType;                  // Type of unit
-        std::string availSchedName;                     // Availability schedule name
-        Sched::Schedule *availSched = nullptr;                      // availability schedule
-        Real64 MaxCoolAirVolFlow = 0.0;        // System air volumetric flow rate during cooling operation [m3/s]
-        Real64 MaxHeatAirVolFlow = 0.0;        // System air volumetric flow rate during heating operation [m3/s]
-        Real64 MaxNoCoolHeatAirVolFlow = 0.0;  // System air volumetric flow rate when no cooling or heating [m3/s]
-        Real64 MaxCoolAirMassFlow = 0.0;       // System air mass flow rate during cooling operation [kg/s]
-        Real64 MaxHeatAirMassFlow = 0.0;       // System air mass flow rate during heating operation [kg/s]
-        Real64 MaxNoCoolHeatAirMassFlow = 0.0; // System air mass flow rate when no cooling or heating [kg/s]
-        Real64 CoolOutAirVolFlow = 0.0;        // OA volumetric flow rate during cooling operation [m3/s]
-        Real64 HeatOutAirVolFlow = 0.0;        // OA volumetric flow rate during heating operation [m3/s]
-        Real64 NoCoolHeatOutAirVolFlow = 0.0;  // OA volumetric flow rate when no cooling or heating [m3/s]
-        Real64 CoolOutAirMassFlow = 0.0;       // OA mass flow rate during cooling operation [kg/s]
-        Real64 HeatOutAirMassFlow = 0.0;       // OA mass flow rate during heating operation [kg/s]
-        Real64 NoCoolHeatOutAirMassFlow = 0.0; // OA mass flow rate when no cooling or heating [kg/s]
-        Sched::Schedule *outAirSched = nullptr;                  // outside air multiplier schedule
-        int AirInNode = 0;                     // Inlet air node number for CBVAV unit
-        int AirOutNode = 0;                    // Outlet air node number for CBVAV unit
-        int CondenserNodeNum = 0;              // DX Coil condenser air inlet node number
-        int MixerOutsideAirNode = 0;           // Outside air node number for OA mixer
-        int MixerMixedAirNode = 0;             // Mixed air node number for OA mixer
-        int MixerReliefAirNode = 0;            // Relief air node number for OA mixer
-        int MixerInletAirNode = 0;             // Return air node number for OA mixer
-        int SplitterOutletAirNode = 0;         // Air node number for splitter (last component outlet node)
-        int PlenumMixerInletAirNode = 0;       // only used when bypass is connected to plenum or mixer
-        std::string OAMixType;                 // type of outside air mixer
-        std::string OAMixName;                 // Name of OA mixer
-        int OAMixIndex = 0;                    // Index to OA mixer
-        std::string FanName;                   // Name of fan
+        std::string Name;                       // Name of unit
+        std::string UnitType;                   // Type of unit
+        std::string availSchedName;             // Availability schedule name
+        Sched::Schedule *availSched = nullptr;  // availability schedule
+        Real64 MaxCoolAirVolFlow = 0.0;         // System air volumetric flow rate during cooling operation [m3/s]
+        Real64 MaxHeatAirVolFlow = 0.0;         // System air volumetric flow rate during heating operation [m3/s]
+        Real64 MaxNoCoolHeatAirVolFlow = 0.0;   // System air volumetric flow rate when no cooling or heating [m3/s]
+        Real64 MaxCoolAirMassFlow = 0.0;        // System air mass flow rate during cooling operation [kg/s]
+        Real64 MaxHeatAirMassFlow = 0.0;        // System air mass flow rate during heating operation [kg/s]
+        Real64 MaxNoCoolHeatAirMassFlow = 0.0;  // System air mass flow rate when no cooling or heating [kg/s]
+        Real64 CoolOutAirVolFlow = 0.0;         // OA volumetric flow rate during cooling operation [m3/s]
+        Real64 HeatOutAirVolFlow = 0.0;         // OA volumetric flow rate during heating operation [m3/s]
+        Real64 NoCoolHeatOutAirVolFlow = 0.0;   // OA volumetric flow rate when no cooling or heating [m3/s]
+        Real64 CoolOutAirMassFlow = 0.0;        // OA mass flow rate during cooling operation [kg/s]
+        Real64 HeatOutAirMassFlow = 0.0;        // OA mass flow rate during heating operation [kg/s]
+        Real64 NoCoolHeatOutAirMassFlow = 0.0;  // OA mass flow rate when no cooling or heating [kg/s]
+        Sched::Schedule *outAirSched = nullptr; // outside air multiplier schedule
+        int AirInNode = 0;                      // Inlet air node number for CBVAV unit
+        int AirOutNode = 0;                     // Outlet air node number for CBVAV unit
+        int CondenserNodeNum = 0;               // DX Coil condenser air inlet node number
+        int MixerOutsideAirNode = 0;            // Outside air node number for OA mixer
+        int MixerMixedAirNode = 0;              // Mixed air node number for OA mixer
+        int MixerReliefAirNode = 0;             // Relief air node number for OA mixer
+        int MixerInletAirNode = 0;              // Return air node number for OA mixer
+        int SplitterOutletAirNode = 0;          // Air node number for splitter (last component outlet node)
+        int PlenumMixerInletAirNode = 0;        // only used when bypass is connected to plenum or mixer
+        std::string OAMixType;                  // type of outside air mixer
+        std::string OAMixName;                  // Name of OA mixer
+        int OAMixIndex = 0;                     // Index to OA mixer
+        std::string FanName;                    // Name of fan
         HVAC::FanType fanType = HVAC::FanType::Invalid;
         HVAC::FanPlace fanPlace = HVAC::FanPlace::Invalid; // Fan placement is either blowthru (1) or drawthru (2)
         int FanIndex = 0;                                  // Index number to fan
-        Sched::Schedule *fanOpModeSched = nullptr;                         // Fan operating mode schedule
+        Sched::Schedule *fanOpModeSched = nullptr;         // Fan operating mode schedule
         Real64 FanVolFlow = 0.0;                           // Volumetric flow rate of system supply air fan [m3/s]
         Real64 HeatingSpeedRatio = 1.0;                    // Fan speed ratio in heating mode
         Real64 CoolingSpeedRatio = 1.0;                    // Fan speed ratio in cooling mode

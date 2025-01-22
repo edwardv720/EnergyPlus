@@ -328,9 +328,8 @@ namespace RoomAir {
                 ErrorsFound = true;
             }
 
-
             if (ipsc->lAlphaFieldBlanks(4)) {
-            } else if ((airPatternZoneInfo.patternSched = Sched::GetSchedule(state, ipsc->cAlphaArgs(4))) == nullptr) { 
+            } else if ((airPatternZoneInfo.patternSched = Sched::GetSchedule(state, ipsc->cAlphaArgs(4))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, ipsc->cAlphaFieldNames(4), ipsc->cAlphaArgs(4));
                 ErrorsFound = true;
             }

@@ -951,7 +951,7 @@ TEST_F(EnergyPlusFixture, MakeEquivalentRectangle)
     // Prepare data for the test
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetMaterialData(*state, ErrorsFound); // read material data
     EXPECT_FALSE(ErrorsFound);
     GetConstructData(*state, ErrorsFound); // read construction data
@@ -7468,7 +7468,7 @@ TEST_F(EnergyPlusFixture, TwoZones_With_AirDoor)
     });
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
 
     GetMaterialData(*state, ErrorsFound); // read material data
@@ -12470,7 +12470,7 @@ TEST_F(EnergyPlusFixture, ZoneFloorAreaTest)
     // Prepare data for the test
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetMaterialData(*state, ErrorsFound); // read material data
     EXPECT_FALSE(ErrorsFound);
     GetConstructData(*state, ErrorsFound); // read construction data
@@ -12648,7 +12648,7 @@ TEST_F(EnergyPlusFixture, SurfaceGeometry_GetSurfaceGroundSurfsTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataHeatBal->ZoneIntGain.allocate(1);
 
     createFacilityElectricPowerServiceObject(*state);
@@ -14065,7 +14065,7 @@ TEST_F(EnergyPlusFixture, GetSurfaceData_ShadingSurfaceScheduleOutOfRange)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     GetMaterialData(*state, ErrorsFound); // read material data
     EXPECT_FALSE(ErrorsFound);            // expect no errors
 
@@ -14078,15 +14078,15 @@ TEST_F(EnergyPlusFixture, GetSurfaceData_ShadingSurfaceScheduleOutOfRange)
     EXPECT_THROW(SetupZoneGeometry(*state, ErrorsFound), std::runtime_error);
     // EXPECT_THROW(GetSurfaceData(*state, ErrorsFound), std::runtime_error);
     EXPECT_TRUE(ErrorsFound);
-    std::string const error_string = delimited_string(
-        {"   ** Severe  ** GetDetShdSurfaceData: Shading:Building:Detailed = BUILDINGSHADE:TILTEDSHADESURFACE",
-         "   **   ~~~   ** Transmittance Schedule Name = OUTOFRANGE, schedule contains values that are < 0 and/or > 1",
-         "   ** Severe  ** GetAttShdSurfaceData: Shading:Zone:Detailed = ZONESHADE:LIVING:SOUTH:SHADE001",
-         "   **   ~~~   ** Transmittance Schedule Name = OUTOFRANGE, schedule contains values that are < 0 and/or > 1",
-         "   **  Fatal  ** GetSurfaceData: Errors discovered, program terminates.",
-         "   ...Summary of Errors that led to program termination:",
-         "   ..... Reference severe error count=2",
-         "   ..... Last severe error=GetAttShdSurfaceData: Shading:Zone:Detailed = ZONESHADE:LIVING:SOUTH:SHADE001"});
+    std::string const error_string =
+        delimited_string({"   ** Severe  ** GetDetShdSurfaceData: Shading:Building:Detailed = BUILDINGSHADE:TILTEDSHADESURFACE",
+                          "   **   ~~~   ** Transmittance Schedule Name = OUTOFRANGE, schedule contains values that are < 0 and/or > 1",
+                          "   ** Severe  ** GetAttShdSurfaceData: Shading:Zone:Detailed = ZONESHADE:LIVING:SOUTH:SHADE001",
+                          "   **   ~~~   ** Transmittance Schedule Name = OUTOFRANGE, schedule contains values that are < 0 and/or > 1",
+                          "   **  Fatal  ** GetSurfaceData: Errors discovered, program terminates.",
+                          "   ...Summary of Errors that led to program termination:",
+                          "   ..... Reference severe error count=2",
+                          "   ..... Last severe error=GetAttShdSurfaceData: Shading:Zone:Detailed = ZONESHADE:LIVING:SOUTH:SHADE001"});
 
     compare_err_stream(error_string);
     // compare_err_stream( "" ); // just for debugging
@@ -14303,7 +14303,7 @@ TEST_F(EnergyPlusFixture, SurfaceGeometry_SurroundingSurfacesViewFactorTest)
     bool ErrorsFound = false;
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataHeatBal->ZoneIntGain.allocate(1);
     createFacilityElectricPowerServiceObject(*state);
     HeatBalanceManager::SetPreConstructionInputParameters(*state);
@@ -14533,7 +14533,7 @@ TEST_F(EnergyPlusFixture, ExtSolarForShadingTest)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     int TotSurfaces = 8;                                          // Need to double the number of surfaces because E+ will add mirrored surfaces
     state->dataSurfaceGeometry->SurfaceTmp.allocate(TotSurfaces); // Allocate the Surface derived type appropriately
     state->dataSurface->Corner = LowerLeftCorner;

@@ -321,7 +321,8 @@ void ManageSizing(EnergyPlusData &state)
                         UpdateFacilitySizing(state, Constant::CallIndicator::BeginDay);
                     }
 
-                    for (state.dataGlobal->HourOfDay = 1; state.dataGlobal->HourOfDay <= Constant::iHoursInDay; ++state.dataGlobal->HourOfDay) { // Begin hour loop ...
+                    for (state.dataGlobal->HourOfDay = 1; state.dataGlobal->HourOfDay <= Constant::iHoursInDay;
+                         ++state.dataGlobal->HourOfDay) { // Begin hour loop ...
 
                         state.dataGlobal->BeginHourFlag = true;
                         state.dataGlobal->EndHourFlag = false;
@@ -359,8 +360,7 @@ void ManageSizing(EnergyPlusData &state)
                             Weather::ManageWeather(state);
 
                             if (!state.dataGlobal->WarmupFlag) {
-                                TimeStepInDay =
-                                    (state.dataGlobal->HourOfDay - 1) * state.dataGlobal->TimeStepsInHour + state.dataGlobal->TimeStep;
+                                TimeStepInDay = (state.dataGlobal->HourOfDay - 1) * state.dataGlobal->TimeStepsInHour + state.dataGlobal->TimeStep;
                                 if (state.dataGlobal->HourOfDay == 1 && state.dataGlobal->TimeStep == 1) {
                                     state.dataSize->DesDayWeath(state.dataSize->CurOverallSimDay).DateString =
                                         fmt::format("{}/{}", state.dataEnvrn->Month, state.dataEnvrn->DayOfMonth);
@@ -505,7 +505,8 @@ void ManageSizing(EnergyPlusData &state)
                     UpdateSysSizing(state, Constant::CallIndicator::BeginDay);
                 }
 
-                for (state.dataGlobal->HourOfDay = 1; state.dataGlobal->HourOfDay <= Constant::iHoursInDay; ++state.dataGlobal->HourOfDay) { // Begin hour loop ...
+                for (state.dataGlobal->HourOfDay = 1; state.dataGlobal->HourOfDay <= Constant::iHoursInDay;
+                     ++state.dataGlobal->HourOfDay) { // Begin hour loop ...
 
                     state.dataGlobal->BeginHourFlag = true;
                     state.dataGlobal->EndHourFlag = false;
@@ -2060,10 +2061,10 @@ void DetermineSystemPopulationDiversity(EnergyPlusData &state)
         state.dataEnvrn->DayOfWeek = dayOfWeekType;
         ++dayOfWeekType;
         if (dayOfWeekType > 7) dayOfWeekType = 1;
-        for (int hrOfDay = 1; hrOfDay <= Constant::iHoursInDay; ++hrOfDay) {                         // loop over all hours in day
-            state.dataGlobal->HourOfDay = hrOfDay;                                // avoid crash in schedule manager
+        for (int hrOfDay = 1; hrOfDay <= Constant::iHoursInDay; ++hrOfDay) {  // loop over all hours in day
+            state.dataGlobal->HourOfDay = hrOfDay;                            // avoid crash in schedule manager
             for (int TS = 1; TS <= state.dataGlobal->TimeStepsInHour; ++TS) { // loop over all timesteps in hour
-                state.dataGlobal->TimeStep = TS;                                  // avoid crash in schedule manager
+                state.dataGlobal->TimeStep = TS;                              // avoid crash in schedule manager
                 Real64 TSfraction(0.0);
                 if (state.dataGlobal->TimeStepsInHour > 0.0) TSfraction = 1.0 / double(state.dataGlobal->TimeStepsInHour);
                 for (int AirLoopNum = 1; AirLoopNum <= state.dataHVACGlobal->NumPrimaryAirSys; ++AirLoopNum) { // loop over all the air systems
@@ -2309,7 +2310,7 @@ void ProcessInputOARequirements(EnergyPlusData &state,
     // if subsequent fields are not entered.
 
     static constexpr std::string_view RoutineName("GetOARequirements: "); // include trailing blank space
-    static constexpr std::string_view routineName = "GetOARequirements"; 
+    static constexpr std::string_view routineName = "GetOARequirements";
 
     ErrorObjectHeader eoh{routineName, CurrentModuleObject, Alphas(1)};
 
@@ -2384,7 +2385,7 @@ void ProcessInputOARequirements(EnergyPlusData &state,
     }
 
     if (NumAlphas <= 3 || lAlphaBlanks(4)) {
-    } else if ((state.dataSize->OARequirements(OAIndex).oaPropCtlMinRateSched = Sched::GetSchedule(state, Alphas(4))) == nullptr) { 
+    } else if ((state.dataSize->OARequirements(OAIndex).oaPropCtlMinRateSched = Sched::GetSchedule(state, Alphas(4))) == nullptr) {
         ShowSevereItemNotFound(state, eoh, cAlphaFields(4), Alphas(4));
         ErrorsFound = true;
     } else if (!state.dataSize->OARequirements(OAIndex).oaPropCtlMinRateSched->checkMinMaxVals(state, Clusive::In, 0.0, Clusive::In, 1.0)) {
@@ -2411,7 +2412,7 @@ void GetZoneAirDistribution(EnergyPlusData &state)
 
     // SUBROUTINE PARAMETER DEFINITIONS:
     static constexpr std::string_view RoutineName("GetZoneAirDistribution: "); // include trailing blank space
-    static constexpr std::string_view routineName = "GetZoneAirDistribution"; // include trailing blank space
+    static constexpr std::string_view routineName = "GetZoneAirDistribution";  // include trailing blank space
 
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
     int NumAlphas;  // Number of Alphas for each GetObjectItem call
@@ -2496,7 +2497,7 @@ void GetZoneAirDistribution(EnergyPlusData &state)
             }
 
             if (NumAlphas <= 1 || lAlphaBlanks(2)) {
-            } else if ((state.dataSize->ZoneAirDistribution(ZADIndex).zoneADEffSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) { 
+            } else if ((state.dataSize->ZoneAirDistribution(ZADIndex).zoneADEffSched = Sched::GetSchedule(state, Alphas(2))) == nullptr) {
                 ShowSevereItemNotFound(state, eoh, cAlphaFields(2), Alphas(2));
                 ErrorsFound = true;
             } else if (!state.dataSize->ZoneAirDistribution(ZADIndex).zoneADEffSched->checkMinVal(state, Clusive::Ex, 0.0)) {
@@ -2767,7 +2768,7 @@ void GetZoneSizingInput(EnergyPlusData &state)
                                                                      state.dataIPShortCut->cNumericFieldNames);
 
             ErrorObjectHeader eoh{routineName, cCurrentModuleObject, state.dataIPShortCut->cAlphaArgs(1)};
-            
+
             for (Item1 = 1; Item1 <= SizingZoneObjects(Item).NumOfZones; ++Item1) {
                 ++ZoneSizIndex;
                 auto &zoneSizingIndex = state.dataSize->ZoneSizingInput(ZoneSizIndex);
@@ -3228,20 +3229,27 @@ void GetZoneSizingInput(EnergyPlusData &state)
 
                 if (NumAlphas <= 12 || state.dataIPShortCut->lAlphaFieldBlanks(13)) {
                 } else if ((zoneSizingIndex.zoneRHDehumidifySched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(13))) == nullptr) {
-                    ShowWarningItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(13), state.dataIPShortCut->cAlphaArgs(13),
+                    ShowWarningItemNotFound(state,
+                                            eoh,
+                                            state.dataIPShortCut->cAlphaFieldNames(13),
+                                            state.dataIPShortCut->cAlphaArgs(13),
                                             "Schedule will not be used and simulation continues.");
                 }
-            
+
                 if (NumAlphas <= 13 || state.dataIPShortCut->lAlphaFieldBlanks(14)) {
                 } else if ((zoneSizingIndex.zoneRHHumidifySched = Sched::GetSchedule(state, state.dataIPShortCut->cAlphaArgs(14))) == nullptr) {
-                    ShowWarningItemNotFound(state, eoh, state.dataIPShortCut->cAlphaFieldNames(14), state.dataIPShortCut->cAlphaArgs(14),
+                    ShowWarningItemNotFound(state,
+                                            eoh,
+                                            state.dataIPShortCut->cAlphaFieldNames(14),
+                                            state.dataIPShortCut->cAlphaArgs(14),
                                             "Schedule will not be used and simulation continues.");
                 } else if (zoneSizingIndex.zoneRHDehumidifySched) {
                     // check max and min of each schedule and compare RHHumidify > RHDehumidify and warn
                     Real64 maxHumidify = zoneSizingIndex.zoneRHHumidifySched->getMaxVal(state);
                     Real64 minDehumidify = zoneSizingIndex.zoneRHDehumidifySched->getMinVal(state);
                     if (maxHumidify > minDehumidify) {
-                        ShowWarningCustom(state, eoh,
+                        ShowWarningCustom(state,
+                                          eoh,
                                           format("Maximum value ({}%) of Zone Humidistat Humidification Set Point Schedule Name = {} is "
                                                  "greater than minimum value ({}%) of Zone Humidistat Dehumidifcation Set Point Schedule Name = {}. "
                                                  "Humidification set point will be limited by Dehumidification set point during zone sizing and "
@@ -5162,7 +5170,7 @@ void GetAirTerminalSizing(EnergyPlusData &state)
 // Update the sizing for the entire facility to gather values for reporting - Glazer January 2017
 void UpdateFacilitySizing([[maybe_unused]] EnergyPlusData &state, Constant::CallIndicator const CallIndicator)
 {
-        int NumOfTimeStepInDay = state.dataGlobal->TimeStepsInHour * Constant::iHoursInDay;
+    int NumOfTimeStepInDay = state.dataGlobal->TimeStepsInHour * Constant::iHoursInDay;
 
     auto &CalcFacilitySizing = state.dataSize->CalcFacilitySizing;
     auto &CalcFinalFacilitySizing = state.dataSize->CalcFinalFacilitySizing;

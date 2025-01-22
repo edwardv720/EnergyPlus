@@ -88,7 +88,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceAirManager_RoomAirModelType_Test)
 
     ASSERT_TRUE(process_idf(idf_objects));
     state->init_state(*state);
-    
+
     state->dataGlobal->NumOfZones = 2;
 
     state->dataHeatBal->Zone.allocate(2);
@@ -373,7 +373,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceAirManager_GetInfiltrationAndVentilation)
     bool ErrorsFound = false;
 
     state->init_state(*state);
-    
+
     HeatBalanceManager::GetHeatBalanceInput(*state);
     std::string const error_string = delimited_string(
         {format("   ** Warning ** Version: missing in IDF, processing for EnergyPlus version=\"{}\"", DataStringGlobals::MatchVersion),
@@ -805,14 +805,15 @@ TEST_F(EnergyPlusFixture, HeatBalanceAirManager_GetMixingAndCrossMixing)
     state->dataIPShortCut->lNumericFieldBlanks.dimension(MaxNumeric, false);
 
     state->init_state(*state);
-    
+
     bool ErrorsFound = false;
     // HeatBalanceManager::GetHeatBalanceInput(*state);
     std::string const error_string = delimited_string(
         {format("   ** Warning ** Version: missing in IDF, processing for EnergyPlus version=\"{}\"", DataStringGlobals::MatchVersion),
          "   ** Warning ** No Timestep object found.  Number of TimeSteps in Hour defaulted to 4.",
          "   ** Warning ** No reporting elements have been requested. No simulation results produced.",
-         "   **   ~~~   ** ...Review requirements such as \"Output:Table:SummaryReports\", \"Output:Table:Monthly\", \"Output:Variable\", \"Output:Meter\" and others.",
+         "   **   ~~~   ** ...Review requirements such as \"Output:Table:SummaryReports\", \"Output:Table:Monthly\", \"Output:Variable\", "
+         "\"Output:Meter\" and others.",
          "   ** Warning ** GetSurfaceData: Entered Space Floor Area(s) differ more than 5% from calculated Space Floor Area(s).",
          "   **   ~~~   ** ...use Output:Diagnostics,DisplayExtraWarnings; to show more details on individual Spaces.",
          "   ** Warning ** CalculateZoneVolume: 1 zone is not fully enclosed. For more details use:  Output:Diagnostics,DisplayExtrawarnings; ",
@@ -825,8 +826,10 @@ TEST_F(EnergyPlusFixture, HeatBalanceAirManager_GetMixingAndCrossMixing)
          "   **   ~~~   ** Reciprocity means that radiant exchange between two surfaces will match and not lead to an energy loss.",
          "   **   ~~~   ** Completeness means that all of the view factors between a surface and the other surfaces in a zone add up to unity.",
          "   **   ~~~   ** So, when there are three or less surfaces in a zone, EnergyPlus will make sure there are no losses of energy but",
-         "   **   ~~~   ** it will not exchange the full amount of radiation with the rest of the zone as it would if there was a completed enclosure.",
-         "   ** Warning ** CalcApproximateViewFactors: Zero area for all other zone surfaces.", // Why are these errors being reported twice, because something is being calculated twice?
+         "   **   ~~~   ** it will not exchange the full amount of radiation with the rest of the zone as it would if there was a completed "
+         "enclosure.",
+         "   ** Warning ** CalcApproximateViewFactors: Zero area for all other zone surfaces.", // Why are these errors being reported twice, because
+                                                                                                // something is being calculated twice?
          "   **   ~~~   ** Happens for Surface=\"DUMMY SPACE 1A FLOOR\" in Zone=ZONE 1",
          "   ** Warning ** CalcApproximateViewFactors: Zero area for all other zone surfaces.",
          "   **   ~~~   ** Happens for Surface=\"DUMMY SPACE 1B FLOOR\" in Zone=ZONE 1",
@@ -835,7 +838,8 @@ TEST_F(EnergyPlusFixture, HeatBalanceAirManager_GetMixingAndCrossMixing)
          "   **   ~~~   ** Reciprocity means that radiant exchange between two surfaces will match and not lead to an energy loss.",
          "   **   ~~~   ** Completeness means that all of the view factors between a surface and the other surfaces in a zone add up to unity.",
          "   **   ~~~   ** So, when there are three or less surfaces in a zone, EnergyPlus will make sure there are no losses of energy but",
-         "   **   ~~~   ** it will not exchange the full amount of radiation with the rest of the zone as it would if there was a completed enclosure.",
+         "   **   ~~~   ** it will not exchange the full amount of radiation with the rest of the zone as it would if there was a completed "
+         "enclosure.",
          "   ************* Testing Individual Branch Integrity",
          "   ************* All Branches passed integrity testing",
          "   ************* Testing Individual Supply Air Path Integrity",
@@ -845,7 +849,7 @@ TEST_F(EnergyPlusFixture, HeatBalanceAirManager_GetMixingAndCrossMixing)
          "   ************* No node connection errors were found.",
          "   ************* Beginning Simulation"});
 
-                                                                                                                           // HeatBalanceManager::GetProjectControlData(*state, ErrorsFound);
+    // HeatBalanceManager::GetProjectControlData(*state, ErrorsFound);
     // EXPECT_FALSE(ErrorsFound);
 
     SimulationManager::ManageSimulation(*state);
@@ -964,9 +968,9 @@ TEST_F(EnergyPlusFixture, HeatBalanceAirManager_InitSimpleMixingConvectiveHeatGa
     state->dataHeatBal->TotCrossMixing = 0;
     state->dataHeatBal->TotMixing = 3;
     state->dataHeatBal->Mixing.allocate(state->dataHeatBal->TotMixing);
-    state->dataHeatBal->Mixing(1).sched = Sched::GetScheduleAlwaysOn(*state); 
-    state->dataHeatBal->Mixing(2).sched = Sched::GetScheduleAlwaysOn(*state); 
-    state->dataHeatBal->Mixing(3).sched = Sched::GetScheduleAlwaysOn(*state); 
+    state->dataHeatBal->Mixing(1).sched = Sched::GetScheduleAlwaysOn(*state);
+    state->dataHeatBal->Mixing(2).sched = Sched::GetScheduleAlwaysOn(*state);
+    state->dataHeatBal->Mixing(3).sched = Sched::GetScheduleAlwaysOn(*state);
     state->dataHeatBal->Mixing(1).EMSSimpleMixingOn = false;
     state->dataHeatBal->Mixing(2).EMSSimpleMixingOn = false;
     state->dataHeatBal->Mixing(3).EMSSimpleMixingOn = false;
