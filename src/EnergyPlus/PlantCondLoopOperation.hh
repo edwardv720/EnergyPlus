@@ -59,7 +59,7 @@ namespace PlantCondLoopOperation {
 
     void ManagePlantLoadDistribution(EnergyPlusData &state,
                                      PlantLocation const &plantLoc, // PlantLoop data structure Location struct
-                                     Real64 &LoopDemand,
+                                     Real64 const LoopDemand,
                                      Real64 &RemLoopDemand,
                                      bool const FirstHVACIteration,
                                      bool &LoopShutDownFlag, // EMS flag to tell loop solver to shut down pumps

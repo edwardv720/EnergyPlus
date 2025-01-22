@@ -429,6 +429,8 @@ namespace CondenserLoopTowers {
         void checkMassFlowAndLoad(EnergyPlusData &state, Real64 MyLoad, bool RunFlag, bool &returnFlagSet);
 
         static CoolingTower *factory(EnergyPlusData &state, std::string_view objectName);
+
+        Real64 getDynamicMaxCapacity(EnergyPlusData &state) override;
     };
 
     void GetTowerInput(EnergyPlusData &state);

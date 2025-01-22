@@ -331,6 +331,8 @@ namespace EIRPlantLoopHeatPumps {
         void oneTimeInit(EnergyPlusData &state) override;
 
         bool thermosiphonDisabled(EnergyPlusData &state);
+
+        Real64 getDynamicMaxCapacity(EnergyPlusData &state) override;
     };
 
     struct EIRFuelFiredHeatPump : public EIRPlantLoopHeatPump
@@ -418,6 +420,7 @@ namespace EIRPlantLoopHeatPumps {
         static void processInputForEIRPLHP(EnergyPlusData &state);
         void oneTimeInit(EnergyPlusData &state);
         void report(EnergyPlusData &state);
+        Real64 getDynamicMaxCapacity(EnergyPlusData &state) override;
 
         // New or specialized functions for derived struct
         virtual ~EIRFuelFiredHeatPump() = default;

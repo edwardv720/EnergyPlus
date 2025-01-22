@@ -47,6 +47,7 @@
 
 // C++ Headers
 #include <cmath>
+#include <numeric>
 #include <string>
 
 // ObjexxFCL Headers
@@ -6425,38 +6426,84 @@ void FillPredefinedTableOnThermostatSchedules(EnergyPlusData &state)
     // J.Glazer - March 2024
     using OutputReportPredefined::PreDefTableEntry;
     auto &orp = state.dataOutRptPredefined;
-    
+
+
+    // Helper struct so we can sort to ensure a consistent order.
+    // No matter the order in which the multiple Field Sets (Control Object Type, Control Name), the same thing is reported to the tabular outputs
+    // You don't actually need this anymore
+    struct ControlTypeInfo
+    {
+        // HVAC::ThermostatType tType = HVAC::ThermostatType::Invalid;
+        std::string thermostatType;
+        std::string controlTypeName;
+        std::string heatSchName;
+        std::string coolSchName;
+
+        // Only need the operator<, and we use C++17 so I can't use a defaulted 3-way operator<=>
+        bool operator<(const ControlTypeInfo &other) const
+        {
+            return std::tie(this->thermostatType, this->controlTypeName, this->heatSchName, this->coolSchName) <
+                   std::tie(other.thermostatType, other.controlTypeName, other.heatSchName, other.coolSchName);
+        }
+    };
+    using ControlTypeInfoMemPtr = std::string ControlTypeInfo::*;
+
+    // How many people on the EnergyPlus team understand this code?
+    auto joinStrings = [](const std::vector<ControlTypeInfo> &infos, ControlTypeInfoMemPtr memPtr) -> std::string {
+        std::vector<std::string> result;
+        result.reserve(infos.size());
+        for (const auto &info : infos) {
+            std::string val = info.*memPtr;
+            if (val.empty()) {
+                continue;
+            }
+            result.emplace_back(std::move(val));
+        }
+        return fmt::format("{}", fmt::join(result, ", "));
+    };
+
     for (int idx = 1; idx <= state.dataZoneCtrls->NumTempControlledZones; ++idx) {
         auto &tcz = state.dataZoneCtrls->TempControlledZone(idx);
         PreDefTableEntry(state, orp->pdchStatName, tcz.ZoneName, tcz.Name);
         PreDefTableEntry(state, orp->pdchStatCtrlTypeSchd, tcz.ZoneName, tcz.setptTypeSched->Name);
 
+        std::vector<ControlTypeInfo> infos;
+        infos.reserve((int)HVAC::SetptType::Num);
         for (HVAC::SetptType setptType : HVAC::setptTypes) {
             auto &setpt = tcz.setpts[(int)setptType];
-                
+
+            auto &info = infos[(int)setptType];
+            
             if (setpt.Name.empty()) continue;
-                
-            PreDefTableEntry(state, orp->pdchStatSchdType1, tcz.ZoneName, HVAC::setptTypeNames[(int)setptType]);
-            PreDefTableEntry(state, orp->pdchStatSchdTypeName1, tcz.ZoneName, setpt.Name);
+
+            info.thermostatType = HVAC::setptTypeNames[(int)setptType];
+            info.controlTypeName = setpt.Name;
             switch (setptType) {
-
-            case HVAC::SetptType::DualHeatCool: 
+            case HVAC::SetptType::DualHeatCool:
             case HVAC::SetptType::SingleHeatCool: {
-                PreDefTableEntry(state, orp->pdchStatSchdHeatName, tcz.ZoneName, setpt.heatSetptSched->Name);
-                PreDefTableEntry(state, orp->pdchStatSchdCoolName, tcz.ZoneName, setpt.coolSetptSched->Name);
+                info.coolSchName = setpt.coolSetptSched->Name;
+                info.heatSchName = setpt.heatSetptSched->Name;
             } break;
-                    
+              
             case HVAC::SetptType::SingleCool: {
-                PreDefTableEntry(state, orp->pdchStatSchdCoolName, tcz.ZoneName, setpt.coolSetptSched->Name);
+                info.coolSchName = setpt.coolSetptSched->Name;
             } break;
-                    
+              
             case HVAC::SetptType::SingleHeat: {
-                PreDefTableEntry(state, orp->pdchStatSchdHeatName, tcz.ZoneName, setpt.heatSetptSched->Name);
+                info.heatSchName = setpt.heatSetptSched->Name;
             } break;
+            } 
+            infos.emplace_back(std::move(info));
+        }
+        std::sort(infos.begin(), infos.end());
 
-            default: {
-            } break;
-            } // switch ()
+        PreDefTableEntry(state, orp->pdchStatSchdType1, tcz.ZoneName, joinStrings(infos, &ControlTypeInfo::thermostatType));
+        PreDefTableEntry(state, orp->pdchStatSchdTypeName1, tcz.ZoneName, joinStrings(infos, &ControlTypeInfo::controlTypeName));
+        if (auto heatSchNames = joinStrings(infos, &ControlTypeInfo::heatSchName); !heatSchNames.empty()) {
+            PreDefTableEntry(state, orp->pdchStatSchdHeatName, tcz.ZoneName, heatSchNames);
+        }
+        if (auto coolSchNames = joinStrings(infos, &ControlTypeInfo::coolSchName); !coolSchNames.empty()) {
+            PreDefTableEntry(state, orp->pdchStatSchdCoolName, tcz.ZoneName, coolSchNames);
         }
     }
 }
