@@ -1419,7 +1419,7 @@ void InitExternalInterfaceFMUImport(EnergyPlusData &state)
                             StopExternalInterfaceIfError(state);
                         }
 
-                        fmuInst.eplusInputVariableSchedule(k).VarIndex = Sched::GetDayScheduleNum(state, fmuInst.eplusInputVariableSchedule(k).Name);
+                        fmuInst.eplusInputVariableSchedule(k).VarIndex = Sched::GetScheduleNum(state, fmuInst.eplusInputVariableSchedule(k).Name);
                         fmuInst.NumOutputVariablesSchedule = k;
                         if (fmuInst.eplusInputVariableSchedule(k).VarIndex <= 0) {
                             ShowSevereError(state,

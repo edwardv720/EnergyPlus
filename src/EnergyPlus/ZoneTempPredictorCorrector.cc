@@ -6511,7 +6511,7 @@ void FillPredefinedTableOnThermostatSchedules(EnergyPlusData &state)
         PreDefTableEntry(state, orp->pdchStatCtrlTypeSchd, tcz.ZoneName, tcz.setptTypeSched->Name);
 
         std::vector<ControlTypeInfo> infos;
-        infos.reserve((int)HVAC::SetptType::Num);
+        infos.resize((int)HVAC::SetptType::Num);
         for (HVAC::SetptType setptType : HVAC::setptTypes) {
             auto &setpt = tcz.setpts[(int)setptType];
 
