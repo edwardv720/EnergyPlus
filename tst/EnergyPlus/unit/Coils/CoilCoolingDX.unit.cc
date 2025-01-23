@@ -71,6 +71,7 @@ TEST_F(CoilCoolingDXTest, CoilCoolingDXInput)
 {
     std::string idf_objects = this->getCoilObjectString("coolingCoil", false, 2);
     EXPECT_TRUE(process_idf(idf_objects, false));
+    state->init_state(*state);
     int coilIndex = CoilCoolingDX::factory(*state, "coolingCoil");
     auto const &thisCoil(state->dataCoilCooingDX->coilCoolingDXs[coilIndex]);
     EXPECT_EQ("COOLINGCOIL", thisCoil.name);
@@ -144,6 +145,7 @@ TEST_F(CoilCoolingDXTest, CoilCoolingDXAlternateModePerformance)
                                                 "    1.0,                     !- Active Fraction of Coil Face Area",
                                                 "    ,,,,,,,,,,,;"});
     EXPECT_TRUE(process_idf(idf_objects, false));
+    state->init_state(*state);
     int coilIndex = CoilCoolingDX::factory(*state, "Coil");
     auto &thisCoil(state->dataCoilCooingDX->coilCoolingDXs[coilIndex]);
 
@@ -280,6 +282,7 @@ TEST_F(CoilCoolingDXTest, CoilCoolingDXAlternateModePerformanceHitsSaturation)
                                                 "    1.0,                     !- Active Fraction of Coil Face Area",
                                                 "    ,,,,,,,,,,,;"});
     EXPECT_TRUE(process_idf(idf_objects, false));
+    state->init_state(*state);
     int coilIndex = CoilCoolingDX::factory(*state, "Coil");
     auto &thisCoil(state->dataCoilCooingDX->coilCoolingDXs[coilIndex]);
 
@@ -395,7 +398,7 @@ TEST_F(EnergyPlusFixture, DISABLED_CoilDXCoolingVsMultiSpeed_CycFanCycCoil)
     Coil.DXCoilType_Num = HVAC::CoilDX_MultiSpeedCooling;
     Coil.DXCoilType = "Coil:Cooling:DX:MultiSpeed";
     Coil.FuelType = Constant::eFuel::Electricity;
-    Coil.SchedPtr = ScheduleManager::ScheduleAlwaysOn;
+    Coil.availSched = Sched::GetScheduleAlwaysOn(*state);
     Coil.NumOfSpeeds = 2;
     Coil.MSRatedTotCap.allocate(Coil.NumOfSpeeds);
     Coil.MSRatedSHR.allocate(Coil.NumOfSpeeds);
@@ -668,6 +671,7 @@ TEST_F(EnergyPlusFixture, DISABLED_CoilDXCoolingVsMultiSpeed_CycFanCycCoil)
 
     });
     EXPECT_TRUE(process_idf(idf_objects, false));
+    state->init_state(*state);
     int coilIndex = CoilCoolingDX::factory(*state, "Coil");
     auto &thisCoil(state->dataCoilCooingDX->coilCoolingDXs[coilIndex]);
 
@@ -811,7 +815,7 @@ TEST_F(EnergyPlusFixture, DISABLED_CoilDXCoolingVsMultiSpeed_ContFanCycCoil)
     Coil.DXCoilType_Num = HVAC::CoilDX_MultiSpeedCooling;
     Coil.DXCoilType = "Coil:Cooling:DX:MultiSpeed";
     Coil.FuelType = Constant::eFuel::Electricity;
-    Coil.SchedPtr = ScheduleManager::ScheduleAlwaysOn;
+    Coil.availSched = Sched::GetScheduleAlwaysOn(*state);
     Coil.NumOfSpeeds = 2;
     Coil.MSRatedTotCap.allocate(Coil.NumOfSpeeds);
     Coil.MSRatedSHR.allocate(Coil.NumOfSpeeds);
@@ -1085,6 +1089,7 @@ TEST_F(EnergyPlusFixture, DISABLED_CoilDXCoolingVsMultiSpeed_ContFanCycCoil)
 
     });
     EXPECT_TRUE(process_idf(idf_objects, false));
+    state->init_state(*state);
     int coilIndex = CoilCoolingDX::factory(*state, "Coil");
     auto &thisCoil(state->dataCoilCooingDX->coilCoolingDXs[coilIndex]);
 
@@ -1227,7 +1232,7 @@ TEST_F(EnergyPlusFixture, DISABLED_CoilDXMultiSpeed_SpeedCheck_CycFanCycCoil)
     Coil.DXCoilType_Num = HVAC::CoilDX_MultiSpeedCooling;
     Coil.DXCoilType = "Coil:Cooling:DX:MultiSpeed";
     Coil.FuelType = Constant::eFuel::Electricity;
-    Coil.SchedPtr = ScheduleManager::ScheduleAlwaysOn;
+    Coil.availSched = Sched::GetScheduleAlwaysOn(*state);
     Coil.NumOfSpeeds = 2;
     Coil.MSRatedTotCap.allocate(Coil.NumOfSpeeds);
     Coil.MSRatedSHR.allocate(Coil.NumOfSpeeds);
@@ -1458,7 +1463,7 @@ TEST_F(EnergyPlusFixture, DISABLED_CoilDXMultiSpeed_SpeedCheck_ContFanCycCoil)
     Coil.DXCoilType_Num = HVAC::CoilDX_MultiSpeedCooling;
     Coil.DXCoilType = "Coil:Cooling:DX:MultiSpeed";
     Coil.FuelType = Constant::eFuel::Electricity;
-    Coil.SchedPtr = ScheduleManager::ScheduleAlwaysOn;
+    Coil.availSched = Sched::GetScheduleAlwaysOn(*state);
     Coil.NumOfSpeeds = 2;
     Coil.MSRatedTotCap.allocate(Coil.NumOfSpeeds);
     Coil.MSRatedSHR.allocate(Coil.NumOfSpeeds);
@@ -1805,6 +1810,7 @@ TEST_F(CoilCoolingDXTest, CoilCoolingDX_LowerSpeedFlowSizingTest)
     });
 
     ASSERT_TRUE(process_idf(idf_objects));
+    state->init_state(*state);
 
     int coilIndex = CoilCoolingDX::factory(*state, "DX Cooling Coil");
     auto &this_dx_clg_coil = state->dataCoilCooingDX->coilCoolingDXs[coilIndex];
