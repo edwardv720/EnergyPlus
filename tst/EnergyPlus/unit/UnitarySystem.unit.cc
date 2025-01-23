@@ -1591,6 +1591,7 @@ TEST_F(ZoneUnitarySysTest, UnitarySystemModel_MultiSpeedDXCoolCoil_Only_NoFan)
     )IDF";
 
     ASSERT_TRUE(process_idf(idf_objects)); // read idf objects
+    state->init_state(*state);
 
     // call the UnitarySystem factory
     std::string compName = "UNITARY SYSTEM MODEL";
@@ -1637,7 +1638,7 @@ TEST_F(ZoneUnitarySysTest, UnitarySystemModel_MultiSpeedDXCoolCoil_Only_NoFan)
     state->dataGlobal->TimeStep = 4;
     state->dataEnvrn->DayOfYear_Schedule = General::OrdinalDay(state->dataEnvrn->Month, state->dataEnvrn->DayOfMonth, 1);
 
-    ScheduleManager::UpdateScheduleValues(*state);
+    Sched::UpdateScheduleVals(*state);
     SetPointManager::ManageSetPoints(*state);
 
     // overwrite outdoor weather temp to variable speed coil rated water temp until this gets fixed
@@ -1683,7 +1684,7 @@ TEST_F(ZoneUnitarySysTest, UnitarySystemModel_MultiSpeedDXCoolCoil_Only_NoFan)
 
     state->dataLoopNodes->Node(thisSys->AirOutNode).TempSetPoint = 17.0;
 
-    state->dataScheduleMgr->Schedule(1).CurrentValue = 1.0; // Enable schedule without calling schedule manager
+    Sched::GetSchedule(*state, "ALWAYSONE")->currentVal = 1.0; // Enable schedule without calling schedule manager
 
     state->dataGlobal->BeginEnvrnFlag = true; // act as if simulation is beginning
     thisSys->m_EMSOverrideCoilSpeedNumOn = false;
@@ -1714,7 +1715,7 @@ TEST_F(ZoneUnitarySysTest, UnitarySystemModel_MultiSpeedDXCoolCoil_Only_NoFan)
     EXPECT_EQ(state->dataLoopNodes->Node(thisSys->AirInNode).MassFlowRate, state->dataLoopNodes->Node(thisSys->AirOutNode).MassFlowRate);
 
     // Set system availability schedule to off
-    state->dataScheduleMgr->Schedule(1).CurrentValue = 0.0;
+    Sched::GetSchedule(*state, "ALWAYSONE")->currentVal = 0.0; // Disable schedule without calling schedule manager
     thisSys->simulate(*state,
                       thisSys->Name,
                       FirstHVACIteration,
