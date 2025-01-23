@@ -1248,10 +1248,10 @@ namespace SurfaceGeometry {
                 newSurf.convOrientation = Convect::GetSurfConvOrientation(newSurf.Tilt);
 
                 // Sine and cosine of azimuth and tilt
-                newSurf.SinAzim = std::sin(SurfWorldAz * Constant::DegToRadians);
-                newSurf.CosAzim = std::cos(SurfWorldAz * Constant::DegToRadians);
-                newSurf.SinTilt = std::sin(SurfTilt * Constant::DegToRadians);
-                newSurf.CosTilt = std::cos(SurfTilt * Constant::DegToRadians);
+                newSurf.SinAzim = std::sin(SurfWorldAz * Constant::DegToRad);
+                newSurf.CosAzim = std::cos(SurfWorldAz * Constant::DegToRad);
+                newSurf.SinTilt = std::sin(SurfTilt * Constant::DegToRad);
+                newSurf.CosTilt = std::cos(SurfTilt * Constant::DegToRad);
                 // Outward normal unit vector (pointing away from room)
                 newSurf.OutNormVec = newSurf.NewellSurfaceNormalVector;
                 for (int n = 1; n <= 3; ++n) {
@@ -3748,7 +3748,7 @@ namespace SurfaceGeometry {
                 if (Util::SameString(s_ipsc->cAlphaArgs(ArgPointer), "Outdoors")) {
                     surfTemp.ExtBoundCond = DataSurfaces::ExternalEnvironment;
                 } else if (Util::SameString(s_ipsc->cAlphaArgs(ArgPointer), "Adiabatic")) {
-                    surfTemp.ExtBoundCond = UnreconciledZoneSurface;
+                    surfTemp.ExtBoundCond = unreconciledZoneSurface;
                     surfTemp.ExtBoundCondName = surfTemp.Name;
 
                 } else if (Util::SameString(s_ipsc->cAlphaArgs(ArgPointer), "Ground")) {
@@ -3827,7 +3827,7 @@ namespace SurfaceGeometry {
                     // this will be found on the second pass through the surface input
                     // for flagging, set the value to UnreconciledZoneSurface
                     // name (ExtBoundCondName) will be validated later.
-                    surfTemp.ExtBoundCond = UnreconciledZoneSurface;
+                    surfTemp.ExtBoundCond = unreconciledZoneSurface;
                     if (s_ipsc->lAlphaFieldBlanks(ArgPointer + 1)) {
                         surfTemp.ExtBoundCondName = surfTemp.Name;
                         ShowSevereError(state,
@@ -3842,7 +3842,7 @@ namespace SurfaceGeometry {
                 } else if (Util::SameString(s_ipsc->cAlphaArgs(ArgPointer), "Zone")) {
                     // This is the code for an unmatched "other surface"
                     // will be set up later.
-                    surfTemp.ExtBoundCond = UnenteredAdjacentZoneSurface;
+                    surfTemp.ExtBoundCond = unenteredAdjacentZoneSurface;
                     // check OutsideFaceEnvironment for legal zone
                     Found = Util::FindItemInList(surfTemp.ExtBoundCondName, state.dataHeatBal->Zone, state.dataGlobal->NumOfZones);
                     ++NeedToAddSurfaces;
@@ -4391,14 +4391,14 @@ namespace SurfaceGeometry {
                     //                        surfTemp.ExtEcoRoof =
                     //                            state.dataConstruction->Construct(surfTemp.Construction).TypeIsEcoRoof;
 
-                } else if (surfTemp.ExtBoundCond == UnreconciledZoneSurface) {
+                } else if (surfTemp.ExtBoundCond == unreconciledZoneSurface) {
                     if (GettingIZSurfaces) {
                         surfTemp.ExtBoundCondName = s_ipsc->cAlphaArgs(OtherSurfaceField);
                         Found = Util::FindItemInList(surfTemp.ExtBoundCondName, state.dataHeatBal->Zone, state.dataGlobal->NumOfZones);
                         // see if match to zone, then it's an unentered other surface, else reconciled later
                         if (Found > 0) {
                             ++NeedToAddSurfaces;
-                            surfTemp.ExtBoundCond = UnenteredAdjacentZoneSurface;
+                            surfTemp.ExtBoundCond = unenteredAdjacentZoneSurface;
                         }
                     } else {
                         surfTemp.ExtBoundCondName = surfTemp.Name;
@@ -4900,7 +4900,7 @@ namespace SurfaceGeometry {
                 }
             }
 
-            if (surfTemp.ExtBoundCond == UnreconciledZoneSurface) { // "Surface" Base Surface
+            if (surfTemp.ExtBoundCond == unreconciledZoneSurface) { // "Surface" Base Surface
                 if (!s_ipsc->lAlphaFieldBlanks(5)) {
                     surfTemp.ExtBoundCondName = s_ipsc->cAlphaArgs(5);
                 } else {
@@ -4915,7 +4915,7 @@ namespace SurfaceGeometry {
                 }
             }
 
-            if (surfTemp.ExtBoundCond == UnenteredAdjacentZoneSurface) { // "Zone" - unmatched interior surface
+            if (surfTemp.ExtBoundCond == unenteredAdjacentZoneSurface) { // "Zone" - unmatched interior surface
                 ++NeedToAddSurfaces;
                 // ignoring window5datafiles for now -- will need to add.
             }
@@ -5282,7 +5282,7 @@ namespace SurfaceGeometry {
                                       "Interzone surfaces for transmission to result.");
                 }
 
-                if (surfTemp.ExtBoundCond == UnreconciledZoneSurface) { // "Surface" Base Surface
+                if (surfTemp.ExtBoundCond == unreconciledZoneSurface) { // "Surface" Base Surface
                     if (!GettingIZSurfaces) {
                         ShowSevereError(state, format("{}=\"{}\", invalid use of object", s_ipsc->cCurrentModuleObject, surfTemp.Name));
                         ShowContinueError(
@@ -5296,18 +5296,18 @@ namespace SurfaceGeometry {
                     }
                 }
 
-                if (surfTemp.ExtBoundCond == UnreconciledZoneSurface) { // "Surface" Base Surface
+                if (surfTemp.ExtBoundCond == unreconciledZoneSurface) { // "Surface" Base Surface
                     if (GettingIZSurfaces) {
                         surfTemp.ExtBoundCondName = s_ipsc->cAlphaArgs(OtherSurfaceField);
                         IZFound = Util::FindItemInList(surfTemp.ExtBoundCondName, state.dataHeatBal->Zone, state.dataGlobal->NumOfZones);
-                        if (IZFound > 0) surfTemp.ExtBoundCond = UnenteredAdjacentZoneSurface;
+                        if (IZFound > 0) surfTemp.ExtBoundCond = unenteredAdjacentZoneSurface;
                     } else { // Interior Window
                         surfTemp.ExtBoundCondName = surfTemp.Name;
                     }
                 }
 
                 // This is the parent's property:
-                if (surfTemp.ExtBoundCond == UnenteredAdjacentZoneSurface) { // OtherZone - unmatched interior surface
+                if (surfTemp.ExtBoundCond == unenteredAdjacentZoneSurface) { // OtherZone - unmatched interior surface
                     if (GettingIZSurfaces) {
                         ++NeedToAddSubSurfaces;
                     } else { // Interior Window
@@ -5325,11 +5325,11 @@ namespace SurfaceGeometry {
                 if (GettingIZSurfaces) {
                     if (s_ipsc->lAlphaFieldBlanks(OtherSurfaceField)) {
                         // blank -- set it up for unentered adjacent zone
-                        if (surfTemp.ExtBoundCond == UnenteredAdjacentZoneSurface) {                                   // already set but need Zone
+                        if (surfTemp.ExtBoundCond == unenteredAdjacentZoneSurface) {                                   // already set but need Zone
                             surfTemp.ExtBoundCondName = state.dataSurfaceGeometry->SurfaceTmp(Found).ExtBoundCondName; // base surface has it
-                        } else if (surfTemp.ExtBoundCond == UnreconciledZoneSurface) {
+                        } else if (surfTemp.ExtBoundCond == unreconciledZoneSurface) {
                             surfTemp.ExtBoundCondName = state.dataSurfaceGeometry->SurfaceTmp(Found).ZoneName; // base surface has it
-                            surfTemp.ExtBoundCond = UnenteredAdjacentZoneSurface;
+                            surfTemp.ExtBoundCond = unenteredAdjacentZoneSurface;
                         } else { // not correct boundary condition for interzone subsurface
                             ShowSevereError(
                                 state,
@@ -6078,7 +6078,7 @@ namespace SurfaceGeometry {
                                        s_ipsc->cAlphaArgs(2)));
                 ErrorsFound = true;
             }
-            if (surfTemp.ExtBoundCond == UnenteredAdjacentZoneSurface) {
+            if (surfTemp.ExtBoundCond == unenteredAdjacentZoneSurface) {
                 ShowSevereError(state,
                                 format("{}=\"{}\", invalid {}=\"{}",
                                        s_ipsc->cCurrentModuleObject,
@@ -6090,7 +6090,7 @@ namespace SurfaceGeometry {
 
                 surfTemp.ExtBoundCond = DataSurfaces::ExternalEnvironment; // reset so program won't crash during "add surfaces"
             }
-            if (surfTemp.ExtBoundCond == UnreconciledZoneSurface) {
+            if (surfTemp.ExtBoundCond == unreconciledZoneSurface) {
                 ShowSevereError(state,
                                 format("{}=\"{}\", invalid {}=\"{}",
                                        s_ipsc->cCurrentModuleObject,
@@ -6275,7 +6275,7 @@ namespace SurfaceGeometry {
                     ErrorsFound = true;
                     continue;
                 }
-                if (surfTemp.ExtBoundCond == UnenteredAdjacentZoneSurface) {
+                if (surfTemp.ExtBoundCond == unenteredAdjacentZoneSurface) {
                     ShowSevereError(state,
                                     format("{}=\"{}\", invalid {}=\"{}",
                                            s_ipsc->cCurrentModuleObject,
@@ -6286,7 +6286,7 @@ namespace SurfaceGeometry {
                     ErrorsFound = true;
                     surfTemp.ExtBoundCond = DataSurfaces::ExternalEnvironment; // reset so program won't crash during "add surfaces"
                 }
-                if (surfTemp.ExtBoundCond == UnreconciledZoneSurface) {
+                if (surfTemp.ExtBoundCond == unreconciledZoneSurface) {
                     ShowSevereError(state,
                                     format("{}=\"{}\", invalid {}=\"{}",
                                            s_ipsc->cCurrentModuleObject,
@@ -6833,7 +6833,7 @@ namespace SurfaceGeometry {
                     surfTemp.BaseSurf = SurfNum;
                     surfTemp.BaseSurfName = surfTemp.Name;
                     surfTemp.ExtBoundCondName = surfTemp.Name;
-                    surfTemp.ExtBoundCond = UnreconciledZoneSurface;
+                    surfTemp.ExtBoundCond = unreconciledZoneSurface;
                 }
             }
         }
