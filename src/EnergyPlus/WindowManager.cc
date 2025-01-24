@@ -356,7 +356,7 @@ namespace Window {
             // When pulling in develop, the following block appears to have been modified in develop,
             //  but removed entirely in this branch.  I'm going to leave it commented.
             // Pre-calculate constants
-            //for (int IPhi = 1; IPhi <= 10; ++IPhi) {
+            // for (int IPhi = 1; IPhi <= 10; ++IPhi) {
             //    CosPhiIndepVar(IPhi) = std::cos((IPhi - 1) * 10.0 * Constant::DegToRad);
             //}
 
@@ -642,11 +642,11 @@ namespace Window {
             // This was not a clear merge conflict, so I'm just taking the branch code and we'll see.
             std::array<Real64, numPhis> cosPhisLocal;
             // =======
-          //  for (int IPhi = 1; IPhi <= TotalIPhi; ++IPhi) {
-          //      // 10 degree increment for incident angle is only value for a construction without a layer = SpectralAndAngle
-          //      Phi = double(IPhi - 1) * 10.0;
-          //      CosPhi = std::cos(Phi * Constant::DegToRad);
-          //      if (std::abs(CosPhi) < 0.0001) CosPhi = 0.0;
+            //  for (int IPhi = 1; IPhi <= TotalIPhi; ++IPhi) {
+            //      // 10 degree increment for incident angle is only value for a construction without a layer = SpectralAndAngle
+            //      Phi = double(IPhi - 1) * 10.0;
+            //      CosPhi = std::cos(Phi * Constant::DegToRad);
+            //      if (std::abs(CosPhi) < 0.0001) CosPhi = 0.0;
             // >>>>>>> origin/develop
 
             for (int iPhi = 0; iPhi < numPhis; ++iPhi)
@@ -848,17 +848,17 @@ namespace Window {
             // The glazing system properties include the effect of inter-reflection among glass layers,
             // but exclude the effect of a shade or blind if present in the construction.
             // When a construction has a layer = SpectralAndAngle, the 10 degree increment will be overridden.
-            
-                // another odd merge conflict, I'm just taking the branch code
-               //<<<<<<< HEAD
-            for (int iPhi = 0; iPhi < numPhis; ++iPhi) {
-               //=======
-            //for (int IPhi = 1; IPhi <= TotalIPhi; ++IPhi) {
-            //    Phi = double(IPhi - 1) * 10.0;
-            //    CosPhi = std::cos(Phi * Constant::DegToRad);
-            //    if (std::abs(CosPhi) < 0.0001) CosPhi = 0.0;
 
-              // >>>>>>> origin/develop
+            // another odd merge conflict, I'm just taking the branch code
+            //<<<<<<< HEAD
+            for (int iPhi = 0; iPhi < numPhis; ++iPhi) {
+                //=======
+                // for (int IPhi = 1; IPhi <= TotalIPhi; ++IPhi) {
+                //    Phi = double(IPhi - 1) * 10.0;
+                //    CosPhi = std::cos(Phi * Constant::DegToRad);
+                //    if (std::abs(CosPhi) < 0.0001) CosPhi = 0.0;
+
+                // >>>>>>> origin/develop
                 // For each wavelength, get glass layer properties at this angle of incidence
                 // from properties at normal incidence
                 for (int IGlass = 1; IGlass <= NGlass; ++IGlass) {
@@ -1454,20 +1454,20 @@ namespace Window {
                     tsolPhiFit[iPhi] = 0.0;
                     tvisPhiFit[iPhi] = 0.0;
 
-                  //<<<<<<< HEAD
+                    //<<<<<<< HEAD
                     for (int CoefNum = 0; CoefNum < maxPolyCoef; ++CoefNum) {
                         tsolPhiFit[iPhi] += thisConstruct.TransSolBeamCoef[CoefNum] * cosPhisLocal[iPhi];
                         tvisPhiFit[iPhi] += thisConstruct.TransVisBeamCoef[CoefNum] * cosPhisLocal[iPhi];
-                   //=======
-                   // Phi = double(IPhi - 1) * 10.0;
-                   // CosPhi = std::cos(Phi * Constant::DegToRad);
-                   // if (std::abs(CosPhi) < 0.0001) CosPhi = 0.0;
-                   // Real64 cos_pow(1.0);
-                   // for (int CoefNum = 1; CoefNum <= 6; ++CoefNum) {
-                   //     cos_pow *= CosPhi;
-                   //     tsolPhiFit(IPhi) += thisConstruct.TransSolBeamCoef(CoefNum) * cos_pow;
-                   //     tvisPhiFit(IPhi) += thisConstruct.TransVisBeamCoef(CoefNum) * cos_pow;
-                   // >>>>>>> origin/develop
+                        //=======
+                        // Phi = double(IPhi - 1) * 10.0;
+                        // CosPhi = std::cos(Phi * Constant::DegToRad);
+                        // if (std::abs(CosPhi) < 0.0001) CosPhi = 0.0;
+                        // Real64 cos_pow(1.0);
+                        // for (int CoefNum = 1; CoefNum <= 6; ++CoefNum) {
+                        //     cos_pow *= CosPhi;
+                        //     tsolPhiFit(IPhi) += thisConstruct.TransSolBeamCoef(CoefNum) * cos_pow;
+                        //     tvisPhiFit(IPhi) += thisConstruct.TransVisBeamCoef(CoefNum) * cos_pow;
+                        // >>>>>>> origin/develop
                     }
                 }
             }
