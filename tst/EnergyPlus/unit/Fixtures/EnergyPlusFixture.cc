@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -118,8 +118,8 @@ void EnergyPlusFixture::SetUp()
 
     state->dataUtilityRoutines->outputErrorHeader = false;
 
-    Psychrometrics::InitializePsychRoutines(*state);
-    createCoilSelectionReportObj(*state);
+    state->init_constant_state(*state);
+    createCoilSelectionReportObj(*state); // So random
     state->dataEnvrn->StdRhoAir = 1.2;
 }
 
@@ -136,7 +136,8 @@ void EnergyPlusFixture::TearDown()
     state->files.mtr.del();
     state->files.bnd.del();
     state->files.shade.del();
-    //    state->clear_state();
+
+    state->clear_state();
     delete this->state;
 }
 
@@ -363,7 +364,11 @@ bool EnergyPlusFixture::process_idf(std::string_view const idf_snippet, bool use
     inputProcessor->initializeMaps();
     SimulationManager::PostIPProcessing(*state);
 
-    state->init_state(*state);
+    // Can't do this here because many tests set TimeStepsInHour and
+    // other global settings manually, and init_state() has to be
+    // called after those.
+
+    // state->init_state(*state);
 
     if (state->dataSQLiteProcedures->sqlite) {
         bool writeOutputToSQLite = false;

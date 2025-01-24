@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -295,10 +295,10 @@ namespace Construction {
         Real64 TransDiffFrontEQL = 0.0;  // Diffuse system front transmittance for EQL window
         Real64 TransDiffBackEQL = 0.0;   // Diffuse system back transmittance for EQL window
         // Air boundary
-        bool TypeIsAirBoundary = false;       // true for Construction:AirBoundary
-        bool TypeIsAirBoundaryMixing = false; // true for Construction:AirBoundary with SimpleMixing for air exchange
-        Real64 AirBoundaryACH = 0.0;          // Air boundary simple mixing air changes per hour [1/hr]
-        int AirBoundaryMixingSched = 0;       // Air boundary simple mixing schedule index
+        bool TypeIsAirBoundary = false;                    // true for Construction:AirBoundary
+        bool TypeIsAirBoundaryMixing = false;              // true for Construction:AirBoundary with SimpleMixing for air exchange
+        Real64 AirBoundaryACH = 0.0;                       // Air boundary simple mixing air changes per hour [1/hr]
+        Sched::Schedule *airBoundaryMixingSched = nullptr; // Air boundary simple mixing schedule index
 
         int rcmax = 0;              // Total number of nodes in the construct (<= MaxTotNodes)
         Array2D<Real64> AExp;       // Exponential of AMat
@@ -362,6 +362,10 @@ struct ConstructionData : BaseGlobalStruct
 {
     Array1D<Construction::ConstructionProps> Construct;
     Array1D_int LayerPoint = Array1D<int>(Construction::MaxLayersInConstruct, 0);
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

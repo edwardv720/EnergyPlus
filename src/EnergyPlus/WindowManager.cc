@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -353,6 +353,13 @@ namespace Window {
             if (thisConstruct.WindowTypeEQL) continue;  // skip Equivalent Layer Fenestration
             // handling of optical properties
 
+            // When pulling in develop, the following block appears to have been modified in develop,
+            //  but removed entirely in this branch.  I'm going to leave it commented.
+            // Pre-calculate constants
+            //for (int IPhi = 1; IPhi <= 10; ++IPhi) {
+            //    CosPhiIndepVar(IPhi) = std::cos((IPhi - 1) * 10.0 * Constant::DegToRad);
+            //}
+
             TotLay = thisConstruct.TotLayers;
 
             auto const *mat = s_mat->materials(thisConstruct.LayerPoint(1));
@@ -631,9 +638,16 @@ namespace Window {
             // Get glass layer properties, then glazing system properties (which include the
             // effect of inter-reflection among glass layers) at each incidence angle.
 
-            // Apparently, using pre-calcaulated and hard-coded cosPhis (e.g., Window::cosPhis) causes a bunch of
-            // diffs, including some big ones
+            // <<<<<<< HEAD
+            // This was not a clear merge conflict, so I'm just taking the branch code and we'll see.
             std::array<Real64, numPhis> cosPhisLocal;
+            // =======
+          //  for (int IPhi = 1; IPhi <= TotalIPhi; ++IPhi) {
+          //      // 10 degree increment for incident angle is only value for a construction without a layer = SpectralAndAngle
+          //      Phi = double(IPhi - 1) * 10.0;
+          //      CosPhi = std::cos(Phi * Constant::DegToRad);
+          //      if (std::abs(CosPhi) < 0.0001) CosPhi = 0.0;
+            // >>>>>>> origin/develop
 
             for (int iPhi = 0; iPhi < numPhis; ++iPhi)
                 cosPhisLocal[iPhi] = std::cos((double)iPhi * dPhiDeg * Constant::DegToRad);
@@ -834,7 +848,17 @@ namespace Window {
             // The glazing system properties include the effect of inter-reflection among glass layers,
             // but exclude the effect of a shade or blind if present in the construction.
             // When a construction has a layer = SpectralAndAngle, the 10 degree increment will be overridden.
+            
+                // another odd merge conflict, I'm just taking the branch code
+               //<<<<<<< HEAD
             for (int iPhi = 0; iPhi < numPhis; ++iPhi) {
+               //=======
+            //for (int IPhi = 1; IPhi <= TotalIPhi; ++IPhi) {
+            //    Phi = double(IPhi - 1) * 10.0;
+            //    CosPhi = std::cos(Phi * Constant::DegToRad);
+            //    if (std::abs(CosPhi) < 0.0001) CosPhi = 0.0;
+
+              // >>>>>>> origin/develop
                 // For each wavelength, get glass layer properties at this angle of incidence
                 // from properties at normal incidence
                 for (int IGlass = 1; IGlass <= NGlass; ++IGlass) {
@@ -1430,9 +1454,20 @@ namespace Window {
                     tsolPhiFit[iPhi] = 0.0;
                     tvisPhiFit[iPhi] = 0.0;
 
+                  //<<<<<<< HEAD
                     for (int CoefNum = 0; CoefNum < maxPolyCoef; ++CoefNum) {
                         tsolPhiFit[iPhi] += thisConstruct.TransSolBeamCoef[CoefNum] * cosPhisLocal[iPhi];
                         tvisPhiFit[iPhi] += thisConstruct.TransVisBeamCoef[CoefNum] * cosPhisLocal[iPhi];
+                   //=======
+                   // Phi = double(IPhi - 1) * 10.0;
+                   // CosPhi = std::cos(Phi * Constant::DegToRad);
+                   // if (std::abs(CosPhi) < 0.0001) CosPhi = 0.0;
+                   // Real64 cos_pow(1.0);
+                   // for (int CoefNum = 1; CoefNum <= 6; ++CoefNum) {
+                   //     cos_pow *= CosPhi;
+                   //     tsolPhiFit(IPhi) += thisConstruct.TransSolBeamCoef(CoefNum) * cos_pow;
+                   //     tvisPhiFit(IPhi) += thisConstruct.TransVisBeamCoef(CoefNum) * cos_pow;
+                   // >>>>>>> origin/develop
                     }
                 }
             }
@@ -2151,7 +2186,7 @@ namespace Window {
             wm->nglface = 2 * wm->ngllayer;
             ShadeFlag = s_surf->SurfWinShadingFlag(SurfNum);
             wm->tilt = surf.Tilt;
-            wm->tiltr = wm->tilt * Constant::DegToRadians;
+            wm->tiltr = wm->tilt * Constant::DegToRad;
             SurfNumAdj = surf.ExtBoundCond;
             wm->hcin = state.dataHeatBalSurf->SurfHConvInt(SurfNum); // Room-side surface convective film conductance
             Real64 RefAirTemp = s_surf->Surface(SurfNum).getInsideAirTemperature(state, SurfNum);
@@ -4699,7 +4734,7 @@ namespace Window {
             asp = 1.524 / wm->gaps[IGap - 1].width;
         }
 
-        wm->tiltr = wm->tilt * Constant::DegToRadians;
+        wm->tiltr = wm->tilt * Constant::DegToRad;
         ra = gr * pr;
         //! fw if (ra > 2.0e6): error that outside range of Rayleigh number?
 
@@ -6401,7 +6436,7 @@ namespace Window {
 
         TiltDeg = 90.0;
 
-        sineTilt = std::sin(TiltDeg * Constant::DegToRadians); // degrees as arg
+        sineTilt = std::sin(TiltDeg * Constant::DegToRad); // degrees as arg
 
         while (iter < MaxIterations && errtemp > errtemptol) {
             for (int i = 1; i <= wm->nglface; ++i) {
@@ -7275,14 +7310,14 @@ namespace Window {
         relativeAltitude.allocate(N, M);
 
         for (int j = 0; j <= N - 1; ++j) {
-            Real64 currAzimuth = (90.0 / N) * j * Constant::DegToRadians;
+            Real64 currAzimuth = (90.0 / N) * j * Constant::DegToRad;
             sunAzimuth.push_back(currAzimuth); // Azimuth angle of sun during integration
             sin_sunAzimuth.push_back(std::sin(currAzimuth));
             cos_sunAzimuth.push_back(std::cos(currAzimuth));
         }
 
         for (int i = 0; i <= M - 1; ++i) {
-            Real64 currAltitude = (90.0 / M) * i * Constant::DegToRadians;
+            Real64 currAltitude = (90.0 / M) * i * Constant::DegToRad;
             sunAltitude.push_back(currAltitude); // Altitude angle of sun during integration
             sin_sunAltitude.push_back(std::sin(currAltitude));
             cos_sunAltitude.push_back(std::cos(currAltitude));

@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -95,7 +95,7 @@ TEST_F(EnergyPlusFixture, CrossMixingReportTest)
     state->dataGlobal->NumOfZones = state->dataGlobal->NumOfZones;
     state->dataHeatBal->TotCrossMixing = NumOfCrossMixing;
     state->dataHVACGlobal->TimeStepSys = 1.0;
-    state->dataHVACGlobal->TimeStepSysSec = state->dataHVACGlobal->TimeStepSys * Constant::SecInHour;
+    state->dataHVACGlobal->TimeStepSysSec = state->dataHVACGlobal->TimeStepSys * Constant::rSecsInHour;
     state->dataZoneTempPredictorCorrector->zoneHeatBalance(1).MCPI = 0.0;
     state->dataZoneTempPredictorCorrector->zoneHeatBalance(2).MCPI = 0.0;
     state->dataZoneTempPredictorCorrector->zoneHeatBalance(1).MCPV = 0.0;
@@ -194,9 +194,9 @@ TEST_F(EnergyPlusFixture, InfiltrationObjectLevelReport)
 
     ASSERT_TRUE(process_idf(idf_objects));
     EXPECT_FALSE(has_err_output());
+    state->init_state(*state);
 
     bool ErrorsFound(false);
-    ScheduleManager::ProcessScheduleInput(*state);
     GetZoneData(*state, ErrorsFound);
     AllocateHeatBalArrays(*state);
     GetSimpleAirModelInputs(*state, ErrorsFound);
@@ -238,9 +238,9 @@ TEST_F(EnergyPlusFixture, InfiltrationObjectLevelReport)
     state->dataHeatBal->Zone(2).OutDryBulbTemp = 15.0;
     state->dataHeatBal->Zone(3).OutDryBulbTemp = 15.0;
     state->dataHeatBal->Zone(4).OutDryBulbTemp = 15.0;
-    state->dataScheduleMgr->Schedule(1).CurrentValue = 1.0;
+    Sched::GetSchedule(*state, "ALWAYSON")->currentVal = 1.0;
     state->dataHVACGlobal->TimeStepSys = 1.0;
-    state->dataHVACGlobal->TimeStepSysSec = state->dataHVACGlobal->TimeStepSys * Constant::SecInHour;
+    state->dataHVACGlobal->TimeStepSysSec = state->dataHVACGlobal->TimeStepSys * Constant::rSecsInHour;
     state->dataGlobal->TimeStepZone = 1.0;
     state->dataGlobal->TimeStepZoneSec = 3600;
 
@@ -389,7 +389,7 @@ TEST_F(EnergyPlusFixture, InfiltrationReportTest)
 
     state->dataGlobal->NumOfZones = state->dataGlobal->NumOfZones;
     state->dataHVACGlobal->TimeStepSys = 1.0;
-    state->dataHVACGlobal->TimeStepSysSec = state->dataHVACGlobal->TimeStepSys * Constant::SecInHour;
+    state->dataHVACGlobal->TimeStepSysSec = state->dataHVACGlobal->TimeStepSys * Constant::rSecsInHour;
     state->dataZoneTempPredictorCorrector->zoneHeatBalance(1).MCPI = 1.0;
     state->dataZoneTempPredictorCorrector->zoneHeatBalance(2).MCPI = 1.5;
     state->dataZoneTempPredictorCorrector->zoneHeatBalance(1).MCPV = 2.0;
@@ -453,7 +453,7 @@ TEST_F(EnergyPlusFixture, ExfilAndExhaustReportTest)
 
     state->dataGlobal->NumOfZones = state->dataGlobal->NumOfZones;
     state->dataHVACGlobal->TimeStepSys = 1.0;
-    state->dataHVACGlobal->TimeStepSysSec = state->dataHVACGlobal->TimeStepSys * Constant::SecInHour;
+    state->dataHVACGlobal->TimeStepSysSec = state->dataHVACGlobal->TimeStepSys * Constant::rSecsInHour;
     state->dataZoneTempPredictorCorrector->zoneHeatBalance(1).MCPI = 1.0;
     state->dataZoneTempPredictorCorrector->zoneHeatBalance(2).MCPI = 1.5;
     state->dataZoneTempPredictorCorrector->zoneHeatBalance(1).MCPV = 2.0;

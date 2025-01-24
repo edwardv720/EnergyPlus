@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -181,7 +181,7 @@ std::string pythonStringForUsage([[maybe_unused]] const EnergyPlusData &state)
 }
 #endif
 
-void PluginManager::setupOutputVariables(EnergyPlusData &state)
+void PluginManager::setupOutputVariables([[maybe_unused]] EnergyPlusData &state)
 {
 #if LINK_WITH_PYTHON
     // with the PythonPlugin:Variables all set in memory, we can now set them up as outputs as needed

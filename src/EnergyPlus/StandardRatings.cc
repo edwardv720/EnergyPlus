@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -47,9 +47,6 @@
 
 // C++ Headers
 #include <string>
-
-// ObjexxFCL Headers
-#include <ObjexxFCL/Fmath.hh>
 
 // EnergyPlus Headers
 #include <EnergyPlus/CurveManager.hh>
@@ -409,8 +406,6 @@ namespace StandardRatings {
         using namespace OutputReportPredefined;
         using Curve::CurveValue;
         using Curve::GetCurveName;
-        using FluidProperties::GetDensityGlycol;
-        using FluidProperties::GetSpecificHeatGlycol;
         using General::SolveRoot;
 
         Real64 constexpr Acc(0.0001);     // Accuracy of result
@@ -531,17 +526,9 @@ namespace StandardRatings {
 
                 } else if (ChillerType == DataPlant::PlantEquipmentType::Chiller_ElectricReformEIR) {
                     EnteringWaterTempReduced = CondenserInletTemp;
-                    Cp = GetSpecificHeatGlycol(state,
-                                               state.dataPlnt->PlantLoop(CondLoopNum).FluidName,
-                                               EnteringWaterTempReduced,
-                                               state.dataPlnt->PlantLoop(CondLoopNum).FluidIndex,
-                                               RoutineName);
+                    Cp = state.dataPlnt->PlantLoop(CondLoopNum).glycol->getSpecificHeat(state, EnteringWaterTempReduced, RoutineName);
 
-                    Rho = GetDensityGlycol(state,
-                                           state.dataPlnt->PlantLoop(CondLoopNum).FluidName,
-                                           EnteringWaterTempReduced,
-                                           state.dataPlnt->PlantLoop(CondLoopNum).FluidIndex,
-                                           RoutineName);
+                    Rho = state.dataPlnt->PlantLoop(CondLoopNum).glycol->getDensity(state, EnteringWaterTempReduced, RoutineName);
 
                     Real64 reducedPLR = ReducedPLR[RedCapNum];
                     CondenserOutletTemp0 = EnteringWaterTempReduced + 0.1;
@@ -4157,7 +4144,7 @@ namespace StandardRatings {
 
         Real64 cop_low = q_low / p_low;
         Real64 cop_int = q_int / p_int;
-        Real64 cop_full = q_full / p_full;
+        Real64 cop_full = q_full / p_full; // About half of the variables in this function are unused
         // Low Speed
         Real64 cop_int_bin = cop_low + (cop_int - cop_low) / (q_int - q_low) * (bl - q_low); // Equation 11.101 (AHRI-2023)
         q = bl * n;                                                                          // 11.92 --> n is missing in the print ?
