@@ -14477,7 +14477,7 @@ void AllocateLoadComponentArrays(EnergyPlusData &state)
     ort->decayCurveHeat.allocate(timeStepsInDay, state.dataSurface->TotSurfaces);
     ort->decayCurveHeat = 0.0;
 
-    Real64 const numTSinDay = state.dataGlobal->NumOfTimeStepInHour * 24;
+    Real64 const numTSinDay = state.dataGlobal->TimeStepsInHour  * Constant::rHoursInDay;
 
     ort->surfCompLoads.resize(state.dataEnvrn->TotDesDays + state.dataEnvrn->TotRunDesPersDays);
     for (auto &day : ort->surfCompLoads) {
@@ -14567,7 +14567,7 @@ void ComputeLoadComponentDecayCurve(EnergyPlusData &state)
                 }
             }
             if (timeOfPulse == 0) timeOfPulse = 1;
-            for (int timeStep = timeOfPulse; timeStep <= state.dataGlobal->NumOfTimeStepInHour * 24; ++timeStep) {
+            for (int timeStep = timeOfPulse; timeStep <= state.dataGlobal->TimeStepsInHour  * Constant::rHoursInDay; ++timeStep) {
                 if (ort->radiantPulseReceived(coolDesSelected, surfNum) != 0.0) {
                     auto &surfClDayTS = surfCLClDay.ts[timeStep - 1].surf[surfNum - 1];
                     diff = surfClDayTS.loadConvectedWithPulse - surfClDayTS.loadConvectedNormal;
@@ -14589,7 +14589,7 @@ void ComputeLoadComponentDecayCurve(EnergyPlusData &state)
                 }
             }
             if (timeOfPulse == 0) timeOfPulse = 1;
-            for (int timeStep = timeOfPulse; timeStep <= state.dataGlobal->NumOfTimeStepInHour * 24; ++timeStep) {
+            for (int timeStep = timeOfPulse; timeStep <= state.dataGlobal->TimeStepsInHour  * Constant::rHoursInDay; ++timeStep) {
                 if (ort->radiantPulseReceived(heatDesSelected, surfNum) != 0.0) {
                     auto &surfHtDayTS = surfCLHtDay.ts[timeStep - 1].surf[surfNum - 1];
                     diff = surfHtDayTS.loadConvectedWithPulse - surfHtDayTS.loadConvectedNormal;
@@ -14659,7 +14659,7 @@ void GatherComponentLoadsSurface(EnergyPlusData &state)
     auto const &ort = state.dataOutRptTab;
 
     if (state.dataGlobal->CompLoadReportIsReq && !state.dataGlobal->isPulseZoneSizing) {
-        int timeStepInDayGCLS = (state.dataGlobal->HourOfDay - 1) * state.dataGlobal->NumOfTimeStepInHour + state.dataGlobal->TimeStep;
+        int timeStepInDayGCLS = (state.dataGlobal->HourOfDay - 1) * state.dataGlobal->TimeStepsInHour + state.dataGlobal->TimeStep;
         auto &znCLDayTS = ort->znCompLoads[state.dataSize->CurOverallSimDay - 1].ts[timeStepInDayGCLS - 1];
         for (auto &zone : znCLDayTS.spacezone) {
             zone.feneCondInstantSeq = 0.0;
@@ -14724,7 +14724,7 @@ void GatherComponentLoadsHVAC(EnergyPlusData &state)
     if (!(state.dataGlobal->CompLoadReportIsReq && !state.dataGlobal->isPulseZoneSizing)) {
         return;
     }
-    int timeStepInDayGCLH = (state.dataGlobal->HourOfDay - 1) * state.dataGlobal->NumOfTimeStepInHour + state.dataGlobal->TimeStep;
+    int timeStepInDayGCLH = (state.dataGlobal->HourOfDay - 1) * state.dataGlobal->TimeStepsInHour + state.dataGlobal->TimeStep;
     auto &znCompLoadDayTS = state.dataOutRptTab->znCompLoads[state.dataSize->CurOverallSimDay - 1].ts[timeStepInDayGCLH - 1];
     for (int iZoneGCLH = 1; iZoneGCLH <= state.dataGlobal->NumOfZones; ++iZoneGCLH) {
         auto &znCompLoadDayTSZone = znCompLoadDayTS.spacezone[iZoneGCLH - 1];
