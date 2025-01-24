@@ -14883,7 +14883,7 @@ void WriteLoadComponentSummaryTables(EnergyPlusData &state)
         bool produceSQLite = false;
         if (produceDualUnitsFlags(iUnitSystem, ort->unitsStyle, ort->unitsStyle_SQLite, unitsStyle_cur, produceTabular, produceSQLite)) break;
 
-       Real64 timeStepsInDay = state.dataGlobal->TimeStepsInHour * Constant::rHoursInDay;
+        Real64 timeStepsInDay = state.dataGlobal->TimeStepsInHour * Constant::rHoursInDay;
 
         // adjusted initialization location to after variable declaration for loops 2021-01-11
         peopleDelaySeq.dimension(timeStepsInDay, 0.0);
