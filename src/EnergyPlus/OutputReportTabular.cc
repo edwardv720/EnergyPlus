@@ -14477,7 +14477,7 @@ void AllocateLoadComponentArrays(EnergyPlusData &state)
     ort->decayCurveHeat.allocate(timeStepsInDay, state.dataSurface->TotSurfaces);
     ort->decayCurveHeat = 0.0;
 
-    Real64 const numTSinDay = state.dataGlobal->TimeStepsInHour  * Constant::rHoursInDay;
+    Real64 const numTSinDay = state.dataGlobal->TimeStepsInHour * Constant::rHoursInDay;
 
     ort->surfCompLoads.resize(state.dataEnvrn->TotDesDays + state.dataEnvrn->TotRunDesPersDays);
     for (auto &day : ort->surfCompLoads) {
@@ -14567,7 +14567,7 @@ void ComputeLoadComponentDecayCurve(EnergyPlusData &state)
                 }
             }
             if (timeOfPulse == 0) timeOfPulse = 1;
-            for (int timeStep = timeOfPulse; timeStep <= state.dataGlobal->TimeStepsInHour  * Constant::rHoursInDay; ++timeStep) {
+            for (int timeStep = timeOfPulse; timeStep <= state.dataGlobal->TimeStepsInHour * Constant::rHoursInDay; ++timeStep) {
                 if (ort->radiantPulseReceived(coolDesSelected, surfNum) != 0.0) {
                     auto &surfClDayTS = surfCLClDay.ts[timeStep - 1].surf[surfNum - 1];
                     diff = surfClDayTS.loadConvectedWithPulse - surfClDayTS.loadConvectedNormal;
@@ -14589,7 +14589,7 @@ void ComputeLoadComponentDecayCurve(EnergyPlusData &state)
                 }
             }
             if (timeOfPulse == 0) timeOfPulse = 1;
-            for (int timeStep = timeOfPulse; timeStep <= state.dataGlobal->TimeStepsInHour  * Constant::rHoursInDay; ++timeStep) {
+            for (int timeStep = timeOfPulse; timeStep <= state.dataGlobal->TimeStepsInHour * Constant::rHoursInDay; ++timeStep) {
                 if (ort->radiantPulseReceived(heatDesSelected, surfNum) != 0.0) {
                     auto &surfHtDayTS = surfCLHtDay.ts[timeStep - 1].surf[surfNum - 1];
                     diff = surfHtDayTS.loadConvectedWithPulse - surfHtDayTS.loadConvectedNormal;
