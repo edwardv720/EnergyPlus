@@ -275,6 +275,7 @@ HVACTemplate-5ZoneFurnaceDX USA_IL_Chicago-OHare.Intl.AP.725300_TMY3
 HVACTemplate-5ZonePackagedVAV USA_IL_Chicago-OHare.Intl.AP.725300_TMY3
 HVACTemplate-5ZonePTAC USA_IL_Chicago-OHare.Intl.AP.725300_TMY3
 HVACTemplate-5ZonePTAC-DOAS USA_IL_Chicago-OHare.Intl.AP.725300_TMY3
+HVACTemplate-5ZonePTAC-DOAS-TwoHX USA_IL_Chicago-OHare.Intl.AP.725300_TMY3
 HVACTemplate-5ZonePTHP USA_IL_Chicago-OHare.Intl.AP.725300_TMY3
 HVACTemplate-5ZonePurchAir USA_IL_Chicago-OHare.Intl.AP.725300_TMY3
 HVACTemplate-5ZoneUnitaryHeatPump USA_IL_Chicago-OHare.Intl.AP.725300_TMY3
