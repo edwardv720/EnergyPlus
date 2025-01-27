@@ -1,7 +1,6 @@
-name: Bug Report Form
-description: Use this template for reporting an issue, via a form
+name: Bug Report
+description: Use this template for reporting an issue.
 labels: Triage, UnconfirmedDefect
-  # projects: ["NREL/64"]
 body:
   - type: markdown
     attributes:
@@ -24,21 +23,6 @@ body:
       required: true
 
   - type: dropdown
-    id: operating_system
-    attributes:
-      label: Operating System
-      multiple: false
-      description: What Operating System are you encountering issues on?
-      options:
-        - All
-        - Windows
-        - Ubuntu
-        - MacOS
-        - Other
-    validations:
-      required: true
-
-  - type: dropdown
     id: operating_system_multiple
     attributes:
       label: Operating System (Multiple choices)
@@ -48,6 +32,7 @@ body:
         - Windows
         - Ubuntu
         - MacOS
+        - Any
         - Other
     validations:
       required: true
@@ -79,31 +64,11 @@ body:
       required: false
 
   - type: textarea
-    id: env
+    id: defect_file
     attributes:
-      label: Details
-      description: Some additional details for this issue (if relevant)
-      value: |
-        - Platform (Operating system, version):
-        - Version of EnergyPlus (if using an intermediate build, include SHA):
-        - Unmethours link or helpdesk ticket number:
+      label: Defect file
+      description: |
+          You **can supply a link to your IDF if applicable**, or rename it to in.idf.txt and upload it directly here by drag and drop.
 
-  - type: textarea
-    id: checklist
-    attributes:
-      label: Checklist
-      description: Add to this list or remove from it as applicable.  This is a simple templated set of guidelines.
-      value: |
-        * [ ] Defect file added: <!-- list location of defect file here -->
-        * [ ] Ticket added to EnergyPlus Defect Complexity (Github Project)
-        * [ ] Pull request created (the pull request will have additional tasks related to reviewing changes that fix this defect)
-
-  - type: checkboxes
-    id: checklist2
-    attributes:
-      label: Checklist
-      description: Add to this list or remove from it as applicable.  This is a simple templated set of guidelines.
-      options:
-        - label: Defect file added <!-- list location of defect file here -->
-        - label: Ticket added to EnergyPlus Defect Complexity (Github Project)
-        - label: Pull request created (the pull request will have additional tasks related to reviewing changes that fix this defect)
+          Ideally, make it a _Minimum, Complete, Verifiable, Example (MCVE)_ by including the smallest possible number of input objects to reproduce the defect.
+          A good start might be to try to reproduce your issue with one of the EnergyPlus [ExampleFiles](https://github.com/NREL/EnergyPlus/tree/develop/testfiles).
