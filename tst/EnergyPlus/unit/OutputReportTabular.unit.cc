@@ -7635,6 +7635,7 @@ TEST_F(EnergyPlusFixture, AzimuthToCardinal)
     int nTests = expectedAzimuthToCards.size();
 
     // Allocate some needed arrays
+    state->dataHeatBal->space.allocate(1);
     state->dataHeatBal->Zone.allocate(1);
     state->dataHeatBal->Zone(1).ListMultiplier = 1;
     state->dataConstruction->Construct.allocate(1);
@@ -7661,6 +7662,7 @@ TEST_F(EnergyPlusFixture, AzimuthToCardinal)
         state->dataSurface->Surface(i).GrossArea = 200.;
         state->dataSurface->Surface(i).Tilt = 90.;
         state->dataSurface->Surface(i).Zone = 1;
+        state->dataSurface->Surface(i).spaceNum = 1;
         state->dataSurface->Surface(i).Construction = 1;
         state->dataSurface->AllSurfaceListReportOrder.push_back(i);
 
@@ -7749,6 +7751,7 @@ TEST_F(EnergyPlusFixture, AzimuthToCardinal)
 TEST_F(EnergyPlusFixture, InteriorSurfaceEnvelopeSummaryReport)
 {
     // Allocate some needed arrays
+    state->dataHeatBal->space.allocate(2);
     state->dataHeatBal->Zone.allocate(2);
     state->dataHeatBal->Zone(1).ListMultiplier = 1;
     state->dataHeatBal->Zone(2).ListMultiplier = 1;
@@ -7786,10 +7789,12 @@ TEST_F(EnergyPlusFixture, InteriorSurfaceEnvelopeSummaryReport)
         }
         if ((i + 1) / 2 == 1) {
             // first pair of wall and door
+            state->dataSurface->Surface(i).spaceNum = 1;
             state->dataSurface->Surface(i).Zone = 1;
             state->dataSurface->Surface(i).ExtBoundCond = i + 2;
         } else {
             // second pair of wall and door
+            state->dataSurface->Surface(i).spaceNum = 2;
             state->dataSurface->Surface(i).Zone = 2;
             state->dataSurface->Surface(i).ExtBoundCond = i - 2;
         }
