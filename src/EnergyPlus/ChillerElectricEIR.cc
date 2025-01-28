@@ -1682,18 +1682,10 @@ void ElectricEIRChillerSpecs::size(EnergyPlusData &state)
         OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchChillerRefEntCondTemp, this->Name, this->TempRefCondIn);
         OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchChillerRefLevEvapTemp, this->Name, this->TempRefEvapOut);
 
-        {
-            Real64 const rho = state.dataPlnt->PlantLoop(this->CWPlantLoc.loopNum).glycol->getDensity(state, Constant::CWInitConvTemp, RoutineName);
-            this->EvapMassFlowRateMax = this->EvapVolFlowRate * rho;
-        }
         OutputReportPredefined::PreDefTableEntry(state,
                                                  state.dataOutRptPredefined->pdchChillerDesSizeRefCHWFlowRate,
                                                  this->Name,
                                                  this->EvapMassFlowRateMax); // flowrate Max==DesignSizeRef flowrate?
-        if (this->CondenserType == DataPlant::CondenserType::WaterCooled) {
-            Real64 const rho = state.dataPlnt->PlantLoop(this->CDPlantLoc.loopNum).glycol->getDensity(state, this->TempRefCondIn, RoutineName);
-            this->CondMassFlowRateMax = this->CondVolFlowRate * rho;
-        }
         OutputReportPredefined::PreDefTableEntry(state,
                                                  state.dataOutRptPredefined->pdchChillerDesSizeRefCondFluidFlowRate,
                                                  this->Name,
