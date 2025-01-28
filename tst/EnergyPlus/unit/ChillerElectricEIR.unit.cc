@@ -737,6 +737,8 @@ TEST_F(EnergyPlusFixture, ChillerElectricEIR_OutputReport)
         DataPlant::PlantEquipmentType::Chiller_ElectricEIR;
     state->dataPlnt->PlantLoop(3).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).NodeNumIn = thisChiller.HeatRecInletNodeNum;
     state->dataPlnt->PlantLoop(3).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).NodeNumOut = thisChiller.HeatRecOutletNodeNum;
+    state->dataPlnt->PlantLoop(3).LoopDemandCalcScheme = DataPlant::LoopDemandCalcScheme::SingleSetPoint;
+    state->dataLoopNodes->Node(thisChiller.HeatRecOutletNodeNum).TempSetPoint = 60.0;
 
     state->dataSize->PlantSizData(3).DesVolFlowRate = 0.03;
     state->dataSize->PlantSizData(3).DeltaT = 5.0;
@@ -748,9 +750,17 @@ TEST_F(EnergyPlusFixture, ChillerElectricEIR_OutputReport)
 
     state->dataPlnt->PlantFirstSizesOkayToFinalize = true;
     state->dataPlnt->PlantFirstSizesOkayToReport = true;
-    state->dataPlnt->PlantFinalSizesOkayToReport = true;
+    state->dataPlnt->PlantFinalSizesOkayToReport = false;
 
     Real64 MyLoad(0.0);
+    thisChiller.initialize(*state, RunFlag, MyLoad);
+    thisChiller.size(*state);
+    // run through init again after sizing is complete to set mass flow rate
+    MyLoad = -thisChiller.RefCap;
+    state->dataSize->PlantSizData(1).DesCapacity = std::abs(MyLoad) * 2;
+    Sched::UpdateScheduleVals(*state);
+    state->dataGlobal->BeginEnvrnFlag = true;
+    state->dataPlnt->PlantFinalSizesOkayToReport = true;
     thisChiller.initialize(*state, RunFlag, MyLoad);
     thisChiller.size(*state);
 

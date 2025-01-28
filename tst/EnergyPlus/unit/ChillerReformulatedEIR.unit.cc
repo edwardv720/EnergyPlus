@@ -425,7 +425,12 @@ TEST_F(EnergyPlusFixture, ChillerElectricReformulatedEIR_OutputReport)
     // the reporting may have been done, via Curve::GetCurveMinMaxValues ChillerEIRFPLRIndex, and I'm trying to show that it is this value that is
     // reported to the Output Report currently
     thisChiller.size(*state);
+
     // run through init again after sizing is complete to set mass flow rate
+    MyLoad = -thisChiller.RefCap;
+    state->dataSize->PlantSizData(1).DesCapacity = std::abs(MyLoad) * 2;
+    Sched::UpdateScheduleVals(*state);
+
     state->dataGlobal->BeginEnvrnFlag = true;
     state->dataPlnt->PlantFinalSizesOkayToReport = true;
     thisChiller.initialize(*state, RunFlag, MyLoad);
