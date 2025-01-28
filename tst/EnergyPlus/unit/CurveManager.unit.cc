@@ -56,6 +56,8 @@
 #include <EnergyPlus/DataIPShortCuts.hh>
 #include <EnergyPlus/FileSystem.hh>
 
+#include <stdexcept>
+
 #include "Fixtures/EnergyPlusFixture.hh"
 
 using namespace EnergyPlus;
@@ -801,7 +803,17 @@ TEST_P(CurveManagerValidationFixture, CurveMinMaxValues)
     const auto &[object_name, tested_dim, idf_objects, expected_error] = GetParam();
     EXPECT_TRUE(process_idf(idf_objects));
     EXPECT_EQ(0, state->dataCurveManager->NumCurves);
-    ASSERT_THROW(Curve::GetCurveInput(*state), std::runtime_error);
+    try {
+        Curve::GetCurveInput(*state);
+    } catch (const EnergyPlus::FatalError &err) {
+        std::string w = err.what();
+        EXPECT_TRUE(w.find("Error with format") == std::string::npos) << w;
+        // Otherwise, this is expected
+    } catch (std::runtime_error const &err) {
+        FAIL() << err.what();
+    } catch (...) {
+        FAIL() << "Got another exception!";
+    }
     state->dataCurveManager->GetCurvesInputFlag = false;
     ASSERT_EQ(1, state->dataCurveManager->NumCurves);
     EXPECT_TRUE(compare_err_stream_substring(expected_error));
