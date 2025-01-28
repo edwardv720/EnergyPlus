@@ -773,10 +773,42 @@ namespace Curve {
 
             thisCurve->inputLimits[0].min = Numbers(13);
             thisCurve->inputLimits[0].max = Numbers(14);
+            if (Numbers(13) > Numbers(14)) { // error
+                ShowSevereError(state, format("GetCurveInput: For {}: ", CurrentModuleObject));
+                ShowContinueError(state,
+                                  format("{} [{:.2R}] > {} [{:.2R}]",
+                                         state.dataIPShortCut->cNumericFieldNames(13),
+                                         Numbers(13),
+                                         state.dataIPShortCut->cNumericFieldNames(14),
+                                         Numbers(14)));
+                ErrorsFound = true;
+            }
+
             thisCurve->inputLimits[1].min = Numbers(15);
             thisCurve->inputLimits[1].max = Numbers(16);
+            if (Numbers(15) > Numbers(16)) { // error
+                ShowSevereError(state, format("GetCurveInput: For {}: ", CurrentModuleObject));
+                ShowContinueError(state,
+                                  format("{} [{:.2R}] > {} [{:.2R}]",
+                                         state.dataIPShortCut->cNumericFieldNames(15),
+                                         Numbers(15),
+                                         state.dataIPShortCut->cNumericFieldNames(16),
+                                         Numbers(16)));
+                ErrorsFound = true;
+            }
+
             thisCurve->inputLimits[2].min = Numbers(17);
             thisCurve->inputLimits[2].max = Numbers(18);
+            if (Numbers(17) > Numbers(18)) { // error
+                ShowSevereError(state, format("GetCurveInput: For {}: ", CurrentModuleObject));
+                ShowContinueError(state,
+                                  format("{} [{:.2R}] > {} [{:.2R}]",
+                                         state.dataIPShortCut->cNumericFieldNames(17),
+                                         Numbers(17),
+                                         state.dataIPShortCut->cNumericFieldNames(18),
+                                         Numbers(18)));
+                ErrorsFound = true;
+            }
 
             if (NumNumbers > 18 && !state.dataIPShortCut->lNumericFieldBlanks(19)) {
                 thisCurve->outputLimits.min = Numbers(19);
@@ -854,7 +886,7 @@ namespace Curve {
             if (Numbers(5) > Numbers(6)) { // error
                 ShowSevereError(state, format("GetCurveInput: For {}: ", CurrentModuleObject));
                 ShowContinueError(state,
-                                  format("{}[{:.2R}] > {} [{:.2R}]",
+                                  format("{} [{:.2R}] > {} [{:.2R}]",
                                          state.dataIPShortCut->cNumericFieldNames(5),
                                          Numbers(5),
                                          state.dataIPShortCut->cNumericFieldNames(6),
@@ -918,7 +950,7 @@ namespace Curve {
             if (Numbers(6) > Numbers(7)) { // error
                 ShowSevereError(state, format("GetCurveInput: For {}: ", CurrentModuleObject));
                 ShowContinueError(state,
-                                  format("{}[{:.2R}] > {} [{:.2R}]",
+                                  format("{} [{:.2R}] > {} [{:.2R}]",
                                          state.dataIPShortCut->cNumericFieldNames(6),
                                          Numbers(6),
                                          state.dataIPShortCut->cNumericFieldNames(7),
@@ -1622,6 +1654,18 @@ namespace Curve {
             }
             thisCurve->inputLimits[0].min = Numbers(4);
             thisCurve->inputLimits[0].max = Numbers(5);
+
+            if (Numbers(4) > Numbers(5)) { // error
+                ShowSevereError(state, format("GetCurveInput: For {}: ", CurrentModuleObject));
+                ShowContinueError(state,
+                                  format("{} [{:.2R}] > {} [{:.2R}]",
+                                         state.dataIPShortCut->cNumericFieldNames(4),
+                                         Numbers(4),
+                                         state.dataIPShortCut->cNumericFieldNames(5),
+                                         Numbers(5)));
+                ErrorsFound = true;
+            }
+
             if (NumNumbers > 5 && !state.dataIPShortCut->lNumericFieldBlanks(6)) {
                 thisCurve->outputLimits.min = Numbers(6);
                 thisCurve->outputLimits.minPresent = true;
@@ -1690,7 +1734,7 @@ namespace Curve {
             if (Numbers(5) > Numbers(6)) { // error
                 ShowSevereError(state, format("GetCurveInput: For {}: ", CurrentModuleObject));
                 ShowContinueError(state,
-                                  format("{}[{:.2R}] > {} [{:.2R}]",
+                                  format("{} [{:.2R}] > {} [{:.2R}]",
                                          state.dataIPShortCut->cNumericFieldNames(5),
                                          Numbers(5),
                                          state.dataIPShortCut->cNumericFieldNames(6),
@@ -1700,7 +1744,7 @@ namespace Curve {
             if (Numbers(7) > Numbers(8)) { // error
                 ShowSevereError(state, format("GetCurveInput: For {}: ", CurrentModuleObject));
                 ShowContinueError(state,
-                                  format("{}[{:.2R}] > {} [{:.2R}]",
+                                  format("{} [{:.2R}] > {} [{:.2R}]",
                                          state.dataIPShortCut->cNumericFieldNames(7),
                                          Numbers(7),
                                          state.dataIPShortCut->cNumericFieldNames(8),
@@ -1756,7 +1800,7 @@ namespace Curve {
             if (Numbers(5) > Numbers(6)) { // error
                 ShowSevereError(state, format("GetCurveInput: For {}: ", CurrentModuleObject));
                 ShowContinueError(state,
-                                  format("{}[{:.2R}] > {} [{:.2R}]",
+                                  format("{} [{:.2R}] > {} [{:.2R}]",
                                          state.dataIPShortCut->cNumericFieldNames(5),
                                          Numbers(5),
                                          state.dataIPShortCut->cNumericFieldNames(6),
@@ -1822,7 +1866,7 @@ namespace Curve {
             if (Numbers(6) > Numbers(7)) { // error
                 ShowSevereError(state, format("GetCurveInput: For {}: ", CurrentModuleObject));
                 ShowContinueError(state,
-                                  format("{}[{:.2R}] > {} [{:.2R}]",
+                                  format("{} [{:.2R}] > {} [{:.2R}]",
                                          state.dataIPShortCut->cNumericFieldNames(6),
                                          Numbers(6),
                                          state.dataIPShortCut->cNumericFieldNames(7),
@@ -1888,7 +1932,7 @@ namespace Curve {
             if (Numbers(4) > Numbers(5)) { // error
                 ShowSevereError(state, format("GetCurveInput: For {}: ", CurrentModuleObject));
                 ShowContinueError(state,
-                                  format("{}[{:.2R}] > {} [{:.2R}]",
+                                  format("{} [{:.2R}] > {} [{:.2R}]",
                                          state.dataIPShortCut->cNumericFieldNames(4),
                                          Numbers(4),
                                          state.dataIPShortCut->cNumericFieldNames(5),
@@ -1954,7 +1998,7 @@ namespace Curve {
             if (Numbers(4) > Numbers(5)) { // error
                 ShowSevereError(state, format("GetCurveInput: For {}: ", CurrentModuleObject));
                 ShowContinueError(state,
-                                  format("{}[{:.2R}] > {} [{:.2R}]",
+                                  format("{} [{:.2R}] > {} [{:.2R}]",
                                          state.dataIPShortCut->cNumericFieldNames(4),
                                          Numbers(4),
                                          state.dataIPShortCut->cNumericFieldNames(5),
@@ -2020,7 +2064,7 @@ namespace Curve {
             if (Numbers(4) > Numbers(5)) { // error
                 ShowSevereError(state, format("GetCurveInput: For {}: ", CurrentModuleObject));
                 ShowContinueError(state,
-                                  format("{}[{:.2R}] > {} [{:.2R}]",
+                                  format("{} [{:.2R}] > {} [{:.2R}]",
                                          state.dataIPShortCut->cNumericFieldNames(4),
                                          Numbers(4),
                                          state.dataIPShortCut->cNumericFieldNames(5),
@@ -2073,6 +2117,17 @@ namespace Curve {
             }
             thisCurve->inputLimits[0].min = Numbers(6);
             thisCurve->inputLimits[0].max = Numbers(7);
+
+            if (Numbers(6) > Numbers(7)) { // error
+                ShowSevereError(state, format("GetCurveInput: For {}: ", CurrentModuleObject));
+                ShowContinueError(state,
+                                  format("{} [{:.2R}] > {} [{:.2R}]",
+                                         state.dataIPShortCut->cNumericFieldNames(6),
+                                         Numbers(6),
+                                         state.dataIPShortCut->cNumericFieldNames(7),
+                                         Numbers(7)));
+                ErrorsFound = true;
+            }
 
             if (NumNumbers > 7 && !state.dataIPShortCut->lNumericFieldBlanks(8)) {
                 thisCurve->outputLimits.min = Numbers(8);
