@@ -865,7 +865,7 @@ namespace Fluid {
                     ShowSevereError(
                         state, format("{}: {} name={}, lists must have data in ascending order", routineName, CurrentModuleObject, tempArray.Name));
                     ShowContinueError(state,
-                                      format("First out of order occurrence at Temperature #({}) {{{:.R3}}} >= Temp({}) {{{:.R3}}}",
+                                      format("First out of order occurrence at Temperature #({}) {{{:.3R}}} >= Temp({}) {{{:.3R}}}",
                                              TempLoop - 1,
                                              tempArray.Temps(TempLoop - 1),
                                              TempLoop,
@@ -1808,7 +1808,7 @@ namespace Fluid {
             glycol->ViscTempRatios.allocate(glycol->NumViscTempPoints);
             for (int i = 1; i < glycol->NumCondTempPoints; ++i)
                 glycol->ViscTempRatios(i) = (glycol->ViscValues(i + 1) - glycol->ViscValues(i)) / (glycol->ViscTemps(i + 1) - glycol->ViscTemps(i));
-#endif    // PERFORMANCE_OPT
+#endif // PERFORMANCE_OPT
         } // for (Loop)
 
         FluidTemps.deallocate();
