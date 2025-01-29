@@ -9740,7 +9740,7 @@ void CalcDoe2DXCoil(EnergyPlusData &state,
             // Default to cycling fan, cycling compressor
             // Also return this result for stage 2 operation of multimode coil
             // Cycling fan typically provides full outlet conditions. When RH control is used, account for additional
-            // heating run time by using cooing/heating ratio the same as constant fan (otherwise PLRRatio = 1).
+            // heating run time by using cooling/heating ratio the same as constant fan (otherwise PLRRatio = 1).
             OutletAirEnthalpy = FullLoadOutAirEnth * DXcoolToHeatPLRRatio + InletAirEnthalpy * (1.0 - DXcoolToHeatPLRRatio);
             OutletAirHumRat = FullLoadOutAirHumRat * DXcoolToHeatPLRRatio + InletAirHumRat * (1.0 - DXcoolToHeatPLRRatio);
             OutletAirTemp = FullLoadOutAirTemp * DXcoolToHeatPLRRatio + InletAirDryBulbTemp * (1.0 - DXcoolToHeatPLRRatio);

@@ -1193,7 +1193,7 @@ namespace HeatingCoils {
                     state.dataHeatingCoils->InputErrorsFound = true;
                 }
                 DataHeatBalance::HeatReclaimDataBase &HeatReclaim =
-                    state.dataCoilCooingDX->coilCoolingDXs[heatingCoil.ReclaimHeatingSourceIndexNum].reclaimHeat;
+                    state.dataCoilCoolingDX->coilCoolingDXs[heatingCoil.ReclaimHeatingSourceIndexNum].reclaimHeat;
                 if (!allocated(HeatReclaim.HVACDesuperheaterReclaimedHeat)) {
                     HeatReclaim.HVACDesuperheaterReclaimedHeat.allocate(state.dataHeatingCoils->NumDesuperheaterCoil);
                     std::fill(HeatReclaim.HVACDesuperheaterReclaimedHeat.begin(), HeatReclaim.HVACDesuperheaterReclaimedHeat.end(), 0.0);
@@ -1534,7 +1534,7 @@ namespace HeatingCoils {
                 }
             case HeatObjTypes::COIL_COOLING_DX_NEW:
                 DataHeatBalance::HeatReclaimDataBase &HeatReclaim =
-                    state.dataCoilCooingDX->coilCoolingDXs[heatingCoil.ReclaimHeatingSourceIndexNum].reclaimHeat;
+                    state.dataCoilCoolingDX->coilCoolingDXs[heatingCoil.ReclaimHeatingSourceIndexNum].reclaimHeat;
                 if (!allocated(HeatReclaim.HVACDesuperheaterReclaimedHeat)) {
                     HeatReclaim.HVACDesuperheaterReclaimedHeat.allocate(state.dataHeatingCoils->NumDesuperheaterCoil);
                     std::fill(HeatReclaim.HVACDesuperheaterReclaimedHeat.begin(), HeatReclaim.HVACDesuperheaterReclaimedHeat.end(), 0.0);
@@ -2639,7 +2639,7 @@ namespace HeatingCoils {
             case HeatObjTypes::COIL_COOLING_DX_NEW:
                 // get RTF and NominalCapacity from Coil:CoolingDX
                 {
-                    auto const &thisCoolingCoil = state.dataCoilCooingDX->coilCoolingDXs[SourceID];
+                    auto const &thisCoolingCoil = state.dataCoilCoolingDX->coilCoolingDXs[SourceID];
                     heatingCoil.RTF = thisCoolingCoil.runTimeFraction;
                     heatingCoil.NominalCapacity =
                         thisCoolingCoil.reclaimHeat.AvailCapacity * Effic - thisCoolingCoil.reclaimHeat.WaterHeatingDesuperheaterReclaimedHeatTotal;
