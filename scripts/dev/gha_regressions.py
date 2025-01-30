@@ -62,6 +62,7 @@ import sys
 from shutil import rmtree
 from zoneinfo import ZoneInfo
 
+from energyplus_regressions.builds.base import BuildTree
 from energyplus_regressions.runtests import SuiteRunner
 from energyplus_regressions.structures import TextDifferences, TestEntry, EndErrSummary
 
@@ -87,13 +88,12 @@ class RegressionManager:
         this_file_diffs = []
 
         entry = TestEntry(idf, "")
+        b1 = BuildTree()
+        b1.build_dir = baseline
+        b2 = BuildTree()
+        b2.build_dir = modified
         entry, message = SuiteRunner.process_diffs_for_one_case(
-            entry,
-            {'build_dir': str(baseline)},
-            {'build_dir': str(modified)},
-            "",
-            self.threshold_file,
-            ci_mode=True
+            entry, b1, b2,"", self.threshold_file, ci_mode=True
         )  # returns an updated entry
         self.summary_results[idf] = entry.summary_result
 
