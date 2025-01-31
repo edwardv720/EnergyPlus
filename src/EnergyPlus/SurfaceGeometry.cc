@@ -4910,7 +4910,7 @@ namespace SurfaceGeometry {
                 }
             }
 
-            if (surfTemp.ExtBoundCond == unenteredAdjacentZoneSurface) { // "Zone" - unmatched interior surface
+            if ((surfTemp.ExtBoundCond == unenteredAdjacentZoneSurface) || (surfTemp.ExtBoundCond == unenteredAdjacentSpaceSurface)) { // "Zone" - unmatched interior surface
                 ++NeedToAddSurfaces;
                 // ignoring window5datafiles for now -- will need to add.
             }
