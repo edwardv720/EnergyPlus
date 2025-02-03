@@ -58,6 +58,13 @@
 #        define ENERGYPLUSLIB_API __declspec(dllimport)
 #    endif
 #else
+#    if defined(energypluslib_EXPORTS) || defined(energyplusapi_EXPORTS) || defined(energypluslib2_EXPORTS)
+#        if defined(__GNUC__) || defined(__clang__)
+#            define ENERGYPLUSLIB_API __attribute__((visibility("default")))
+#        endif
+#    endif
+#endif
+#ifndef ENERGYPLUSLIB_API
 #    define ENERGYPLUSLIB_API
 #endif
 
