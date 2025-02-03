@@ -60,6 +60,7 @@ from shutil import copy
 from pathlib import Path
 import sys
 from shutil import rmtree
+from traceback import print_exc
 from zoneinfo import ZoneInfo
 
 from energyplus_regressions.builds.base import BuildTree
@@ -504,7 +505,7 @@ class RegressionManager:
                     print(f"On file #{entry_num}/{len(entries)} ({baseline.name}), Diff status so far: {so_far}")
             except Exception as e:
                 any_diffs = True
-                print(f"Regression run *failed* trying to process file: {baseline.name}; reason: {e}")
+                print(f"Regression run *failed* trying to process file: {baseline.name}; reason: {e}; {print_exc()}")
                 self.root_index_files_failed.append(baseline.name)
         meta_data = [
             f"Regression time stamp in UTC: {datetime.now(UTC)}",
