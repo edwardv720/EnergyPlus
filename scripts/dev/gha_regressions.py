@@ -463,6 +463,7 @@ class RegressionManager:
         any_diffs = False
         bundle_root.mkdir(exist_ok=True)
         entries = sorted(base_testfiles.iterdir())
+        backtrace_shown = False
         for entry_num, baseline in enumerate(entries):
             if not baseline.is_dir():
                 continue
@@ -505,7 +506,11 @@ class RegressionManager:
                     print(f"On file #{entry_num}/{len(entries)} ({baseline.name}), Diff status so far: {so_far}")
             except Exception as e:
                 any_diffs = True
-                print(f"Regression run *failed* trying to process file: {baseline.name}; reason: {e}; {print_exc()}")
+                print(f"Regression run *failed* trying to process file: {baseline.name}; reason: {e}")
+                if not backtrace_shown:
+                    print("Traceback shown once:")
+                    print_exc()
+                    backtrace_shown = True
                 self.root_index_files_failed.append(baseline.name)
         meta_data = [
             f"Regression time stamp in UTC: {datetime.now(UTC)}",
