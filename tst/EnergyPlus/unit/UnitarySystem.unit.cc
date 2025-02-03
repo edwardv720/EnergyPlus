@@ -16205,7 +16205,7 @@ Dimensionless;	!- Output Unit Type
                       ZoneEquipFlag,
                       SenOutput,
                       LatOutput);
-    auto &coilCoolingDX = state->dataCoilCooingDX->coilCoolingDXs[0];
+    auto &coilCoolingDX = state->dataCoilCoolingDX->coilCoolingDXs[0];
     EXPECT_EQ(coilCoolingDX.performance.OperatingMode, 3);
     EXPECT_EQ(coilCoolingDX.performance.ModeRatio, 1.0);
     EXPECT_NEAR(thisSys->CoilSHR, thisSys->LoadSHR, 0.001);
@@ -20419,7 +20419,7 @@ Curve:Biquadratic, EIRFT, 1, 0, 0, 0, 0, 0, 0, 100, 0, 100, , , Temperature, Tem
     UnitarySystems::UnitarySys::factory(*state, HVAC::UnitarySysType::Unitary_AnyCoilType, UnitarySysName, zoneEquipment, 0);
     UnitarySystems::UnitarySys *thisSys = &state->dataUnitarySystems->unitarySys[0];
     int coilIndex = CoilCoolingDX::factory(*state, "DX ClgCoil");
-    auto &this_dx_clg_coil = state->dataCoilCooingDX->coilCoolingDXs[coilIndex];
+    auto &this_dx_clg_coil = state->dataCoilCoolingDX->coilCoolingDXs[coilIndex];
     state->dataZoneEquip->ZoneEquipInputsFilled = true;
     thisSys->getUnitarySystemInputData(*state, UnitarySysName, zoneEquipment, 0, ErrorsFound);
     EXPECT_FALSE(ErrorsFound);

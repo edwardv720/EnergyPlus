@@ -3103,8 +3103,8 @@ void OpenOutputTabularFile(EnergyPlusData &state)
                 tbl_stream << "  " << std::setw(2) << ort->td(5) << ':' << std::setw(2) << ort->td(6) << ':' << std::setw(2) << ort->td(7)
                            << std::setfill(' ') << '\n';
                 tbl_stream << " - EnergyPlus</title>\n";
-                tbl_stream << "</head>\n";
                 tbl_stream << "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n";
+                tbl_stream << "</head>\n";
                 tbl_stream << "<body>\n";
                 tbl_stream << "<p><a href=\"#toc\" style=\"float: right\">Table of Contents</a></p>\n";
                 tbl_stream << "<a name=top></a>\n";
@@ -17143,7 +17143,7 @@ void WriteTable(EnergyPlusData &state,
             // end the table
             tbl_stream << "</table>\n";
             if (!footnoteText.empty()) {
-                tbl_stream << fmt::format("<i>{}</i>\n", footnoteText);
+                tbl_stream << fmt::format("<div class=\"footnote\" style=\"font-style: italic;\">{}</div>\n", footnoteText);
             }
             tbl_stream << "<br><br>\n";
         } else if (thisStyle == TableStyle::XML) {
@@ -17271,7 +17271,11 @@ void WriteTable(EnergyPlusData &state,
                     }
                 }
                 if (!footnoteText.empty()) {
-                    tbl_stream << fmt::format("  <footnote>{}</footnote>\n", footnoteText);
+                    if (footnoteText.find("<br") != std::string_view::npos) {
+                        tbl_stream << fmt::format("  <footnote><![CDATA[{}]]></footnote>\n", footnoteText);
+                    } else {
+                        tbl_stream << fmt::format("  <footnote>{}</footnote>\n", footnoteText);
+                    }
                 }
             }
         } else {

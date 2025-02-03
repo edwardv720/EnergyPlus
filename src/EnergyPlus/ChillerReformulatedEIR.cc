@@ -1623,7 +1623,7 @@ void ReformulatedEIRChillerSpecs::size(EnergyPlusData &state)
 
             //     Output warning message if negative values are found in the EIRFPLR curve output. Results in Fatal error.
             if (FoundNegValue) {
-                ShowWarningError(state, "Energy input to cooing output ratio function of part-load ratio curve shows negative values ");
+                ShowWarningError(state, "Energy input to cooling output ratio function of part-load ratio curve shows negative values ");
                 ShowContinueError(state, format("for  Chiller:Electric:ReformulatedEIR = {}.", equipName));
                 ShowContinueError(state,
                                   "EIR as a function of PLR curve output at various part-load ratios and condenser water temperatures shown below:");

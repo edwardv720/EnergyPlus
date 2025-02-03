@@ -88,7 +88,6 @@
 #include <EnergyPlus/EcoRoofManager.hh>
 #include <EnergyPlus/ElectricBaseboardRadiator.hh>
 #include <EnergyPlus/FileSystem.hh>
-#include <EnergyPlus/General.hh>
 #include <EnergyPlus/HWBaseboardRadiator.hh>
 #include <EnergyPlus/HeatBalFiniteDiffManager.hh>
 #include <EnergyPlus/HeatBalanceAirManager.hh>
@@ -752,8 +751,10 @@ void GatherForPredefinedReport(EnergyPlusData &state)
                 auto const &construct = state.dataConstruction->Construct(surface.Construction);
                 auto const &thisZone = state.dataHeatBal->Zone(surface.Zone);
                 mult = thisZone.Multiplier * thisZone.ListMultiplier;
+                auto const &thisSpace = state.dataHeatBal->space(surface.spaceNum);
                 OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchOpCons, surfName, construct.Name);
                 OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchOpZone, surfName, thisZone.Name);
+                OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchOpSpace, surfName, thisSpace.Name);
                 OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchOpRefl, surfName, 1 - construct.OutsideAbsorpSolar);
                 OutputReportPredefined::PreDefTableEntry(
                     state, state.dataOutRptPredefined->pdchOpUfactNoFilm, surfName, state.dataHeatBal->NominalU(surface.Construction), 3);
@@ -783,7 +784,10 @@ void GatherForPredefinedReport(EnergyPlusData &state)
                 auto &construct = state.dataConstruction->Construct(surface.Construction);
                 auto const &thisZone = state.dataHeatBal->Zone(surface.Zone);
                 mult = thisZone.Multiplier * thisZone.ListMultiplier * surface.Multiplier;
+                auto const &thisSpace = state.dataHeatBal->space(surface.spaceNum);
                 OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchFenCons, surfName, construct.Name);
+                OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchFenZone, surfName, thisZone.Name);
+                OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchFenSpace, surfName, thisSpace.Name);
                 // if the construction report is requested the SummerSHGC is already calculated
                 if (construct.SummerSHGC != 0) {
                     SHGCSummer = construct.SummerSHGC;
@@ -1018,8 +1022,11 @@ void GatherForPredefinedReport(EnergyPlusData &state)
             case DataSurfaces::SurfaceClass::Door: {
                 auto const &thisZone = state.dataHeatBal->Zone(surface.Zone);
                 mult = thisZone.Multiplier * thisZone.ListMultiplier;
+                auto const &thisSpace = state.dataHeatBal->space(surface.spaceNum);
                 OutputReportPredefined::PreDefTableEntry(
                     state, state.dataOutRptPredefined->pdchDrCons, surfName, state.dataConstruction->Construct(surface.Construction).Name);
+                OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchDrZone, surfName, thisZone.Name);
+                OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchDrSpace, surfName, thisSpace.Name);
                 OutputReportPredefined::PreDefTableEntry(
                     state, state.dataOutRptPredefined->pdchDrUfactNoFilm, surfName, state.dataHeatBal->NominalU(surface.Construction), 3);
                 OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchDrGrArea, surfName, surface.GrossArea * mult);
@@ -1037,8 +1044,10 @@ void GatherForPredefinedReport(EnergyPlusData &state)
                 auto const &construct = state.dataConstruction->Construct(surface.Construction);
                 auto const &thisZone = state.dataHeatBal->Zone(surface.Zone);
                 mult = thisZone.Multiplier * thisZone.ListMultiplier;
+                auto const &thisSpace = state.dataHeatBal->space(surface.spaceNum);
                 OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchIntOpCons, surfName, construct.Name);
                 OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchIntOpZone, surfName, thisZone.Name);
+                OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchIntOpSpace, surfName, thisSpace.Name);
                 OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchIntOpAdjSurf, surfName, surface.ExtBoundCondName);
                 OutputReportPredefined::PreDefTableEntry(
                     state, state.dataOutRptPredefined->pdchIntOpRefl, surfName, 1 - construct.OutsideAbsorpSolar);
@@ -1069,9 +1078,12 @@ void GatherForPredefinedReport(EnergyPlusData &state)
                 auto const &construct = state.dataConstruction->Construct(surface.Construction);
                 auto const &thisZone = state.dataHeatBal->Zone(surface.Zone);
                 mult = thisZone.Multiplier * thisZone.ListMultiplier * surface.Multiplier;
+                auto const &thisSpace = state.dataHeatBal->space(surface.spaceNum);
                 if (!has_prefix(surface.Name,
                                 "iz-")) { // don't count created interzone surfaces that are mirrors of other surfaces
                     OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchIntFenCons, surfName, construct.Name);
+                    OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchIntFenZone, surfName, thisZone.Name);
+                    OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchIntFenSpace, surfName, thisSpace.Name);
                     // include the frame area if present
                     windowArea = surface.GrossArea;
                     if (surface.FrameDivider != 0) {
@@ -1113,7 +1125,10 @@ void GatherForPredefinedReport(EnergyPlusData &state)
                 auto const &construct = state.dataConstruction->Construct(surface.Construction);
                 auto const &thisZone = state.dataHeatBal->Zone(surface.Zone);
                 mult = thisZone.Multiplier * thisZone.ListMultiplier;
+                auto const &thisSpace = state.dataHeatBal->space(surface.spaceNum);
                 OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchIntDrCons, surfName, construct.Name);
+                OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchIntDrZone, surfName, thisZone.Name);
+                OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchIntDrSpace, surfName, thisSpace.Name);
                 OutputReportPredefined::PreDefTableEntry(
                     state, state.dataOutRptPredefined->pdchIntDrUfactNoFilm, surfName, state.dataHeatBal->NominalU(surface.Construction), 3);
                 OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchIntDrGrArea, surfName, surface.GrossArea * mult);
@@ -2422,7 +2437,6 @@ void InitSolarHeatGains(EnergyPlusData &state)
 
     // Using/Aliasing
     using Dayltg::TransTDD;
-    using General::POLYF;
     using SolarShading::CalcInteriorSolarDistribution;
     using namespace DataWindowEquivalentLayer;
     using SolarShading::SurfaceScheduledSolarInc;
@@ -3336,13 +3350,13 @@ void InitSolarHeatGains(EnergyPlusData &state)
                                     // Beam solar on outside of frame
                                     FrIncSolarOut += (BeamFrHorFaceInc + BeamFrVertFaceInc) * FrProjOut;
                                     if (FrProjIn > 0.0) {
-                                        Real64 TransGl = General::POLYF(CosInc, thisConstruct.TransSolBeamCoef);
+                                        Real64 TransGl = Window::POLYF(CosInc, thisConstruct.TransSolBeamCoef);
                                         TransDiffGl = thisConstruct.TransDiff;
                                         if (ShadeFlag == DataSurfaces::WinShadingType::SwitchableGlazing) { // Switchable glazing
                                             Real64 SwitchFac = state.dataSurface->SurfWinSwitchingFactor(SurfNum);
                                             int ConstrNumSh = Surface(SurfNum).activeShadedConstruction;
                                             auto const &constructionSh = state.dataConstruction->Construct(ConstrNumSh);
-                                            Real64 TransGlSh = General::POLYF(CosInc, constructionSh.TransSolBeamCoef);
+                                            Real64 TransGlSh = Window::POLYF(CosInc, constructionSh.TransSolBeamCoef);
                                             TransGl = Window::InterpSw(SwitchFac, TransGl, TransGlSh);
                                             Real64 TransDiffGlSh = constructionSh.TransDiff;
                                             TransDiffGl = Window::InterpSw(SwitchFac, TransDiffGl, TransDiffGlSh);
@@ -3428,14 +3442,14 @@ void InitSolarHeatGains(EnergyPlusData &state)
                                     DivIncSolarOutBm = BeamFaceInc + BeamDivHorFaceInc + BeamDivVertFaceInc;
                                     DivIncSolarOutDif = DifSolarFaceInc * (1.0 + state.dataSurface->SurfWinProjCorrDivOut(SurfNum));
                                     if (DivProjIn > 0.0) {
-                                        Real64 TransGl = General::POLYF(CosInc, thisConstruct.TransSolBeamCoef);
+                                        Real64 TransGl = Window::POLYF(CosInc, thisConstruct.TransSolBeamCoef);
                                         Real64 TransDiffGl = thisConstruct.TransDiff;                       // Diffuse solar transmittance
                                         if (ShadeFlag == DataSurfaces::WinShadingType::SwitchableGlazing) { // Switchable glazing
                                             Real64 SwitchFac = state.dataSurface->SurfWinSwitchingFactor(SurfNum);
                                             int ConstrNumSh = Surface(SurfNum).activeShadedConstruction;
                                             auto const &constructionSh = state.dataConstruction->Construct(ConstrNumSh);
 
-                                            Real64 TransGlSh = General::POLYF(CosInc, constructionSh.TransSolBeamCoef);
+                                            Real64 TransGlSh = Window::POLYF(CosInc, constructionSh.TransSolBeamCoef);
                                             // Outer glass solar trans, refl, absorptance if switched
                                             TransGl = Window::InterpSw(SwitchFac, TransGl, TransGlSh);
                                             Real64 TransDiffGlSh = constructionSh.TransDiff;

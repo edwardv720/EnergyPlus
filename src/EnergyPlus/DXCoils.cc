@@ -9740,7 +9740,7 @@ void CalcDoe2DXCoil(EnergyPlusData &state,
             // Default to cycling fan, cycling compressor
             // Also return this result for stage 2 operation of multimode coil
             // Cycling fan typically provides full outlet conditions. When RH control is used, account for additional
-            // heating run time by using cooing/heating ratio the same as constant fan (otherwise PLRRatio = 1).
+            // heating run time by using cooling/heating ratio the same as constant fan (otherwise PLRRatio = 1).
             OutletAirEnthalpy = FullLoadOutAirEnth * DXcoolToHeatPLRRatio + InletAirEnthalpy * (1.0 - DXcoolToHeatPLRRatio);
             OutletAirHumRat = FullLoadOutAirHumRat * DXcoolToHeatPLRRatio + InletAirHumRat * (1.0 - DXcoolToHeatPLRRatio);
             OutletAirTemp = FullLoadOutAirTemp * DXcoolToHeatPLRRatio + InletAirDryBulbTemp * (1.0 - DXcoolToHeatPLRRatio);
@@ -14779,18 +14779,7 @@ void CalcTwoSpeedDXCoilStandardRating(EnergyPlusData &state, int const DXCoilNum
     PreDefTableEntry(state, state.dataOutRptPredefined->pdchDXCoolCoilSEERUserIP, thisDXCoil.Name, "N/A");
     PreDefTableEntry(state, state.dataOutRptPredefined->pdchDXCoolCoilSEERStandardIP, thisDXCoil.Name, "N/A");
 
-    addFootNoteSubTable(
-        state,
-        state.dataOutRptPredefined->pdstDXCoolCoil,
-        "ANSI/AHRI ratings account for supply air fan heat and electric power. <br/>"
-        "1 - EnergyPlus object type. <br/>"
-        "2 - Capacity less than 65K Btu/h (19050 W) - calculated as per AHRI Standard 210/240-2017. <br/>"
-        "&emsp;&nbsp;Capacity of 65K Btu/h (19050 W) to less than 135K Btu/h (39565 W) - calculated as per AHRI Standard 340/360-2007. <br/>"
-        "&emsp;&nbsp;Capacity from 135K (39565 W) to 250K Btu/hr (73268 W) - calculated as per AHRI Standard 365-2009 - Ratings not yet supported in "
-        "EnergyPlus. <br/>"
-        "3 - SEER (User) is calculated using user-input PLF curve and cooling coefficient of degradation. <br/>"
-        "&emsp;&nbsp;SEER (Standard) is calculated using the default PLF curve and cooling coefficient of degradation"
-        "from the appropriate AHRI standard.");
+    addFootNoteSubTable(state, state.dataOutRptPredefined->pdstDXCoolCoil, StandardRatings::AHRI2017FOOTNOTE);
 
     PreDefTableEntry(state, state.dataOutRptPredefined->pdchVAVDXCoolCoilType, thisDXCoil.Name, "Coil:Cooling:DX:TwoSpeed");
     if (thisDXCoil.RateWithInternalStaticAndFanObject) {
