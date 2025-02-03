@@ -6074,7 +6074,8 @@ namespace Weather {
                 if (desDayInput.HumIndValue < -90.0 || desDayInput.HumIndValue > 70.0) {
                     ShowSevereError(state, format("{}: {} = {}", routineName, ipsc->cCurrentModuleObject, desDayInput.Title));
                     ShowContinueError(
-                        state, format("{} = {:.2R} is out of range [-90.0, 70.0]", ipsc->cAlphaFieldNames(5) + " - WetBulb", desDayInput.HumIndValue));
+                        state,
+                        format("{} = {:.2R} is out of range [-90.0, 70.0]", ipsc->cAlphaFieldNames(5) + " - WetBulb", desDayInput.HumIndValue));
                     ErrorsFound = true;
                 }
             } break;
