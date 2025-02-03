@@ -1193,24 +1193,24 @@ namespace SurfaceGeometry {
         // add the "need to add" surfaces
         // Debug    write(outputfiledebug,*) ' need to add ',NeedtoAddSurfaces+NeedToAddSubSurfaces
         for (int SurfNum = 1; SurfNum <= FirstTotalSurfaces; ++SurfNum) {
-            auto &curSurf = state.dataSurfaceGeometry->SurfaceTmp(SurfNum);
-            if ((curSurf.ExtBoundCond != unenteredAdjacentZoneSurface) && (curSurf.ExtBoundCond != unenteredAdjacentSpaceSurface)) continue;
+            auto &surfTemp = state.dataSurfaceGeometry->SurfaceTmp(SurfNum);
+            if ((surfTemp.ExtBoundCond != unenteredAdjacentZoneSurface) && (surfTemp.ExtBoundCond != unenteredAdjacentSpaceSurface)) continue;
             // Need to add surface
             ++CurNewSurf;
             // Debug    write(outputfiledebug,*) ' adding surface=',curnewsurf
             auto &newSurf = state.dataSurfaceGeometry->SurfaceTmp(CurNewSurf);
-            newSurf = curSurf;
+            newSurf = surfTemp;
             //  Basic parameters are the same for both surfaces.
-            if (curSurf.ExtBoundCond == unenteredAdjacentZoneSurface) {
-                int Found = Util::FindItemInList(curSurf.ExtBoundCondName, state.dataHeatBal->Zone, state.dataGlobal->NumOfZones);
+            if (surfTemp.ExtBoundCond == unenteredAdjacentZoneSurface) {
+                int Found = Util::FindItemInList(surfTemp.ExtBoundCondName, state.dataHeatBal->Zone, state.dataGlobal->NumOfZones);
                 if (Found == 0) continue;
                 newSurf.Zone = Found;
                 auto &newZone = state.dataHeatBal->Zone(Found);
                 newSurf.ZoneName = newZone.Name;
                 assert(newZone.spaceIndexes.size() >= 1);
                 newSurf.spaceNum = 0; // clear this here and set later
-            } else if (curSurf.ExtBoundCond == unenteredAdjacentSpaceSurface) {
-                int Found = Util::FindItemInList(curSurf.ExtBoundCondName, state.dataHeatBal->space, state.dataGlobal->numSpaces);
+            } else if (surfTemp.ExtBoundCond == unenteredAdjacentSpaceSurface) {
+                int Found = Util::FindItemInList(surfTemp.ExtBoundCondName, state.dataHeatBal->space, state.dataGlobal->numSpaces);
                 if (Found == 0) continue;
                 newSurf.spaceNum = Found;
                 int zoneNum = state.dataHeatBal->space(Found).zoneNum;
@@ -1218,12 +1218,12 @@ namespace SurfaceGeometry {
                 newSurf.ZoneName = state.dataHeatBal->Zone(zoneNum).Name;
             }
             // Reverse Construction
-            newSurf.Construction = DataHeatBalance::AssignReverseConstructionNumber(state, curSurf.Construction, SurfError);
+            newSurf.Construction = DataHeatBalance::AssignReverseConstructionNumber(state, surfTemp.Construction, SurfError);
             newSurf.ConstructionStoredInputValue = newSurf.Construction;
             // Reverse Vertices
-            int NVert = curSurf.Sides;
-            for (int Vert = 1; Vert <= curSurf.Sides; ++Vert) {
-                newSurf.Vertex(Vert) = curSurf.Vertex(NVert);
+            int NVert = surfTemp.Sides;
+            for (int Vert = 1; Vert <= surfTemp.Sides; ++Vert) {
+                newSurf.Vertex(Vert) = surfTemp.Vertex(NVert);
                 --NVert;
             }
             if (newSurf.Sides > 2) {
@@ -1262,19 +1262,19 @@ namespace SurfaceGeometry {
             }
 
             // Change Name
-            newSurf.Name = "iz-" + curSurf.Name;
+            newSurf.Name = "iz-" + surfTemp.Name;
             // Debug   write(outputfiledebug,*) ' new surf name=',TRIM(SurfaceTmp(CurNewSurf)%Name)
             // Debug   write(outputfiledebug,*) ' new surf in zone=',TRIM(surfacetmp(curnewsurf)%zoneName)
             newSurf.ExtBoundCond = unreconciledZoneSurface;
-            curSurf.ExtBoundCond = unreconciledZoneSurface;
-            newSurf.ExtBoundCondName = curSurf.Name;
-            curSurf.ExtBoundCondName = newSurf.Name;
+            surfTemp.ExtBoundCond = unreconciledZoneSurface;
+            newSurf.ExtBoundCondName = surfTemp.Name;
+            surfTemp.ExtBoundCondName = newSurf.Name;
             if (newSurf.Class == SurfaceClass::Roof || newSurf.Class == SurfaceClass::Wall || newSurf.Class == SurfaceClass::Floor) {
                 // base surface
-                if (curSurf.Class == SurfaceClass::Roof) {
+                if (surfTemp.Class == SurfaceClass::Roof) {
                     newSurf.Class = SurfaceClass::Floor;
                     // Debug          write(outputfiledebug,*) ' new surfaces is a floor'
-                } else if (curSurf.Class == SurfaceClass::Floor) {
+                } else if (surfTemp.Class == SurfaceClass::Floor) {
                     newSurf.Class = SurfaceClass::Roof;
                     // Debug          write(outputfiledebug,*) ' new surfaces is a roof'
                 }
@@ -1284,9 +1284,9 @@ namespace SurfaceGeometry {
             } else {
                 // subsurface
                 int Found =
-                    Util::FindItemInList("iz-" + curSurf.BaseSurfName, state.dataSurfaceGeometry->SurfaceTmp, FirstTotalSurfaces + CurNewSurf - 1);
+                    Util::FindItemInList("iz-" + surfTemp.BaseSurfName, state.dataSurfaceGeometry->SurfaceTmp, FirstTotalSurfaces + CurNewSurf - 1);
                 if (Found > 0) {
-                    newSurf.BaseSurfName = "iz-" + curSurf.BaseSurfName;
+                    newSurf.BaseSurfName = "iz-" + surfTemp.BaseSurfName;
                     newSurf.BaseSurf = Found;
                     auto &foundBaseSurf = state.dataSurfaceGeometry->SurfaceTmp(Found);
                     foundBaseSurf.Area -= newSurf.Area;
@@ -1296,7 +1296,7 @@ namespace SurfaceGeometry {
                         foundBaseSurf.NetAreaShadowCalc -= newSurf.Area;
                     }
                     newSurf.ExtBoundCond = foundBaseSurf.ExtBoundCond;
-                    newSurf.ExtBoundCondName = curSurf.Name;
+                    newSurf.ExtBoundCondName = surfTemp.Name;
                     newSurf.ExtSolar = foundBaseSurf.ExtSolar;
                     newSurf.ExtWind = foundBaseSurf.ExtWind;
                     newSurf.Zone = foundBaseSurf.Zone;
@@ -1307,7 +1307,7 @@ namespace SurfaceGeometry {
                     // Debug        write(outputfiledebug,*) ' subsurf, basesurf=',TRIM('iz-'//SurfaceTmp(SurfNum)%BaseSurfName)
                 } else {
                     ShowSevereError(state,
-                                    format("{}Adding unentered subsurface, could not find base surface=iz-{}", RoutineName, curSurf.BaseSurfName));
+                                    format("{}Adding unentered subsurface, could not find base surface=iz-{}", RoutineName, surfTemp.BaseSurfName));
                     SurfError = true;
                 }
             }
