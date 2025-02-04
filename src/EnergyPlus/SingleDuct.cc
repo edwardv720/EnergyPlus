@@ -3431,8 +3431,7 @@ void SingleDuctAirTerminal::SizeSys(EnergyPlusData &state)
                         this->MaxAirVolFlowRate * this->ZoneTurndownMinAirFrac);
             } else {
                 if (this->SysType_Num == SysType::SingleDuctVAVReheat && this->DamperHeatingAction == Action::ReverseWithLimits) {
-                    TermUnitSizing(state.dataSize->CurTermUnitSizingNum).AirVolFlow =
-                        max(this->MaxAirVolFlowRateDuringReheat, this->MaxAirVolFlowRate * this->ZoneTurndownMinAirFrac);
+                    TermUnitSizing(state.dataSize->CurTermUnitSizingNum).AirVolFlow = this->MaxAirVolFlowRateDuringReheat;
                 } else {
                     TermUnitSizing(state.dataSize->CurTermUnitSizingNum).AirVolFlow =
                         max(state.dataSize->TermUnitFinalZoneSizing(state.dataSize->CurTermUnitSizingNum).NonAirSysDesHeatVolFlow,
@@ -4131,7 +4130,7 @@ void SingleDuctAirTerminal::SimVAV(EnergyPlusData &state, bool const FirstHVACIt
                                       this->ControlCompTypeNum,
                                       this->CompErrIndex,
                                       ZoneNodeNum,
-                                      SysOutletNode); // why not QZnReq  ?
+                                      SysOutletNode);
                     // air flow controller, not on plant, don't pass plant topology info
                     // reset terminal unit inlet air mass flow to new value.
                     state.dataLoopNodes->Node(this->OutletNodeNum).MassFlowRateMaxAvail = this->sd_airterminalInlet.AirMassFlowRateMaxAvail;
