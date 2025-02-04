@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -116,14 +116,14 @@ TEST_F(EnergyPlusFixture, ElectricEIRChiller_HeatRecoveryAutosizeTest)
     state->dataSize->PlantSizData.allocate(2);
     // chilled water loop
     state->dataPlnt->PlantLoop(1).PlantSizNum = 1;
-    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
     state->dataSize->PlantSizData(1).DesVolFlowRate = 1.0;
     state->dataSize->PlantSizData(1).DeltaT = 5.0;
     // condenser water loop
     state->dataPlnt->PlantLoop(2).PlantSizNum = 2;
-    state->dataPlnt->PlantLoop(2).FluidIndex = 1;
     state->dataPlnt->PlantLoop(2).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(2).glycol = Fluid::GetWater(*state);
     state->dataSize->PlantSizData(2).DesVolFlowRate = 1.0;
     state->dataSize->PlantSizData(2).DeltaT = 5.0;
 
@@ -199,9 +199,12 @@ TEST_F(EnergyPlusFixture, ChillerElectricEIR_AirCooledChiller)
 
     EXPECT_TRUE(process_idf(idf_objects, false));
 
-    state->dataGlobal->NumOfTimeStepInHour = 1;
+    state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->TimeStep = 1;
-    state->dataGlobal->MinutesPerTimeStep = 60;
+    state->dataGlobal->MinutesInTimeStep = 60;
+
+    state->init_state(*state);
+
     state->dataPlnt->PlantLoop.allocate(state->dataPlnt->TotNumLoops);
     state->dataPlnt->PlantLoop.allocate(state->dataPlnt->TotNumLoops);
     for (int l = 1; l <= state->dataPlnt->TotNumLoops; ++l) {
@@ -217,9 +220,9 @@ TEST_F(EnergyPlusFixture, ChillerElectricEIR_AirCooledChiller)
     auto &thisEIR = state->dataChillerElectricEIR->ElectricEIRChiller(1);
 
     state->dataPlnt->PlantLoop(1).Name = "ChilledWaterLoop";
-    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).PlantSizNum = 1;
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = thisEIR.Name;
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type =
         DataPlant::PlantEquipmentType::Chiller_ElectricEIR;
@@ -333,11 +336,11 @@ TEST_F(EnergyPlusFixture, ChillerElectricEIR_EvaporativelyCooled_Calculate)
     state->dataPlnt->TotNumLoops = 2;
     state->dataEnvrn->OutBaroPress = 101325.0;
     state->dataEnvrn->StdRhoAir = 1.20;
-    state->dataGlobal->NumOfTimeStepInHour = 1;
+    state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->TimeStep = 1;
-    state->dataGlobal->MinutesPerTimeStep = 60;
+    state->dataGlobal->MinutesInTimeStep = 60;
 
-    Psychrometrics::InitializePsychRoutines(*state);
+    state->init_state(*state);
 
     state->dataPlnt->PlantLoop.allocate(state->dataPlnt->TotNumLoops);
     state->dataPlnt->PlantLoop.allocate(state->dataPlnt->TotNumLoops);
@@ -354,9 +357,9 @@ TEST_F(EnergyPlusFixture, ChillerElectricEIR_EvaporativelyCooled_Calculate)
     auto &thisEIRChiller = state->dataChillerElectricEIR->ElectricEIRChiller(1);
 
     state->dataPlnt->PlantLoop(1).Name = "ChilledWaterLoop";
-    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).PlantSizNum = 1;
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = thisEIRChiller.Name;
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type =
         DataPlant::PlantEquipmentType::Chiller_ElectricEIR;
@@ -418,15 +421,14 @@ TEST_F(EnergyPlusFixture, ChillerElectricEIR_WaterCooledChillerVariableSpeedCond
     state->dataPlnt->TotNumLoops = 2;
     state->dataEnvrn->OutBaroPress = 101325.0;
     state->dataEnvrn->StdRhoAir = 1.20;
-    state->dataGlobal->NumOfTimeStepInHour = 1;
+    state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->TimeStep = 1;
-    state->dataGlobal->MinutesPerTimeStep = 60;
+    state->dataGlobal->MinutesInTimeStep = 60;
     state->dataGlobal->HourOfDay = 1;
     state->dataEnvrn->DayOfWeek = 1;
     state->dataEnvrn->Month = 1;
     state->dataEnvrn->DayOfMonth = 1;
     state->dataEnvrn->DayOfYear_Schedule = General::OrdinalDay(state->dataEnvrn->Month, state->dataEnvrn->DayOfMonth, 1);
-    Psychrometrics::InitializePsychRoutines(*state);
 
     std::string const idf_objects = delimited_string({
         "Chiller:Electric:EIR,",
@@ -478,6 +480,8 @@ TEST_F(EnergyPlusFixture, ChillerElectricEIR_WaterCooledChillerVariableSpeedCond
 
     EXPECT_TRUE(process_idf(idf_objects, false));
 
+    state->init_state(*state);
+
     state->dataPlnt->PlantLoop.allocate(state->dataPlnt->TotNumLoops);
     state->dataPlnt->PlantLoop.allocate(state->dataPlnt->TotNumLoops);
     for (int l = 1; l <= state->dataPlnt->TotNumLoops; ++l) {
@@ -494,9 +498,9 @@ TEST_F(EnergyPlusFixture, ChillerElectricEIR_WaterCooledChillerVariableSpeedCond
     state->dataLoopNodes->Node.allocate(10);
 
     state->dataPlnt->PlantLoop(1).Name = "ChilledWaterLoop";
-    state->dataPlnt->PlantLoop(1).FluidIndex = 1;
     state->dataPlnt->PlantLoop(1).PlantSizNum = 1;
     state->dataPlnt->PlantLoop(1).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(1).glycol = Fluid::GetWater(*state);
     state->dataPlnt->PlantLoop(1).TempSetPointNodeNum = 10;
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = thisChiller.Name;
     state->dataPlnt->PlantLoop(1).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type =
@@ -511,9 +515,9 @@ TEST_F(EnergyPlusFixture, ChillerElectricEIR_WaterCooledChillerVariableSpeedCond
     state->dataSize->PlantSizData(1).DeltaT = 5.0;
 
     state->dataPlnt->PlantLoop(2).Name = "CondenserWaterLoop";
-    state->dataPlnt->PlantLoop(2).FluidIndex = 1;
     state->dataPlnt->PlantLoop(2).PlantSizNum = 1;
     state->dataPlnt->PlantLoop(2).FluidName = "WATER";
+    state->dataPlnt->PlantLoop(2).glycol = Fluid::GetWater(*state);
     state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Name = thisChiller.Name;
     state->dataPlnt->PlantLoop(2).LoopSide(DataPlant::LoopSideLocation::Demand).Branch(1).Comp(1).Type =
         DataPlant::PlantEquipmentType::Chiller_ElectricEIR;
@@ -532,7 +536,7 @@ TEST_F(EnergyPlusFixture, ChillerElectricEIR_WaterCooledChillerVariableSpeedCond
     thisChiller.size(*state);
     MyLoad = -thisChiller.RefCap;
     state->dataSize->PlantSizData(1).DesCapacity = std::abs(MyLoad) * 2;
-    ScheduleManager::UpdateScheduleValues(*state);
+    Sched::UpdateScheduleVals(*state);
 
     // run through init again after sizing is complete to set mass flow rate
     state->dataGlobal->BeginEnvrnFlag = true;
@@ -555,21 +559,51 @@ TEST_F(EnergyPlusFixture, ChillerElectricEIR_WaterCooledChillerVariableSpeedCond
 
     thisChiller.CondenserFlowControl = DataPlant::CondenserFlowControl::ModulatedDeltaTemperature;
     thisChiller.calculate(*state, MyLoad, RunFlag);
-    Real64 Cp = FluidProperties::GetSpecificHeatGlycol(*state,
-                                                       state->dataPlnt->PlantLoop(thisChiller.CWPlantLoc.loopNum).FluidName,
-                                                       thisChiller.CondInletTemp,
-                                                       state->dataPlnt->PlantLoop(thisChiller.CWPlantLoc.loopNum).FluidIndex,
-                                                       "ChillerElectricEIR_WaterCooledChillerVariableSpeedCondenser");
+    Real64 Cp = state->dataPlnt->PlantLoop(thisChiller.CWPlantLoc.loopNum)
+                    .glycol->getSpecificHeat(*state, thisChiller.CondInletTemp, "ChillerElectricEIR_WaterCooledChillerVariableSpeedCondenser");
     Real64 ActualCondFlow = 3.0 * std::abs(MyLoad) / (Cp * 10.0);
     EXPECT_NEAR(thisChiller.CondMassFlowRate, ActualCondFlow, 0.00001);
-
-    thisChiller.CondenserFlowControl = DataPlant::CondenserFlowControl::ConstantFlow;
-    thisChiller.calculate(*state, MyLoad, RunFlag);
-    EXPECT_NEAR(thisChiller.CondMassFlowRate, thisChiller.CondMassFlowRateMax, 0.00001);
 
     // Test the minimum condenser flow rate
     MyLoad = -500;
     thisChiller.CondenserFlowControl = DataPlant::CondenserFlowControl::ModulatedChillerPLR;
     thisChiller.calculate(*state, MyLoad, RunFlag);
     EXPECT_NEAR(thisChiller.CondMassFlowRate, thisChiller.CondMassFlowRateMax * 0.35, 0.00001);
+
+    // Test constant flow condenser
+    thisChiller.CondenserFlowControl = DataPlant::CondenserFlowControl::ConstantFlow;
+    MyLoad = -10000;
+    Real64 savedMyLoad = MyLoad;
+
+    // test with condenser flow available
+    thisChiller.initialize(*state, RunFlag, MyLoad);
+    thisChiller.calculate(*state, MyLoad, RunFlag);
+    thisChiller.update(*state, MyLoad, RunFlag);
+    Real64 chWOutletTemp = thisChiller.EvapInletTemp + savedMyLoad / (Cp * thisChiller.EvapMassFlowRate);
+    Real64 condOutletTemp = thisChiller.CondInletTemp + thisChiller.QCondenser / (Cp * thisChiller.CondMassFlowRate);
+    EXPECT_EQ(MyLoad, savedMyLoad);
+    EXPECT_NEAR(thisChiller.CondMassFlowRate, thisChiller.CondMassFlowRateMax, 0.00001);
+    EXPECT_NEAR(thisChiller.EvapMassFlowRate, thisChiller.EvapMassFlowRateMax, 0.00001);
+    EXPECT_NEAR(thisChiller.EvapOutletTemp, chWOutletTemp, 0.1);
+    EXPECT_NEAR(thisChiller.CondOutletTemp, condOutletTemp, 0.1);
+    EXPECT_NEAR(thisChiller.QEvaporator, -savedMyLoad, 1.0);
+    EXPECT_NEAR(thisChiller.QCondenser, (-savedMyLoad + thisChiller.Power), 1.0);
+    EXPECT_NEAR(thisChiller.Power, 20987, 1.0);
+
+    // test with no condenser flow available - chiller should be off
+    state->dataLoopNodes->Node(thisChiller.CondInletNodeNum).MassFlowRate = 0.0;
+    state->dataLoopNodes->Node(thisChiller.CondInletNodeNum).MassFlowRateMaxAvail = 0.0;
+    thisChiller.initialize(*state, RunFlag, MyLoad);
+    thisChiller.calculate(*state, MyLoad, RunFlag);
+    thisChiller.update(*state, MyLoad, RunFlag);
+    EXPECT_EQ(MyLoad, 0.0);
+    EXPECT_EQ(thisChiller.CondMassFlowRate, 0.0);
+    EXPECT_EQ(thisChiller.EvapMassFlowRate, 0.0);
+    EXPECT_EQ(thisChiller.EvapOutletTemp, thisChiller.EvapInletTemp);
+    EXPECT_EQ(thisChiller.CondOutletTemp, thisChiller.CondInletTemp);
+    EXPECT_EQ(thisChiller.QEvaporator, 0.0);
+    EXPECT_EQ(thisChiller.QCondenser, 0.0);
+    EXPECT_EQ(thisChiller.Power, 0.0);
+
+    // Test
 }
