@@ -887,8 +887,8 @@ namespace UnitarySystems {
                 this->m_IterationCounter = 0;
                 std::fill(this->m_IterationMode.begin(), this->m_IterationMode.end(), 0);
 
-                // for DX systems, just read the inlet node flow rate and let air loop decide flow
-                if (this->m_ControlType == UnitarySysCtrlType::Setpoint && this->m_sysType == SysType::Unitary) {
+                // for systems without a fan, just read the inlet node flow rate and let air loop decide flow
+                if (this->m_ControlType == UnitarySysCtrlType::Setpoint && this->m_sysType == SysType::Unitary && this->m_FanExists) {
                     if (this->m_sysAvailSched->getCurrentVal() > 0.0) {
                         if (this->m_LastMode == CoolingMode) {
                             if (this->m_MultiOrVarSpeedCoolCoil) {
