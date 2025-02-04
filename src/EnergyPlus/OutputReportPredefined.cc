@@ -828,13 +828,13 @@ namespace OutputReportPredefined {
         s->pdchCoilEntHumRatIdealPeak =
             newPreDefColumn(state, s->pdstCoilSummaryCoilSelection, "Coil Entering Air Humidity Ratio at Ideal Loads Peak [kgWater/kgDryAir]");
         s->pdchCoilEntEnthalpyIdealPeak =
-            newPreDefColumn(state, s->pdstCoilSummaryCoilSelection, "Coil Entering Air Enthalpy at Ideal Loads Peak [J/KG-K]");
+            newPreDefColumn(state, s->pdstCoilSummaryCoilSelection, "Coil Entering Air Enthalpy at Ideal Loads Peak [J/kg]");
         s->pdchCoilLvgDryBulbIdealPeak = newPreDefColumn(state, s->pdstCoilSummaryCoilSelection, "Coil Leaving Air Drybulb at Ideal Loads Peak [C]");
         s->pdchCoilLvgWetBulbIdealPeak = newPreDefColumn(state, s->pdstCoilSummaryCoilSelection, "Coil Leaving Air Wetbulb at Ideal Loads Peak [C]");
         s->pdchCoilLvgHumRatIdealPeak =
             newPreDefColumn(state, s->pdstCoilSummaryCoilSelection, "Coil Leaving Air Humidity Ratio at Ideal Loads Peak [kgWater/kgDryAir]");
         s->pdchCoilLvgEnthalpyIdealPeak =
-            newPreDefColumn(state, s->pdstCoilSummaryCoilSelection, "Coil Leaving Air Enthalpy at Ideal Loads Peak [J/KG-K]");
+            newPreDefColumn(state, s->pdstCoilSummaryCoilSelection, "Coil Leaving Air Enthalpy at Ideal Loads Peak [J/kg]");
         s->pdchCoilWaterMassFlowIdealPeak =
             newPreDefColumn(state, s->pdstCoilSummaryCoilSelection, "Coil Plant Fluid Mass Flow Rate at Ideal Loads Peak [kg/s]");
         s->pdchCoilEntWaterTempIdealPeak =
@@ -873,13 +873,13 @@ namespace OutputReportPredefined {
         s->pdchCoilRatedEntHumRat =
             newPreDefColumn(state, s->pdstCoilSummaryCoilSelection, "Coil Entering Air Humidity Ratio at Rating Conditions [kgWater/kgDryAir]");
         s->pdchCoilRatedEntEnthalpy =
-            newPreDefColumn(state, s->pdstCoilSummaryCoilSelection, "Coil Entering Air Enthalpy at Rating Conditions [J/KG-K]");
+            newPreDefColumn(state, s->pdstCoilSummaryCoilSelection, "Coil Entering Air Enthalpy at Rating Conditions [J/kg]");
         s->pdchCoilRatedLvgDryBulb = newPreDefColumn(state, s->pdstCoilSummaryCoilSelection, "Coil Leaving Air Drybulb at Rating Conditions [C]");
         s->pdchCoilRatedLvgWetBulb = newPreDefColumn(state, s->pdstCoilSummaryCoilSelection, "Coil Leaving Air Wetbulb at Rating Conditions [C]");
         s->pdchCoilRatedLvgHumRat =
             newPreDefColumn(state, s->pdstCoilSummaryCoilSelection, "Coil Leaving Air Humidity Ratio at Rating Conditions [kgWater/kgDryAir]");
         s->pdchCoilRatedLvgEnthalpy =
-            newPreDefColumn(state, s->pdstCoilSummaryCoilSelection, "Coil Leaving Air Enthalpy at Rating Conditions [J/KG-K]");
+            newPreDefColumn(state, s->pdstCoilSummaryCoilSelection, "Coil Leaving Air Enthalpy at Rating Conditions [J/kg]");
 
         // Std 229 New Table "Coil Connections"
         s->pdstCoilConnections = newPreDefSubTable(state, s->pdrCoilSizingDetailsTable, "Coil Connections");
