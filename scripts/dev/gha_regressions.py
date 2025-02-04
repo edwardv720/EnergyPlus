@@ -60,6 +60,7 @@ from shutil import copy
 from pathlib import Path
 import sys
 from shutil import rmtree
+from traceback import print_exc
 from zoneinfo import ZoneInfo
 
 from energyplus_regressions.builds.base import BuildTree
@@ -462,6 +463,7 @@ class RegressionManager:
         any_diffs = False
         bundle_root.mkdir(exist_ok=True)
         entries = sorted(base_testfiles.iterdir())
+        backtrace_shown = False
         for entry_num, baseline in enumerate(entries):
             if not baseline.is_dir():
                 continue
@@ -505,6 +507,10 @@ class RegressionManager:
             except Exception as e:
                 any_diffs = True
                 print(f"Regression run *failed* trying to process file: {baseline.name}; reason: {e}")
+                if not backtrace_shown:
+                    print("Traceback shown once:")
+                    print_exc()
+                    backtrace_shown = True
                 self.root_index_files_failed.append(baseline.name)
         meta_data = [
             f"Regression time stamp in UTC: {datetime.now(UTC)}",
