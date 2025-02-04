@@ -47,9 +47,11 @@
 
 // C++ Headers
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <limits>
 #include <string>
+#include <string_view>
 
 // ObjexxFCL Headers
 #include <ObjexxFCL/Array.functions.hh>
@@ -829,8 +831,8 @@ namespace Curve {
                 }
             }
             if (NumAlphas >= 4) {
-                if (!IsCurveOutputTypeValid(Alphas(4))) {
-                    ShowWarningError(state, format("In {} named {} the OInput Unit Type for Z is invalid.", CurrentModuleObject, Alphas(1)));
+                if (!IsCurveInputTypeValid(Alphas(4))) {
+                    ShowWarningError(state, format("In {} named {} the Input Unit Type for Z is invalid.", CurrentModuleObject, Alphas(1)));
                 }
             }
             if (NumAlphas >= 5) {
@@ -1511,7 +1513,7 @@ namespace Curve {
             }
 
             constexpr int NumVar = 4;
-            std::string VarNames[NumVar] = {"w", "x", "y", "z"};
+            constexpr std::array<std::string_view, NumVar> VarNames{"w", "x", "y", "z"};
             for (int i = 1; i <= NumVar; ++i) {
                 int MinIndex = 2 * i + 4;
                 int MaxIndex = MinIndex + 1;
@@ -1591,7 +1593,7 @@ namespace Curve {
             }
 
             constexpr int NumVar = 5;
-            std::string VarNames[NumVar] = {"v", "w", "x", "y", "z"};
+            constexpr std::array<std::string_view, NumVar> VarNames{"v", "w", "x", "y", "z"};
             for (int i = 1; i <= NumVar; ++i) {
                 int MinIndex = 2 * i + 5;
                 int MaxIndex = MinIndex + 1;
@@ -2351,7 +2353,7 @@ namespace Curve {
                         // TODO: Actually use this to define output variable units
                         if (indVarInstance.count("unit_type")) {
                             std::string unitType = indVarInstance.at("unit_type").get<std::string>();
-                            if (!IsCurveOutputTypeValid(unitType)) {
+                            if (!IsCurveInputTypeValid(unitType)) {
                                 ShowSevereError(state, format("{}: Unit Type [{}] is invalid", contextString, unitType));
                             }
                         }
@@ -3007,10 +3009,21 @@ namespace Curve {
             Distance,
             Wavelength,
             Angle,
+            VolumetricFlowPerPower,
             Num
         };
         constexpr std::array<std::string_view, static_cast<int>(CurveInputType::Num)> inputTypes = {
-            "DIMENSIONLESS", "TEMPERATURE", "PRESSURE", "VOLUMETRICFLOW", "MASSFLOW", "POWER", "DISTANCE", "WAVELENGTH", "ANGLE"};
+            "DIMENSIONLESS",
+            "TEMPERATURE",
+            "PRESSURE",
+            "VOLUMETRICFLOW",
+            "MASSFLOW",
+            "POWER",
+            "DISTANCE",
+            "WAVELENGTH",
+            "ANGLE",
+            "VOLUMETRICFLOWPERPOWER",
+        };
 
         if (InInputType.empty()) {
             return true; // if not used it is valid

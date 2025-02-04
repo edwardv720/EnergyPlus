@@ -55,6 +55,8 @@
 #include <EnergyPlus/DataGlobals.hh>
 #include <EnergyPlus/DataIPShortCuts.hh>
 #include <EnergyPlus/FileSystem.hh>
+#include <embedded/EmbeddedEpJSONSchema.hh>
+#include <nlohmann/json.hpp>
 
 #include <stdexcept>
 
@@ -742,6 +744,236 @@ TEST_F(EnergyPlusFixture, CSV_CarriageReturns_Handling)
 
     for (std::size_t i = 0; i < TestArray.size(); i++) {
         EXPECT_FALSE(std::isnan(TestArray[i]));
+    }
+}
+
+nlohmann::json const &getPatternProperties(nlohmann::json const &schema_obj)
+{
+    auto const &pattern_properties = schema_obj["patternProperties"];
+    int dot_star_present = pattern_properties.count(".*");
+    std::string pattern_property;
+    if (dot_star_present > 0) {
+        pattern_property = ".*";
+    } else {
+        int no_whitespace_present = pattern_properties.count(R"(^.*\S.*$)");
+        if (no_whitespace_present > 0) {
+            pattern_property = R"(^.*\S.*$)";
+        } else {
+            throw std::runtime_error(R"(The patternProperties value is not a valid choice (".*", "^.*\S.*$"))");
+        }
+    }
+    auto const &schema_obj_props = pattern_properties[pattern_property]["properties"];
+    return schema_obj_props;
+}
+
+std::vector<std::string> getPossibleChoicesFromSchema(const std::string &objectType, const std::string &fieldName)
+{
+    // Should consider making this public, at least to the EnergyPlusFixture, but maybe in the InputProcessor directly
+    // At which point, should handle the "anyOf" case, here I don't need it, so not bothering
+    static const auto json_schema = nlohmann::json::from_cbor(EmbeddedEpJSONSchema::embeddedEpJSONSchema());
+    auto const &schema_properties = json_schema.at("properties");
+    const auto &object_schema = schema_properties.at(objectType);
+    auto const &schema_obj_props = getPatternProperties(object_schema);
+    auto const &schema_field_obj = schema_obj_props.at(fieldName);
+    std::vector<std::string> choices;
+    for (const auto &e : schema_field_obj.at("enum")) {
+        choices.push_back(e);
+    }
+
+    return choices;
+}
+
+TEST_F(EnergyPlusFixture, TableIndependentVariableUnitType_IsValid)
+{
+    std::vector<std::string> unit_type_choices = getPossibleChoicesFromSchema("Table:IndependentVariable", "unit_type");
+    for (const auto &input_unit_type : unit_type_choices) {
+        EXPECT_TRUE(Curve::IsCurveInputTypeValid(input_unit_type)) << input_unit_type << " is rejected by IsCurveInputTypeValid";
+    }
+    EXPECT_EQ(8, unit_type_choices.size());
+}
+
+TEST_F(EnergyPlusFixture, TableLookupUnitType_IsValid)
+{
+    std::vector<std::string> unit_type_choices = getPossibleChoicesFromSchema("Table:Lookup", "output_unit_type");
+    for (const auto &output_unit_type : unit_type_choices) {
+        if (output_unit_type.empty()) {
+            continue;
+        }
+        EXPECT_TRUE(Curve::IsCurveOutputTypeValid(output_unit_type)) << output_unit_type << " is rejected by IsCurveOutputTypeValid";
+    }
+    EXPECT_EQ(6, unit_type_choices.size());
+}
+
+class InputUnitTypeIsValid : public EnergyPlusFixture, public ::testing::WithParamInterface<std::string_view>
+{
+};
+TEST_P(InputUnitTypeIsValid, IndepentVariable)
+{
+    const auto &unit_type = GetParam();
+
+    std::string const idf_objects = delimited_string({
+        "Table:IndependentVariable,",
+        "  SAFlow,                    !- Name",
+        "  Cubic,                     !- Interpolation Method",
+        "  Constant,                  !- Extrapolation Method",
+        "  0.714,                     !- Minimum Value",
+        "  1.2857,                    !- Maximum Value",
+        "  ,                          !- Normalization Reference Value",
+        fmt::format("  {},             !-  Unit Type", unit_type),
+        "  ,                          !- External File Name",
+        "  ,                          !- External File Column Number",
+        "  ,                          !- External File Starting Row Number",
+        "  0.714286,                  !- Value 1",
+        "  1.0,",
+        "  1.2857;",
+
+        "Table:IndependentVariableList,",
+        "  SAFlow_Variables,          !- Name",
+        "  SAFlow;                    !- Independent Variable 1 Name",
+
+        "Table:Lookup,",
+        "  CoolCapModFuncOfSAFlow,    !- Name",
+        "  SAFlow_Variables,          !- Independent Variable List Name",
+        "  ,                          !- Normalization Method",
+        "  ,                          !- Normalization Divisor",
+        "  0.8234,                    !- Minimum Output",
+        "  1.1256,                    !- Maximum Output",
+        "  Dimensionless,             !- Output Unit Type",
+        "  ,                          !- External File Name",
+        "  ,                          !- External File Column Number",
+        "  ,                          !- External File Starting Row Number",
+        "  0.823403,                  !- Output Value 1",
+        "  1.0,",
+        "  1.1256;",
+    });
+
+    ASSERT_TRUE(process_idf(idf_objects));
+    EXPECT_EQ(0, state->dataCurveManager->NumCurves);
+
+    Curve::GetCurveInput(*state);
+    state->dataCurveManager->GetCurvesInputFlag = false;
+    EXPECT_TRUE(compare_err_stream("", true));
+}
+
+INSTANTIATE_TEST_SUITE_P(CurveManager,
+                         InputUnitTypeIsValid,
+                         testing::Values("", "Angle", "Dimensionless", "Distance", "MassFlow", "Power", "Temperature", "VolumetricFlow"),
+                         [](const testing::TestParamInfo<InputUnitTypeIsValid::ParamType> &info) -> std::string {
+                             if (info.param.empty()) {
+                                 return "Blank";
+                             }
+                             return std::string{info.param};
+                         });
+
+class OutputUnitTypeIsValid : public EnergyPlusFixture, public ::testing::WithParamInterface<std::string_view>
+{
+};
+TEST_P(OutputUnitTypeIsValid, TableLookup)
+{
+    const auto &unit_type = GetParam();
+
+    std::string const idf_objects = delimited_string({
+        "Table:IndependentVariable,",
+        "  SAFlow,                    !- Name",
+        "  Cubic,                     !- Interpolation Method",
+        "  Constant,                  !- Extrapolation Method",
+        "  0.714,                     !- Minimum Value",
+        "  1.2857,                    !- Maximum Value",
+        "  ,                          !- Normalization Reference Value",
+        "  Dimensionless,             !- Unit Type",
+        "  ,                          !- External File Name",
+        "  ,                          !- External File Column Number",
+        "  ,                          !- External File Starting Row Number",
+        "  0.714286,                  !- Value 1",
+        "  1.0,",
+        "  1.2857;",
+
+        "Table:IndependentVariableList,",
+        "  SAFlow_Variables,          !- Name",
+        "  SAFlow;                    !- Independent Variable 1 Name",
+
+        "Table:Lookup,",
+        "  CoolCapModFuncOfSAFlow,    !- Name",
+        "  SAFlow_Variables,          !- Independent Variable List Name",
+        "  ,                          !- Normalization Method",
+        "  ,                          !- Normalization Divisor",
+        "  0.8234,                    !- Minimum Output",
+        "  1.1256,                    !- Maximum Output",
+        fmt::format("  {},             !- Output Unit Type", unit_type),
+        "  ,                          !- External File Name",
+        "  ,                          !- External File Column Number",
+        "  ,                          !- External File Starting Row Number",
+        "  0.823403,                  !- Output Value 1",
+        "  1.0,",
+        "  1.1256;",
+    });
+
+    ASSERT_TRUE(process_idf(idf_objects));
+    EXPECT_EQ(0, state->dataCurveManager->NumCurves);
+
+    Curve::GetCurveInput(*state);
+    state->dataCurveManager->GetCurvesInputFlag = false;
+    EXPECT_TRUE(compare_err_stream("", true));
+}
+
+INSTANTIATE_TEST_SUITE_P(CurveManager,
+                         OutputUnitTypeIsValid,
+                         testing::Values("", "Capacity", "Dimensionless", "Power", "Pressure", "Temperature"),
+                         [](const testing::TestParamInfo<InputUnitTypeIsValid::ParamType> &info) -> std::string {
+                             if (info.param.empty()) {
+                                 return "Blank";
+                             }
+                             return std::string{info.param};
+                         });
+
+std::pair<std::set<std::string>, std::set<std::string>> getAllPossibleInputOutputTypesForCurves()
+{
+    const auto json_schema = nlohmann::json::from_cbor(EmbeddedEpJSONSchema::embeddedEpJSONSchema());
+    auto const &schema_properties = json_schema.at("properties");
+    std::set<std::string> all_input_choices;
+    std::set<std::string> all_output_choices;
+
+    for (const auto &[objectType, object_schema] : schema_properties.items()) {
+        const bool is_curve = (objectType.rfind("Curve:", 0) == 0) || (objectType == "Table:Lookup") || (objectType == "Table:IndependentVariable");
+        if (!is_curve) {
+            continue;
+        }
+        auto const &schema_obj_props = getPatternProperties(object_schema);
+        for (const auto &[fieldName, schema_field_obj] : schema_obj_props.items()) {
+            if (std::string(fieldName) == "output_unit_type") {
+                for (const auto &e : schema_field_obj.at("enum")) {
+                    all_output_choices.insert(std::string{e});
+                }
+            } else if (fieldName.find("unit_type") != std::string::npos) {
+                for (const auto &e : schema_field_obj.at("enum")) {
+                    all_input_choices.insert(std::string{e});
+                }
+            }
+        }
+    }
+
+    return {all_input_choices, all_output_choices};
+}
+
+TEST_F(EnergyPlusFixture, AllPossibleUnitTypeValid)
+{
+    auto const [all_input_choices, all_output_choices] = getAllPossibleInputOutputTypesForCurves();
+
+    // As of 2024-12-18
+    // in = ["", "Angle", "Dimensionless", "Distance", "MassFlow", "Power", "Pressure", "Temperature", "VolumetricFlow","VolumetricFlowPerPower"]
+    // out = ["", "Capacity", "Dimensionless", "Power", "Pressure", "Temperature"]
+    EXPECT_FALSE(all_input_choices.empty()) << fmt::format("{}", all_input_choices);
+    EXPECT_FALSE(all_output_choices.empty()) << fmt::format("{}", all_output_choices);
+
+    for (const auto &input_unit_type : all_input_choices) {
+        EXPECT_TRUE(Curve::IsCurveInputTypeValid(input_unit_type)) << input_unit_type << " is rejected by IsCurveOutputTypeValid";
+    }
+
+    for (const auto &output_unit_type : all_output_choices) {
+        if (output_unit_type.empty()) {
+            continue;
+        }
+        EXPECT_TRUE(Curve::IsCurveOutputTypeValid(output_unit_type)) << output_unit_type << " is rejected by IsCurveOutputTypeValid";
     }
 }
 
