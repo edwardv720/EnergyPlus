@@ -4808,6 +4808,8 @@ TEST_F(EnergyPlusFixture, CondenserLoopTowers_VSCoolingTower_OutputReport)
     ASSERT_TRUE(process_idf(idf_objects));
     SimulationManager::PostIPProcessing(*state);
 
+    state->init_state(*state); // need to process schedules once they have been input processed
+
     state->dataGlobal->BeginSimFlag = true;
     SimulationManager::GetProjectData(*state);
     OutputReportPredefined::SetPredefinedTables(*state);
