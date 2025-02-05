@@ -13669,7 +13669,7 @@ TEST_F(EnergyPlusFixture, OutputReportTabularMonthly_HandleMultipleDuringHoursSh
     state->dataGlobal->TimeStepZone = 1.0;
     state->dataGlobal->TimeStepZoneSec = state->dataGlobal->TimeStepZone * 60.0;
     state->dataHVACGlobal->TimeStepSys = 0.25;
-    state->dataHVACGlobal->TimeStepSysSec = state->dataHVACGlobal->TimeStepSys * Constant::SecInHour;
+    state->dataHVACGlobal->TimeStepSysSec = state->dataHVACGlobal->TimeStepSys * Constant::rSecsInHour;
 
     auto &ort = state->dataOutRptTab;
     OutputReportTabular::GetInputTabularMonthly(*state);
