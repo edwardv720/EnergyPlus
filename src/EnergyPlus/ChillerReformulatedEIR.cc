@@ -1469,7 +1469,7 @@ void ReformulatedEIRChillerSpecs::size(EnergyPlusData &state)
             this->CDPlantLoc.loopNum > 0
                 ? state.dataPlnt->PlantLoop(this->CDPlantLoc.loopNum).LoopSide(this->CDPlantLoc.loopSideNum).Branch(this->CDPlantLoc.branchNum).Name
                 : "N/A");
-        OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchChillerMinPLR, this->Name, this->ChillerEIRFPLRPLRMin);
+        OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchChillerMinPLR, this->Name, this->MinPartLoadRat);
         OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchChillerFuelType, this->Name, "Electricity");
         OutputReportPredefined::PreDefTableEntry(
             state, state.dataOutRptPredefined->pdchChillerRatedEntCondTemp, this->Name, this->TempRefCondIn); // Rated==Ref?
