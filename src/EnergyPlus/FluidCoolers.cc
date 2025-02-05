@@ -1945,10 +1945,11 @@ void FluidCoolerspecs::update(EnergyPlusData &state)
 
         if (this->OutletWaterTempErrorCount < 2) {
             ShowWarningError(state, format("{} \"{}\"", DataPlant::PlantEquipTypeNames[static_cast<int>(this->FluidCoolerType)], this->Name));
-            ShowContinueError(state,
-                              format(" Fluid cooler water outlet temperature ({.2F} C) is below the specified minimum condenser loop temp of {.2F} C",
-                                     this->OutletWaterTemp,
-                                     LoopMinTemp));
+            ShowContinueError(
+                state,
+                format(" Fluid cooler water outlet temperature ({:.2F} C) is below the specified minimum condenser loop temp of {:.2F} C",
+                       this->OutletWaterTemp,
+                       LoopMinTemp));
             ShowContinueErrorTimeStamp(state, "");
         } else {
             ShowRecurringWarningErrorAtEnd(
