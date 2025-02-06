@@ -66,7 +66,7 @@ struct HVACSystemRootFindingAlgorithm
 {
     std::string Algorithm = {}; // Choice of algorithm
     int NumOfIter = 5;          // Number of Iteration Before Algorith Switch
-    HVACSystemRootSolverAlgorithm HVACSystemRootSolver = HVACSystemRootSolverAlgorithm::RegulaFalsi;
+    HVACSystemRootSolverAlgorithm HVACSystemRootSolverMethod = HVACSystemRootSolverAlgorithm::RegulaFalsi;
 };
 struct RootFindingData : BaseGlobalStruct
 {

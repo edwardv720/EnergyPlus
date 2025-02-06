@@ -285,7 +285,7 @@ TEST_F(EnergyPlusFixture, extendedHI_find_eqvar)
 TEST_F(EnergyPlusFixture, extendedHI_find_T)
 {
     Real64 tol = 1e-7;
-    state->dataRootFinder->HVACSystemRootFinding.HVACSystemRootSolver = HVACSystemRootSolverAlgorithm::Bisection;
+    state->dataRootFinder->HVACSystemRootFinding.HVACSystemRootSolverMethod = HVACSystemRootSolverAlgorithm::Bisection;
     std::vector<Real64> Rf_values = {30, 32, 34, 36, 38};
     std::vector<Real64> result_0_rf = {240.0675404, 239.9711237, 239.8858108, 239.8097882, 239.7416167};
     for (size_t i = 0; i < Rf_values.size(); ++i) {
@@ -312,7 +312,7 @@ TEST_F(EnergyPlusFixture, extendedHI_find_T)
 TEST_F(EnergyPlusFixture, extendedHI_heatindex)
 {
 
-    state->dataRootFinder->HVACSystemRootFinding.HVACSystemRootSolver = HVACSystemRootSolverAlgorithm::Bisection;
+    state->dataRootFinder->HVACSystemRootFinding.HVACSystemRootSolverMethod = HVACSystemRootSolverAlgorithm::Bisection;
     std::vector<std::vector<Real64>> HI_values = {{199.9994, 199.9997, 200.0},
                                                   {209.9976, 209.9988, 210.0},
                                                   {219.9916, 219.9958, 220.0},
