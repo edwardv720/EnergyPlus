@@ -70,19 +70,19 @@ namespace ExtendedHI {
         Num
     };
 
-    Real64 pvstar(Real64 T);
-    Real64 Le(Real64 T);
-    Real64 Qv(Real64 Ta, Real64 Pa);
-    Real64 Zs(Real64 Rs);
-    Real64 Ra(Real64 Ts, Real64 Ta);
-    Real64 Ra_bar(Real64 Tf, Real64 Ta);
-    Real64 Ra_un(Real64 Ts, Real64 Ta);
-    Real64 find_eqvar_name_and_value(EnergyPlusData &state, Real64 Ta, Real64 RH, int &varname);
-    Real64 find_eqvar_phi(EnergyPlusData &state, Real64 Ta, Real64 RH);
-    Real64 find_eqvar_Rf(EnergyPlusData &state, Real64 Ta, Real64 RH);
-    Real64 find_eqvar_rs(EnergyPlusData &state, Real64 Ta, Real64 RH);
-    Real64 find_T(EnergyPlusData &state, int eqvar_name, Real64 eqvar);
-    Real64 heatindex(EnergyPlusData &state, Real64 Ta, Real64 RH);
+    Real64 pvstar(Real64 const T);
+    Real64 Le(Real64 const T);
+    Real64 Qv(Real64 const Ta, Real64 const Pa);
+    Real64 Zs(Real64 const Rs);
+    Real64 Ra(Real64 const Ts, Real64 const Ta);
+    Real64 Ra_bar(Real64 const Tf, Real64 const Ta);
+    Real64 Ra_un(Real64 const Ts, Real64 const Ta);
+    Real64 find_eqvar_name_and_value(EnergyPlusData &state, Real64 const Ta, Real64 const RH, int &varname);
+    Real64 find_eqvar_phi(EnergyPlusData &state, Real64 const Ta, Real64 const RH);
+    Real64 find_eqvar_Rf(EnergyPlusData &state, Real64 const Ta, Real64 const RH);
+    Real64 find_eqvar_rs(EnergyPlusData &state, Real64 const Ta, Real64 const RH);
+    Real64 find_T(EnergyPlusData &state, int const eqvar_name, Real64 const eqvar);
+    Real64 heatindex(EnergyPlusData &state, Real64 const Ta, Real64 const RH);
 
 } // namespace ExtendedHI
 } // namespace EnergyPlus

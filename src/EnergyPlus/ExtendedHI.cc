@@ -84,7 +84,7 @@ namespace ExtendedHI {
     constexpr Real64 cpv = cvv + rgasv;
 
     // The saturation vapor pressure
-    Real64 pvstar(Real64 T)
+    Real64 pvstar(Real64 const T)
     {
         if (T == 0.0) {
             return 0.0;
@@ -97,7 +97,7 @@ namespace ExtendedHI {
     }
 
     // The latent heat of vaporization of water
-    Real64 Le(Real64 T)
+    Real64 Le(Real64 const T)
     {
         return (E0v + (cvv - cvl) * (T - Ttrip) + rgasv * T);
     }
@@ -121,19 +121,19 @@ namespace ExtendedHI {
     constexpr Real64 Pa0 = 1.6e3;                     // Pa        , reference air vapor pressure in regions III, IV, V, VI, steadman1979
 
     // Function to calculate respiratory heat loss, W/m^2
-    Real64 Qv(Real64 Ta, Real64 Pa)
+    Real64 Qv(Real64 const Ta, Real64 const Pa)
     {
         return eta * Q * (cpa * (Tc - Ta) + L * rgasa / (p * rgasv) * (Pc - Pa));
     }
 
     // Function to calculate mass transfer resistance through skin, Pa m^2/W
-    Real64 Zs(Real64 Rs)
+    Real64 Zs(Real64 const Rs)
     {
         return (Rs == 0.0387) ? 52.1 : 6.0e8 * std::pow(Rs, 5);
     }
 
     // Function to calculate heat transfer resistance through air, exposed part of skin, K m^2/W
-    Real64 Ra(Real64 Ts, Real64 Ta)
+    Real64 Ra(Real64 const Ts, Real64 const Ta)
     {
         constexpr Real64 hc = 17.4;
         constexpr Real64 phi_rad = 0.85;
@@ -142,7 +142,7 @@ namespace ExtendedHI {
     }
 
     // Function to calculate heat transfer resistance through air, clothed part of skin, K m^2/W
-    Real64 Ra_bar(Real64 Tf, Real64 Ta)
+    Real64 Ra_bar(Real64 const Tf, Real64 const Ta)
     {
         constexpr Real64 hc = 11.6;
         constexpr Real64 phi_rad = 0.79;
@@ -151,7 +151,7 @@ namespace ExtendedHI {
     }
 
     // Function to calculate heat transfer resistance through air, when being naked, K m^2/W
-    Real64 Ra_un(Real64 Ts, Real64 Ta)
+    Real64 Ra_un(Real64 const Ts, Real64 const Ta)
     {
         constexpr Real64 hc = 12.3;
         constexpr Real64 phi_rad = 0.80;
@@ -165,7 +165,7 @@ namespace ExtendedHI {
 
     constexpr Real64 tol = 1e-8;
     constexpr Real64 maxIter = 100;
-    Real64 find_eqvar_phi(EnergyPlusData &state, Real64 Ta, Real64 RH)
+    Real64 find_eqvar_phi(EnergyPlusData &state, Real64 const Ta, Real64 const RH)
     {
 
         Real64 phi = 0.84;
@@ -191,7 +191,7 @@ namespace ExtendedHI {
         return phi;
     }
 
-    Real64 find_eqvar_Rf(EnergyPlusData &state, Real64 Ta, Real64 RH)
+    Real64 find_eqvar_Rf(EnergyPlusData &state, Real64 const Ta, Real64 const RH)
     {
         Real64 Pa = RH * pvstar(Ta);
         Real64 Rs = 0.0387;
@@ -246,7 +246,7 @@ namespace ExtendedHI {
         return Rf;
     }
 
-    Real64 find_eqvar_rs(EnergyPlusData &state, Real64 Ta, Real64 RH)
+    Real64 find_eqvar_rs(EnergyPlusData &state, Real64 const Ta, Real64 const RH)
     {
 
         Real64 Pa = RH * pvstar(Ta);
@@ -312,7 +312,7 @@ namespace ExtendedHI {
         return Rs;
     }
 
-    Real64 find_eqvar_dTcdt(EnergyPlusData &state, Real64 Ta, Real64 RH)
+    Real64 find_eqvar_dTcdt(EnergyPlusData &state, Real64 const Ta, Real64 const RH)
     {
         Real64 dTcdt = 0.0;
         Real64 Pa = RH * pvstar(Ta);
@@ -352,7 +352,7 @@ namespace ExtendedHI {
     }
 
     //    given T and RH, returns a key and value pair
-    Real64 find_eqvar_name_and_value(EnergyPlusData &state, Real64 Ta, Real64 RH, int &varname)
+    Real64 find_eqvar_name_and_value(EnergyPlusData &state, Real64 const Ta, Real64 const RH, int &varname)
     {
         Real64 Pa = RH * pvstar(Ta);
         Real64 Rs = 0.0387;
@@ -448,7 +448,7 @@ namespace ExtendedHI {
     }
 
     // Convert the find_T function
-    Real64 find_T(EnergyPlusData &state, int eqvar_name, Real64 eqvar)
+    Real64 find_T(EnergyPlusData &state, int const eqvar_name, Real64 const eqvar)
     {
         Real64 T;
         int SolFla;
@@ -477,7 +477,7 @@ namespace ExtendedHI {
         return T;
     }
 
-    Real64 heatindex(EnergyPlusData &state, Real64 Ta, Real64 RH)
+    Real64 heatindex(EnergyPlusData &state, Real64 const Ta, Real64 const RH)
     {
 
         // Ta: temperature in Kelvin
