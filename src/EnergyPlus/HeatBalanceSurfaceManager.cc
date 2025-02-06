@@ -87,7 +87,7 @@
 #include <EnergyPlus/DisplayRoutines.hh>
 #include <EnergyPlus/EcoRoofManager.hh>
 #include <EnergyPlus/ElectricBaseboardRadiator.hh>
-#include <EnergyPlus/ExtendedHI.hh>
+#include <EnergyPlus/ExtendedHeatIndex.hh>
 #include <EnergyPlus/FileSystem.hh>
 #include <EnergyPlus/HWBaseboardRadiator.hh>
 #include <EnergyPlus/HeatBalFiniteDiffManager.hh>

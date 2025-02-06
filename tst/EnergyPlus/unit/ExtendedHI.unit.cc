@@ -56,7 +56,7 @@
 // EnergyPlus Headers
 #include "Fixtures/EnergyPlusFixture.hh"
 #include <EnergyPlus/Data/EnergyPlusData.hh>
-#include <EnergyPlus/ExtendedHI.hh>
+#include <EnergyPlus/ExtendedHeatIndex.hh>
 #include <EnergyPlus/HVACSystemRootFindingAlgorithm.hh>
 #include <EnergyPlus/IceThermalStorage.hh>
 

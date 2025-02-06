@@ -62,7 +62,7 @@
 #include <cmath>
 
 #include <EnergyPlus/Data/EnergyPlusData.hh>
-#include <EnergyPlus/ExtendedHI.hh>
+#include <EnergyPlus/ExtendedHeatIndex.hh>
 #include <EnergyPlus/General.hh>
 #include <EnergyPlus/HVACSystemRootFindingAlgorithm.hh>
 
