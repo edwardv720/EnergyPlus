@@ -58,6 +58,7 @@
 #include <EnergyPlus/Data/EnergyPlusData.hh>
 #include <EnergyPlus/ExtendedHI.hh>
 #include <EnergyPlus/HVACSystemRootFindingAlgorithm.hh>
+#include <EnergyPlus/IceThermalStorage.hh>
 
 using namespace EnergyPlus;
 using namespace ExtendedHI;
@@ -373,11 +374,6 @@ Real64 calcHI(Real64 ZoneTF, Real64 ZoneRH)
     return HI;
 }
 
-constexpr Real64 Fahrenheit2Celsius(Real64 F)
-{
-    return (F - 32.0) * 5.0 / 9.0;
-}
-
 // compare different the old and new HI method
 TEST_F(EnergyPlusFixture, extendedHI_heatindex_compare)
 {
@@ -621,7 +617,7 @@ TEST_F(EnergyPlusFixture, extendedHI_heatindex_compare)
     Real64 extended;
     for (size_t i = 0; i < T_values.size(); ++i) {
         for (size_t j = 0; j < RH_values.size(); ++j) {
-            extended = ExtendedHI::heatindex(*state, Fahrenheit2Celsius(T_values[i]) + 273.15, RH_values[j] / 100.0);
+            extended = ExtendedHI::heatindex(*state, IceThermalStorage::TempIPtoSI(T_values[i]) + 273.15, RH_values[j] / 100.0);
             EXPECT_NEAR(HI_values[i][j], extended, 1e-4);
         }
     }
