@@ -137,7 +137,7 @@ namespace ExtendedHI {
     {
         constexpr Real64 hc = 17.4;
         constexpr Real64 phi_rad = 0.85;
-        Real64 hr = epsilon * phi_rad * sigma * (std::pow(Ts, 2) + std::pow(Ta, 2)) * (Ts + Ta);
+        Real64 const hr = epsilon * phi_rad * sigma * (std::pow(Ts, 2) + std::pow(Ta, 2)) * (Ts + Ta);
         return 1.0 / (hc + hr);
     }
 
@@ -146,7 +146,7 @@ namespace ExtendedHI {
     {
         constexpr Real64 hc = 11.6;
         constexpr Real64 phi_rad = 0.79;
-        Real64 hr = epsilon * phi_rad * sigma * (std::pow(Tf, 2) + std::pow(Ta, 2)) * (Tf + Ta);
+        Real64 const hr = epsilon * phi_rad * sigma * (std::pow(Tf, 2) + std::pow(Ta, 2)) * (Tf + Ta);
         return 1.0 / (hc + hr);
     }
 
@@ -155,7 +155,7 @@ namespace ExtendedHI {
     {
         constexpr Real64 hc = 12.3;
         constexpr Real64 phi_rad = 0.80;
-        Real64 hr = epsilon * phi_rad * sigma * (std::pow(Ts, 2) + std::pow(Ta, 2)) * (Ts + Ta);
+        Real64 const hr = epsilon * phi_rad * sigma * (std::pow(Ts, 2) + std::pow(Ta, 2)) * (Ts + Ta);
         return 1.0 / (hc + hr);
     }
 
@@ -169,10 +169,10 @@ namespace ExtendedHI {
     {
 
         Real64 phi = 0.84;
-        Real64 Pa = RH * pvstar(Ta);
-        Real64 Rs = 0.0387;
-        Real64 ZsRs = Zs(Rs);
-        Real64 m = (Pc - Pa) / (ZsRs + Za);
+        Real64 const Pa = RH * pvstar(Ta);
+        constexpr Real64 Rs = 0.0387;
+        Real64 const ZsRs = Zs(Rs);
+        Real64 const m = (Pc - Pa) / (ZsRs + Za);
         Real64 Ts;
         int SolFla;
         General::SolveRoot(
@@ -184,7 +184,7 @@ namespace ExtendedHI {
             [&](Real64 Ts) { return (Ts - Ta) / Ra(Ts, Ta) + (Pc - Pa) / (ZsRs + Za) - (Tc - Ts) / Rs; },
             std::max(0.0, std::min(Tc, Ta) - Rs * std::abs(m)),
             std::max(Tc, Ta) + Rs * std::abs(m));
-        Real64 flux1 = Q - Qv(Ta, Pa) - (1.0 - phi) * (Tc - Ts) / Rs;
+        Real64 const flux1 = Q - Qv(Ta, Pa) - (1.0 - phi) * (Tc - Ts) / Rs;
         if (flux1 <= 0.0) {
             phi = 1.0 - (Q - Qv(Ta, Pa)) * Rs / (Tc - Ts);
         }
@@ -194,11 +194,11 @@ namespace ExtendedHI {
     Real64 find_eqvar_Rf(EnergyPlusData &state, Real64 const Ta, Real64 const RH)
     {
         Real64 Pa = RH * pvstar(Ta);
-        Real64 Rs = 0.0387;
-        Real64 phi = 0.84;
-        Real64 ZsRs = Zs(Rs);
-        Real64 m_bar = (Pc - Pa) / (ZsRs + Za_bar);
-        Real64 m = (Pc - Pa) / (ZsRs + Za);
+        constexpr Real64 Rs = 0.0387;
+        constexpr Real64 phi = 0.84;
+        Real64 const ZsRs = Zs(Rs);
+        Real64 const m_bar = (Pc - Pa) / (ZsRs + Za_bar);
+        Real64 const m = (Pc - Pa) / (ZsRs + Za);
         Real64 Ts;
         int SolFla;
         General::SolveRoot(
@@ -220,13 +220,13 @@ namespace ExtendedHI {
             [&](Real64 Tf) { return (Tf - Ta) / Ra_bar(Tf, Ta) + (Pc - Pa) / (ZsRs + Za_bar) - (Tc - Tf) / Rs; },
             std::max(0.0, std::min(Tc, Ta) - Rs * std::abs(m_bar)),
             std::max(Tc, Ta) + Rs * std::abs(m_bar));
-        Real64 flux1 = Q - Qv(Ta, Pa) - (1.0 - phi) * (Tc - Ts) / Rs;
-        Real64 flux2 = Q - Qv(Ta, Pa) - (1.0 - phi) * (Tc - Ts) / Rs - phi * (Tc - Tf) / Rs;
+        Real64 const flux1 = Q - Qv(Ta, Pa) - (1.0 - phi) * (Tc - Ts) / Rs;
+        Real64 const flux2 = Q - Qv(Ta, Pa) - (1.0 - phi) * (Tc - Ts) / Rs - phi * (Tc - Tf) / Rs;
         Real64 Rf;
         if (flux1 <= 0.0) {
             Rf = std::numeric_limits<Real64>::infinity();
         } else if (flux2 <= 0.0) {
-            Real64 Ts_bar = Tc - (Q - Qv(Ta, Pa)) * Rs / phi + (1.0 / phi - 1.0) * (Tc - Ts);
+            Real64 const Ts_bar = Tc - (Q - Qv(Ta, Pa)) * Rs / phi + (1.0 / phi - 1.0) * (Tc - Ts);
             General::SolveRoot(
                 state,
                 tol,
@@ -250,11 +250,11 @@ namespace ExtendedHI {
     {
 
         Real64 Pa = RH * pvstar(Ta);
-        Real64 phi = 0.84;
+        constexpr Real64 phi = 0.84;
         Real64 Rs = 0.0387;
         Real64 ZsRs = Zs(Rs);
-        Real64 m = (Pc - Pa) / (ZsRs + Za);
-        Real64 m_bar = (Pc - Pa) / (ZsRs + Za_bar);
+        Real64 const m = (Pc - Pa) / (ZsRs + Za);
+        Real64 const m_bar = (Pc - Pa) / (ZsRs + Za_bar);
         Real64 Ts;
         int SolFla;
         General::SolveRoot(
@@ -276,9 +276,9 @@ namespace ExtendedHI {
             [&](Real64 Tf) { return (Tf - Ta) / Ra_bar(Tf, Ta) + (Pc - Pa) / (ZsRs + Za_bar) - (Tc - Tf) / Rs; },
             std::max(0.0, std::min(Tc, Ta) - Rs * std::abs(m_bar)),
             std::max(Tc, Ta) + Rs * std::abs(m_bar));
-        Real64 flux1 = Q - Qv(Ta, Pa) - (1.0 - phi) * (Tc - Ts) / Rs;
-        Real64 flux2 = Q - Qv(Ta, Pa) - (1.0 - phi) * (Tc - Ts) / Rs - phi * (Tc - Tf) / Rs;
-        Real64 flux3 = Q - Qv(Ta, Pa) - (Tc - Ta) / Ra_un(Tc, Ta) - (phi_salt * pvstar(Tc) - Pa) / Za_un;
+        Real64 const flux1 = Q - Qv(Ta, Pa) - (1.0 - phi) * (Tc - Ts) / Rs;
+        Real64 const flux2 = Q - Qv(Ta, Pa) - (1.0 - phi) * (Tc - Ts) / Rs - phi * (Tc - Tf) / Rs;
+        Real64 const flux3 = Q - Qv(Ta, Pa) - (Tc - Ta) / Ra_un(Tc, Ta) - (phi_salt * pvstar(Tc) - Pa) / Za_un;
         if (flux1 > 0 && flux2 > 0) {
             if (flux3 < 0.0) {
                 General::SolveRoot(
@@ -315,12 +315,12 @@ namespace ExtendedHI {
     Real64 find_eqvar_dTcdt(EnergyPlusData &state, Real64 const Ta, Real64 const RH)
     {
         Real64 dTcdt = 0.0;
-        Real64 Pa = RH * pvstar(Ta);
-        Real64 Rs = 0.0387;
-        Real64 ZsRs = Zs(Rs);
-        Real64 phi = 0.84;
-        Real64 m = (Pc - Pa) / (ZsRs + Za);
-        Real64 m_bar = (Pc - Pa) / (ZsRs + Za_bar);
+        Real64 const Pa = RH * pvstar(Ta);
+        constexpr Real64 Rs = 0.0387;
+        Real64 const ZsRs = Zs(Rs);
+        constexpr Real64 phi = 0.84;
+        Real64 const m = (Pc - Pa) / (ZsRs + Za);
+        Real64 const m_bar = (Pc - Pa) / (ZsRs + Za_bar);
         Real64 Ts;
         int SolFla;
         General::SolveRoot(
@@ -342,9 +342,9 @@ namespace ExtendedHI {
             [&](Real64 Tf) { return (Tf - Ta) / Ra_bar(Tf, Ta) + (Pc - Pa) / (ZsRs + Za_bar) - (Tc - Tf) / Rs; },
             std::max(0.0, std::min(Tc, Ta) - Rs * std::abs(m_bar)),
             std::max(Tc, Ta) + Rs * std::abs(m_bar));
-        Real64 flux1 = Q - Qv(Ta, Pa) - (1.0 - phi) * (Tc - Ts) / Rs;
-        Real64 flux2 = Q - Qv(Ta, Pa) - (1.0 - phi) * (Tc - Ts) / Rs - phi * (Tc - Tf) / Rs;
-        Real64 flux3 = Q - Qv(Ta, Pa) - (Tc - Ta) / Ra_un(Tc, Ta) - (phi_salt * pvstar(Tc) - Pa) / Za_un;
+        Real64 const flux1 = Q - Qv(Ta, Pa) - (1.0 - phi) * (Tc - Ts) / Rs;
+        Real64 const flux2 = Q - Qv(Ta, Pa) - (1.0 - phi) * (Tc - Ts) / Rs - phi * (Tc - Tf) / Rs;
+        Real64 const flux3 = Q - Qv(Ta, Pa) - (Tc - Ta) / Ra_un(Tc, Ta) - (phi_salt * pvstar(Tc) - Pa) / Za_un;
         if (flux1 > 0.0 && flux2 > 0.0 && flux3 >= 0.0) {
             dTcdt = (1.0 / C) * flux3;
         }
@@ -359,8 +359,8 @@ namespace ExtendedHI {
         Real64 phi = 0.84;
         Real64 dTcdt = 0.0;
         Real64 ZsRs = Zs(Rs);
-        Real64 m = (Pc - Pa) / (ZsRs + Za);
-        Real64 m_bar = (Pc - Pa) / (ZsRs + Za_bar);
+        Real64 const m = (Pc - Pa) / (ZsRs + Za);
+        Real64 const m_bar = (Pc - Pa) / (ZsRs + Za_bar);
 
         int SolFla;
         Real64 Ts;
@@ -384,8 +384,8 @@ namespace ExtendedHI {
             [&](Real64 Tf) { return (Tf - Ta) / Ra_bar(Tf, Ta) + (Pc - Pa) / (ZsRs + Za_bar) - (Tc - Tf) / Rs; },
             std::max(0.0, std::min(Tc, Ta) - Rs * std::abs(m_bar)),
             std::max(Tc, Ta) + Rs * std::abs(m_bar));
-        Real64 flux1 = Q - Qv(Ta, Pa) - (1.0 - phi) * (Tc - Ts) / Rs;
-        Real64 flux2 = Q - Qv(Ta, Pa) - (1.0 - phi) * (Tc - Ts) / Rs - phi * (Tc - Tf) / Rs;
+        Real64 const flux1 = Q - Qv(Ta, Pa) - (1.0 - phi) * (Tc - Ts) / Rs;
+        Real64 const flux2 = Q - Qv(Ta, Pa) - (1.0 - phi) * (Tc - Ts) / Rs - phi * (Tc - Tf) / Rs;
         Real64 Rf;
 
         if (flux1 <= 0.0) {
@@ -394,7 +394,7 @@ namespace ExtendedHI {
             return phi;
         } else if (flux2 <= 0.0) {
             varname = static_cast<int>(EqvarName::Rf);
-            Real64 Ts_bar = Tc - (Q - Qv(Ta, Pa)) * Rs / phi + (1.0 / phi - 1.0) * (Tc - Ts);
+            Real64 const Ts_bar = Tc - (Q - Qv(Ta, Pa)) * Rs / phi + (1.0 / phi - 1.0) * (Tc - Ts);
             General::SolveRoot(
                 state,
                 tol,
@@ -410,7 +410,7 @@ namespace ExtendedHI {
             Rf = Ra_bar(Tf, Ta) * (Ts_bar - Tf) / (Tf - Ta);
             return Rf;
         } else {
-            Real64 flux3 = Q - Qv(Ta, Pa) - (Tc - Ta) / Ra_un(Tc, Ta) - (phi_salt * pvstar(Tc) - Pa) / Za_un;
+            Real64 const flux3 = Q - Qv(Ta, Pa) - (Tc - Ta) / Ra_un(Tc, Ta) - (phi_salt * pvstar(Tc) - Pa) / Za_un;
             if (flux3 < 0.0) {
                 varname = static_cast<int>(EqvarName::Rs);
                 General::SolveRoot(
@@ -424,7 +424,7 @@ namespace ExtendedHI {
                     Tc);
                 Rs = (Tc - Ts) / (Q - Qv(Ta, Pa));
                 ZsRs = Zs(Rs);
-                Real64 Ps = Pc - (Pc - Pa) * ZsRs / (ZsRs + Za_un);
+                Real64 const Ps = Pc - (Pc - Pa) * ZsRs / (ZsRs + Za_un);
                 if (Ps > phi_salt * pvstar(Ts)) {
                     General::SolveRoot(
                         state,
@@ -487,7 +487,7 @@ namespace ExtendedHI {
         auto const HVACSystemRootSolverBackup = state.dataRootFinder->HVACSystemRootFinding.HVACSystemRootSolver;
         state.dataRootFinder->HVACSystemRootFinding.HVACSystemRootSolver = HVACSystemRootSolverAlgorithm::ShortBisectionThenRegulaFalsi;
         int eqvar_name = 0;
-        Real64 eqvar_value = find_eqvar_name_and_value(state, Ta, RH, eqvar_name);
+        Real64 const eqvar_value = find_eqvar_name_and_value(state, Ta, RH, eqvar_name);
 
         Real64 T = find_T(state, eqvar_name, eqvar_value);
 
