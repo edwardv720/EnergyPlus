@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -210,7 +210,7 @@ void ConstructionProps::calculateTransferFunction(EnergyPlusData &state, bool &E
 
         // Obtain thermal properties from the Material derived type
 
-        auto *thisMaterial = dynamic_cast<Material::MaterialChild *>(state.dataMaterial->Material(CurrentLayer));
+        auto *thisMaterial = state.dataMaterial->materials(CurrentLayer);
         assert(thisMaterial != nullptr);
 
         dl(Layer) = thisMaterial->Thickness;
@@ -289,7 +289,7 @@ void ConstructionProps::calculateTransferFunction(EnergyPlusData &state, bool &E
                 // then use the "exact" approach to model a massless layer
                 // based on the node equations for the state space method.
 
-                if ((Layer == 1) || (Layer == this->TotLayers) || (!state.dataMaterial->Material(this->LayerPoint(Layer))->ROnly)) {
+                if ((Layer == 1) || (Layer == this->TotLayers) || (!state.dataMaterial->materials(this->LayerPoint(Layer))->ROnly)) {
                     cp(Layer) = 1.007;
                     rho(Layer) = 1.1614;
                     rk(Layer) = 0.0263;
@@ -928,12 +928,12 @@ void ConstructionProps::calculateTransferFunction(EnergyPlusData &state, bool &E
                 if (this->CTFTimeStep >= MaxAllowedTimeStep) {
                     ShowSevereError(state, format("CTF calculation convergence problem for Construction=\"{}\".", this->Name));
                     ShowContinueError(state, "...with Materials (outside layer to inside)");
-                    ShowContinueError(state, format("(outside)=\"{}\"", state.dataMaterial->Material(this->LayerPoint(1))->Name));
+                    ShowContinueError(state, format("(outside)=\"{}\"", state.dataMaterial->materials(this->LayerPoint(1))->Name));
                     for (int Layer = 2; Layer <= this->TotLayers; ++Layer) {
                         if (Layer != this->TotLayers) {
-                            ShowContinueError(state, format("(next)=\"{}\"", state.dataMaterial->Material(this->LayerPoint(Layer))->Name));
+                            ShowContinueError(state, format("(next)=\"{}\"", state.dataMaterial->materials(this->LayerPoint(Layer))->Name));
                         } else {
-                            ShowContinueError(state, format("(inside)=\"{}\"", state.dataMaterial->Material(this->LayerPoint(Layer))->Name));
+                            ShowContinueError(state, format("(inside)=\"{}\"", state.dataMaterial->materials(this->LayerPoint(Layer))->Name));
                         }
                     }
                     ShowContinueError(state,
@@ -1875,9 +1875,9 @@ void ConstructionProps::reportTransferFunction(EnergyPlusData &state, int const 
 
     for (int I = 1; I <= this->TotLayers; ++I) {
         int Layer = this->LayerPoint(I);
-        auto const *thisMaterial = state.dataMaterial->Material(Layer);
+        auto const *thisMaterial = state.dataMaterial->materials(Layer);
         switch (thisMaterial->group) {
-        case Material::Group::Air: {
+        case Material::Group::AirGap: {
             static constexpr std::string_view Format_702(" Material:Air,{},{:12.4N}\n");
             print(state.files.eio, Format_702, thisMaterial->Name, thisMaterial->Resistance);
         } break;
@@ -1927,8 +1927,8 @@ void ConstructionProps::reportLayers(EnergyPlusData &state)
     if (state.dataOutRptPredefined->pdchOpqConsLayCol.size() > 0) {
         for (int i = 1; i <= this->TotLayers; ++i) {
             int layerIndex = this->LayerPoint(i);
-            auto &thisMaterial = state.dataMaterial->Material(layerIndex);
-            OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchOpqConsLayCol[i - 1], this->Name, thisMaterial->Name);
+            auto const *mat = state.dataMaterial->materials(layerIndex);
+            OutputReportPredefined::PreDefTableEntry(state, state.dataOutRptPredefined->pdchOpqConsLayCol[i - 1], this->Name, mat->Name);
         }
     }
 }
@@ -1942,10 +1942,9 @@ bool ConstructionProps::isGlazingConstruction(EnergyPlusData &state) const
     // PURPOSE OF THIS SUBROUTINE:
     // Commonly used routine in several places in EnergyPlus which examines if current
     // construction is glazing construction
-    const Material::Group MaterialGroup = state.dataMaterial->Material(LayerPoint(1))->group;
-    return (MaterialGroup == Material::Group::WindowGlass) || (MaterialGroup == Material::Group::Shade) ||
-           (MaterialGroup == Material::Group::Screen) || (MaterialGroup == Material::Group::WindowBlind) ||
-           (MaterialGroup == Material::Group::WindowSimpleGlazing);
+    const Material::Group group = state.dataMaterial->materials(LayerPoint(1))->group;
+    return (group == Material::Group::Glass) || (group == Material::Group::Shade) || (group == Material::Group::Screen) ||
+           (group == Material::Group::Blind) || (group == Material::Group::GlassSimple);
 }
 
 Real64 ConstructionProps::setThicknessPerpendicular(EnergyPlusData &state, Real64 userValue)
@@ -2015,10 +2014,7 @@ void ConstructionProps::setArraysBasedOnMaxSolidWinLayers(EnergyPlusData &state)
 {
     this->AbsDiff.allocate(state.dataHeatBal->MaxSolidWinLayers);
     this->AbsDiffBack.allocate(state.dataHeatBal->MaxSolidWinLayers);
-    this->BlAbsDiff.allocate(Material::MaxSlatAngs, state.dataHeatBal->MaxSolidWinLayers);
-    this->BlAbsDiffGnd.allocate(Material::MaxSlatAngs, state.dataHeatBal->MaxSolidWinLayers);
-    this->BlAbsDiffSky.allocate(Material::MaxSlatAngs, state.dataHeatBal->MaxSolidWinLayers);
-    this->BlAbsDiffBack.allocate(Material::MaxSlatAngs, state.dataHeatBal->MaxSolidWinLayers);
+    this->layerSlatBlindDfAbs.allocate(state.dataHeatBal->MaxSolidWinLayers);
     this->AbsBeamCoef.allocate(state.dataHeatBal->MaxSolidWinLayers);
     this->AbsBeamBackCoef.allocate(state.dataHeatBal->MaxSolidWinLayers);
     this->tBareSolCoef.allocate(state.dataHeatBal->MaxSolidWinLayers);
@@ -2029,44 +2025,32 @@ void ConstructionProps::setArraysBasedOnMaxSolidWinLayers(EnergyPlusData &state)
     this->rbBareVisCoef.allocate(state.dataHeatBal->MaxSolidWinLayers);
     this->afBareSolCoef.allocate(state.dataHeatBal->MaxSolidWinLayers);
     this->abBareSolCoef.allocate(state.dataHeatBal->MaxSolidWinLayers);
-    for (int Layer = 1; Layer <= state.dataHeatBal->MaxSolidWinLayers; ++Layer) {
-        this->AbsBeamCoef(Layer).allocate(DataSurfaces::MaxPolyCoeff);
-        this->AbsBeamBackCoef(Layer).allocate(DataSurfaces::MaxPolyCoeff);
-        this->tBareSolCoef(Layer).allocate(DataSurfaces::MaxPolyCoeff);
-        this->tBareVisCoef(Layer).allocate(DataSurfaces::MaxPolyCoeff);
-        this->rfBareSolCoef(Layer).allocate(DataSurfaces::MaxPolyCoeff);
-        this->rfBareVisCoef(Layer).allocate(DataSurfaces::MaxPolyCoeff);
-        this->rbBareSolCoef(Layer).allocate(DataSurfaces::MaxPolyCoeff);
-        this->rbBareVisCoef(Layer).allocate(DataSurfaces::MaxPolyCoeff);
-        this->afBareSolCoef(Layer).allocate(DataSurfaces::MaxPolyCoeff);
-        this->abBareSolCoef(Layer).allocate(DataSurfaces::MaxPolyCoeff);
-    }
 
     for (int Layer = 1; Layer <= state.dataHeatBal->MaxSolidWinLayers; ++Layer) {
         this->AbsDiff(Layer) = 0.0;
         this->AbsDiffBack(Layer) = 0.0;
     }
-    for (int Index = 1; Index <= Material::MaxSlatAngs; ++Index) {
-        for (int Layer = 1; Layer <= state.dataHeatBal->MaxSolidWinLayers; ++Layer) {
-            this->BlAbsDiff(Index, Layer) = 0.0;
-            this->BlAbsDiffGnd(Index, Layer) = 0.0;
-            this->BlAbsDiffSky(Index, Layer) = 0.0;
-            this->BlAbsDiffBack(Index, Layer) = 0.0;
+    for (int Layer = 1; Layer <= state.dataHeatBal->MaxSolidWinLayers; ++Layer) {
+        auto &slatBlindDfAbs = this->layerSlatBlindDfAbs(Layer);
+        for (int iSlatAng = 0; iSlatAng < Material::MaxSlatAngs; ++iSlatAng) {
+            auto &blindDfAbs = slatBlindDfAbs[iSlatAng];
+            blindDfAbs.Sol.Ft.Df.Abs = 0.0;
+            blindDfAbs.Sol.Ft.Df.AbsGnd = 0.0;
+            blindDfAbs.Sol.Ft.Df.AbsGnd = 0.0;
+            blindDfAbs.Sol.Bk.Df.Abs = 0.0;
         }
     }
     for (int Layer = 1; Layer <= state.dataHeatBal->MaxSolidWinLayers; ++Layer) {
-        for (int Index = 1; Index <= DataSurfaces::MaxPolyCoeff; ++Index) {
-            this->AbsBeamCoef(Layer)(Index) = 0.0;
-            this->AbsBeamBackCoef(Layer)(Index) = 0.0;
-            this->tBareSolCoef(Layer)(Index) = 0.0;
-            this->tBareVisCoef(Layer)(Index) = 0.0;
-            this->rfBareSolCoef(Layer)(Index) = 0.0;
-            this->rfBareVisCoef(Layer)(Index) = 0.0;
-            this->rbBareSolCoef(Layer)(Index) = 0.0;
-            this->rbBareVisCoef(Layer)(Index) = 0.0;
-            this->afBareSolCoef(Layer)(Index) = 0.0;
-            this->abBareSolCoef(Layer)(Index) = 0.0;
-        }
+        std::fill(this->AbsBeamCoef(Layer).begin(), this->AbsBeamCoef(Layer).end(), 0.0);
+        std::fill(this->AbsBeamBackCoef(Layer).begin(), this->AbsBeamBackCoef(Layer).end(), 0.0);
+        std::fill(this->tBareSolCoef(Layer).begin(), this->tBareSolCoef(Layer).end(), 0.0);
+        std::fill(this->tBareVisCoef(Layer).begin(), this->tBareVisCoef(Layer).end(), 0.0);
+        std::fill(this->rfBareSolCoef(Layer).begin(), this->rfBareSolCoef(Layer).end(), 0.0);
+        std::fill(this->rfBareVisCoef(Layer).begin(), this->rfBareVisCoef(Layer).end(), 0.0);
+        std::fill(this->rbBareSolCoef(Layer).begin(), this->rbBareSolCoef(Layer).end(), 0.0);
+        std::fill(this->rbBareVisCoef(Layer).begin(), this->rbBareVisCoef(Layer).end(), 0.0);
+        std::fill(this->afBareSolCoef(Layer).begin(), this->afBareSolCoef(Layer).end(), 0.0);
+        std::fill(this->abBareSolCoef(Layer).begin(), this->abBareSolCoef(Layer).end(), 0.0);
     }
 }
 

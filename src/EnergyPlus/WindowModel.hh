@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -60,24 +60,20 @@ namespace EnergyPlus {
 // Forward declarations
 struct EnergyPlusData;
 
-template <typename T> class EnumParser
-{
-    std::map<std::string, T> m_Map;
-
-public:
-    EnumParser(){};
-
-    T StringToEnum(EnergyPlusData &state, const std::string &value)
-    {
-        auto iValue = m_Map.find(value);
-        if (iValue == m_Map.end()) {
-            ShowFatalError(state, "Incorrect enumerator assigned.");
-        }
-        return iValue->second;
-    }
-};
-
 namespace Window {
+
+    enum class OpticalDataModel
+    {
+        Invalid = -1,
+        SpectralAverage,
+        Spectral,
+        BSDF,
+        SpectralAndAngle,
+        Num
+    };
+
+    extern const std::array<std::string_view, (int)OpticalDataModel::Num> opticalDataModelNames;
+    extern const std::array<std::string_view, (int)OpticalDataModel::Num> opticalDataModelNamesUC;
 
     enum class WindowsModel
     {
@@ -86,6 +82,8 @@ namespace Window {
         External,
         Num
     };
+
+    extern const std::array<std::string_view, (int)WindowsModel::Num> windowsModelNamesUC;
 
     // Class that reads IDF object and decides if interior or exterior window models
     // will be used.

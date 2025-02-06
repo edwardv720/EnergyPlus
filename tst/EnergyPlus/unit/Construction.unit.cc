@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -70,20 +70,30 @@ TEST_F(EnergyPlusFixture, Construction_reportLayers)
 
     SetPredefinedTables(*state);
 
-    m->TotMaterials = 8;
-    for (int i = 1; i <= m->TotMaterials; i++) {
-        Material::MaterialChild *p = new Material::MaterialChild;
-        m->Material.push_back(p);
-    }
-
-    m->Material(1)->Name = "mat a";
-    m->Material(2)->Name = "mat b";
-    m->Material(3)->Name = "mat c";
-    m->Material(4)->Name = "mat d";
-    m->Material(5)->Name = "mat e";
-    m->Material(6)->Name = "mat f";
-    m->Material(7)->Name = "mat g";
-    m->Material(8)->Name = "mat h";
+    auto *mata = new Material::MaterialBase;
+    mata->Name = "mat a";
+    m->materials.push_back(mata);
+    auto *matb = new Material::MaterialBase;
+    matb->Name = "mat b";
+    m->materials.push_back(matb);
+    auto *matc = new Material::MaterialBase;
+    matc->Name = "mat c";
+    m->materials.push_back(matc);
+    auto *matd = new Material::MaterialBase;
+    matd->Name = "mat d";
+    m->materials.push_back(matd);
+    auto *mate = new Material::MaterialBase;
+    mate->Name = "mat e";
+    m->materials.push_back(mate);
+    auto *matf = new Material::MaterialBase;
+    matf->Name = "mat f";
+    m->materials.push_back(matf);
+    auto *matg = new Material::MaterialBase;
+    matg->Name = "mat g";
+    m->materials.push_back(matg);
+    auto *math = new Material::MaterialBase;
+    math->Name = "mat h";
+    m->materials.push_back(math);
 
     c->Construct.allocate(3);
 

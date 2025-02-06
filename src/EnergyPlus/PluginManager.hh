@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -60,17 +60,10 @@
 #include <EnergyPlus/EnergyPlus.hh>
 
 #if LINK_WITH_PYTHON
-#ifdef _DEBUG
-// We don't want to try to import a debug build of Python here
-// so if we are building a Debug build of the C++ code, we need
-// to undefine _DEBUG during the #include command for Python.h.
-// Otherwise it will fail
-#undef _DEBUG
-#include <Python.h>
-#define _DEBUG
-#else
-#include <Python.h>
-#endif
+#    ifndef PyObject_HEAD
+struct _object;
+using PyObject = _object;
+#    endif
 #endif
 
 namespace EnergyPlus {
@@ -175,6 +168,7 @@ namespace PluginManagement {
 #endif
     };
 
+    // TODO: Make this use PythonEngine so we don't duplicate code
     class PluginManager
     {
     public:
@@ -251,6 +245,10 @@ struct PluginManagerData : BaseGlobalStruct
         "PythonPlugin:OutputVariable", "PythonPlugin:SearchPaths", "PythonPlugin:Instance", "PythonPlugin:Variables", "PythonPlugin:TrendVariable"};
 
     bool eplusRunningViaPythonAPI = false;
+
+    void init_constant_state([[maybe_unused]] EnergyPlusData &state) override
+    {
+    }
 
     void init_state([[maybe_unused]] EnergyPlusData &state) override
     {

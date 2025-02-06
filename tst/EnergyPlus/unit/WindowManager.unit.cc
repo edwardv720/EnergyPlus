@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -192,17 +192,16 @@ TEST_F(EnergyPlusFixture, WindowFrameTest)
                           "  autocalculate;           !- Volume {m3}"});
 
     ASSERT_TRUE(process_idf(idf_objects));
+    state->init_state(*state);
 
     createFacilityElectricPowerServiceObject(*state);
     HeatBalanceManager::SetPreConstructionInputParameters(*state);
-
-    Psychrometrics::InitializePsychRoutines(*state);
 
     state->dataGlobal->TimeStep = 1;
     state->dataGlobal->TimeStepZone = 1;
     state->dataGlobal->TimeStepZoneSec = 60.0;
     state->dataGlobal->HourOfDay = 1;
-    state->dataGlobal->NumOfTimeStepInHour = 1;
+    state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->BeginSimFlag = true;
     state->dataGlobal->BeginEnvrnFlag = true;
     state->dataEnvrn->OutBaroPress = 100000;
@@ -465,6 +464,7 @@ TEST_F(EnergyPlusFixture, WindowManager_RefAirTempTest)
                           "  autocalculate;           !- Volume {m3}"});
 
     ASSERT_TRUE(process_idf(idf_objects));
+    state->init_state(*state);
 
     state->dataHeatBal->ZoneIntGain.allocate(1);
 
@@ -476,13 +476,11 @@ TEST_F(EnergyPlusFixture, WindowManager_RefAirTempTest)
     HeatBalanceManager::GetConstructData(*state, ErrorsFound);
     HeatBalanceManager::GetBuildingData(*state, ErrorsFound);
 
-    Psychrometrics::InitializePsychRoutines(*state);
-
     state->dataGlobal->TimeStep = 1;
     state->dataGlobal->TimeStepZone = 1;
     state->dataGlobal->TimeStepZoneSec = 3600.0;
     state->dataGlobal->HourOfDay = 1;
-    state->dataGlobal->NumOfTimeStepInHour = 1;
+    state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->BeginSimFlag = true;
     state->dataGlobal->BeginEnvrnFlag = true;
     state->dataEnvrn->OutBaroPress = 100000;
@@ -2502,7 +2500,7 @@ TEST_F(EnergyPlusFixture, SpectralAngularPropertyTest)
     Curve::GetCurveInput(*state);
     state->dataCurveManager->GetCurvesInputFlag = false;
 
-    HeatBalanceManager::GetWindowGlassSpectralData(*state, FoundError);
+    Material::GetWindowGlassSpectralData(*state, FoundError);
     EXPECT_FALSE(FoundError);
     Material::GetMaterialData(*state, FoundError);
     EXPECT_FALSE(FoundError);
@@ -2521,14 +2519,14 @@ TEST_F(EnergyPlusFixture, SpectralAngularPropertyTest)
     state->dataSurfaceGeometry->CosZoneRelNorth.allocate(4);
     state->dataSurfaceGeometry->SinZoneRelNorth.allocate(4);
 
-    state->dataSurfaceGeometry->CosZoneRelNorth(1) = std::cos(-state->dataHeatBal->Zone(1).RelNorth * Constant::DegToRadians);
-    state->dataSurfaceGeometry->CosZoneRelNorth(2) = std::cos(-state->dataHeatBal->Zone(2).RelNorth * Constant::DegToRadians);
-    state->dataSurfaceGeometry->CosZoneRelNorth(3) = std::cos(-state->dataHeatBal->Zone(3).RelNorth * Constant::DegToRadians);
-    state->dataSurfaceGeometry->CosZoneRelNorth(4) = std::cos(-state->dataHeatBal->Zone(4).RelNorth * Constant::DegToRadians);
-    state->dataSurfaceGeometry->SinZoneRelNorth(1) = std::sin(-state->dataHeatBal->Zone(1).RelNorth * Constant::DegToRadians);
-    state->dataSurfaceGeometry->SinZoneRelNorth(2) = std::sin(-state->dataHeatBal->Zone(2).RelNorth * Constant::DegToRadians);
-    state->dataSurfaceGeometry->SinZoneRelNorth(3) = std::sin(-state->dataHeatBal->Zone(3).RelNorth * Constant::DegToRadians);
-    state->dataSurfaceGeometry->SinZoneRelNorth(4) = std::sin(-state->dataHeatBal->Zone(4).RelNorth * Constant::DegToRadians);
+    state->dataSurfaceGeometry->CosZoneRelNorth(1) = std::cos(-state->dataHeatBal->Zone(1).RelNorth * Constant::DegToRad);
+    state->dataSurfaceGeometry->CosZoneRelNorth(2) = std::cos(-state->dataHeatBal->Zone(2).RelNorth * Constant::DegToRad);
+    state->dataSurfaceGeometry->CosZoneRelNorth(3) = std::cos(-state->dataHeatBal->Zone(3).RelNorth * Constant::DegToRad);
+    state->dataSurfaceGeometry->CosZoneRelNorth(4) = std::cos(-state->dataHeatBal->Zone(4).RelNorth * Constant::DegToRad);
+    state->dataSurfaceGeometry->SinZoneRelNorth(1) = std::sin(-state->dataHeatBal->Zone(1).RelNorth * Constant::DegToRad);
+    state->dataSurfaceGeometry->SinZoneRelNorth(2) = std::sin(-state->dataHeatBal->Zone(2).RelNorth * Constant::DegToRad);
+    state->dataSurfaceGeometry->SinZoneRelNorth(3) = std::sin(-state->dataHeatBal->Zone(3).RelNorth * Constant::DegToRad);
+    state->dataSurfaceGeometry->SinZoneRelNorth(4) = std::sin(-state->dataHeatBal->Zone(4).RelNorth * Constant::DegToRad);
 
     state->dataSurfaceGeometry->CosBldgRelNorth = 1.0;
     state->dataSurfaceGeometry->SinBldgRelNorth = 0.0;
@@ -2699,7 +2697,8 @@ TEST_F(EnergyPlusFixture, WindowManager_SrdLWRTest)
                           "  autocalculate;           !- Volume {m3}"});
 
     ASSERT_TRUE(process_idf(idf_objects));
-    ScheduleManager::ProcessScheduleInput(*state);
+    state->init_state(*state);
+
     state->dataHeatBal->ZoneIntGain.allocate(1);
 
     createFacilityElectricPowerServiceObject(*state);
@@ -2714,7 +2713,7 @@ TEST_F(EnergyPlusFixture, WindowManager_SrdLWRTest)
     state->dataGlobal->TimeStepZone = 1;
     state->dataGlobal->TimeStepZoneSec = 3600.0;
     state->dataGlobal->HourOfDay = 1;
-    state->dataGlobal->NumOfTimeStepInHour = 1;
+    state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->BeginSimFlag = true;
     state->dataGlobal->BeginEnvrnFlag = true;
     state->dataEnvrn->OutBaroPress = 100000;
@@ -2724,8 +2723,6 @@ TEST_F(EnergyPlusFixture, WindowManager_SrdLWRTest)
     HeatBalanceSurfaceManager::AllocateSurfaceHeatBalArrays(*state);
 
     EXPECT_TRUE(state->dataGlobal->AnyLocalEnvironmentsInModel);
-
-    Psychrometrics::InitializePsychRoutines(*state);
 
     state->dataZoneEquip->ZoneEquipConfig.allocate(1);
     state->dataZoneEquip->ZoneEquipConfig(1).ZoneName = "Zone";
@@ -2805,7 +2802,7 @@ TEST_F(EnergyPlusFixture, WindowManager_SrdLWRTest)
 
     Real64 inSurfTemp;
     Real64 outSurfTemp;
-    state->dataScheduleMgr->Schedule(1).CurrentValue = 25.0; // Srd Srfs Temp
+    Sched::GetSchedule(*state, "SURROUNDING TEMP SCH 1")->currentVal = 25.0; // Srd Srfs Temp
     // Calculate temperature based on supply flow rate
 
     HeatBalanceSurfaceManager::InitSurfacePropertyViewFactors(*state);
@@ -3020,7 +3017,7 @@ TEST_F(EnergyPlusFixture, WindowManager_CalcNominalWindowCondAdjRatioTest)
     Real64 NominalConductanceSummer;
 
     MaterNum = state->dataConstruction->Construct(ConstrNum).LayerPoint(1);
-    auto *thisMaterial = dynamic_cast<Material::MaterialChild *>(state->dataMaterial->Material(MaterNum));
+    auto *thisMaterial = dynamic_cast<Material::MaterialGlass *>(state->dataMaterial->materials(MaterNum));
     // summer, adj ratio should stay the same, only change for winter
     state->dataHeatBal->CoeffAdjRatio(ConstrNum) = 1.5;
     CalcNominalWindowCond(*state, ConstrNum, 2, NominalConductanceSummer, SHGC, TransSolNorm, TransVisNorm, errFlag);
@@ -3031,7 +3028,7 @@ TEST_F(EnergyPlusFixture, WindowManager_CalcNominalWindowCondAdjRatioTest)
     std::array<Real64, 3> legalInputUs = {3.0, 5.0, 7.0};
     for (auto varyInputU : legalInputUs) {
         thisMaterial->SimpleWindowUfactor = varyInputU;
-        HeatBalanceManager::SetupSimpleWindowGlazingSystem(*state, MaterNum);
+        thisMaterial->SetupSimpleWindowGlazingSystem(*state);
         state->dataWindowManager->scon[0] = thisMaterial->Conductivity / thisMaterial->Thickness;
         CalcNominalWindowCond(*state, ConstrNum, 1, NominalConductanceWinter, SHGC, TransSolNorm, TransVisNorm, errFlag);
         EXPECT_NEAR(NominalConductanceWinter, varyInputU, 0.01);
@@ -3076,24 +3073,29 @@ TEST_F(EnergyPlusFixture, WindowMaterialComplexShadeTest)
     bool errors_found = false;
     Material::GetMaterialData(*state, errors_found);
     EXPECT_FALSE(errors_found);
-    EXPECT_EQ(state->dataMaterial->ComplexShade(1).Name, "SHADE_14_LAYER");
-    EXPECT_ENUM_EQ(state->dataMaterial->ComplexShade(1).LayerType, TARCOGParams::TARCOGLayerType::VENETBLIND_HORIZ);
-    EXPECT_NEAR(state->dataMaterial->ComplexShade(1).Thickness, 1.016000e-003, 1e-5);
-    EXPECT_NEAR(state->dataMaterial->ComplexShade(1).Conductivity, 1.592276e+002, 1e-5);
-    EXPECT_NEAR(state->dataMaterial->ComplexShade(1).IRTransmittance, 0, 1e-5);
-    EXPECT_NEAR(state->dataMaterial->ComplexShade(1).FrontEmissivity, 0.9, 1e-5);
-    EXPECT_NEAR(state->dataMaterial->ComplexShade(1).BackEmissivity, 0.9, 1e-5);
-    EXPECT_NEAR(state->dataMaterial->ComplexShade(1).TopOpeningMultiplier, 0, 1e-5);
-    EXPECT_NEAR(state->dataMaterial->ComplexShade(1).BottomOpeningMultiplier, 0, 1e-5);
-    EXPECT_NEAR(state->dataMaterial->ComplexShade(1).LeftOpeningMultiplier, 0, 1e-5);
-    EXPECT_NEAR(state->dataMaterial->ComplexShade(1).RightOpeningMultiplier, 0, 1e-5);
-    EXPECT_NEAR(state->dataMaterial->ComplexShade(1).FrontOpeningMultiplier, 5.000000e-002, 1e-5);
-    EXPECT_NEAR(state->dataMaterial->ComplexShade(1).SlatWidth, 0.0254, 1e-5);
-    EXPECT_NEAR(state->dataMaterial->ComplexShade(1).SlatSpacing, 0.0201, 1e-5);
-    EXPECT_NEAR(state->dataMaterial->ComplexShade(1).SlatThickness, 0.0010, 1e-5);
-    EXPECT_NEAR(state->dataMaterial->ComplexShade(1).SlatAngle, 45.0, 1e-5);
-    EXPECT_NEAR(state->dataMaterial->ComplexShade(1).SlatConductivity, 159.2276, 1e-5);
-    EXPECT_NEAR(state->dataMaterial->ComplexShade(1).SlatCurve, 0, 1e-5);
+
+    auto &s_mat = state->dataMaterial;
+    auto const *matComplexShade = dynamic_cast<Material::MaterialComplexShade const *>(s_mat->materials(1));
+    assert(matComplexShade != nullptr);
+
+    EXPECT_EQ(matComplexShade->Name, "SHADE_14_LAYER");
+    EXPECT_ENUM_EQ(matComplexShade->LayerType, TARCOGParams::TARCOGLayerType::VENETBLIND_HORIZ);
+    EXPECT_NEAR(matComplexShade->Thickness, 1.016000e-003, 1e-5);
+    EXPECT_NEAR(matComplexShade->Conductivity, 1.592276e+002, 1e-5);
+    EXPECT_NEAR(matComplexShade->TransThermal, 0, 1e-5);
+    EXPECT_NEAR(matComplexShade->FrontEmissivity, 0.9, 1e-5);
+    EXPECT_NEAR(matComplexShade->BackEmissivity, 0.9, 1e-5);
+    EXPECT_NEAR(matComplexShade->topOpeningMult, 0, 1e-5);
+    EXPECT_NEAR(matComplexShade->bottomOpeningMult, 0, 1e-5);
+    EXPECT_NEAR(matComplexShade->leftOpeningMult, 0, 1e-5);
+    EXPECT_NEAR(matComplexShade->rightOpeningMult, 0, 1e-5);
+    EXPECT_NEAR(matComplexShade->frontOpeningMult, 5.000000e-002, 1e-5);
+    EXPECT_NEAR(matComplexShade->SlatWidth, 0.0254, 1e-5);
+    EXPECT_NEAR(matComplexShade->SlatSpacing, 0.0201, 1e-5);
+    EXPECT_NEAR(matComplexShade->SlatThickness, 0.0010, 1e-5);
+    EXPECT_NEAR(matComplexShade->SlatAngle, 45.0, 1e-5);
+    EXPECT_NEAR(matComplexShade->SlatConductivity, 159.2276, 1e-5);
+    EXPECT_NEAR(matComplexShade->SlatCurve, 0, 1e-5);
 }
 
 TEST_F(EnergyPlusFixture, SetupComplexWindowStateGeometry_Test)
@@ -7637,17 +7639,16 @@ TEST_F(EnergyPlusFixture, CFS_InteriorSolarDistribution_Test)
                           "    2.500000, 0.790000, 0.053000, 0.063000;                          !- N1764"});
 
     ASSERT_TRUE(process_idf(idf_objects));
+    state->init_state(*state);
 
     createFacilityElectricPowerServiceObject(*state);
     HeatBalanceManager::SetPreConstructionInputParameters(*state);
-
-    Psychrometrics::InitializePsychRoutines(*state);
 
     state->dataGlobal->TimeStep = 1;
     state->dataGlobal->TimeStepZone = 1;
     state->dataGlobal->TimeStepZoneSec = 60.0;
     state->dataGlobal->HourOfDay = 1;
-    state->dataGlobal->NumOfTimeStepInHour = 1;
+    state->dataGlobal->TimeStepsInHour = 1;
     state->dataGlobal->BeginSimFlag = true;
     state->dataGlobal->BeginEnvrnFlag = true;
     state->dataEnvrn->OutBaroPress = 101325.0;

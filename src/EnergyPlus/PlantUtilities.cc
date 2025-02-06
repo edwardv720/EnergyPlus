@@ -1,4 +1,4 @@
-// EnergyPlus, Copyright (c) 1996-2024, The Board of Trustees of the University of Illinois,
+// EnergyPlus, Copyright (c) 1996-2025, The Board of Trustees of the University of Illinois,
 // The Regents of the University of California, through Lawrence Berkeley National Laboratory
 // (subject to receipt of any required approvals from the U.S. Dept. of Energy), Oak Ridge
 // National Laboratory, managed by UT-Battelle, Alliance for Sustainable Energy, LLC, and other
@@ -148,7 +148,7 @@ void SetComponentFlowRate(EnergyPlusData &state,
 
     Real64 const MdotOldRequest = state.dataLoopNodes->Node(InletNode).MassFlowRateRequest;
     auto &loop_side = state.dataPlnt->PlantLoop(plantLoc.loopNum).LoopSide(plantLoc.loopSideNum);
-    auto &comp = loop_side.Branch(plantLoc.branchNum).Comp(plantLoc.compNum);
+    auto const &comp = loop_side.Branch(plantLoc.branchNum).Comp(plantLoc.compNum);
 
     if (comp.CurOpSchemeType == DataPlant::OpScheme::Demand) {
         // store flow request on inlet node
@@ -202,9 +202,9 @@ void SetComponentFlowRate(EnergyPlusData &state,
                 bool EMSLoadOverride = false;
 
                 for (int CompNum = 1; CompNum <= loop_side.Branch(plantLoc.branchNum).TotalComponents; ++CompNum) {
-                    auto &thisComp = loop_side.Branch(plantLoc.branchNum).Comp(CompNum);
+                    auto const &thisComp = loop_side.Branch(plantLoc.branchNum).Comp(CompNum);
                     int const CompInletNodeNum = thisComp.NodeNumIn;
-                    auto &thisInletNode = state.dataLoopNodes->Node(CompInletNodeNum);
+                    auto const &thisInletNode = state.dataLoopNodes->Node(CompInletNodeNum);
                     SeriesBranchHighFlowRequest = max(thisInletNode.MassFlowRateRequest, SeriesBranchHighFlowRequest);
                     SeriesBranchHardwareMaxLim = min(thisInletNode.MassFlowRateMax, SeriesBranchHardwareMaxLim);
                     SeriesBranchHardwareMinLim = max(thisInletNode.MassFlowRateMin, SeriesBranchHardwareMinLim);
@@ -231,7 +231,7 @@ void SetComponentFlowRate(EnergyPlusData &state,
                 state.dataLoopNodes->Node(OutletNode).MassFlowRate = CompFlow;
                 state.dataLoopNodes->Node(InletNode).MassFlowRate = state.dataLoopNodes->Node(OutletNode).MassFlowRate;
                 for (int CompNum = 1; CompNum <= loop_side.Branch(plantLoc.branchNum).TotalComponents; ++CompNum) {
-                    auto &thisComp = loop_side.Branch(plantLoc.branchNum).Comp(CompNum);
+                    auto const &thisComp = loop_side.Branch(plantLoc.branchNum).Comp(CompNum);
                     int const CompInletNodeNum = thisComp.NodeNumIn;
                     int const CompOutletNodeNum = thisComp.NodeNumOut;
                     state.dataLoopNodes->Node(CompInletNodeNum).MassFlowRate = state.dataLoopNodes->Node(OutletNode).MassFlowRate;
@@ -253,7 +253,7 @@ void SetComponentFlowRate(EnergyPlusData &state,
 
                 for (int CompNum = 1; CompNum <= loop_side.Branch(plantLoc.branchNum).TotalComponents; ++CompNum) {
                     // check to see if any component on branch uses EMS On/Off Supervisory control to shut down flow
-                    auto &thisComp = loop_side.Branch(plantLoc.branchNum).Comp(CompNum);
+                    auto const &thisComp = loop_side.Branch(plantLoc.branchNum).Comp(CompNum);
                     if (thisComp.EMSLoadOverrideOn && thisComp.EMSLoadOverrideValue == 0.0) EMSLoadOverride = true;
                 }
 
@@ -525,22 +525,16 @@ void CheckPlantMixerSplitterConsistency(EnergyPlusData &state,
     using DataPlant::CriteriaDelta_MassFlowRate;
 
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-    int MixerOutletNode;
-    int SplitterInletNode;
     Real64 AbsDifference;
-    int NumSplitterOutlets;
     Real64 SumOutletFlow;
-    int OutletNum;
-    int BranchNum;
-    int LastNodeOnBranch;
 
     if (!state.dataPlnt->PlantLoop(LoopNum).LoopHasConnectionComp) {
         if (!state.dataGlobal->DoingSizing && !state.dataGlobal->WarmupFlag &&
             state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideNum).Mixer.Exists && !FirstHVACIteration) {
             // Find mixer outlet node number
-            MixerOutletNode = state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideNum).Mixer.NodeNumOut;
+            int MixerOutletNode = state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideNum).Mixer.NodeNumOut;
             // Find splitter inlet node number
-            SplitterInletNode = state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideNum).Splitter.NodeNumIn;
+            int SplitterInletNode = state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideNum).Splitter.NodeNumIn;
 
             AbsDifference =
                 std::abs(state.dataLoopNodes->Node(SplitterInletNode).MassFlowRate - state.dataLoopNodes->Node(MixerOutletNode).MassFlowRate);
@@ -588,12 +582,12 @@ void CheckPlantMixerSplitterConsistency(EnergyPlusData &state,
             // now check inside s/m to see if there are problems
 
             // loop across branch outlet nodes and check mass continuity
-            NumSplitterOutlets = state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideNum).Splitter.TotalOutletNodes;
+            int NumSplitterOutlets = state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideNum).Splitter.TotalOutletNodes;
             SumOutletFlow = 0.0;
             //  SumInletFlow = 0.0;
-            for (OutletNum = 1; OutletNum <= NumSplitterOutlets; ++OutletNum) {
-                BranchNum = state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideNum).Splitter.BranchNumOut(OutletNum);
-                LastNodeOnBranch = state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideNum).Branch(BranchNum).NodeNumOut;
+            for (int OutletNum = 1; OutletNum <= NumSplitterOutlets; ++OutletNum) {
+                int BranchNum = state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideNum).Splitter.BranchNumOut(OutletNum);
+                int LastNodeOnBranch = state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSideNum).Branch(BranchNum).NodeNumOut;
                 SumOutletFlow += state.dataLoopNodes->Node(LastNodeOnBranch).MassFlowRate;
                 //  FirstNodeOnBranch= PlantLoop(LoopNum)%LoopSide(LoopSideNum)%Branch(BranchNum)%NodeNumIn
                 //  SumInletFlow = SumInletFlow + Node(FirstNodeOnBranch)%MassFlowRate
@@ -666,8 +660,6 @@ void CheckForRunawayPlantTemps(EnergyPlusData &state, int const LoopNum, const D
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
     std::string hotcold;
     bool makefatalerror;
-    int BrN;
-    int CpN;
     Real64 LoopCapacity;
     Real64 LoopDemandSideCapacity;
     Real64 LoopSupplySideCapacity;
@@ -777,8 +769,8 @@ void CheckForRunawayPlantTemps(EnergyPlusData &state, int const LoopNum, const D
         LoopCapacity = 0.0;
         DispatchedCapacity = 0.0;
         for (DataPlant::LoopSideLocation LSN : DataPlant::LoopSideKeys) {
-            for (BrN = 1; BrN <= state.dataPlnt->PlantLoop(LoopNum).LoopSide(LSN).TotalBranches; ++BrN) {
-                for (CpN = 1; CpN <= state.dataPlnt->PlantLoop(LoopNum).LoopSide(LSN).Branch(BrN).TotalComponents; ++CpN) {
+            for (int BrN = 1; BrN <= state.dataPlnt->PlantLoop(LoopNum).LoopSide(LSN).TotalBranches; ++BrN) {
+                for (int CpN = 1; CpN <= state.dataPlnt->PlantLoop(LoopNum).LoopSide(LSN).Branch(BrN).TotalComponents; ++CpN) {
                     LoopCapacity += state.dataPlnt->PlantLoop(LoopNum).LoopSide(LSN).Branch(BrN).Comp(CpN).MaxLoad;
                     DispatchedCapacity += std::abs(state.dataPlnt->PlantLoop(LoopNum).LoopSide(LSN).Branch(BrN).Comp(CpN).MyLoad);
                 }
@@ -868,8 +860,6 @@ void PullCompInterconnectTrigger(EnergyPlusData &state,
     // SUBROUTINE INFORMATION:
     //       AUTHOR         Edwin Lee
     //       DATE WRITTEN   September 2010
-    //       MODIFIED       na
-    //       RE-ENGINEERED  na
 
     // PURPOSE OF THIS SUBROUTINE:
     // Provides a generic means for components to trigger interconnected loop sides sim flags
@@ -889,13 +879,6 @@ void PullCompInterconnectTrigger(EnergyPlusData &state,
     //  associated component.  Therefore whenever we come in with a non-zero index, we will just
     //  verify that the stored loop/side/branch/comp matches
 
-    // Using/Aliasing
-    using DataPlant::CriteriaDelta_HeatTransferRate;
-    using DataPlant::CriteriaDelta_MassFlowRate;
-    using DataPlant::CriteriaDelta_Temperature;
-
-    CriteriaData CurCriteria; // for convenience
-
     if (UniqueCriteriaCheckIndex <= 0) { // If we don't yet have an index, we need to initialize
 
         // We need to start by allocating, or REallocating the array
@@ -905,9 +888,10 @@ void PullCompInterconnectTrigger(EnergyPlusData &state,
         // Store the unique name and location
         state.dataPlantUtilities->CriteriaChecks(CurrentNumChecksStored).CallingCompLoopNum = plantLoc.loopNum;
         state.dataPlantUtilities->CriteriaChecks(CurrentNumChecksStored).CallingCompLoopSideNum = plantLoc.loopSideNum;
-        state.dataPlantUtilities->CriteriaChecks(CurrentNumChecksStored).CallingCompBranchNum = plantLoc.branchNum;
-        state.dataPlantUtilities->CriteriaChecks(CurrentNumChecksStored).CallingCompCompNum = plantLoc.compNum;
 
+        if (plantLoc.loopNum == 0 || plantLoc.loopSideNum == DataPlant::LoopSideLocation::Invalid) {
+            assert(false); // check that component has been set up correctly
+        }
         // Since this was the first pass, it is safe to assume something has changed!
         // Therefore we'll set the sim flag to true
         state.dataPlnt->PlantLoop(ConnectedPlantLoc.loopNum).LoopSide(ConnectedPlantLoc.loopSideNum).SimLoopSideNeeded = true;
@@ -921,33 +905,27 @@ void PullCompInterconnectTrigger(EnergyPlusData &state,
         //  sim flag status based on the criteria type
 
         // First store the current check in a single variable instead of array for readability
-        CurCriteria = state.dataPlantUtilities->CriteriaChecks(UniqueCriteriaCheckIndex);
-
-        // Check to make sure we didn't reuse the index in multiple components
-        if (CurCriteria.CallingCompLoopNum != plantLoc.loopNum || CurCriteria.CallingCompLoopSideNum != plantLoc.loopSideNum ||
-            CurCriteria.CallingCompBranchNum != plantLoc.branchNum || CurCriteria.CallingCompCompNum != plantLoc.compNum) {
-            // Diagnostic fatal: component does not properly utilize unique indexing
-        }
+        CriteriaData CurCriteria = state.dataPlantUtilities->CriteriaChecks(UniqueCriteriaCheckIndex);
 
         // Initialize, then check if we are out of range
         switch (CriteriaType) {
         case DataPlant::CriteriaType::MassFlowRate: {
-            if (std::abs(CurCriteria.ThisCriteriaCheckValue - CriteriaValue) > CriteriaDelta_MassFlowRate) {
+            if (std::abs(CurCriteria.ThisCriteriaCheckValue - CriteriaValue) > DataPlant::CriteriaDelta_MassFlowRate) {
                 state.dataPlnt->PlantLoop(ConnectedPlantLoc.loopNum).LoopSide(ConnectedPlantLoc.loopSideNum).SimLoopSideNeeded = true;
             }
         } break;
         case DataPlant::CriteriaType::Temperature: {
-            if (std::abs(CurCriteria.ThisCriteriaCheckValue - CriteriaValue) > CriteriaDelta_Temperature) {
+            if (std::abs(CurCriteria.ThisCriteriaCheckValue - CriteriaValue) > DataPlant::CriteriaDelta_Temperature) {
                 state.dataPlnt->PlantLoop(ConnectedPlantLoc.loopNum).LoopSide(ConnectedPlantLoc.loopSideNum).SimLoopSideNeeded = true;
             }
         } break;
         case DataPlant::CriteriaType::HeatTransferRate: {
-            if (std::abs(CurCriteria.ThisCriteriaCheckValue - CriteriaValue) > CriteriaDelta_HeatTransferRate) {
+            if (std::abs(CurCriteria.ThisCriteriaCheckValue - CriteriaValue) > DataPlant::CriteriaDelta_HeatTransferRate) {
                 state.dataPlnt->PlantLoop(ConnectedPlantLoc.loopNum).LoopSide(ConnectedPlantLoc.loopSideNum).SimLoopSideNeeded = true;
             }
         } break;
         default:
-            // Diagnostic fatal: improper criteria type
+            assert(false);
             break;
         }
 
@@ -984,17 +962,12 @@ void UpdateChillerComponentCondenserSide(EnergyPlusData &state,
     // check if anything changed or doesn't agree and set simulation flags.
     // update outlet conditions if needed or possible
 
-    // Using/Aliasing
-    using FluidProperties::GetSpecificHeatGlycol;
-
     // SUBROUTINE PARAMETER DEFINITIONS:
     static constexpr std::string_view RoutineName("UpdateChillerComponentCondenserSide");
 
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
     bool DidAnythingChange(false);             // set to true if conditions changed
-    int OtherLoopNum;                          // local loop pointer for remote connected loop
     DataPlant::LoopSideLocation OtherLoopSide; // local loop side pointer for remote connected loop
-    int ConnectLoopNum;                        // local do loop counter
     Real64 Cp;
 
     // check if any conditions have changed
@@ -1019,8 +992,7 @@ void UpdateChillerComponentCondenserSide(EnergyPlusData &state,
         // use current mass flow rate and inlet temp from Node and recalculate outlet temp
         if (state.dataLoopNodes->Node(InletNodeNum).MassFlowRate > DataBranchAirLoopPlant::MassFlowTolerance) {
             // update node outlet conditions
-            Cp = GetSpecificHeatGlycol(
-                state, state.dataPlnt->PlantLoop(LoopNum).FluidName, ModelInletTemp, state.dataPlnt->PlantLoop(LoopNum).FluidIndex, RoutineName);
+            Cp = state.dataPlnt->PlantLoop(LoopNum).glycol->getSpecificHeat(state, ModelInletTemp, RoutineName);
             state.dataLoopNodes->Node(OutletNodeNum).Temp =
                 state.dataLoopNodes->Node(InletNodeNum).Temp + ModelCondenserHeatRate / (state.dataLoopNodes->Node(InletNodeNum).MassFlowRate * Cp);
         }
@@ -1034,12 +1006,12 @@ void UpdateChillerComponentCondenserSide(EnergyPlusData &state,
 
         // set sim flag on connected loops to true because this side changed
         if (state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSide).TotalConnected > 0) {
-            for (ConnectLoopNum = 1; ConnectLoopNum <= state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSide).TotalConnected; ++ConnectLoopNum) {
+            for (int ConnectLoopNum = 1; ConnectLoopNum <= state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSide).TotalConnected; ++ConnectLoopNum) {
                 // see 10133
                 if (state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSide).Connected(ConnectLoopNum).LoopDemandsOnRemote) {
                     // full chiller model is not really run when called from the condenser side and the chiller evap loop puts demand on the condenser
                     // loop, so this logic is flawed, remove if statement so evap side gets simulated again
-                    OtherLoopNum = state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSide).Connected(ConnectLoopNum).LoopNum;
+                    int OtherLoopNum = state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSide).Connected(ConnectLoopNum).LoopNum;
                     OtherLoopSide = state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSide).Connected(ConnectLoopNum).LoopSideNum;
                     state.dataPlnt->PlantLoop(OtherLoopNum).LoopSide(OtherLoopSide).SimLoopSideNeeded = true;
                 }
@@ -1078,17 +1050,12 @@ void UpdateComponentHeatRecoverySide(EnergyPlusData &state,
     // check if anything changed or doesn't agree and set simulation flags.
     // update outlet conditions if needed or possible
 
-    // Using/Aliasing
-    using FluidProperties::GetSpecificHeatGlycol;
-
     // SUBROUTINE PARAMETER DEFINITIONS:
     static constexpr std::string_view RoutineName("UpdateComponentHeatRecoverySide");
 
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
     bool DidAnythingChange(false);             // set to true if conditions changed
-    int OtherLoopNum;                          // local loop pointer for remote connected loop
     DataPlant::LoopSideLocation OtherLoopSide; // local loop side pointer for remote connected loop
-    int ConnectLoopNum;                        // local do loop counter
     Real64 Cp;                                 // local fluid specific heat
 
     // check if any conditions have changed
@@ -1112,8 +1079,7 @@ void UpdateComponentHeatRecoverySide(EnergyPlusData &state,
         // use current mass flow rate and inlet temp from Node and recalculate outlet temp
         if (state.dataLoopNodes->Node(InletNodeNum).MassFlowRate > DataBranchAirLoopPlant::MassFlowTolerance) {
             // update node outlet conditions
-            Cp = GetSpecificHeatGlycol(
-                state, state.dataPlnt->PlantLoop(LoopNum).FluidName, ModelInletTemp, state.dataPlnt->PlantLoop(LoopNum).FluidIndex, RoutineName);
+            Cp = state.dataPlnt->PlantLoop(LoopNum).glycol->getSpecificHeat(state, ModelInletTemp, RoutineName);
             state.dataLoopNodes->Node(OutletNodeNum).Temp =
                 state.dataLoopNodes->Node(InletNodeNum).Temp + ModelRecoveryHeatRate / (state.dataLoopNodes->Node(InletNodeNum).MassFlowRate * Cp);
         }
@@ -1127,12 +1093,12 @@ void UpdateComponentHeatRecoverySide(EnergyPlusData &state,
 
         // set sim flag on connected loops to true because this side changed
         if (state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSide).TotalConnected > 0) {
-            for (ConnectLoopNum = 1; ConnectLoopNum <= state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSide).TotalConnected; ++ConnectLoopNum) {
+            for (int ConnectLoopNum = 1; ConnectLoopNum <= state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSide).TotalConnected; ++ConnectLoopNum) {
                 // see 10133
                 if (state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSide).Connected(ConnectLoopNum).LoopDemandsOnRemote) {
                     // full chiller model is not really run when called from the heat recovery side and the chiller evap loop puts demand on the heat
                     // recovery loop, so this logic is flawed, remove if statement so evap side gets simulated again
-                    OtherLoopNum = state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSide).Connected(ConnectLoopNum).LoopNum;
+                    int OtherLoopNum = state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSide).Connected(ConnectLoopNum).LoopNum;
                     OtherLoopSide = state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSide).Connected(ConnectLoopNum).LoopSideNum;
                     state.dataPlnt->PlantLoop(OtherLoopNum).LoopSide(OtherLoopSide).SimLoopSideNeeded = true;
                 }
@@ -1172,9 +1138,7 @@ void UpdateAbsorberChillerComponentGeneratorSide(EnergyPlusData &state,
 
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
     bool DidAnythingChange(false);             // set to true if conditions changed
-    int OtherLoopNum;                          // local loop pointer for remote connected loop
     DataPlant::LoopSideLocation OtherLoopSide; // local loop side pointer for remote connected loop
-    int ConnectLoopNum;                        // local do loop counter
 
     // check if any conditions have changed
     if (state.dataLoopNodes->Node(InletNodeNum).MassFlowRate != ModelMassFlowRate) DidAnythingChange = true;
@@ -1193,9 +1157,9 @@ void UpdateAbsorberChillerComponentGeneratorSide(EnergyPlusData &state,
 
         // set sim flag on connected loops to true because this side changed
         if (state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSide).TotalConnected > 0) {
-            for (ConnectLoopNum = 1; ConnectLoopNum <= state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSide).TotalConnected; ++ConnectLoopNum) {
+            for (int ConnectLoopNum = 1; ConnectLoopNum <= state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSide).TotalConnected; ++ConnectLoopNum) {
                 if (state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSide).Connected(ConnectLoopNum).LoopDemandsOnRemote) {
-                    OtherLoopNum = state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSide).Connected(ConnectLoopNum).LoopNum;
+                    int OtherLoopNum = state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSide).Connected(ConnectLoopNum).LoopNum;
                     OtherLoopSide = state.dataPlnt->PlantLoop(LoopNum).LoopSide(LoopSide).Connected(ConnectLoopNum).LoopSideNum;
                     state.dataPlnt->PlantLoop(OtherLoopNum).LoopSide(OtherLoopSide).SimLoopSideNeeded = true;
                 }
@@ -1804,7 +1768,7 @@ void ScanPlantLoopsForNodeNum(EnergyPlusData &state,
             for (BranchCtr = 1; BranchCtr <= this_loop_side.TotalBranches; ++BranchCtr) {
                 auto &this_branch = this_loop_side.Branch(BranchCtr);
                 for (CompCtr = 1; CompCtr <= this_branch.TotalComponents; ++CompCtr) {
-                    auto &this_comp = this_branch.Comp(CompCtr);
+                    auto const &this_comp = this_branch.Comp(CompCtr);
                     if (NodeNum == this_comp.NodeNumIn) {
                         FoundNode = true;
                         ++inFoundCount;
@@ -2004,9 +1968,9 @@ bool verifyTwoNodeNumsOnSamePlantLoop(EnergyPlusData &state, int const nodeIndex
     int matchedIndexA = 0;
     int matchedIndexB = 0;
     for (int loopNum = 1; loopNum <= state.dataPlnt->TotNumLoops; loopNum++) {
-        for (auto &loopSide : state.dataPlnt->PlantLoop(loopNum).LoopSide) {
-            for (auto &branch : loopSide.Branch) {
-                for (auto &comp : branch.Comp) {
+        for (auto const &loopSide : state.dataPlnt->PlantLoop(loopNum).LoopSide) {
+            for (auto const &branch : loopSide.Branch) {
+                for (auto const &comp : branch.Comp) {
                     if (comp.NodeNumIn == nodeIndexA || comp.NodeNumOut == nodeIndexA) {
                         matchedIndexA = loopNum;
                     }
