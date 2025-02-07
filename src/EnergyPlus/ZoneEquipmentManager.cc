@@ -5496,8 +5496,7 @@ void CalcAirFlowSimple(EnergyPlusData &state,
         auto &thisZoneHB = state.dataZoneTempPredictorCorrector->zoneHeatBalance(zoneNum);
         Real64 thisMixingMAT = 0.0;
         if (state.dataHeatBal->doSpaceHeatBalance) {
-            auto &thisSpaceHB = state.dataZoneTempPredictorCorrector->spaceHeatBalance(thisVentilation.spaceIndex);
-            thisMixingMAT = thisSpaceHB.MixingMAT;
+            thisMixingMAT = state.dataZoneTempPredictorCorrector->spaceHeatBalance(thisVentilation.spaceIndex).MixingMAT;
         } else {
             thisMixingMAT = thisZoneHB.MixingMAT;
         }
@@ -6407,8 +6406,7 @@ void CalcAirFlowSimple(EnergyPlusData &state,
         auto &thisZoneHB = state.dataZoneTempPredictorCorrector->zoneHeatBalance(NZ);
         Real64 tempInt = 0.0;
         if (state.dataHeatBal->doSpaceHeatBalance) {
-            auto &thisSpaceHB = state.dataZoneTempPredictorCorrector->spaceHeatBalance(thisInfiltration.spaceIndex);
-            tempInt = thisSpaceHB.MixingMAT;
+            tempInt = state.dataZoneTempPredictorCorrector->spaceHeatBalance(thisInfiltration.spaceIndex).MixingMAT;
         } else {
             tempInt = thisZoneHB.MixingMAT;
         }
