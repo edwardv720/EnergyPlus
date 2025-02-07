@@ -177,6 +177,15 @@ namespace DataHeatBalance {
         Num
     };
 
+enum class InfVentDensityBasis
+    {
+        Invalid = -1,
+        Outdoor,
+        Standard,
+        Indoor,
+        Num
+    };
+
     // Parameters for type of zone air balance model
     enum class AirBalance
     {
@@ -1076,6 +1085,7 @@ namespace DataHeatBalance {
         int spaceIndex = 0;                                               // Space index for this infiltration instance
         Sched::Schedule *sched = nullptr;                                 // Schedule for infiltration
         InfiltrationModelType ModelType = InfiltrationModelType::Invalid; // which model is used for infiltration
+        InfVentDensityBasis densityBasis = InfVentDensityBasis::Outdoor;  // which density is used to convert to mass flow
         // Design Flow Rate model terms
         Real64 DesignLevel = 0.0;
         Real64 ConstantTermCoef = 0.0;
@@ -1119,7 +1129,8 @@ namespace DataHeatBalance {
         int ZonePtr = 0;
         int spaceIndex = 0; // Space index for this ventilation instance
         Sched::Schedule *availSched = nullptr;
-        VentilationModelType ModelType = VentilationModelType::Invalid; // DesignFlowRate or WindandStackOpenArea
+        VentilationModelType ModelType = VentilationModelType::Invalid;  // DesignFlowRate or WindandStackOpenArea
+        InfVentDensityBasis densityBasis = InfVentDensityBasis::Outdoor; // which density is used to convert to mass flow
         Real64 DesignLevel = 0.0;
         bool EMSSimpleVentOn = false;      // EMS actuating ventilation flow rate if .TRUE.
         Real64 EMSimpleVentFlowRate = 0.0; // Value EMS is directing to use for override
