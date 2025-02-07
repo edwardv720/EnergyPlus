@@ -915,7 +915,6 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                     thisInfiltration.densityBasis = static_cast<DataHeatBalance::InfVentDensityBasis>(
                         getEnumValue(infVentDensityBasisNamesUC, cAlphaArgs(5))); // NOLINT(modernize-use-auto)
                 }
-
             }
         }
     }

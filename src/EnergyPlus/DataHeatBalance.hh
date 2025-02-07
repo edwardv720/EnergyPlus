@@ -177,7 +177,7 @@ namespace DataHeatBalance {
         Num
     };
 
-enum class InfVentDensityBasis
+    enum class InfVentDensityBasis
     {
         Invalid = -1,
         Outdoor,
