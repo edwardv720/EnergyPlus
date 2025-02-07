@@ -5494,9 +5494,10 @@ void CalcAirFlowSimple(EnergyPlusData &state,
         auto &thisVentilation = state.dataHeatBal->Ventilation(j);
         int zoneNum = thisVentilation.ZonePtr;
         auto &thisZoneHB = state.dataZoneTempPredictorCorrector->zoneHeatBalance(zoneNum);
+        auto &thisSpaceHB = state.dataZoneTempPredictorCorrector->spaceHeatBalance(thisVentilation.spaceIndex);
         Real64 thisMixingMAT = 0.0;
         if (state.dataHeatBal->doSpaceHeatBalance) {
-            thisMixingMAT = state.dataZoneTempPredictorCorrector->spaceHeatBalance(thisVentilation.spaceIndex).MixingMAT;
+            thisMixingMAT = thisSpaceHB.MixingMAT;
         } else {
             thisMixingMAT = thisZoneHB.MixingMAT;
         }
@@ -5520,8 +5521,26 @@ void CalcAirFlowSimple(EnergyPlusData &state,
             HumRatExt = state.dataEnvrn->OutHumRat;
             EnthalpyExt = state.dataEnvrn->OutEnthalpy;
         }
-        Real64 AirDensity =
-            PsyRhoAirFnPbTdbW(state, state.dataEnvrn->OutBaroPress, TempExt, HumRatExt, RoutineNameVentilation); // Density of air (kg/m^3)
+
+        Real64 AirDensity = 0.0; // Density of air for converting from volume flow to mass flow (kg/m^3)
+        switch (thisVentilation.densityBasis) {
+        case DataHeatBalance::InfVentDensityBasis::Standard: {
+            AirDensity = state.dataEnvrn->StdRhoAir;
+        } break;
+        case DataHeatBalance::InfVentDensityBasis::Indoor: {
+            if (state.dataHeatBal->doSpaceHeatBalance) {
+                AirDensity = Psychrometrics::PsyRhoAirFnPbTdbW(
+                    state, state.dataEnvrn->OutBaroPress, thisMixingMAT, thisSpaceHB.MixingHumRat, RoutineNameInfiltration);
+            } else {
+                AirDensity = Psychrometrics::PsyRhoAirFnPbTdbW(
+                    state, state.dataEnvrn->OutBaroPress, thisMixingMAT, thisZoneHB.MixingHumRat, RoutineNameInfiltration);
+            }
+        } break;
+        default:
+            AirDensity = PsyRhoAirFnPbTdbW(state, state.dataEnvrn->OutBaroPress, TempExt, HumRatExt, RoutineNameInfiltration);
+            break;
+        }
+
         Real64 CpAir = PsyCpAirFnW(HumRatExt);
 
         // Hybrid ventilation global control
@@ -5782,7 +5801,6 @@ void CalcAirFlowSimple(EnergyPlusData &state,
         thisZoneHB.VAMFL += thisVAMFL;
         thisZoneHB.MCPTV += thisMCPTV;
         if (state.dataHeatBal->doSpaceHeatBalance) {
-            auto &thisSpaceHB = state.dataZoneTempPredictorCorrector->spaceHeatBalance(thisVentilation.spaceIndex);
             thisSpaceHB.MCPV += thisMCPV;
             thisSpaceHB.VAMFL += thisVAMFL;
             thisSpaceHB.MCPTV += thisMCPTV;
@@ -6385,9 +6403,10 @@ void CalcAirFlowSimple(EnergyPlusData &state,
         auto &thisInfiltration = state.dataHeatBal->Infiltration(j);
         int NZ = state.dataHeatBal->Infiltration(j).ZonePtr;
         auto &thisZoneHB = state.dataZoneTempPredictorCorrector->zoneHeatBalance(NZ);
+        auto &thisSpaceHB = state.dataZoneTempPredictorCorrector->spaceHeatBalance(thisInfiltration.spaceIndex);
         Real64 tempInt = 0.0;
         if (state.dataHeatBal->doSpaceHeatBalance) {
-            tempInt = state.dataZoneTempPredictorCorrector->spaceHeatBalance(thisInfiltration.spaceIndex).MixingMAT;
+            tempInt = thisSpaceHB.MixingMAT;
         } else {
             tempInt = thisZoneHB.MixingMAT;
         }
@@ -6403,7 +6422,25 @@ void CalcAirFlowSimple(EnergyPlusData &state,
             HumRatExt = state.dataEnvrn->OutHumRat;
         }
 
-        Real64 AirDensity = PsyRhoAirFnPbTdbW(state, state.dataEnvrn->OutBaroPress, TempExt, HumRatExt, RoutineNameInfiltration);
+        Real64 AirDensity = 0.0; // Density of air for converting from volume flow to mass flow (kg/m^3)
+        switch (thisInfiltration.densityBasis) {
+        case DataHeatBalance::InfVentDensityBasis::Standard: {
+            AirDensity = state.dataEnvrn->StdRhoAir;
+        } break;
+        case DataHeatBalance::InfVentDensityBasis::Indoor: {
+            if (state.dataHeatBal->doSpaceHeatBalance) {
+                AirDensity = Psychrometrics::PsyRhoAirFnPbTdbW(
+                    state, state.dataEnvrn->OutBaroPress, tempInt, thisSpaceHB.MixingHumRat, RoutineNameInfiltration);
+            } else {
+                AirDensity = Psychrometrics::PsyRhoAirFnPbTdbW(
+                    state, state.dataEnvrn->OutBaroPress, tempInt, thisZoneHB.MixingHumRat, RoutineNameInfiltration);
+            }
+        } break;
+        default:
+            AirDensity = PsyRhoAirFnPbTdbW(state, state.dataEnvrn->OutBaroPress, TempExt, HumRatExt, RoutineNameInfiltration);
+            break;
+        }
+
         Real64 CpAir = PsyCpAirFnW(HumRatExt);
         Real64 MCpI_temp = 0.0;
         Real64 scheduleFrac = thisInfiltration.sched->getCurrentVal();
@@ -6485,7 +6522,6 @@ void CalcAirFlowSimple(EnergyPlusData &state,
             thisZoneHB.OAMFL += MCpI_temp / CpAir;
             thisZoneHB.MCPTI += MCpI_temp * TempExt;
             if (state.dataHeatBal->doSpaceHeatBalance) {
-                auto &thisSpaceHB = state.dataZoneTempPredictorCorrector->spaceHeatBalance(thisInfiltration.spaceIndex);
                 thisSpaceHB.MCPI += MCpI_temp;
                 thisSpaceHB.OAMFL += MCpI_temp / CpAir;
                 thisSpaceHB.MCPTI += MCpI_temp * TempExt;
