@@ -996,10 +996,6 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                         ShowContinueError(state, "Infiltration model is appropriate for exterior spaces not interior spaces, simulation continues.");
                     }
                 }
-                if (!lAlphaFieldBlanks(4)) {
-                    thisInfiltration.densityBasis = static_cast<DataHeatBalance::InfVentDensityBasis>(
-                        getEnumValue(infVentDensityBasisNamesUC, cAlphaArgs(4))); // NOLINT(modernize-use-auto)
-                }
             }
         }
     }
@@ -1083,10 +1079,6 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                                               "Infiltration model is appropriate for exterior spaces not interior spaces, simulation continues.");
                         }
                     }
-                }
-                if (!lAlphaFieldBlanks(4)) {
-                    thisInfiltration.densityBasis = static_cast<DataHeatBalance::InfVentDensityBasis>(
-                        getEnumValue(infVentDensityBasisNamesUC, cAlphaArgs(4))); // NOLINT(modernize-use-auto)
                 }
             }
         }
@@ -2177,11 +2169,6 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                                            cCurrentModuleObject,
                                            cAlphaArgs(1)));
                     ErrorsFound = true;
-                }
-
-                if (!lAlphaFieldBlanks(9)) {
-                    thisVentilation.densityBasis = static_cast<DataHeatBalance::InfVentDensityBasis>(
-                        getEnumValue(infVentDensityBasisNamesUC, cAlphaArgs(9))); // NOLINT(modernize-use-auto)
                 }
 
                 // Report variables should be added for individual VENTILATION objects, in addition to zone totals below
