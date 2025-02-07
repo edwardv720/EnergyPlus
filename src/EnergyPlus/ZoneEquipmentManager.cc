@@ -5438,9 +5438,6 @@ void CalcAirFlowSimple(EnergyPlusData &state,
         state.dataHeatBal->TotMixing + state.dataHeatBal->TotCrossMixing + state.dataHeatBal->TotRefDoorMixing > 0)
         state.dataContaminantBalance->MixingMassFlowGC = 0.0;
 
-    Real64 IVF = 0.0; // DESIGN INFILTRATION FLOW RATE (M**3/SEC)
-    Real64 VVF = 0.0; // DESIGN VENTILATION FLOW RATE (M**3/SEC)
-
     if (!state.dataHeatBal->AirFlowFlag) return;
     // AirflowNetwork Multizone field /= SIMPLE
     if (!(state.afn->simulation_control.type == AirflowNetwork::ControlType::NoMultizoneOrDistribution ||
@@ -5620,7 +5617,7 @@ void CalcAirFlowSimple(EnergyPlusData &state,
 
         if (thisVentilation.ModelType == DataHeatBalance::VentilationModelType::DesignFlowRate) {
             // CR6845 if calculated < 0, don't propagate.
-            VVF = thisVentilation.DesignLevel * thisVentilation.availSched->getCurrentVal();
+            Real64 VVF = thisVentilation.DesignLevel * thisVentilation.availSched->getCurrentVal(); // VENTILATION FLOW RATE (M**3/SEC)
 
             if (thisVentilation.EMSSimpleVentOn) VVF = thisVentilation.EMSimpleVentFlowRate;
 
@@ -5766,7 +5763,7 @@ void CalcAirFlowSimple(EnergyPlusData &state,
             Qw = Cw * thisVentilation.OpenArea * thisVentilation.openAreaFracSched->getCurrentVal() * WindSpeedExt;
             Qst = Cd * thisVentilation.OpenArea * thisVentilation.openAreaFracSched->getCurrentVal() *
                   std::sqrt(2.0 * 9.81 * thisVentilation.DH * std::abs(TempExt - thisMixingMAT) / (thisMixingMAT + 273.15));
-            VVF = std::sqrt(Qw * Qw + Qst * Qst);
+            Real64 VVF = std::sqrt(Qw * Qw + Qst * Qst); // VENTILATION FLOW RATE (M**3/SEC)
             if (thisVentilation.EMSSimpleVentOn) VVF = thisVentilation.EMSimpleVentFlowRate;
             if (VVF < 0.0) VVF = 0.0;
             thisVentilation.MCP = VVF * AirDensity * CpAir;
@@ -6416,7 +6413,7 @@ void CalcAirFlowSimple(EnergyPlusData &state,
             //   CpAir = PsyCpAirFnW(MixingHumRat(NZ),MixingMAT(NZ))
             switch (thisInfiltration.ModelType) {
             case DataHeatBalance::InfiltrationModelType::DesignFlowRate: {
-                IVF = thisInfiltration.DesignLevel * scheduleFrac;
+                Real64 IVF = thisInfiltration.DesignLevel * scheduleFrac; // INFILTRATION FLOW RATE (M**3/SEC)
                 // CR6845 if calculated < 0.0, don't propagate
                 if (IVF < 0.0) IVF = 0.0;
                 MCpI_temp = IVF * AirDensity * CpAir *
@@ -6429,9 +6426,9 @@ void CalcAirFlowSimple(EnergyPlusData &state,
             case DataHeatBalance::InfiltrationModelType::ShermanGrimsrud: {
                 // Sherman Grimsrud model as formulated in ASHRAE HoF
                 WindSpeedExt = state.dataEnvrn->WindSpeed; // formulated to use wind at Meterological Station rather than local
-                IVF = scheduleFrac * thisInfiltration.LeakageArea / 1000.0 *
-                      std::sqrt(thisInfiltration.BasicStackCoefficient * std::abs(TempExt - tempInt) +
-                                thisInfiltration.BasicWindCoefficient * pow_2(WindSpeedExt));
+                Real64 IVF = scheduleFrac * thisInfiltration.LeakageArea / 1000.0 *
+                             std::sqrt(thisInfiltration.BasicStackCoefficient * std::abs(TempExt - tempInt) +
+                                       thisInfiltration.BasicWindCoefficient * pow_2(WindSpeedExt));
                 if (IVF < 0.0) IVF = 0.0;
                 MCpI_temp = IVF * AirDensity * CpAir;
                 if (MCpI_temp < 0.0) MCpI_temp = 0.0;
@@ -6439,7 +6436,7 @@ void CalcAirFlowSimple(EnergyPlusData &state,
             } break;
             case DataHeatBalance::InfiltrationModelType::AIM2: {
                 // Walker Wilson model as formulated in ASHRAE HoF
-                IVF =
+                Real64 IVF =
                     scheduleFrac * std::sqrt(pow_2(thisInfiltration.FlowCoefficient * thisInfiltration.AIM2StackCoefficient *
                                                    std::pow(std::abs(TempExt - tempInt), thisInfiltration.PressureExponent)) +
                                              pow_2(thisInfiltration.FlowCoefficient * thisInfiltration.AIM2WindCoefficient *
@@ -6474,7 +6471,7 @@ void CalcAirFlowSimple(EnergyPlusData &state,
         thisInfiltration.MassFlowRate = thisInfiltration.VolumeFlowRate * AirDensity;
 
         if (thisInfiltration.EMSOverrideOn) {
-            IVF = thisInfiltration.EMSAirFlowRateValue;
+            Real64 IVF = thisInfiltration.EMSAirFlowRateValue; // INFILTRATION FLOW RATE (M**3/SEC)
             if (IVF < 0.0) IVF = 0.0;
             MCpI_temp = IVF * AirDensity * CpAir;
             if (MCpI_temp < 0.0) MCpI_temp = 0.0;
