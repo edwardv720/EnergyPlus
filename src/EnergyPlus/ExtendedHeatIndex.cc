@@ -391,7 +391,7 @@ namespace ExtendedHI {
     }
 
     //    given T and RH, returns a key and value pair
-    Real64 find_eqvar_name_and_value(EnergyPlusData &state, Real64 const Ta, Real64 const RH, int &varname)
+    Real64 find_eqvar_name_and_value(EnergyPlusData &state, Real64 const Ta, Real64 const RH, EqvarName &varname)
     {
         constexpr Real64 M = 83.6;                        // kg        , mass of average US adults, fryar2018
         constexpr Real64 H = 1.69;                        // m         , height of average US adults, fryar2018
@@ -439,11 +439,11 @@ namespace ExtendedHI {
         Real64 Rf;
 
         if (flux1 <= 0.0) {
-            varname = static_cast<int>(EqvarName::Phi);
+            varname = EqvarName::Phi;
             phi = 1.0 - (Q - Qv(Ta, Pa)) * Rs / (Tc - Ts);
             return phi;
         } else if (flux2 <= 0.0) {
-            varname = static_cast<int>(EqvarName::Rf);
+            varname = EqvarName::Rf;
             Real64 const Ts_bar = Tc - (Q - Qv(Ta, Pa)) * Rs / phi + (1.0 / phi - 1.0) * (Tc - Ts);
             General::SolveRoot(
                 state,
@@ -462,7 +462,7 @@ namespace ExtendedHI {
         } else {
             Real64 const flux3 = Q - Qv(Ta, Pa) - (Tc - Ta) / Ra_un(Tc, Ta) - (phi_salt * pvstar(Tc) - Pa) / Za_un;
             if (flux3 < 0.0) {
-                varname = static_cast<int>(EqvarName::Rs);
+                varname = EqvarName::Rs;
                 General::SolveRoot(
                     state,
                     tol,
@@ -489,7 +489,7 @@ namespace ExtendedHI {
                 }
                 return Rs;
             } else {
-                varname = static_cast<int>(EqvarName::DTcdt);
+                varname = EqvarName::DTcdt;
                 Rs = 0.0;
                 dTcdt = (1.0 / C) * flux3;
                 return dTcdt;
@@ -498,16 +498,16 @@ namespace ExtendedHI {
     }
 
     // Convert the find_T function
-    Real64 find_T(EnergyPlusData &state, int const eqvar_name, Real64 const eqvar)
+    Real64 find_T(EnergyPlusData &state, EqvarName const eqvar_name, Real64 const eqvar)
     {
         Real64 T;
         int SolFla;
         constexpr Real64 Pa0 = 1.6e3; // Pa        , reference air vapor pressure in regions III, IV, V, VI, steadman1979
 
-        if (eqvar_name == static_cast<int>(EqvarName::Phi)) {
+        if (eqvar_name == EqvarName::Phi) {
             General::SolveRoot(
                 state, tol, maxIter, SolFla, T, [&](Real64 T) { return find_eqvar_phi(state, T, 1.0) - eqvar; }, 0.0, 240.0);
-        } else if (eqvar_name == static_cast<int>(EqvarName::Rf)) {
+        } else if (eqvar_name == EqvarName::Rf) {
             General::SolveRoot(
                 state,
                 tol,
@@ -517,7 +517,7 @@ namespace ExtendedHI {
                 [&](Real64 T) { return (find_eqvar_Rf(state, T, std::min(1.0, Pa0 / pvstar(T)))) - eqvar; },
                 230.0,
                 300.0);
-        } else if (eqvar_name == static_cast<int>(EqvarName::Rs)) {
+        } else if (eqvar_name == EqvarName::Rs) {
             General::SolveRoot(
                 state, tol, maxIter, SolFla, T, [&](Real64 T) { return find_eqvar_rs(state, T, Pa0 / pvstar(T)) - eqvar; }, 295.0, 350.0);
         } else {
@@ -537,7 +537,7 @@ namespace ExtendedHI {
 
         auto const HVACSystemRootSolverMethodBackup = state.dataRootFinder->HVACSystemRootFinding.HVACSystemRootSolverMethod;
         state.dataRootFinder->HVACSystemRootFinding.HVACSystemRootSolverMethod = HVACSystemRootSolverAlgorithm::ShortBisectionThenRegulaFalsi;
-        int eqvar_name = 0;
+        EqvarName eqvar_name = EqvarName::Invalid;
         Real64 const eqvar_value = find_eqvar_name_and_value(state, Ta, RH, eqvar_name);
 
         Real64 T = find_T(state, eqvar_name, eqvar_value);
