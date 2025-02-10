@@ -63,10 +63,10 @@ namespace ExtendedHI {
     enum class EqvarName
     {
         Invalid = -1,
-        Phi = 1,
-        Rf = 2,
-        Rs = 3,
-        DTcdt = 4,
+        Phi,
+        Rf,
+        Rs,
+        DTcdt,
         Num
     };
 

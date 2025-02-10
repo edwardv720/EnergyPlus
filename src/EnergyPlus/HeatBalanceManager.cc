@@ -1219,7 +1219,8 @@ namespace HeatBalanceManager {
                     static_cast<HVACSystemRootSolverAlgorithm>(getEnumValue(HVACSystemRootSolverAlgorithmUC, Util::makeUPPER(AlphaName(1))));
                 if (HVACSystemRootFinding.HVACSystemRootSolverMethod == HVACSystemRootSolverAlgorithm::Invalid) {
                     HVACSystemRootFinding.HVACSystemRootSolverMethod = HVACSystemRootSolverAlgorithm::RegulaFalsi;
-                    ShowWarningInvalidKey(state, eoh, state.dataIPShortCut->cAlphaFieldNames(1), AlphaName(1), "Invalid input. The default choice is assigned.");
+                    ShowWarningInvalidKey(
+                        state, eoh, state.dataIPShortCut->cAlphaFieldNames(1), AlphaName(1), "Invalid input. The default choice is assigned.");
                     ShowContinueError(
                         state, "Valid choices are: RegulaFalsi, Bisection, BisectionThenRegulaFalsi, RegulaFalsiThenBisection, or Alternation.");
                 }
