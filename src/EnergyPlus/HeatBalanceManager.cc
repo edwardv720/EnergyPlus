@@ -1212,17 +1212,14 @@ namespace HeatBalanceManager {
                                                                      state.dataIPShortCut->lAlphaFieldBlanks,
                                                                      state.dataIPShortCut->cAlphaFieldNames,
                                                                      state.dataIPShortCut->cNumericFieldNames);
+            ErrorObjectHeader eoh{routineName, state.dataHeatBalMgr->CurrentModuleObject, AlphaName(1)};
             if (NumAlpha > 0) {
                 HVACSystemRootFinding.Algorithm = AlphaName(1);
                 HVACSystemRootFinding.HVACSystemRootSolverMethod =
                     static_cast<HVACSystemRootSolverAlgorithm>(getEnumValue(HVACSystemRootSolverAlgorithmUC, Util::makeUPPER(AlphaName(1))));
                 if (HVACSystemRootFinding.HVACSystemRootSolverMethod == HVACSystemRootSolverAlgorithm::Invalid) {
                     HVACSystemRootFinding.HVACSystemRootSolverMethod = HVACSystemRootSolverAlgorithm::RegulaFalsi;
-                    ShowWarningError(state,
-                                     format("{}: Invalid input of {}. The default choice is assigned = {}",
-                                            state.dataHeatBalMgr->CurrentModuleObject,
-                                            state.dataIPShortCut->cAlphaFieldNames(1),
-                                            AlphaName(1)));
+                    ShowWarningInvalidKey(state, eoh, state.dataIPShortCut->cAlphaFieldNames(1), AlphaName(1), "Invalid input. The default choice is assigned.");
                     ShowContinueError(
                         state, "Valid choices are: RegulaFalsi, Bisection, BisectionThenRegulaFalsi, RegulaFalsiThenBisection, or Alternation.");
                 }
