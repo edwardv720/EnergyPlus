@@ -653,7 +653,7 @@
     7.5,                     !- Y-Coordinate of Reference Point {m}
     0.7;                     !- Z-Coordinate of Reference Point {m}
 
-  HeatIndexAlgorithm,
+  OutputControl:ResilienceSummaries,
     Simplified;
 
   Output:Variable,*,Site Outdoor Air Barometric Pressure,hourly;
