@@ -169,10 +169,6 @@ namespace ExtendedHI {
         return 1.0 / (hc + hr);
     }
 
-    constexpr Real64 Za = 60.6 / 17.4;     // Pa m^2/W, mass transfer resistance through air, exposed part of skin
-    constexpr Real64 Za_bar = 60.6 / 11.6; // Pa m^2/W, mass transfer resistance through air, clothed part of skin
-    constexpr Real64 Za_un = 60.6 / 12.3;  // Pa m^2/W, mass transfer resistance through air, when being naked
-
     constexpr Real64 tol = 1e-8;
     constexpr Real64 maxIter = 100;
     Real64 find_eqvar_phi(EnergyPlusData &state, Real64 const Ta, Real64 const RH)
@@ -181,6 +177,7 @@ namespace ExtendedHI {
         constexpr Real64 phi_salt = 0.9;   //           , vapor saturation pressure level of saline solution, steadman1979
         constexpr Real64 Tc = 310.;        // K         , core temperature, steadman1979
         Real64 Pc = phi_salt * pvstar(Tc); //           , core vapor pressure
+        constexpr Real64 Za = 60.6 / 17.4;     // Pa m^2/W, mass transfer resistance through air, exposed part of skin
 
         Real64 phi = 0.84;
         Real64 const Pa = RH * pvstar(Ta);
@@ -212,6 +209,8 @@ namespace ExtendedHI {
         constexpr Real64 Tc = 310.;        // K         , core temperature, steadman1979
         Real64 Pc = phi_salt * pvstar(Tc); //           , core vapor pressure
         constexpr Real64 r = 124.;         // Pa/K      , Zf/Rf, steadman1979
+        constexpr Real64 Za = 60.6 / 17.4;     // Pa m^2/W, mass transfer resistance through air, exposed part of skin
+        constexpr Real64 Za_bar = 60.6 / 11.6; // Pa m^2/W, mass transfer resistance through air, clothed part of skin
 
         Real64 Pa = RH * pvstar(Ta);
         constexpr Real64 Rs = 0.0387;
@@ -277,6 +276,9 @@ namespace ExtendedHI {
         constexpr Real64 phi_salt = 0.9;                  //           , vapor saturation pressure level of saline solution, steadman1979
         constexpr Real64 Tc = 310.;                       // K         , core temperature, steadman1979
         Real64 Pc = phi_salt * pvstar(Tc);                //           , core vapor pressure
+        constexpr Real64 Za = 60.6 / 17.4;     // Pa m^2/W, mass transfer resistance through air, exposed part of skin
+        constexpr Real64 Za_bar = 60.6 / 11.6; // Pa m^2/W, mass transfer resistance through air, clothed part of skin
+        constexpr Real64 Za_un = 60.6 / 12.3;  // Pa m^2/W, mass transfer resistance through air, when being naked
 
         Real64 Pa = RH * pvstar(Ta);
         constexpr Real64 phi = 0.84;
@@ -352,6 +354,9 @@ namespace ExtendedHI {
         constexpr Real64 phi_salt = 0.9;                  //           , vapor saturation pressure level of saline solution, steadman1979
         constexpr Real64 Tc = 310.;                       // K         , core temperature, steadman1979
         Real64 Pc = phi_salt * pvstar(Tc);                //           , core vapor pressure
+        constexpr Real64 Za = 60.6 / 17.4;     // Pa m^2/W, mass transfer resistance through air, exposed part of skin
+        constexpr Real64 Za_bar = 60.6 / 11.6; // Pa m^2/W, mass transfer resistance through air, clothed part of skin
+        constexpr Real64 Za_un = 60.6 / 12.3;  // Pa m^2/W, mass transfer resistance through air, when being naked
 
         Real64 dTcdt = 0.0;
         Real64 const Pa = RH * pvstar(Ta);
@@ -403,6 +408,9 @@ namespace ExtendedHI {
         constexpr Real64 Tc = 310.;                       // K         , core temperature, steadman1979
         Real64 Pc = phi_salt * pvstar(Tc);                //           , core vapor pressure
         constexpr Real64 r = 124.;                        // Pa/K      , Zf/Rf, steadman1979
+        constexpr Real64 Za = 60.6 / 17.4;     // Pa m^2/W, mass transfer resistance through air, exposed part of skin
+        constexpr Real64 Za_bar = 60.6 / 11.6; // Pa m^2/W, mass transfer resistance through air, clothed part of skin
+        constexpr Real64 Za_un = 60.6 / 12.3;  // Pa m^2/W, mass transfer resistance through air, when being naked
 
         Real64 Pa = RH * pvstar(Ta);
         Real64 Rs = 0.0387;
