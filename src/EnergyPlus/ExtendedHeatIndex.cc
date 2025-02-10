@@ -112,18 +112,18 @@ namespace ExtendedHI {
     // Function to calculate respiratory heat loss, W/m^2
     Real64 Qv(Real64 const Ta, Real64 const Pa)
     {
-        constexpr Real64 Q = 180.;                        // W/m^2     , metabolic rate per skin area, steadman1979
-        constexpr Real64 phi_salt = 0.9;                  //           , vapor saturation pressure level of saline solution, steadman1979
-        constexpr Real64 Tc = 310.;                       // K         , core temperature, steadman1979
-        Real64 Pc = phi_salt * pvstar(Tc);                //           , core vapor pressure
-        constexpr Real64 r = 124.;                        // Pa/K      , Zf/Rf, steadman1979
-        constexpr Real64 eta = 1.43e-6;                   // kg/J      , "inhaled mass" / "metabolic rate", steadman1979
-        Real64 L = Le(310.);                              //           , latent heat of vaporization at 310 K
-        constexpr Real64 p = 1.013e5;                     // Pa        , atmospheric pressure
-        constexpr Real64 rgasa = 287.04; // J/kg/K
-        constexpr Real64 rgasv = 461.;   // J/kg/K
-        constexpr Real64 cva = 719.;     // J/kg/K
-        constexpr Real64 cvv = 1418.;    // J/kg/K
+        constexpr Real64 Q = 180.;         // W/m^2     , metabolic rate per skin area, steadman1979
+        constexpr Real64 phi_salt = 0.9;   //           , vapor saturation pressure level of saline solution, steadman1979
+        constexpr Real64 Tc = 310.;        // K         , core temperature, steadman1979
+        Real64 Pc = phi_salt * pvstar(Tc); //           , core vapor pressure
+        constexpr Real64 r = 124.;         // Pa/K      , Zf/Rf, steadman1979
+        constexpr Real64 eta = 1.43e-6;    // kg/J      , "inhaled mass" / "metabolic rate", steadman1979
+        Real64 L = Le(310.);               //           , latent heat of vaporization at 310 K
+        constexpr Real64 p = 1.013e5;      // Pa        , atmospheric pressure
+        constexpr Real64 rgasa = 287.04;   // J/kg/K
+        constexpr Real64 rgasv = 461.;     // J/kg/K
+        constexpr Real64 cva = 719.;       // J/kg/K
+        constexpr Real64 cvv = 1418.;      // J/kg/K
         constexpr Real64 cpa = cva + rgasa;
         constexpr Real64 cpv = cvv + rgasv;
 
@@ -139,8 +139,8 @@ namespace ExtendedHI {
     // Function to calculate heat transfer resistance through air, exposed part of skin, K m^2/W
     Real64 Ra(Real64 const Ts, Real64 const Ta)
     {
-        constexpr Real64 sigma = 5.67e-8;                 // W/m^2/K^4 , Stefan-Boltzmann constant
-        constexpr Real64 epsilon = 0.97;                  //           , emissivity of surface, steadman1979
+        constexpr Real64 sigma = 5.67e-8; // W/m^2/K^4 , Stefan-Boltzmann constant
+        constexpr Real64 epsilon = 0.97;  //           , emissivity of surface, steadman1979
         constexpr Real64 hc = 17.4;
         constexpr Real64 phi_rad = 0.85;
         Real64 const hr = epsilon * phi_rad * sigma * (std::pow(Ts, 2) + std::pow(Ta, 2)) * (Ts + Ta);
@@ -150,8 +150,8 @@ namespace ExtendedHI {
     // Function to calculate heat transfer resistance through air, clothed part of skin, K m^2/W
     Real64 Ra_bar(Real64 const Tf, Real64 const Ta)
     {
-        constexpr Real64 sigma = 5.67e-8;                 // W/m^2/K^4 , Stefan-Boltzmann constant
-        constexpr Real64 epsilon = 0.97;                  //           , emissivity of surface, steadman1979
+        constexpr Real64 sigma = 5.67e-8; // W/m^2/K^4 , Stefan-Boltzmann constant
+        constexpr Real64 epsilon = 0.97;  //           , emissivity of surface, steadman1979
         constexpr Real64 hc = 11.6;
         constexpr Real64 phi_rad = 0.79;
         Real64 const hr = epsilon * phi_rad * sigma * (std::pow(Tf, 2) + std::pow(Ta, 2)) * (Tf + Ta);
@@ -161,8 +161,8 @@ namespace ExtendedHI {
     // Function to calculate heat transfer resistance through air, when being naked, K m^2/W
     Real64 Ra_un(Real64 const Ts, Real64 const Ta)
     {
-        constexpr Real64 sigma = 5.67e-8;                 // W/m^2/K^4 , Stefan-Boltzmann constant
-        constexpr Real64 epsilon = 0.97;                  //           , emissivity of surface, steadman1979
+        constexpr Real64 sigma = 5.67e-8; // W/m^2/K^4 , Stefan-Boltzmann constant
+        constexpr Real64 epsilon = 0.97;  //           , emissivity of surface, steadman1979
         constexpr Real64 hc = 12.3;
         constexpr Real64 phi_rad = 0.80;
         Real64 const hr = epsilon * phi_rad * sigma * (std::pow(Ts, 2) + std::pow(Ta, 2)) * (Ts + Ta);
@@ -177,10 +177,10 @@ namespace ExtendedHI {
     constexpr Real64 maxIter = 100;
     Real64 find_eqvar_phi(EnergyPlusData &state, Real64 const Ta, Real64 const RH)
     {
-        constexpr Real64 Q = 180.;                        // W/m^2     , metabolic rate per skin area, steadman1979
-        constexpr Real64 phi_salt = 0.9;                  //           , vapor saturation pressure level of saline solution, steadman1979
-        constexpr Real64 Tc = 310.;                       // K         , core temperature, steadman1979
-        Real64 Pc = phi_salt * pvstar(Tc);                //           , core vapor pressure
+        constexpr Real64 Q = 180.;         // W/m^2     , metabolic rate per skin area, steadman1979
+        constexpr Real64 phi_salt = 0.9;   //           , vapor saturation pressure level of saline solution, steadman1979
+        constexpr Real64 Tc = 310.;        // K         , core temperature, steadman1979
+        Real64 Pc = phi_salt * pvstar(Tc); //           , core vapor pressure
 
         Real64 phi = 0.84;
         Real64 const Pa = RH * pvstar(Ta);
@@ -207,11 +207,11 @@ namespace ExtendedHI {
 
     Real64 find_eqvar_Rf(EnergyPlusData &state, Real64 const Ta, Real64 const RH)
     {
-        constexpr Real64 Q = 180.;                        // W/m^2     , metabolic rate per skin area, steadman1979
-        constexpr Real64 phi_salt = 0.9;                  //           , vapor saturation pressure level of saline solution, steadman1979
-        constexpr Real64 Tc = 310.;                       // K         , core temperature, steadman1979
-        Real64 Pc = phi_salt * pvstar(Tc);                //           , core vapor pressure
-        constexpr Real64 r = 124.;                        // Pa/K      , Zf/Rf, steadman1979
+        constexpr Real64 Q = 180.;         // W/m^2     , metabolic rate per skin area, steadman1979
+        constexpr Real64 phi_salt = 0.9;   //           , vapor saturation pressure level of saline solution, steadman1979
+        constexpr Real64 Tc = 310.;        // K         , core temperature, steadman1979
+        Real64 Pc = phi_salt * pvstar(Tc); //           , core vapor pressure
+        constexpr Real64 r = 124.;         // Pa/K      , Zf/Rf, steadman1979
 
         Real64 Pa = RH * pvstar(Ta);
         constexpr Real64 Rs = 0.0387;
@@ -502,7 +502,7 @@ namespace ExtendedHI {
     {
         Real64 T;
         int SolFla;
-        constexpr Real64 Pa0 = 1.6e3;                     // Pa        , reference air vapor pressure in regions III, IV, V, VI, steadman1979
+        constexpr Real64 Pa0 = 1.6e3; // Pa        , reference air vapor pressure in regions III, IV, V, VI, steadman1979
 
         if (eqvar_name == static_cast<int>(EqvarName::Phi)) {
             General::SolveRoot(
