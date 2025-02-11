@@ -64,13 +64,7 @@ enum class HVACSystemRootSolverAlgorithm : int
 };
 
 static constexpr std::array<std::string_view, static_cast<int>(HVACSystemRootSolverAlgorithm::Num)> HVACSystemRootSolverAlgorithmUC = {
-    "REGULAFALSI",
-    "BISECTION",
-    "REGULAFALSITHENBISECTION",
-    "BISECTIONTHENREGULAFALSI",
-    "ALTERNATION",
-    "SHORTBISECTIONTHENREGULAFALSI"
-};
+    "REGULAFALSI", "BISECTION", "REGULAFALSITHENBISECTION", "BISECTIONTHENREGULAFALSI", "ALTERNATION", "SHORTBISECTIONTHENREGULAFALSI"};
 
 struct HVACSystemRootFindingAlgorithm
 {

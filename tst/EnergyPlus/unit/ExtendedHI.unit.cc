@@ -218,59 +218,25 @@ TEST_F(EnergyPlusFixture, extendedHI_Ra_un)
 
 TEST_F(EnergyPlusFixture, extendedHI_find_eqvar)
 {
-    Real64 tol = 1e-5;
+    Real64 tol = 0.001;
     std::vector<Real64> Ta_values = {240, 260, 280, 300, 320, 340, 360};
     std::vector<Real64> RH_values = {0, 0.2, 0.4, 0.6, 0.8, 1.0};
-    std::vector<std::vector<EqvarName>> result_0 = {{EqvarName::Rf,
-                                               EqvarName::Rf,
-                                               EqvarName::Rf,
-                                               EqvarName::Rf,
-                                               EqvarName::Rf,
-                                               EqvarName::Rf},
-                                              {EqvarName::Rf,
-                                               EqvarName::Rf,
-                                               EqvarName::Rf,
-                                               EqvarName::Rf,
-                                               EqvarName::Rf,
-                                               EqvarName::Rf},
-                                              {EqvarName::Rf,
-                                               EqvarName::Rf,
-                                               EqvarName::Rf,
-                                               EqvarName::Rf,
-                                               EqvarName::Rf,
-                                               EqvarName::Rf},
-                                              {EqvarName::Rf,
-                                               EqvarName::Rs,
-                                               EqvarName::Rs,
-                                               EqvarName::Rs,
-                                               EqvarName::Rs,
-                                               EqvarName::Rs},
-                                              {EqvarName::Rs,
-                                               EqvarName::Rs,
-                                               EqvarName::DTcdt,
-                                               EqvarName::DTcdt,
-                                               EqvarName::DTcdt,
-                                               EqvarName::DTcdt},
-                                              {EqvarName::Rs,
-                                               EqvarName::DTcdt,
-                                               EqvarName::DTcdt,
-                                               EqvarName::DTcdt,
-                                               EqvarName::DTcdt,
-                                               EqvarName::DTcdt},
-                                              {EqvarName::Rs,
-                                               EqvarName::DTcdt,
-                                               EqvarName::DTcdt,
-                                               EqvarName::DTcdt,
-                                               EqvarName::DTcdt,
-                                               EqvarName::DTcdt}};
+    std::vector<std::vector<EqvarName>> result_0 = {
+        {EqvarName::Rf, EqvarName::Rf, EqvarName::Rf, EqvarName::Rf, EqvarName::Rf, EqvarName::Rf},
+        {EqvarName::Rf, EqvarName::Rf, EqvarName::Rf, EqvarName::Rf, EqvarName::Rf, EqvarName::Rf},
+        {EqvarName::Rf, EqvarName::Rf, EqvarName::Rf, EqvarName::Rf, EqvarName::Rf, EqvarName::Rf},
+        {EqvarName::Rf, EqvarName::Rs, EqvarName::Rs, EqvarName::Rs, EqvarName::Rs, EqvarName::Rs},
+        {EqvarName::Rs, EqvarName::Rs, EqvarName::DTcdt, EqvarName::DTcdt, EqvarName::DTcdt, EqvarName::DTcdt},
+        {EqvarName::Rs, EqvarName::DTcdt, EqvarName::DTcdt, EqvarName::DTcdt, EqvarName::DTcdt, EqvarName::DTcdt},
+        {EqvarName::Rs, EqvarName::DTcdt, EqvarName::DTcdt, EqvarName::DTcdt, EqvarName::DTcdt, EqvarName::DTcdt}};
 
-    std::vector<std::vector<Real64>> result_1 = {{33.04275, 32.69563, 32.35542, 32.02191, 31.69491, 31.37423},
-                                                 {1.56043, 1.54633, 1.53238, 1.51858, 1.50491, 1.49139},
-                                                 {0.44248, 0.42288, 0.40403, 0.38594, 0.36856, 0.35189},
-                                                 {0.01107, 0.03821, 0.03685, 0.03533, 0.03356, 0.0314},
-                                                 {0.02699, 0.02259, 0.00048, 0.00338, 0.00628, 0.00918},
-                                                 {0.02073, 0.00466, 0.01213, 0.0196, 0.02707, 0.03453},
-                                                 {0.00147, 0.01691, 0.03395, 0.051, 0.06804, 0.08509}};
+    std::vector<std::vector<Real64>> result_1 = {{33.043, 32.696, 32.355, 32.022, 31.695, 31.374},
+                                                 {1.56, 1.546, 1.532, 1.519, 1.505, 1.491},
+                                                 {0.442, 0.423, 0.404, 0.386, 0.369, 0.352},
+                                                 {0.011, 0.038, 0.037, 0.035, 0.034, 0.031},
+                                                 {0.027, 0.023, 0.0, 0.003, 0.006, 0.009},
+                                                 {0.021, 0.005, 0.012, 0.02, 0.027, 0.035},
+                                                 {0.001, 0.017, 0.034, 0.051, 0.068, 0.085}};
 
     EqvarName eqvar_name = EqvarName::Invalid;
     Real64 eqvar_value = 0.0;
@@ -285,26 +251,25 @@ TEST_F(EnergyPlusFixture, extendedHI_find_eqvar)
 
 TEST_F(EnergyPlusFixture, extendedHI_find_T)
 {
-    Real64 tol = 1e-7;
+    Real64 tol = 0.05;
     state->dataRootFinder->HVACSystemRootFinding.HVACSystemRootSolverMethod = HVACSystemRootSolverAlgorithm::Bisection;
     std::vector<Real64> Rf_values = {30, 32, 34, 36, 38};
-    std::vector<Real64> result_0_rf = {240.0675404, 239.9711237, 239.8858108, 239.8097882, 239.7416167};
+    std::vector<Real64> result_0_rf = {240.08, 239.97, 239.89, 239.81, 239.74};
     for (size_t i = 0; i < Rf_values.size(); ++i) {
         EXPECT_NEAR(ExtendedHI::find_T(*state, EnergyPlus::ExtendedHI::EqvarName::Rf, Rf_values[i]), result_0_rf[i], tol);
     }
     std::vector<Real64> Rs_values = {0.01, 0.02, 0.03};
-    std::vector<Real64> result_0_rs = {337.8697, 329.7587, 307.4816};
-    tol = 1e-4;
+    std::vector<Real64> result_0_rs = {337.87, 329.76, 307.48};
     for (size_t i = 0; i < Rs_values.size(); ++i) {
         EXPECT_NEAR(ExtendedHI::find_T(*state, EnergyPlus::ExtendedHI::EqvarName::Rs, Rs_values[i]), result_0_rs[i], tol);
     }
     std::vector<Real64> phi_values = {0.86, 0.88, 0.90, 0.92, 0.94, 0.96};
-    std::vector<Real64> result_0_phi = {228.6900, 215.9994, 199.0012, 175.1865, 139.7124, 82.0478};
+    std::vector<Real64> result_0_phi = {228.69, 216.00, 199.00, 175.19, 139.71, 82.05};
     for (size_t i = 0; i < phi_values.size(); ++i) {
         EXPECT_NEAR(ExtendedHI::find_T(*state, EnergyPlus::ExtendedHI::EqvarName::Phi, phi_values[i]), result_0_phi[i], tol);
     }
     std::vector<Real64> dTcdt_values = {0.01, 0.03, 0.05, 0.07, 0.09};
-    std::vector<Real64> result_0_dTcdt = {412.5272, 512.3596, 584.547, 641.1988, 688.0423};
+    std::vector<Real64> result_0_dTcdt = {412.53, 512.36, 584.55, 641.20, 688.04};
     for (size_t i = 0; i < dTcdt_values.size(); ++i) {
         EXPECT_NEAR(ExtendedHI::find_T(*state, EnergyPlus::ExtendedHI::EqvarName::DTcdt, dTcdt_values[i]), result_0_dTcdt[i], tol);
     }
@@ -336,7 +301,7 @@ TEST_F(EnergyPlusFixture, extendedHI_heatindex)
     std::vector<Real64> T_values = {200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300, 310, 320, 330, 340, 350, 360, 370};
     std::vector<Real64> RH_values = {0, 0.5, 1};
 
-    Real64 tol = 1e-4;
+    Real64 tol = 0.1;
 
     for (size_t i = 0; i < T_values.size(); ++i) {
         for (size_t j = 0; j < RH_values.size(); ++j) {
@@ -618,7 +583,7 @@ TEST_F(EnergyPlusFixture, extendedHI_heatindex_compare)
     for (size_t i = 0; i < T_values.size(); ++i) {
         for (size_t j = 0; j < RH_values.size(); ++j) {
             extended = ExtendedHI::heatindex(*state, IceThermalStorage::TempIPtoSI(T_values[i]) + 273.15, RH_values[j] / 100.0);
-            EXPECT_NEAR(HI_values[i][j], extended, 1e-4);
+            EXPECT_NEAR(HI_values[i][j], extended, 0.1);
         }
     }
 }

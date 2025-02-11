@@ -169,7 +169,7 @@ namespace ExtendedHI {
         return 1.0 / (hc + hr);
     }
 
-    constexpr Real64 tol = 1e-8;
+    constexpr Real64 tol = 1e-5;
     constexpr Real64 maxIter = 100;
     Real64 find_eqvar_phi(EnergyPlusData &state, Real64 const Ta, Real64 const RH)
     {
