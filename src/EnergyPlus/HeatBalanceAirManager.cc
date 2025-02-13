@@ -118,6 +118,9 @@ constexpr std::array<std::string_view, static_cast<int>(AirflowSpec::Num)> airfl
 constexpr std::array<std::string_view, static_cast<int>(DataHeatBalance::VentilationType::Num)> ventilationTypeNamesUC = {
     "NATURAL", "INTAKE", "EXHAUST", "BALANCED"};
 
+constexpr std::array<std::string_view, static_cast<int>(DataHeatBalance::InfVentDensityBasis::Num)> infVentDensityBasisNamesUC = {
+    "OUTDOOR", "STANDARD", "INDOOR"};
+
 constexpr std::array<std::string_view, static_cast<int>(RoomAir::RoomAirModel::Num)> roomAirModelNamesUC = {"USERDEFINED",
                                                                                                             "MIXING",
                                                                                                             "ONENODEDISPLACEMENTVENTILATION",
@@ -907,6 +910,10 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                                 R"({}{}="{}", in {}="{}".)", RoutineName, cCurrentModuleObject, cAlphaArgs(1), cAlphaFieldNames(2), cAlphaArgs(2)));
                         ShowContinueError(state, "Infiltration Coefficients are all zero.  No Infiltration will be reported.");
                     }
+                }
+                if (!lAlphaFieldBlanks(5)) {
+                    thisInfiltration.densityBasis = static_cast<DataHeatBalance::InfVentDensityBasis>(
+                        getEnumValue(infVentDensityBasisNamesUC, cAlphaArgs(5))); // NOLINT(modernize-use-auto)
                 }
             }
         }
@@ -1748,6 +1755,11 @@ void GetSimpleAirModelInputs(EnergyPlusData &state, bool &ErrorsFound) // IF err
                                                cAlphaArgs(1)));
                         ErrorsFound = true;
                     }
+                }
+
+                if (!lAlphaFieldBlanks(11)) {
+                    thisVentilation.densityBasis = static_cast<DataHeatBalance::InfVentDensityBasis>(
+                        getEnumValue(infVentDensityBasisNamesUC, cAlphaArgs(11))); // NOLINT(modernize-use-auto)
                 }
 
                 // Report variables should be added for individual VENTILATION objects, in addition to zone totals below
